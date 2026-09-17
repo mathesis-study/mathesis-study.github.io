@@ -224,6 +224,12 @@ main {
   margin: 0 0 .5rem;
 }
 
+/* Een kaart kan meerdere domeinen dragen, zoals discrete wiskunde,
+ * kansrekening en statistiek; elk volgend domein krijgt wat lucht. */
+.domein ul + h3 {
+  margin-top: 1.1rem;
+}
+
 .hoofdstukken {
   list-style: none;
   margin: 0;
