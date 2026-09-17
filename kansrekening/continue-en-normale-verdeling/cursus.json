@@ -1,11 +1,11 @@
 {
  "titel": "Continue kansvariabelen en de normale verdeling",
- "hoofdstuk": 8,
- "code": "S08",
+ "hoofdstuk": 5,
+ "code": "K05",
  "vak": "Wiskunde",
- "domein": "KansrekeningEnStatistiek",
- "domeinnaam": "Kansrekening en statistiek",
- "url": "kansrekening-en-statistiek/continue-en-normale-verdeling",
+ "domein": "Kansrekening",
+ "domeinnaam": "Kansrekening",
+ "url": "kansrekening/continue-en-normale-verdeling",
  "secties": [
   "Continue kansvariabelen",
   "De normale verdeling",

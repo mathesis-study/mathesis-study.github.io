@@ -1,11 +1,11 @@
 {
  "titel": "Binomiale verdeling",
- "hoofdstuk": 7,
- "code": "S07",
+ "hoofdstuk": 4,
+ "code": "K04",
  "vak": "Wiskunde",
- "domein": "KansrekeningEnStatistiek",
- "domeinnaam": "Kansrekening en statistiek",
- "url": "kansrekening-en-statistiek/binomiale-verdeling",
+ "domein": "Kansrekening",
+ "domeinnaam": "Kansrekening",
+ "url": "kansrekening/binomiale-verdeling",
  "secties": [
   "Binomiale verdeling",
   "Verdeling van Poisson"

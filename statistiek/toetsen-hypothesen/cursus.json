@@ -1,11 +1,11 @@
 {
  "titel": "Toetsen van hypothesen",
- "hoofdstuk": 10,
- "code": "S10",
+ "hoofdstuk": 2,
+ "code": "S02",
  "vak": "Wiskunde",
- "domein": "KansrekeningEnStatistiek",
- "domeinnaam": "Kansrekening en statistiek",
- "url": "kansrekening-en-statistiek/toetsen-hypothesen",
+ "domein": "Statistiek",
+ "domeinnaam": "Statistiek",
+ "url": "statistiek/toetsen-hypothesen",
  "secties": [
   "Toetsen van hypothesen",
   "P-waarde"

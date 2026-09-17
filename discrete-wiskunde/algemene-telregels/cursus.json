@@ -1,11 +1,11 @@
 {
- "titel": "Discrete wiskunde: Algemene telregels",
+ "titel": "Algemene telregels",
  "hoofdstuk": 1,
- "code": "S01",
+ "code": "D01",
  "vak": "Wiskunde",
- "domein": "KansrekeningEnStatistiek",
- "domeinnaam": "Kansrekening en statistiek",
- "url": "kansrekening-en-statistiek/algemene-telregels",
+ "domein": "DiscreteWiskunde",
+ "domeinnaam": "Discrete wiskunde",
+ "url": "discrete-wiskunde/algemene-telregels",
  "secties": [
   "Tellen van de elementen in een verzameling",
   "Somregel",

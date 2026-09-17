@@ -1,11 +1,11 @@
 {
- "titel": "Discrete wiskunde: Telformules",
+ "titel": "Telformules",
  "hoofdstuk": 2,
- "code": "S02",
+ "code": "D02",
  "vak": "Wiskunde",
- "domein": "KansrekeningEnStatistiek",
- "domeinnaam": "Kansrekening en statistiek",
- "url": "kansrekening-en-statistiek/telformules",
+ "domein": "DiscreteWiskunde",
+ "domeinnaam": "Discrete wiskunde",
+ "url": "discrete-wiskunde/telformules",
  "secties": [
   "Inleidende opmerking",
   "Keuzes zonder herhaling",

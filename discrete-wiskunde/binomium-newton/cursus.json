@@ -1,11 +1,11 @@
 {
- "titel": "Discrete wiskunde: Binomium van Newton",
+ "titel": "Binomium van Newton",
  "hoofdstuk": 3,
- "code": "S03",
+ "code": "D03",
  "vak": "Wiskunde",
- "domein": "KansrekeningEnStatistiek",
- "domeinnaam": "Kansrekening en statistiek",
- "url": "kansrekening-en-statistiek/binomium-newton",
+ "domein": "DiscreteWiskunde",
+ "domeinnaam": "Discrete wiskunde",
+ "url": "discrete-wiskunde/binomium-newton",
  "secties": [
   "Inleidende opmerking",
   "Binomium van Newton",

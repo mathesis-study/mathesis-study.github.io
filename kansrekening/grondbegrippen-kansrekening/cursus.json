@@ -1,11 +1,11 @@
 {
  "titel": "Grondbegrippen van de kansrekening",
- "hoofdstuk": 4,
- "code": "S04",
+ "hoofdstuk": 1,
+ "code": "K01",
  "vak": "Wiskunde",
- "domein": "KansrekeningEnStatistiek",
- "domeinnaam": "Kansrekening en statistiek",
- "url": "kansrekening-en-statistiek/grondbegrippen-kansrekening",
+ "domein": "Kansrekening",
+ "domeinnaam": "Kansrekening",
+ "url": "kansrekening/grondbegrippen-kansrekening",
  "secties": [
   "Kansexperiment",
   "Uitkomst",

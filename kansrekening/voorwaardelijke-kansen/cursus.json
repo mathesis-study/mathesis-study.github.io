@@ -1,11 +1,11 @@
 {
  "titel": "Voorwaardelijke kansen",
- "hoofdstuk": 5,
- "code": "S05",
+ "hoofdstuk": 2,
+ "code": "K02",
  "vak": "Wiskunde",
- "domein": "KansrekeningEnStatistiek",
- "domeinnaam": "Kansrekening en statistiek",
- "url": "kansrekening-en-statistiek/voorwaardelijke-kansen",
+ "domein": "Kansrekening",
+ "domeinnaam": "Kansrekening",
+ "url": "kansrekening/voorwaardelijke-kansen",
  "secties": [
   "Inleidend voorbeeld",
   "Definitie",

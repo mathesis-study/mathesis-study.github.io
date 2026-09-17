@@ -1,11 +1,11 @@
 {
  "titel": "Discrete kansvariabelen",
- "hoofdstuk": 6,
- "code": "S06",
+ "hoofdstuk": 3,
+ "code": "K03",
  "vak": "Wiskunde",
- "domein": "KansrekeningEnStatistiek",
- "domeinnaam": "Kansrekening en statistiek",
- "url": "kansrekening-en-statistiek/discrete-kansvariabelen",
+ "domein": "Kansrekening",
+ "domeinnaam": "Kansrekening",
+ "url": "kansrekening/discrete-kansvariabelen",
  "secties": [
   "Kansvariabele",
   "Kansdichtheidsfunctie van een discrete kansvariabele",
