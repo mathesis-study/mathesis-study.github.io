@@ -1,0 +1,20 @@
+{
+ "titel": "Binomiale verdeling",
+ "hoofdstuk": 7,
+ "code": "S07",
+ "vak": "Wiskunde",
+ "domein": "KansrekeningEnStatistiek",
+ "domeinnaam": "Kansrekening en statistiek",
+ "url": "kansrekening-en-statistiek/binomiale-verdeling",
+ "secties": [
+  "Binomiale verdeling",
+  "Verdeling van Poisson"
+ ],
+ "leerplandoelen": [
+  "BV3_06.21",
+  "WD3_06.08.35"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

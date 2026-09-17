@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Binomiale verdeling</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 7</p> <h1>Binomiale verdeling</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                            µ = np
+                                                 X ∼ B(12, 0.3)
+                                                        P o(3.6)
+
+
+
+P (X = k)
+
+
+
+
+            0   1   2   3     4      5   6   7      8      9       10   11   12
+                                         k
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>BV3_06.21</b> (MD 06.21) De leerlingen gebruiken ICT om berekeningen uit te voeren en <span class="leerplan-grijs">grafische voorstellingen te maken</span>.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.35</b> (MD 06.08.35) De leerlingen berekenen en interpreteren kansen met behulp van de binomiale verdeling.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: verwachtingswaarde, standaardafwijking
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> binomiale experimenten, kansfunctie en verdelingsfunctie, verwachtingswaarde, variantie en standaardafwijking, toepassingen van de binomiale verdeling
+</p>
+
+<p>
+<b>Extra uitleg:</b> verdeling van Poisson, Poissonverdeling als benadering voor de binomiale verdeling
+</p>
+
+</div>
+<!--
+...... section Binomiale verdeling ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Binomiale verdeling</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Veel experimenten hebben <b>juist twee mogelijke uitkomsten</b>. We spreken in dit geval van een <b>binomiaal experiment</b>. De twee mogelijke uitkomsten noemen we
+<b>succes</b> en <b>mislukking</b>.
+</p>
+<p>
+Enkele voorbeelden van binomiaal verdeelde experimenten:
+</p>
+<div class="center">
+<table>
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Experiment</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Succes</td>
+<td class="tdc">Mislukking</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Muntstuk opgooien</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Kop</td>
+<td class="tdc">Munt</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Strafschop nemen</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Goal</td>
+<td class="tdc">Gemist</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Stemmen op een referendum</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Voor</td>
+<td class="tdc">Tegen</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Meerkeuzevragen beantwoorden</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Juist</td>
+<td class="tdc">Fout</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Medische test uitvoeren</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Positief</td>
+<td class="tdc">Negatief</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Schaken met een vriend</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Je wint</td>
+<td class="tdc">Je verliest</td>
+</tr>
+
+</table>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De kans op succes hoeft <b>niet noodzakelijk</b> gelijk te zijn aan de kans op mislukking.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> Kans op <i>succes</i> \(=p\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Kans op <i>mislukking</i> \(=q\)
+</p>
+</li>
+</ul>
+<p>
+Wat is dan het verband tussen \(p\) en \(q\)? <span class="opl opl-vast" style="min-width:5cm">\(p+q=1\)</span>
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Vaak worden de experimenten <b>herhaald</b>, steeds onder dezelfde omstandigheden.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> 10 keer een muntstuk opgooien
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> 5 strafschoppen nemen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> 20 meerkeuzevragen beantwoorden
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> ...
+</p>
+</li>
+</ul>
+<p>
+Het <i>aantal herhalingen</i> \(=n\).
+</p>
+</li>
+</ul>
+
+<p>
+We maken drie kernvoorwaarden expliciet:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Het aantal herhalingen is vast: \(n\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> De herhalingen zijn <em>onafhankelijk</em>: de uitkomst van de ene proef beı&#x0308;nvloedt de kansverdeling van de volgende niet.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> De kans op succes blijft constant: \(P(\text {succes})=p\) bij elke herhaling.
+</p>
+</li>
+</ul>
+
+<p>
+Onder deze voorwaarden spreken we van een <b>binomiaal experiment</b>.
+</p>
+
+<p>
+Dergelijke experimenten komen we overal tegen waar het gaat om trekkingen met terugleggen. Er zijn toepassingen te vinden in opiniepeilingen, in marktonderzoek, industrie&#x0308;le kwaliteitscontrole, psychometrie,
+geneeskunde, sociale wetenschappen ...
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> <i>Uit een vaas met vier groene en zes blauwe knikkers trekken we vijf knikkers met terugleggen. Op deze manier wordt het experiment ‘Trekken van een knikker’ steeds onder dezelfde
+omstandigheden uitgevoerd. We beschouwen het trekken van een groene knikker als ‘succes’.</i><br />
+
+</p>
+<p>
+Succes \(=\opl [5cm]{\text {groen}} \Rightarrow p=\opl [5cm]{\dfrac {4}{10}}\)<br />
+
+</p>
+<p>
+Mislukking \(=\opl [5cm]{\text {blauw}} \Rightarrow q=\opl [5cm]{\frac {6}{10}}\)<br />
+
+</p>
+<p>
+Aantal herhalingen \(n=\opl [5cm]{5}\)<br />
+
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> <i>Tien maal een zuivere dobbelsteen opgooien. We beschouwen het gooien van zes ogen als ’succes’.</i><br />
+
+</p>
+<p>
+Succes \(=\opl [5cm]{\text {zes}} \Rightarrow p=\opl [5cm]{\frac {1}{6}}\)<br />
+
+</p>
+<p>
+Mislukking \(=\opl [5cm]{\text {niet zes}} \Rightarrow q=\opl [5cm]{\frac {5}{6}}\)<br />
+
+</p>
+<p>
+Aantal herhalingen \(n=\opl [5cm]{10}\)<br />
+
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> <i>Zeven maal een kaart trekken uit een spel van 52 kaarten (met terugleggen). We beschouwen het trekken van een aas als ’succes’.</i><br />
+
+</p>
+<p>
+Succes \(=\opl [5cm]{\text {aas}} \Rightarrow p=\opl [5cm]{\frac {4}{52}}\)<br />
+
+</p>
+<p>
+Mislukking \(=\opl [5cm]{\text {geen aas}} \Rightarrow q=\opl [5cm]{\frac {48}{52}}\)<br />
+
+</p>
+<p>
+Aantal herhalingen \(n=\opl [5cm]{7}\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Uitkomstenverzameling en kansvariabele ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">3&#x2003;</span>Uitkomstenverzameling en kansvariabele</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+Stel dat we \(n\) maal een experiment uitvoeren onder dezelfde omstandigheden. Dan zal een uitkomst bestaan uit \(n\) letters, te kiezen uit de letters m voor mislukking en s voor succes. Een mogelijke uitkomst voor een
+experiment dat 5 keer herhaald wordt is dan bv. \((s,s,m,m,s)\) of \((s,s,s,m,s)\) &#x2026;<br />
+
+</p>
+
+<p>
+Als mogelijke waarden voor de kansvariabele \(X\) kiezen we het aantal successen in een uitkomst. Zo vinden we met bovenstaande voorbeelden:
+</p>
+
+<p>
+\[ (s,s,m,m,s)\rightarrow \opl [2cm]{3} \qquad (s,s,s,m,s)\rightarrow \opl [5cm]{4} \]
+</p>
+<!--
+...... subsection Kansdichtheidsfunctie en verdelingsfunctie van het aantal successen ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">4&#x2003;</span>Kansdichtheidsfunctie \(f\) en verdelingsfunctie \(F\) van het aantal successen</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+In het voorbeeld met de groene knikkers vinden we de waarden \(0,1,\ldots ,5\) voor de kansvariabele \(X\). We berekenen nu achtereenvolgens de bijhorende kansen.<br />
+
+</p>
+
+<p>
+\[ P(X=0)=f(0)=\opl {\binom {5}{0}\left (\frac {4}{10}\right )^0\left (\frac {6}{10}\right )^5=0.0778} \]
+</p>
+
+<p>
+\[ P(X=1)=f(1)=\opl {\binom {5}{1}\left (\frac {4}{10}\right )^1\left (\frac {6}{10}\right )^4=0.2592} \]
+</p>
+
+<p>
+\[ P(X=2)=f(2)=\opl {\binom {5}{2}\left (\frac {4}{10}\right )^2\left (\frac {6}{10}\right )^3=0.3456} \]
+</p>
+
+<p>
+\[ P(X=3)=f(3)=\opl {\binom {5}{3}\left (\frac {4}{10}\right )^3\left (\frac {6}{10}\right )^2=0.2304} \]
+</p>
+
+<p>
+\[ P(X=4)=f(4)=\opl {\binom {5}{4}\left (\frac {4}{10}\right )^4\left (\frac {6}{10}\right )^1=0.0768} \]
+</p>
+
+<p>
+\[ P(X=5)=f(5)=\opl {\binom {5}{5}\left (\frac {4}{10}\right )^5\left (\frac {6}{10}\right )^0=0.0102} \]
+</p>
+
+<p>
+Algemeen vinden we voor de kans op \(k\) successen: (<i>binompdf</i> op grafisch rekentoestel)<br />
+
+</p>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ \text {kans op } k \text { successen}=f(k)=C_n^k \cdot p^k \cdot q^{n-k} \qquad \text { met } \qquad k \in \{0,1,2,3,\ldots ,n\} \]
+</p>
+
+</div>
+
+<p>
+Voor de verdelingsfunctie wordt dit dan: (<i>binomcdf</i> op grafisch rekentoestel)<br />
+
+</p>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ \text {kans op hoogstens }k\text { successen}=F(k)=\sum _{i=0}^{k}f(i)=\sum _{i=0}^{k}C_n^i \cdot p^i \cdot q^{n-i} \]
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-13"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+We hernemen het voorbeeld met de groene en blauwe knikkers. De kans- en verdelingsfunctie zullen we met het grafisch rekentoestel berekenen.
+</p>
+
+<div class="oplossing">
+
+<p>
+<kbd>{0,1,2,3,4,5} \(\rightarrow \) L1</kbd><br />
+<kbd>binompdf(5,0.4,L1) \(\rightarrow \) L2</kbd> &#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>dist</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:110pt ; text-align:center ; "
+><kbd>A:binompdf</kbd></span></span><br />
+<kbd>binomcdf(5,0.4,L1) \(\rightarrow \) L3</kbd> &#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>dist</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:110pt ; text-align:center ; "
+><kbd>B:binomcdf</kbd></span></span>
+</p>
+</div>
+
+<p>
+\[ n=\opl [3cm]{5} \qquad p=\opl [3cm]{0.4} \qquad q=\opl [5cm]{0.6} \]
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(\overbrace {k}^{\opl [1cm]{\texttt {L1}}}\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(\overbrace {f(k)}^{\opl [1cm]{\texttt {L2}}}\)</td>
+<td class="tdc">\(\overbrace {F(k)}^{\opl [1cm]{\texttt {L3}}}\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">0</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\opl [5cm]{0.0778}\)</td>
+<td class="tdc">\(\opl [5cm]{0.0778}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">1</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\opl [5cm]{0.2592}\)</td>
+<td class="tdc">\(\opl [5cm]{0.3370}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\opl [5cm]{0.3456}\)</td>
+<td class="tdc">\(\opl [5cm]{0.6826}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">3</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\opl [5cm]{0.2304}\)</td>
+<td class="tdc">\(\opl [5cm]{0.9130}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">4</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\opl [5cm]{0.0768}\)</td>
+<td class="tdc">\(\opl [5cm]{0.9898}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">5</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\opl [5cm]{0.0102}\)</td>
+<td class="tdc">\(\opl [5cm]{1.0000}\)</td>
+</tr>
+
+</table>
+
+</div>
+<!--
+...... subsection Verwachtingswaarde, variantie en standaardafwijking ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">5&#x2003;</span>Verwachtingswaarde, variantie en standaardafwijking</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+Hiervoor vinden we (zonder bewijs):<br />
+
+</p>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ E(X)=\mu =n \cdot p \qquad var(X)=\sigma ^2=n \cdot p \cdot q \qquad \sigma =\sqrt {n \cdot p \cdot q} \]
+</p>
+
+</div>
+
+<p>
+Dit levert ons voor het voorbeeld met de groene en blauwe knikkers:
+</p>
+
+<p>
+\[ E(X)=\mu =n \cdot p=\opl [3cm]{5 \cdot 0.4=2} \qquad \sigma =\sqrt {n \cdot p \cdot q}=\opl [3cm]{\sqrt {5 \cdot 0.4 \cdot 0.6}\approx 1.10} \]
+</p>
+
+<p>
+Omdat een kansvariabele \(X\) en haar kenmerken volledig bepaald zijn door de parameters \(n\) en \(p\), noteren we dit kort
+</p>
+
+<p>
+\[ X\sim B(n,p) \]
+</p>
+<!--
+...... subsection Uitgewerkte voorbeelden ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">6&#x2003;</span>Uitgewerkte voorbeelden</h5>
+<a id="mkpiweb-autopage-17"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-18"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+<i>We gooien 20 maal een zuiver muntstuk op en nemen de uitslag ’kop’ als succes.</i><br />
+
+</p>
+
+<p>
+\(X\) is verdeeld volgens \(B(n,p)=\opl [5cm]{B(20,0.5)}\)
+</p>
+
+<p>
+\[ E(X)=\mu =n \cdot p=\opl [3cm]{20 \cdot 0.5=10} \qquad \sigma =\sqrt {n \cdot p \cdot q}=\opl [3cm]{\sqrt {20 \cdot 0.5 \cdot 0.5}\approx 2.24} \]
+</p>
+
+<p>
+<i>Bereken nu de kans dat ten minste negen maal en ten hoogste elf maal kop gegooid wordt.</i><br />
+
+</p>
+
+<div class="oplossing">
+
+<p>
+\(X\) is het aantal keren ’kop’, dus \(X \sim B(20,0.5)\).<br />
+Gezocht: \(\opl [4cm]{P(9 \leq X \leq 11)}\).<br />
+We tellen de drie afzonderlijke kansen op:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                   P (9 ≤ X ≤ 11) = P (X = 9) + P (X = 10) + P (X = 11)
+                                                                                                                        
+                                                                                      20      9     11   20       10    10  20
+                                                                                  =      (0.5) (0.5) +       (0.5) (0.5) +     (0.5)11 (0.5)9
+                                                                                       9                 10                 11
+                                                                                 = binompdf(20,0.5,9) + binompdf(20,0.5,10) + binompdf(20,0.5,11)
+                                                                                 ≈ 0.1602 + 0.1762 + 0.1602
+                                                                                 ≈ 0.4966
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(9 \leq X \leq 11) &amp;= P(X=9)+P(X=10)+P(X=11) \\ &amp;= \binom {20}{9}(0.5)^9(0.5)^{11} + \binom {20}{10}(0.5)^{10}(0.5)^{10} + \binom {20}{11}(0.5)^{11}(0.5)^9 \\ &amp;= \texttt
+{binompdf(20,0.5,9)} + \texttt {binompdf(20,0.5,10)} + \texttt {binompdf(20,0.5,11)} \\ &amp;\approx 0.1602 + 0.1762 + 0.1602 \\ &amp;\approx 0.4966
+\end{align*}
+Of alternatief, met de complementregel voor de verdelingsfunctie:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                               P (9 ≤ X ≤ 11) = P (X ≤ 11) − P (X ≤ 8)
+                                                                                              = binomcdf(20,0.5,11) − binomcdf(20,0.5,8)
+                                                                                              ≈ 0.7483 − 0.2517
+                                                                                              ≈ 0.4966
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(9 \leq X \leq 11) &amp;= P(X \leq 11)-P(X \leq 8) \\ &amp;= \texttt {binomcdf(20,0.5,11)}-\texttt {binomcdf(20,0.5,8)} \\ &amp;\approx 0.7483-0.2517 \\ &amp;\approx 0.4966
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-19"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+<i>Firma A vervaardigt in opdracht van firma B onderdelen voor een precisietoestel. In firma A is de productie zo georganiseerd, dat slechts 2&percnt; van de afgewerkte stukken niet aan alle eisen voldoet, m.a.w. defect is.<br />
+Er is afgesproken dat de levering in partijen van 50 stuks gebeurt.<br />
+We voeren nu de kansvariabele \(X\) in, die als getalwaarde het aantal defecte stukken in een partij van 50 heeft.</i><br />
+
+</p>
+
+<p>
+\(X\) is verdeeld volgens \(B(n,p)=\opl [5cm]{B(50, 0.02)}\)
+</p>
+
+<p>
+\[ E(X)= \mu = n \cdot p =\opl [3cm]{1} \qquad \sigma =\sqrt {n \cdot p \cdot q}=\opl [3cm]{0.99} \]
+</p>
+
+<p>
+<i>In het contract heeft firma B bedongen dat firma A een schadevergoeding betaalt voor elke partij van 50 stuks waarin het aantal defecte stukken meer dan twee standaardafwijkingen groter is dan het verwachte aantal defecte
+stukken.<br />
+Stel dat vandaag een partij wordt geleverd. Wat is de kans dat firma A een schadevergoeding moet betalen aan firma B?</i><br />
+
+</p>
+
+<div class="oplossing">
+
+<p>
+\(X \sim B(50, 0.02)\) met \(\mu = 50 \cdot 0.02 = 1\) en \(\sigma = \sqrt {50 \cdot 0.02 \cdot 0.98} \approx 0.9899\).<br />
+Er is een schadevergoeding als \(X &gt; \mu + 2\sigma = 1 + 2 \cdot 0.9899 = 2.9798\).<br />
+Omdat \(X\) discreet is, betekent dit \(X \ge 3\).<br />
+
+</p>
+
+<p>
+\[ P(X \ge 3) = 1 - P(X \le 2) = 1 - \texttt {binomcdf(50, 0.02, 2)} \approx 1 - 0.9216 = 0.0784 \]
+</p>
+
+</div>
+<!--
+...... subsection Oefeningen Handboek ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">7&#x2003;</span>Oefeningen Handboek</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+Zie handboek <i>Van Basis tot Limiet, Statistiek</i>: nrs. 2, 3, 5, 8, 11, 14 en 20 p. 134 en volgende.
+</p>
+<!--
+...... subsection Extra Oefeningen ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">8&#x2003;</span>Extra Oefeningen</h5>
+<a id="mkpiweb-autopage-21"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-22">Oefening 1</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+We trekken lukraak en met terugleggen 5 kaarten uit een spel van 52 kaarten. Bereken de kans op
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> twee schoppen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> tenminste twee schoppen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> ten hoogste twee schoppen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Geef ook de verwachtingswaarde en de variantie van het aantal schoppen in deze vijf trekkingen
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<p>
+<b>Vijf keer trekken <em>met terugleggen</em></b>
+</p>
+
+<p>
+Voor elke trekking is de kans op <em>schoppen</em>
+</p>
+
+<p>
+\[ p=\frac {13}{52}= \frac 14,\qquad q=1-p=\frac 34 .          \]
+</p>
+
+<p>
+Omdat er \(n=5\) onafhankelijke trekkingen zijn geldt
+</p>
+
+<p>
+\[ X\sim \operatorname {Bin}\!\bigl (n=5,\;p=\tfrac 14\bigr ), \qquad P(X=k)=\binom {5}{k}\,p^{k}\,q^{5-k}\quad (k=0,\dots ,5).      \]
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> <b>Exact twee schoppen</b>
+</p>
+<p>
+\[ \boxed {P(X=2)} = \binom 52 \left (\frac 14\right )^2 \left (\frac 34\right )^3 =10\cdot \frac {1}{16}\cdot \frac {27}{64} =\frac {270}{1024} \approx 0.26367 .   \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> <b>Tenminste twee schoppen</b>
+</p>
+<p>
+\[ \begin {aligned} P(X\ge 2) &amp;=1-P(X=0)-P(X=1)\\ &amp;=1-\Bigl (\tfrac 34\Bigr )^5-\binom 51\Bigl (\tfrac 14\Bigr )\Bigl (\tfrac 34\Bigr )^4\\ &amp;=1-\frac {243}{1024}-\frac {5\cdot
+81}{1024} =\frac {376}{1024} \approx 0.36719 . \end {aligned} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> <b>Ten hoogste twee schoppen</b>
+</p>
+<p>
+\[ P(X\le 2)=P(X=0)+P(X=1)+P(X=2) =\frac {243+405+270}{1024} =\frac {918}{1024} \approx 0.89648 .               \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> <b>Verwachtingswaarde, variantie en standaardafwijking</b>
+</p>
+<p>
+Voor een binomiale verdeling:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                          5
+                                                                                              E[X] = np =   = 1.25
+                                                                                                          4
+                                                                                                              1 3     15
+                                                                                            Var(X) = npq = 5 · · =       = 0.9375
+                                                                                                              4 4     16
+                                                                                                                 √
+                                                                                                     p             15
+                                                                                                 σ = Var(X) =         ≈ 0.9683
+                                                                                                                   4
+
+-->
+
+<p>
+
+\begin{align*}
+E[X]&amp;=np=\frac {5}{4}=1.25\\ \operatorname {Var}(X)&amp;=npq=5\cdot \frac 14\cdot \frac 34=\frac {15}{16}=0.9375\\ \sigma &amp;=\sqrt {\operatorname {Var}(X)}=\frac {\sqrt {15}}{4}\approx
+0.9683
+\end{align*}
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-23">Oefening 2</h5>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+Door een verkeerde regeling van de machines bij de fabricage zijn 10&percnt; van de afgewerkte stukken defect. We kiezen lukraak tien stukken. Bereken de kans dat er ten hoogste drie defecte stukken bij zijn.
+</p>
+
+<div class="oplossing">
+
+<p>
+Laat \(X\) het aantal defecte stukken zijn bij een steekproef van \(n=10\) stuks. Voor elk stuk is
+</p>
+
+<p>
+\[ p=P(\text {defect}) = 0.10, \qquad q=1-p = 0.90, \]
+</p>
+
+<p>
+en de variabele \(X\) is binomiaal verdeeld:
+</p>
+
+<p>
+\[ X \sim \operatorname {Bin}\!\bigl (n=10,\;p=0.10\bigr ).             \]
+</p>
+
+<p>
+<b>Gevraagd:</b> \(\displaystyle P\bigl (X \le 3\bigr )\).
+</p>
+
+<p>
+\[ \begin {aligned} P(X\le 3) &amp;=\sum _{k=0}^{3}\binom {10}{k}\,p^{k}\,q^{\,10-k}\\ &amp;=\binom {10}{0}q^{10} +\binom {10}{1}p\,q^{9} +\binom {10}{2}p^{2}q^{8} +\binom {10}{3}p^{3}q^{7}\\
+&amp;=0.9^{10} +10(0.1)(0.9)^{9} +45(0.1)^{2}(0.9)^{8} +120(0.1)^{3}(0.9)^{7}\\ &amp;=0.34867844 +0.38742049 +0.19371024 +0.05739563\\ &amp;\approx \boxed {0.9872}. \end {aligned} \]
+</p>
+
+<p>
+<b>Tip:</b> Maak ook eens gebruik van <kbd>binomcdf</kbd> op je <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span>.
+</p>
+</div>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-24">Oefening 3</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+In 30&percnt; van de gevallen leidt het in contact komen met een zekere ziekteverwekkende bacil tot infectie. Een groep van 12 lukraak gekozen personen komt met deze bacillen in contact. Bereken de kans dat er ten minste drie
+ziektegevallen zijn.
+</p>
+
+<div class="oplossing">
+
+<p>
+Laat \(X\) het aantal infecties zijn in een groep van \(n=12\) personen. Voor elke persoon is
+</p>
+
+<p>
+\[ p = P(\text {infectie}) = 0.30, \qquad q = 1-p = 0.70 , \]
+</p>
+
+<p>
+dus
+</p>
+
+<p>
+\[ X \sim \operatorname {Bin}\!\bigl (n=12,\;p=0.30\bigr ).             \]
+</p>
+
+<p>
+Gezocht is de kans op \(X \ge 3\).
+</p>
+
+<p>
+\[ \begin {aligned} P(X \ge 3) &amp;= 1 - P(X \le 2) \\ &amp;= 1 - \sum _{k=0}^{2} \binom {12}{k}\, p^{k}\, q^{\,12-k} \\ &amp;= 1 - \Bigl [ \binom {12}{0} q^{12} + \binom {12}{1} p\, q^{11} +
+\binom {12}{2} p^{2} q^{10} \Bigr ] \\ &amp;= 1 - \Bigl [ (0.7)^{12} + 12(0.3)(0.7)^{11} + 66(0.3)^{2}(0.7)^{10} \Bigr ] \\ &amp;= 1 - \bigl [ 0.01384 + 0.07118 + 0.16779 \bigr ] \\
+&amp;\approx 0.7472. \end {aligned} \]
+</p>
+
+<p>
+Of door gebruik te maken van het <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span>:
+</p>
+
+<p>
+\[ \begin {aligned} P(X \ge 3) &amp;= 1 - P(X \le 2) \\ &amp;= 1 - \texttt {binomcdf(12,0.30,2)}\\ &amp;= 1 - 0.2528153479\\ &amp;\approx 0.7472.                          \end {aligned} \]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-25">Oefening 4</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+Een generator levert drijfkracht voor tien identieke machines. Elke machine is tijdens een werkdag slechts gedurende de helft van de tijd ingeschakeld en deze inschakelingstijd is gelijkmatig over de werkdag verspreid. De generator
+kan ten hoogste zeven machines tegelijk aandrijven. Bereken de kans dat de generator in de loop van een werkdag overbelast wordt.
+</p>
+
+<div class="oplossing">
+
+<p>
+Elke machine is tijdens een willekeurig gekozen tijdstip <em>aan</em> met kans
+</p>
+
+<p>
+\[ p=\tfrac 12, \qquad q=1-p=\tfrac 12 .         \]
+</p>
+
+<p>
+Beschouw het aantal ingeschakelde machines \(X\) op zo’n willekeurig ogenblik. Omdat er \(n=10\) identieke, onafhankelijk werkende machines zijn,
+</p>
+
+<p>
+\[ X\sim \operatorname {Bin}(n=10,p=\tfrac 12).           \]
+</p>
+
+<p>
+De generator kan \(\le 7\) machines tegelijk aandrijven. Hij is dus <em>overbelast</em> zodra \(X\ge 8\).
+</p>
+
+<p>
+\[ \begin {aligned} P(\text {overbelasting}) &amp;= P(X\ge 8)\\ &amp;= \binom {10}{8}\Bigl (\tfrac 12\Bigr )^{10} +\binom {10}{9}\Bigl (\tfrac 12\Bigr )^{10} +\binom {10}{10}\Bigl (\tfrac
+12\Bigr )^{10}\\ &amp;= \frac {45+10+1}{2^{10}}\\ &amp;= \frac {56}{1024}\\ &amp;= \frac {7}{128}\\ &amp;\approx 0.0547 \end {aligned} \]
+</p>
+
+<p>
+\[ \boxed {P(\text {overbelasting}) \approx 5.47\%} \]
+</p>
+
+<p>
+<em>Opmerking:</em> In bovenstaande berekening kunnen we ook gebruik maken van het complement
+</p>
+
+<p>
+\[ P(X \ge 8) = 1 - P(X \leq 7) \]
+</p>
+
+<p>
+en dan uitrekenen met het <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span>.
+</p>
+
+<p>
+<em>Interpretatie:</em> Op een willekeurig moment binnen de werkdag is de kans dat er meer dan zeven machines gelijktijdig zijn ingeschakeld circa 5.5 &percnt;.
+</p>
+</div>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-26">Oefening 5</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+Bij de luchthaven zijn vier firma’s gevestigd die personenwagens verhuren. We nemen aan dat de reizigers lukraak één van deze firma’s kiezen. Op een dag arriveren er 25 reizigers die een wagen wensen te huren. Bereken de kans
+dat ten minste vijf ervan zich tot firma A wenden.
+</p>
+
+<div class="oplossing">
+
+<p>
+Laat
+</p>
+
+<p>
+\[ X = \text {aantal reizigers (van de 25) die firma A kiezen}.                 \]
+</p>
+
+<p>
+Omdat iedere reiziger onafhankelijk precies één van de vier firma’s kiest, is
+</p>
+
+<p>
+\[ p = P(\text {firma A}) = \frac 14, \qquad q = 1-p = \frac 34, \qquad n = 25, \qquad X \sim \operatorname {Bin}\!\bigl (n=25,\;p=\tfrac 14\bigr ).                            \]
+</p>
+
+<p>
+<b>Gevraagd:</b> de kans op minstens vijf klanten voor firma A.
+</p>
+
+<p>
+\[ P(X \ge 5) = 1 - P(X \le 4).         \]
+</p>
+
+<p>
+\[ \begin {aligned} P(X \le 4) &amp;= \sum _{k=0}^{4} \binom {25}{k}\,p^{k}\,q^{\,25-k}\\ &amp;= \binom {25}{0}(0.75)^{25} + \binom {25}{1}(0.25)(0.75)^{24}\\ &amp;\quad + \binom
+{25}{2}(0.25)^{2}(0.75)^{23} + \binom {25}{3}(0.25)^{3}(0.75)^{22}\\ &amp;\quad + \binom {25}{4}(0.25)^{4}(0.75)^{21}\\ &amp;\approx 0.00075 + 0.00627 + 0.02508 + 0.06411 + 0.11753\\
+&amp;\approx 0.21374 . \end {aligned} \]
+</p>
+
+<p>
+\[ \begin {aligned} \boxed {P(X \ge 5)} &amp;= 1 - 0.21374\\ &amp;\approx 0.78626 .                \end {aligned} \]
+</p>
+
+<p>
+Er is dus ongeveer \(78.6\,\%\) kans dat minstens 5 van de 25 reizigers zich tot firma A wenden.
+</p>
+</div>
+<!--
+...... section Verdeling van Poisson ......
+-->
+<h4 id="autosec-27"><span class="sectionnumber">II&#x2003;</span>Verdeling van Poisson</h4>
+<a id="mkpiweb-autopage-27"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-28"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+Omdat de berekeningen die nodig zijn om de kans- en verdelingsfuncties van een binomiale verdeling te bepalen in het verleden vaak veel tijd in beslag namen (en nu nog steeds veel geheugenruimte vergen van grafische
+rekentoestellen en computers), ging men op zoek naar een makkelijker te berekenen benadering. In 1837 toonde de Franse wiskundige Simeon-Denis Poisson aan dat de kans op \(k\) successen bij een binomiale verdeling in bepaalde
+gevallen (indien \(p \rightarrow 0\) en \(n \rightarrow +\infty \), terwijl \(\mu = n \cdot p\) constant blijft) kan benaderd worden door<br />
+
+</p>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ P(X=k)=f(k)=e^{-\mu } \cdot \frac {\mu ^{k}}{k!} \qquad \mbox { met } \qquad \mu =E(X)=n \cdot p \in \mathbb {R}_0^+ \mbox { en } k \in \mathbb {N} \]
+</p>
+
+</div>
+
+<p>
+We noemen dit de <b>verdeling van Poisson</b> en noteren dit met \(X \sim Po(\mu )\).<br />
+
+</p>
+
+<p>
+Een veel voorkomend advies is de Poissonverdeling als benadering voor de binomiale te gebruiken indien
+</p>
+
+<p>
+\[ p \leq 0.1 \wedge n \cdot p \leq 10 \]
+</p>
+
+<p>
+Dus als \(p\) niet groter is dan een tiende en als het product \(n \cdot p\) niet groter is dan 10.
+</p>
+<!--
+...... subsection Kenmerken ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">2&#x2003;</span>Kenmerken</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<div class="center">
+<p>
+\(E(X)=\mu \hspace {1cm} var(X)=\mu \hspace {1cm} \sigma =\sqrt {\mu }\)
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Gebruik van de Poissonverdeling ......
+-->
+<h5 id="autosec-31"><span class="sectionnumber">3&#x2003;</span>Gebruik van de Poissonverdeling</h5>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+Enkele typische voorbeelden waarbij de Poissonverdeling gebruikt wordt:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Aantal ongevallen per dag op de ring rond Kortrijk
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Aantal constructiefouten per dag van een zeker type wagen in de autofabricage
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Aantal radio-actieve deeltjes die in een bepaald tijdsverloop een gegeven deel van de ruimte bereiken
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Aantal chromosoomwisselingen per cel onder invloed van radio-actieve straling
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Aantal verkeerde verbindingen per oproepnummer in een telefoonnet
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Aantal schadelijke onkruidzaadjes in een constante hoeveelheid graszaad
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Aantal patie&#x0308;nten met neveneffecten bij een bepaald geneesmiddel
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> &#x2026;
+</p>
+</li>
+</ul>
+<!--
+...... subsection Uitgewerkte voorbeelden ......
+-->
+<h5 id="autosec-32"><span class="sectionnumber">4&#x2003;</span>Uitgewerkte voorbeelden</h5>
+<a id="mkpiweb-autopage-32"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-33"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+<i>Het aantal werkongevallen in een groot bedrijf tijdens een normale werkweek is verdeeld volgens \(Po(1.2)\). Wat is de kans dat tijdens een normale werkweek zich vier of meer werkongevallen voordoen?</i>
+</p>
+
+<div class="oplossing">
+
+<p>
+\(X \sim Po(1.2)\). Gezocht is de kans \(P(X \ge 4)\).<br />
+
+</p>
+
+<p>
+\[ P(X \ge 4) = 1 - P(X \le 3) = 1 - \texttt {poissoncdf(1.2, 3)} \approx 1 - 0.9662 = 0.0338 \]
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-34"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+<i>Een bepaald geneesmiddel heeft vervelende neveneffecten op de patie&#x0308;nten in 4.5&percnt; van de gevallen. Tijdens een epidemie wordt dit geneesmiddel aan 98 patie&#x0308;nten toegediend. Ga na dat we hier de
+Poissonverdeling kunnen gebruiken als benadering voor de binomiale en bereken de kans dat er ten hoogste één geval is met neveneffecten.</i>
+</p>
+
+<div class="oplossing">
+
+<p>
+Binomiaal: \(n=98\) en \(p=0.045\). Omdat \(p \le 0.1\) en \(np = 4.41 \le 10\), benaderen we met \(X \sim Po(4.41)\).<br />
+
+</p>
+
+<p>
+\[ P(X \le 1) = \texttt {poissoncdf(4.41, 1)} \approx 0.0657 \]
+</p>
+
+</div>
+<!--
+...... subsection Oefeningen Handboek ......
+-->
+<h5 id="autosec-35"><span class="sectionnumber">5&#x2003;</span>Oefeningen Handboek</h5>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p>
+Zie handboek <i>Van Basis tot Limiet, Statistiek</i>: p. 153 en volgende.
+</p>
+<!--
+...... subsection Extra oefeningen ......
+-->
+<h5 id="autosec-36"><span class="sectionnumber">6&#x2003;</span>Extra oefeningen</h5>
+<a id="mkpiweb-autopage-36"></a>
+<!--
+...... subsection Oefening 6 ......
+-->
+<h5 id="autosec-37">Oefening 6</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+Het aantal ongevallen per week op een druk kruispunt is verdeeld volgens \(Po(0.7)\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Wat is de kans dat tijdens een week op dit kruispunt minder dan drie ongevallen gebeuren?
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Wat is de kans dat in een periode van vier weken op dit kruispunt ten minste vijf ongevallen gebeuren?
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<p>
+Zij \(X\) het aantal ongevallen in <em>één</em> week:
+</p>
+
+<p>
+\[ X\sim \operatorname {Poisson}(\lambda =0.7).         \]
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> <b>Minder dan drie ongevallen in één week</b>
+</p>
+<p>
+\[ \begin {aligned} P(X&lt;3) &amp;=P(X=0)+P(X=1)+P(X=2)\\ &amp;=e^{-0.7} \Bigl ( 1 + 0.7 + \tfrac {0.7^{2}}{2} \Bigr )\\ &amp;\approx 0.9658 .       \end {aligned} \]
+</p>
+<p>
+of m.b.v. het <span
+     class="fbox"
+     style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+     class="makebox"
+     style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span>:
+</p>
+<p>
+\[ \begin {aligned} P(X &lt; 3) &amp;= P(X \le 2)\\ &amp;= \texttt {poissoncdf(0.7, 2)}\\ &amp;\approx 0.9658 . \end {aligned} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> <b>Ten minste vijf ongevallen in vier weken</b>
+</p>
+<p>
+In vier weken is de parameter
+</p>
+<p>
+\[ \lambda _{4}=4\cdot 0.7=2.8. \]
+</p>
+<p>
+Noem \(Y\) het totaalaantal ongevallen in die periode:
+</p>
+<p>
+\[ Y\sim \operatorname {Poisson}(\lambda =2.8). \]
+</p>
+<p>
+\[ \begin {aligned} P(Y\ge 5) &amp;=1-P(Y\le 4)\\ &amp;=1-\texttt {poissoncdf(2.8, 4)}\\ &amp;\approx 1-0.8480\\ &amp;\approx 0.1520 .       \end {aligned} \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+\[ \boxed {P(X&lt;3)\approx 0.9658}, \qquad \boxed {P(Y\ge 5)\approx 0.1520}.            \]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 7 ......
+-->
+<h5 id="autosec-38">Oefening 7</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+De kans op een allergische reactie van de patie&#x0308;nt bij de behandeling met een zeker geneesmiddel is gelijk aan 0.003. In een ziekenhuis heeft men 500 patie&#x0308;nten op deze wijze behandeld.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bereken de kans dat ten minste één geval met een allergische reactie voorkomt.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bereken de kans dat meer dan drie allergische reacties voorkomen.
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<p>
+Laat \(X\) het aantal allergische reacties zijn bij \(n=500\) behandelde patie&#x0308;nten. Voor één patie&#x0308;nt:
+</p>
+
+<p>
+\[ p = P(\text {allergische reactie}) = 0.003, \qquad q = 1-p = 0.997, \]
+</p>
+
+<p>
+en dus \(X \sim \operatorname {Bin}\!\bigl (n=500,\;p=0.003\bigr ).\)
+</p>
+
+<p>
+Omdat \(n\) groot is en \(p\) klein, geeft de Poisson-benadering met \(\lambda = np = 1.5\) dezelfde kanswaarden tot vier decimalen (zie onderaan).
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> <b>Ten minste één allergische reactie</b>
+</p>
+<p>
+\[ \begin {aligned} P(X \ge 1) &amp;= 1 - P(X = 0) \\[2pt] &amp;= 1 - \texttt {binompdf(500,\,0.003,\,0)}\\ &amp;= 1 - q^{500} = 1 - 0.997^{500} \\[2pt] &amp;\approx 1 - 0.2225 \\[2pt]
+&amp;\approx 0.7775. \end {aligned} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> <b>Meer dan drie allergische reacties</b>
+</p>
+<p>
+\[ \begin {aligned} P(X &gt; 3) &amp;= 1 - P(X \le 3) \\[2pt] &amp;= 1 - \texttt {binomcdf(500,\,0.003,\,3)} \\[2pt] &amp;\approx 1 - 0.9344 \\[2pt] &amp;\approx 0.0656.                                 \end {aligned} \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+<b>Poisson-check</b> \(X \sim \operatorname {Po}\!\bigl (\lambda = 1.5\bigr )\):
+</p>
+
+<p>
+\[ \begin {aligned} P(X \ge 1) &amp;\approx 1 - e^{-\lambda } = 1 - e^{-1.5} \approx 0.7769,\\ P(X &gt; 3) &amp;\approx 1 - \texttt {poissoncdf(1.5,\,3)} \approx 0.0656, \end {aligned} \]
+</p>
+
+<p>
+in perfecte overeenstemming met de exacte binomiale berekening.
+</p>
+
+<p>
+\[\boxed {P(X \ge 1) \approx 0.7775},\qquad \boxed {P(X &gt; 3) \approx 0.0656}.\]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 8 ......
+-->
+<h5 id="autosec-39">Oefening 8</h5>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+De kans op een hevige aardbeving in de loop van een jaar in een zeker deel van Japan is \(2\cdot 10^{-5}\). Wat is de kans dat in de volgende twee eeuwen ten minste één dergelijke aardbeving voorkomt op deze plaats?
+</p>
+
+<div class="oplossing">
+
+<p>
+Eén jaar:
+</p>
+
+<p>
+\[ p = P(\text {hevige aardbeving}) = 2\cdot 10^{-5}, \qquad q = 1-p = 0.99998.                   \]
+</p>
+
+<p>
+Twee eeuwen \(=200\) jaar.
+</p>
+
+<p>
+<b>(1) Exact met de binomiale verdeling</b>
+</p>
+
+<p>
+\[ X \sim \operatorname {Bin}\bigl (n = 200,\;p = 2\cdot 10^{-5}\bigr ), \qquad P(X \ge 1) = 1 - P(X = 0).                  \]
+</p>
+
+<p>
+\[ \begin {aligned} P(X \ge 1) &amp;= 1 - q^{200} = 1 - (1 - 2\cdot 10^{-5})^{200} \\ &amp;\approx 1 - 0.996008 \\ &amp;\approx 0.003992.                       \end {aligned} \]
+</p>
+
+<p>
+<i>Met de GRM</i>
+</p>
+
+<p>
+\[ P(X \ge 1) = 1 - \mathtt {binompdf(200,\,2 \mathrm {E}{-5},\,0)} \approx 0.003992.                    \]
+</p>
+
+<p>
+<b>(2) Poisson-benadering</b>
+</p>
+
+<p>
+\[ \lambda = np = 200 \times 2\cdot 10^{-5} = 0.004, \qquad Y \sim \operatorname {Poisson}(\lambda = 0.004).                     \]
+</p>
+
+<p>
+\[ \begin {aligned} P(Y \ge 1) &amp;= 1 - P(Y = 0) \\ &amp;= 1 - e^{-\lambda } \\ &amp;= 1 - e^{-0.004} \\ &amp;\approx 0.003992.                      \end {aligned} \]
+</p>
+
+<p>
+<i>Met de GRM</i>
+</p>
+
+<p>
+\[ P(Y \ge 1) = 1 - \texttt {poissoncdf(0.004,\,0)} \approx 0.003992.                 \]
+</p>
+
+<p>
+\[ \boxed {P(\text {minstens ÃľÃľn aardbeving in 200 jaar}) \approx 0.003992} \qquad (\text {ongeveer }0.399\%).                      \]
+</p>
+
+<p>
+De Poisson-benadering levert hetzelfde antwoord tot vier significante cijfers omdat \(n\) groot is en \(p\) zeer klein.
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

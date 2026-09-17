@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hoekeenheden</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 1</p> <h1>Hoekeenheden</h1> </header>
+</p>
+<!--
+...... section Zestigdelige graad ......
+-->
+<h4 id="autosec-2"><span class="sectionnumber">I&#x2003;</span>Zestigdelige graad</h4>
+<a id="mkpiweb-autopage-2"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-3"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<p>
+Een volledige cirkelomtrek correspondeert met \(360^\circ \).
+</p>
+
+<p>
+\[ 1^\circ = 60&apos; \quad \text {en} \quad 1&apos; = 60&apos;&apos; .\]
+</p>
+<!--
+...... subsection GRM ......
+-->
+<h5 id="autosec-4"><span class="sectionnumber">2&#x2003;</span>GRM</h5>
+<a id="mkpiweb-autopage-4"></a>
+
+
+<p>
+“DEG” of “DEGREE”.
+</p>
+
+<p>
+TI-84: <kbd>[MODE]</kbd>, kies <kbd>DEGREE</kbd>. De symbolen \(^\circ \), \(&apos;\) en \(&apos;&apos;\) vind je onder <kbd>[2nd]</kbd> <kbd>[APPS]</kbd> (ANGLE).
+</p>
+<!--
+...... section Radialen ......
+-->
+<h4 id="autosec-5"><span class="sectionnumber">II&#x2003;</span>Radialen</h4>
+<a id="mkpiweb-autopage-5"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-6"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<p>
+De hoekgrootte van de middelpuntshoek waarvan de bijhorende boog precies even lang is als de straal van de cirkel.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+y
+
+
+
+
+                r
+    r
+        1 rad
+                    x
+O          r
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Berekeningen ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">2&#x2003;</span>Berekeningen</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+\[ P_{\text {cirkelomtrek}} = 2\pi r \]
+</p>
+
+<p>
+\[ 360^\circ = 2\pi \,\text {rad} \]
+</p>
+
+<p>
+\[ \Rightarrow 180^\circ = \pi \,\text {rad} \]
+</p>
+<!--
+...... subsection GRM ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">3&#x2003;</span>GRM</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+“RAD” of “RADIAN”
+</p>
+
+<p>
+TI-84: <kbd>[MODE]</kbd>, kies <kbd>RADIAN</kbd>.
+</p>
+<!--
+...... subsection Omzettingsformules ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">4&#x2003;</span>Omzettingsformules</h5>
+<a id="mkpiweb-autopage-12"></a>
+<!--
+......   paragraph    in rad:   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-13">\(^\circ \) \(&apos;\) \(&apos;&apos;\) in rad:</span>
+<a id="mkpiweb-autopage-13"></a>
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                            180◦ = π rad
+                                                                                                    π
+                                                                                           ⇒ 1◦ =      rad
+                                                                                                   180
+                                                                                           ⇒ 1◦ ≈ 0,01745 rad
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+180^\circ &amp;= \pi \,\text {rad} \\ \Rightarrow \quad 1^\circ &amp;= \frac {\pi }{180}\,\text {rad} \\ \Rightarrow \quad 1^\circ &amp;\approx 0{,}01745\,\text {rad}
+\end{align*}
+<em>rad wordt decimaal aangeduid!</em>
+</p>
+
+<p>
+\[ \boxed {\,p^\circ =\dfrac {\pi \,p}{180}\,\text {rad}\,} \]
+</p>
+<!--
+......   paragraph rad in   :   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-14">rad in \(^\circ \) \(&apos;\) \(&apos;&apos;\):</span>
+<a id="mkpiweb-autopage-14"></a>
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                 π rad = 180◦
+                                                                                                         180◦
+                                                                                          ⇒      1 rad =
+                                                                                                           π
+                                                                                          ⇒      1 rad ≈ 57◦ 17′ 45′′
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\pi \,\text {rad} &amp;= 180^\circ \\ \Rightarrow \quad 1\,\text {rad} &amp;= \frac {180^\circ }{\pi } \\ \Rightarrow \quad 1\,\text {rad} &amp;\approx 57^\circ \,17&apos;\,45&apos;&apos;
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\,p\,\text {rad}=\dfrac {p\cdot 180^\circ }{\pi }\,} \]
+</p>
+<!--
+...... subsection Overzicht merkwaardige hoeken ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">5&#x2003;</span>Overzicht merkwaardige hoeken</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+We duiden ze aan op een cirkel. Bijvoorbeeld
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                π · 30      π
+                                                                                        30◦ =          rad = rad.
+                                                                                                 180        6
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+30^\circ &amp;= \frac {\pi \cdot 30}{180}\,\text {rad} = \frac {\pi }{6}\,\text {rad}.
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+                           π/2 rad
+             2π/3 rad                  π/3 rad
+                             90◦
+       3π/4 rad     120◦              60◦      π/4 rad
+             135◦                            45◦
+  5π/6 rad                                             π/6 rad
+         150◦                                       30◦
+
+
+
+
+π rad 180◦                                             0◦   0 rad
+
+
+
+
+         210◦                                      330◦
+  7π/6 rad                                           11π/6 rad
+             225◦                            315◦
+       5π/4 rad     240◦              300◦     7π/4 rad
+                                ◦
+                            270
+             4π/3 rad                 5π/3 rad
+                           3π/2 rad
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Afspraak ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">6&#x2003;</span>Afspraak</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+Als er geen hoekeenheid vermeld staat, dan is de hoek uitgedrukt in radialen.
+</p>
+
+<p>
+bv.
+</p>
+
+<p>
+\[ \sin 1 \text { rad} = \sin 1\]
+</p>
+
+<p>
+Voor zestigdelige graad schrijven we steeds de graden, minuten en seconden. De maximale nauwkeurigheid is 1 seconde.
+</p>
+
+<p>
+We zullen hoeken in de mate van het mogelijke herleiden tot het interval \([0^\circ , 360^\circ [\), of in radialen \([0, 2\pi [\). Soms wordt ook het interval \(]-\pi , \pi ]\) gebruikt.
+</p>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-20"><span class="sectionnumber">III&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+VBTL - Analyse 1b - p131<br />
+nr 1, 2, 3, 4 (van elk 2)<br />
+nr 5 of 6 <span class="hint">(voorbeeld doen)</span><br />
+niet nr 7 (pas na volgend hoofdstuk)
+</p>
+
+<p>
+<b>Opgave p131 nr7.</b> De lengte van de boog \(\wideparen {ACB}\) verhoudt zich tot de lengte van de boog \(\wideparen {ADB}\) zoals \(3\) tot \(5\). Bepaal in radialen de grootte van de hoek \(\widehat {AOB}\), die
+de boog \(\wideparen {ACB}\) onderspant.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+        C
+
+A           B
+
+
+
+
+        O
+
+
+
+
+    D
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<div class="oplossing">
+
+<p>
+<b>Uitwerking.</b>
+</p>
+
+<p>
+Samen vormen beide bogen de volledige cirkelomtrek, die overeenkomt met \(2\pi \,\text {rad}\). De omtrek wordt dus verdeeld in \(3+5=8\) gelijke delen, waarvan de boog \(\wideparen {ACB}\) er \(3\) inneemt:
+</p>
+
+<p>
+\[ \wideparen {ACB} = \frac {3}{8}\cdot 2\pi \,\text {rad} = \frac {3\pi }{4}\,\text {rad}.             \]
+</p>
+
+<p>
+Een middelpuntshoek is even groot als de boog die hij onderspant, dus
+</p>
+
+<p>
+\[ \boxed {\,\widehat {AOB} = \frac {3\pi }{4}\,\text {rad} \approx 2{,}356\,\text {rad}\,} \]
+</p>
+
+<p>
+Ter controle: \(\dfrac {3\pi }{4}\,\text {rad} = \dfrac {3\pi }{4}\cdot \dfrac {180^\circ }{\pi } = 135^\circ \), en de boog \(\wideparen {ADB}\) komt overeen met \(225^\circ \), zodat \(135^\circ :
+225^\circ = 3 : 5\).
+</p>
+</div>
+
+<p>
+<b>Opgave p131 nr6.</b> De wielen van de fiets van Wouter hebben een straal van \(30\,\text {cm}\). Als Wouter zijn fiets \(75\,\text {cm}\) verplaatst, over welke hoek zijn de wielen dan gedraaid? Bereken de grootte
+van die hoek in radialen en zestigdelige graden.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+            r
+
+       α
+
+
+
+
+s = 75 cm
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<div class="oplossing">
+
+<p>
+<b>Uitwerking.</b>
+</p>
+
+<p>
+Het wiel rolt zonder glijden: de afgelegde weg \(s\) is precies even lang als de boog die het wiel afrolt. Per definitie van de radiaal geldt
+</p>
+
+<p>
+\[ \alpha = \frac {s}{r}\,\text {rad}.          \]
+</p>
+
+<p>
+Dus
+</p>
+
+<p>
+\[ \boxed {\;\alpha = \frac {75\,\text {cm}}{30\,\text {cm}} = 2{,}5\,\text {rad}\;} \]
+</p>
+
+<p>
+Omzetten naar zestigdelige graden:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                           2,5 · 180◦
+                                                                                                 2,5 rad =            ≈ 143,2394◦
+                                                                                                                π
+                                                                                                         ≈ 143◦ + 0,2394 · 60′ ≈ 143◦ 14,37′
+                                                                                                         ≈ 143◦ 14′ 22′′ .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+2{,}5\,\text {rad} &amp;= \frac {2{,}5\cdot 180^\circ }{\pi } \approx 143{,}2394^\circ \\ &amp;\approx 143^\circ + 0{,}2394\cdot 60&apos; \approx 143^\circ \,14{,}37&apos; \\ &amp;\approx
+143^\circ \,14&apos;\,22&apos;&apos;.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\;\alpha \approx 143^\circ \,14&apos;\,22&apos;&apos;\;} \]
+</p>
+
+<p>
+Merk op dat dit iets minder is dan \(\frac {75}{2\pi \cdot 30}\approx 0{,}40\) omwenteling.
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

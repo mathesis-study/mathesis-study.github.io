@@ -1,0 +1,2786 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Afgeleiden</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=2d7662c1c6c1" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=2d7662c1c6c1" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=2d7662c1c6c1" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 16</p> <h1>Afgeleiden</h1> </header>
+</p>
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-2">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p>
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>BV3_06.03</b> (MD 06.03) De leerlingen interpreteren de afgeleide als limiet van een differentiequotie&#x0308;nt en als richtingscoe&#x0308;fficie&#x0308;nt van de raaklijn aan de
+grafiek.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>BV3_06.04</b> (MD 06.04) De leerlingen leggen grafisch het verband tussen een functie en haar afgeleide functie.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.27</b> De leerlingen definie&#x0308;ren afgeleide in een punt en afgeleide functie.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: verband tussen continuı&#x0308;teit en afleidbaarheid
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.28</b> De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit veeltermfuncties, rationale functies, irrationale functies, <span
+class="leerplan-grijs">exponentie&#x0308;le functies</span>, <span class="leerplan-grijs">logaritmische functies</span>, <span class="leerplan-grijs">goniometrische functies</span> en <span
+class="leerplan-grijs">cyclometrische functies</span>.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: afleidbaarheid
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: rekenregels: afgeleide van een som, product, quotie&#x0308;nt van functies en afgeleide van een samengestelde functie (kettingregel)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: regel van de l’Ho&#x0302;pital
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <b>WD3_06.08.28.01</b> (MD 06.08.17) De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit veeltermfuncties, rationale functies, irrationale functies,
+exponentie&#x0308;le functies, logaritmische functies en goniometrische functies.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <span class="leerplan-grijs"><b>WD3_06.08.28.02</b> De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit cyclometrische functies.</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Inleiding ......
+-->
+<h4 id="autosec-3"><span class="sectionnumber">I&#x2003;</span>Inleiding</h4>
+<a id="mkpiweb-autopage-3"></a>
+<!--
+...... subsection Van rechte naar het verloop van ......
+-->
+<h5 id="autosec-4"><span class="sectionnumber">1&#x2003;</span>Van rechte \(PQ\) naar het verloop van \(f\)</h5>
+<a id="mkpiweb-autopage-4"></a>
+
+
+<p>
+Beschouw een functie \(f\), een vast punt \(P\bigl (a,f(a)\bigr )\) op de grafiek en een variabel punt \(Q\bigl (x,f(x)\bigr )\).
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="verloop-pq" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+   y
+
+                Q
+f (x)
+                        f
+f (a)
+            P
+
+
+
+        a           x       x
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\) en \(Q\) over de grafiek, of versleep \(a\) en \(x\) op de \(x\)-as, en kijk wat de rechte \(PQ\) over \(f\)
+vertelt.</figcaption> </figure>
+</p>
+
+<p>
+De rechte \(PQ\) geeft ons een idee van het verloop van \(f\) tussen \(a\) en \(x\): stijgen, dalen, een maximum of een minimum. Hoe dichter we \(P\) en \(Q\) bij elkaar leggen, hoe beter die rechte het gedrag van \(f\) in de
+buurt van \(a\) beschrijft.
+</p>
+<!--
+...... subsection Inleidend voorbeeld: hellingspercentage ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Inleidend voorbeeld: hellingspercentage</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+Een helling van \(10\%\) betekent
+</p>
+
+<p>
+\[ \frac {10}{100} = \frac {\text {verticale toename}}{\text {horizontale toename}} = \tan \alpha = 0.1 \qquad \Rightarrow \qquad \alpha = 5\degree 42&apos; 38&apos;&apos;.   \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+α       10 m
+
+100 m
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Een hellingspercentage is dus niets anders dan de richtingscoe&#x0308;fficie&#x0308;nt van een rechte.
+</p>
+<!--
+...... subsection Inleidend voorbeeld: skivakantie ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">3&#x2003;</span>Inleidend voorbeeld: skivakantie</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+Jonas en Lise zijn op skivakantie. De top van de heuvel en zijn omgeving zijn parabolisch en worden beschreven door
+</p>
+
+<p>
+\[ h(x) = 0.1\,(18x - x^2).      \]
+</p>
+
+<p>
+De nulwaarden zijn \(x=0\) en \(x=18\), de top ligt bij \(x = -\dfrac {b}{2a} = \dfrac {-1.8}{-0.2} = 9\), met \(h(9) = 8.1\).
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="skihelling" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+h(x)
+
+  8
+
+  6
+
+  4
+
+  2
+
+
+       2   4   6   8   10   12   14   16   18   x
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(A\) en \(B\) over de heuvel, of kies een interval uit de tabel hieronder, en volg hoe de gemiddelde helling \(\Delta
+h/\Delta x\) mee verandert.</figcaption> </figure>
+</p>
+
+<p>
+We onderzoeken de gemiddelde helling tussen \(x=0\) en \(x=9\):
+</p>
+
+<p>
+\[ \frac {\text {verticale toename}}{\text {horizontale toename}} = \frac {\Delta h}{\Delta x} = \frac {8.1}{9} = 0.9 = 90\%, \qquad \tan \alpha = 0.9 \quad \Rightarrow \quad \alpha = 41\degree
+59&apos; 14&apos;&apos;. \]
+</p>
+
+<p>
+Die gemiddelde helling zegt echter weinig over één bepaalde plaats op de heuvel, want ze verandert voortdurend:
+</p>
+
+<p>
+\[ \begin {array}{c|c|c} \text {interval} &amp; \dfrac {\Delta h}{\Delta x} = \tan \alpha &amp; \alpha \\[0.8em] \hline \rule {0pt}{1.1em}[0,2] &amp; \dfrac {h(2)-h(0)}{2-0} = 1.6 &amp;
+57\degree 59&apos; 41&apos;&apos; \\[0.8em] \left [2,4\right ] &amp; \dfrac {5.6-3.2}{4-2} = 1.2 &amp; 50\degree 11&apos; 40&apos;&apos; \\[0.8em] \left [4,6\right ] &amp; 0.8 &amp; 38\degree
+39&apos; 35&apos;&apos; \\[0.8em] \left [6,8\right ] &amp; 0.4 &amp; 21\degree 48&apos; 5&apos;&apos; \end {array} \]
+</p>
+
+<p>
+Willen we de helling in één punt kennen, dan laten we de twee punten heel dicht naar elkaar toe gaan. We nemen dus een limiet.
+</p>
+
+<div class="hulpmiddelen">
+
+<div class="hulpmiddel" data-hulpmiddel="TI-84">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection De tabel berekenen met lijsten op het GRM ......
+-->
+<h6 id="autosec-16">De tabel berekenen met lijsten op het GRM</h6>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+Met lijsten rekent de TI-84 alle intervallen van de tabel in één keer uit.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Zet het toestel in graden: druk <kbd class="grm-toets grm-donker">mode</kbd>, ga met de pijltjes naar <span class="grm-schermtekst"><span class="grm-tab
+grm-actief">DEGREE</span></span> en druk <kbd class="grm-toets grm-licht">enter</kbd>.
+</p>
+</li>
+</ul>
+
+<div class="grm-scherm"><div class="grm-status">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud"> <div class="grm-tabs"><span class="grm-tab grm-actief">MATHPRINT</span><span
+class="grm-tab">CLASSIC</span></div> <div class="grm-tabs"><span class="grm-tab grm-actief">NORMAL</span><span class="grm-tab">SCI</span><span class="grm-tab">ENG</span></div> <div
+class="grm-tabs"><span class="grm-tab grm-actief">FLOAT</span><span class="grm-tab">0</span><span class="grm-tab">1</span><span class="grm-tab">2</span><span class="grm-tab">3</span><span
+class="grm-tab">4</span><span class="grm-tab">5</span><span class="grm-tab">6</span><span class="grm-tab">7</span><span class="grm-tab">8</span><span class="grm-tab">9</span></div> <div
+class="grm-tabs"><span class="grm-tab">RADIAN</span><span class="grm-tab grm-actief">DEGREE</span></div> </div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Voer bij <kbd class="grm-toets grm-bovenrij">y=</kbd> het voorschrift in:
+</p>
+<p>
+\[ Y_1 = 0.1\,(18X - X^2). \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Open de lijsteditor met <kbd class="grm-toets grm-donker">stat</kbd> <span class="grm-schermtekst"><span class="grm-tab grm-actief">1:</span>Edit...</span> en typ in <span
+class="grm-schermtekst">L<sub>1</sub></span> de grenzen van de intervallen: \(0\), \(2\), \(4\), \(6\), \(8\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Zet de cursor op de naam <span class="grm-schermtekst">L<sub>2</sub></span> bovenaan, typ <span class="grm-schermtekst">Y<sub>1</sub>(L<sub>1</sub>)</span> en
+druk <kbd class="grm-toets grm-licht">enter</kbd>. Je vindt <span class="grm-schermtekst">Y<sub>1</sub></span> onder <kbd class="grm-toets grm-donker">vars</kbd> <kbd class="grm-toets
+grm-pijl">&#x25B6;</kbd> <span class="grm-schermtekst"><span class="grm-tab grm-actief">1:</span>Function...</span> <span class="grm-schermtekst"><span class="grm-tab
+grm-actief">1:</span>Y<sub>1</sub></span> en <span class="grm-schermtekst">L<sub>1</sub></span> onder <span class="grm-combinatie"><kbd class="grm-toets grm-tweede">2nd</kbd><span
+class="grm-gelaagd"><span class="grm-boven grm-boven-2nd">L<sub>1</sub></span><kbd class="grm-toets grm-licht">1</kbd></span></span>. Zo krijgt <span class="grm-schermtekst">L<sub>2</sub></span>
+de hoogtes \(0\), \(3.2\), \(5.6\), \(7.2\), \(8\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Zet de cursor op de naam <span class="grm-schermtekst">L<sub>3</sub></span> en typ <span
+class="grm-schermtekst">&#x0394;List(L<sub>2</sub>)/&#x0394;List(L<sub>1</sub>)</span>. De opdracht <span class="grm-schermtekst">&#x0394;List(</span> vind je onder <span class="grm-combinatie"><kbd
+class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd"><span class="grm-boven grm-boven-2nd">list</span><kbd class="grm-toets grm-donker">stat</kbd></span></span> <kbd class="grm-toets
+grm-pijl">&#x25B6;</kbd> <span class="grm-schermtekst"><span class="grm-tab grm-actief">7:</span>&#x0394;List(</span>; ze neemt de verschillen van opeenvolgende elementen. <span
+class="grm-schermtekst">L<sub>3</sub></span> bevat dan de gemiddelde hellingen \(1.6\), \(1.2\), \(0.8\), \(0.4\).
+</p>
+</li>
+</ul>
+
+<div class="grm-scherm"><div class="grm-status">NORMAL FLOAT AUTO REAL DEGREE MP</div><div class="grm-inhoud"> <div class="grm-tabs"><span class="grm-tab">NAMES</span><span class="grm-tab
+grm-actief">OPS</span><span class="grm-tab">MATH</span></div> <div class="grm-keuze"><span class="grm-tab">1:</span>SortA(</div> <div class="grm-keuze"><span
+class="grm-tab">2:</span>SortD(</div> <div class="grm-keuze"><span class="grm-tab">3:</span>dim(</div> <div class="grm-keuze"><span class="grm-tab">4:</span>Fill(</div> <div class="grm-keuze"><span
+class="grm-tab">5:</span>seq(</div> <div class="grm-keuze"><span class="grm-tab">6:</span>cumSum(</div> <div class="grm-keuze"><span class="grm-tab grm-actief">7:</span>&#x0394;List(</div> <div
+class="grm-keuze"><span class="grm-tab">8:</span>Select(</div> </div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Zet de cursor op de naam <span class="grm-schermtekst">L<sub>4</sub></span> en typ <span class="grm-schermtekst">tan&#x207B;&#x00B9;(L<sub>3</sub>)</span>, met
+<span class="grm-combinatie"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd"><span class="grm-boven grm-boven-2nd">tan&#x207B;&#x00B9;</span><kbd class="grm-toets
+grm-donker">tan</kbd></span></span>. <span class="grm-schermtekst">L<sub>4</sub></span> bevat dan de hellingshoeken in graden.
+</p>
+</li>
+</ul>
+
+<div class="grm-scherm"><div class="grm-status">NORMAL FLOAT AUTO REAL DEGREE MP</div><div class="grm-inhoud"> <div class="grm-lijsten grm-k4"><span class="grm-cel
+grm-kop">L<sub>1</sub></span><span class="grm-cel grm-kop">L<sub>2</sub></span><span class="grm-cel grm-kop">L<sub>3</sub></span><span class="grm-cel grm-kop">L<sub>4</sub></span> <span
+class="grm-cel">0</span><span class="grm-cel">0</span><span class="grm-cel">1.6</span><span class="grm-cel">57.995</span> <span class="grm-cel">2</span><span class="grm-cel">3.2</span><span
+class="grm-cel">1.2</span><span class="grm-cel">50.194</span> <span class="grm-cel">4</span><span class="grm-cel">5.6</span><span class="grm-cel">.8</span><span class="grm-cel">38.66</span> <span
+class="grm-cel">6</span><span class="grm-cel">7.2</span><span class="grm-cel">.4</span><span class="grm-cel">21.801</span> <span class="grm-cel">8</span><span class="grm-cel">8</span><span
+class="grm-cel"></span><span class="grm-cel"></span> </div><div class="grm-regel grm-lijstregel">L<sub>4</sub>(1)=57.99461679</div> </div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Wil je een hoek in graden, minuten en seconden, ga dan met <span class="grm-combinatie"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd"><span
+class="grm-boven grm-boven-2nd">quit</span><kbd class="grm-toets grm-donker">mode</kbd></span></span> naar het rekenscherm en typ <span class="grm-schermtekst">L<sub>4</sub>(1)&#x25BA;DMS</span>.
+De opdracht <span class="grm-schermtekst">&#x25BA;DMS</span> staat onder <span class="grm-combinatie"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd"><span class="grm-boven
+grm-boven-2nd">angle</span><kbd class="grm-toets grm-donker">apps</kbd></span></span> <span class="grm-schermtekst"><span class="grm-tab grm-actief">4:</span>&#x25BA;DMS</span>.
+</p>
+</li>
+</ul>
+
+<div class="grm-scherm"><div class="grm-status">NORMAL FLOAT AUTO REAL DEGREE MP</div><div class="grm-inhoud"> <div class="grm-regel grm-links">L<sub>4</sub>(1)&#x25BA;DMS</div> <div
+class="grm-regel grm-rechts">57&#x00B0;59’40.62&#x0022;</div> </div></div>
+
+<p>
+Afgerond is dat de \(57\degree 59&apos; 41&apos;&apos;\) uit de tabel.
+</p>
+
+<p>
+Kies je in <span class="grm-schermtekst">L<sub>1</sub></span> kleinere stappen, bijvoorbeeld \(8\), \(8.5\), \(9\), dan zie je meteen hoe de gemiddelde helling verandert als de punten dichter bij elkaar liggen.
+</p>
+
+</div>
+
+<div class="hulpmiddel" data-hulpmiddel="Python">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection De tabel berekenen met Python ......
+-->
+<h6 id="autosec-17">De tabel berekenen met Python</h6>
+<p class="hulpmiddel-notebook"><a href="A16_Afgeleiden_Python.ipynb" download="A16_Afgeleiden_Python.ipynb" data-colab="mathesis-study/mathesis-study.github.io/main">Download notebook</a></p>
+
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+Met een lus rekent Python alle intervallen van de tabel in één keer uit.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Schrijf het voorschrift als een functie. Een macht schrijf je in Python met <kbd>**</kbd>, dus \(x^2\) wordt <kbd>x**2</kbd>.
+</p>
+</li>
+</ul>
+
+<pre class="pythoncode"><code>def h(x):
+    return 0.1 * (18*x - x**2)</code></pre>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Zet de grenzen van de intervallen in een lijst. De lus loopt over elk interval \([a,b]\): <kbd>grenzen[i]</kbd> is het linkeruiteinde, <kbd>grenzen[i + 1]</kbd> het rechteruiteinde.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De gemiddelde helling is het differentiequotie&#x0308;nt \(\dfrac {h(b)-h(a)}{b-a}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <kbd>atan</kbd> geeft de hoek in radialen; <kbd>degrees</kbd> zet die om naar graden. Beide haal je uit de module <kbd>math</kbd>.
+</p>
+</li>
+</ul>
+
+<pre class="pythoncode"><code>from math import atan, degrees
+
+grenzen = [0, 2, 4, 6, 8]
+for i in range(len(grenzen) - 1):
+    a = grenzen[i]
+    b = grenzen[i + 1]
+    helling = (h(b) - h(a)) / (b - a)
+    hoek = degrees(atan(helling))
+    print(a, b, round(helling, 1), round(hoek, 3))</code></pre>
+
+<pre class="pythonuitvoer"><code>0 2 1.6 57.995
+2 4 1.2 50.194
+4 6 0.8 38.66
+6 8 0.4 21.801</code></pre>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Wil je een hoek in graden, minuten en seconden, schrijf daar dan een functie voor. Het deel na de komma maal \(60\) geeft de minuten; wat daarna overblijft, maal \(3600\), de seconden.
+</p>
+</li>
+</ul>
+
+<pre class="pythoncode"><code>def dms(hoek):
+    graden = int(hoek)
+    minuten = int((hoek - graden) * 60)
+    seconden = (hoek - graden - minuten / 60) * 3600
+    return graden, minuten, round(seconden, 2)
+
+print(dms(degrees(atan(1.6))))</code></pre>
+
+<pre class="pythonuitvoer"><code>(57, 59, 40.62)</code></pre>
+
+<p>
+Afgerond is dat de \(57\degree 59&apos; 41&apos;&apos;\) uit de tabel.
+</p>
+
+<p>
+Kies je kleinere stappen, bijvoorbeeld <kbd>grenzen = [8, 8.5, 9]</kbd>, dan zie je meteen hoe de gemiddelde helling verandert als de punten dichter bij elkaar liggen.
+</p>
+
+</div>
+
+</div>
+<!--
+...... section Definities ......
+-->
+<h4 id="autosec-18"><span class="sectionnumber">II&#x2003;</span>Definities</h4>
+<a id="mkpiweb-autopage-18"></a>
+<!--
+...... subsection Differentiequotient ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">1&#x2003;</span>Differentiequotie&#x0308;nt</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+Zij \(f\) een functie en \(a \in \dom f\).
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(x - a = \Delta x\) is de <b>toename</b>, aangroeiing of differentie van \(x\) in \(a\);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(f(x) - f(a) = \Delta f\) is de <b>toename van \(f\)</b> in \(a\);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> het quotie&#x0308;nt
+</p>
+<p>
+\[ \frac {f(x)-f(a)}{x-a} = \left (\frac {\Delta f}{\Delta x}\right )_{\!a} \]
+</p>
+<p>
+heet het <b>differentiequotie&#x0308;nt</b> van \(f\) in \(a\).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Afgeleid getal ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">2&#x2003;</span>Afgeleid getal</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+Als de limiet in \(a\) van het differentiequotie&#x0308;nt van \(f\) bestaat en een ree&#x0308;el getal is (dus verschillend van \(\pm \infty \)), dan noemen we die limiet het <b>afgeleid getal</b> van \(f\) in \(a\):
+</p>
+
+<p>
+\[ \boxed {\;f&apos;(a) = \lim _{x\to a} \frac {f(x)-f(a)}{x-a} \in \R \;} \]
+</p>
+
+<p>
+We zeggen dan dat \(f\) <b>afleidbaar</b> is in \(a\). Andere notaties voor hetzelfde getal zijn
+</p>
+
+<p>
+\[ f&apos;(a) = Df(a) = \frac {df}{dx}(a) \qquad \text {(die laatste vooral in de fysica)}.                 \]
+</p>
+
+<p>
+Met \(x = a + \Delta x\) krijg je de even gebruikelijke schrijfwijze
+</p>
+
+<p>
+\[ f&apos;(a) = \lim _{\Delta x \to 0} \frac {f(a+\Delta x)-f(a)}{\Delta x}.              \]
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+Voor \(f(x) = \dfrac {x^2}{4}\) en \(a = 3\) is \(f(3) = \dfrac {9}{4}\), zodat
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                              f (x) − f (3)
+                                                                                                 f ′ (3) = lim
+                                                                                                          x→3     x−3
+                                                                                                                 x2  9
+                                                                                                                 4 − 4
+                                                                                                       = lim
+                                                                                                          x→3 x−3
+                                                                                                             (x − 3)(x + 3)
+                                                                                                       = lim
+                                                                                                         x→3    4(x − 3)
+                                                                                                             x+3
+                                                                                                       = lim
+                                                                                                         x→3   4
+                                                                                                         6
+                                                                                                       = = 1.5.
+                                                                                                         4
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f&apos;(3) &amp;= \lim _{x\to 3} \frac {f(x)-f(3)}{x-3} \\ &amp;= \lim _{x\to 3} \frac {\frac {x^2}{4}-\frac {9}{4}}{x-3} \\ &amp;= \lim _{x\to 3} \frac {(x-3)(x+3)}{4(x-3)} \\ &amp;= \lim
+_{x\to 3} \frac {x+3}{4} \\ &amp;= \frac {6}{4} = 1.5.
+\end{align*}
+Merk op dat het differentiequotie&#x0308;nt de onbepaalde vorm “\(\frac {0}{0}\)” oplevert: dat is bij een afgeleide altijd zo, en juist daarom moeten we eerst vereenvoudigen.
+</p>
+
+<p>
+Grafisch is \(f&apos;(3) = 1.5\) de helling van de grafiek in het punt \(P\bigl (3,\frac {9}{4}\bigr )\): de raaklijn in \(P\) stijgt \(3\) eenheden wanneer \(x\) met \(2\) toeneemt.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+      y
+      6                   y = x4
+                                2
+                                           t
+
+      5
+
+      4                                 ∆y = 3
+      3
+                  P
+      2                   ∆x = 2
+      1
+
+−1        1   2       3     4       5          6 x
+     −1
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<div class="hulpmiddelen">
+
+<div class="hulpmiddel" data-hulpmiddel="TI-84">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Het afgeleid getal op het GRM ......
+-->
+<h6 id="autosec-25">Het afgeleid getal op het GRM</h6>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+De TI-84 berekent een afgeleid getal numeriek: hij rekent een differentiequotie&#x0308;nt uit over een heel klein interval rond \(a\). Dat is een goede controle van je berekening, maar geen vervanging ervan.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Voer bij <kbd class="grm-toets grm-bovenrij">y=</kbd> het voorschrift in:
+</p>
+<p>
+\[ Y_1 = X^2/4. \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Ga met <span class="grm-combinatie"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd"><span class="grm-boven grm-boven-2nd">quit</span><kbd
+class="grm-toets grm-donker">mode</kbd></span></span> naar het rekenscherm en kies <kbd class="grm-toets grm-donker">math</kbd> <span class="grm-schermtekst"><span class="grm-tab
+grm-actief">8:</span>nDeriv(</span>.
+</p>
+</li>
+</ul>
+
+<div class="grm-scherm"><div class="grm-status">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud"> <div class="grm-tabs"><span class="grm-tab grm-actief">MATH</span><span
+class="grm-tab">NUM</span><span class="grm-tab">CMPLX</span><span class="grm-tab">PROB</span><span class="grm-tab">FRAC</span></div> <div class="grm-keuze"><span
+class="grm-tab">1:</span>&#x25BA;Frac</div> <div class="grm-keuze"><span class="grm-tab">2:</span>&#x25BA;Dec</div> <div class="grm-keuze"><span class="grm-tab">3:</span><sup>3</sup></div> <div
+class="grm-keuze"><span class="grm-tab">4:</span><sup>3</sup>&#x221A;(</div> <div class="grm-keuze"><span class="grm-tab">5:</span><sup>x</sup>&#x221A;</div> <div class="grm-keuze"><span
+class="grm-tab">6:</span>fMin(</div> <div class="grm-keuze"><span class="grm-tab">7:</span>fMax(</div> <div class="grm-keuze"><span class="grm-tab grm-actief">8:</span>nDeriv(</div> </div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> In de stand MATHPRINT verschijnt een sjabloon \(\frac {d}{d\square }(\square )\big |_{\square =\square }\). Vul <span class="grm-schermtekst">X</span> als veranderlijke,
+<span class="grm-schermtekst">3</span> als waarde van \(x\) en <span class="grm-schermtekst">Y<sub>1</sub></span> als functie in. <span class="grm-schermtekst">Y<sub>1</sub></span> vind je onder <kbd
+class="grm-toets grm-donker">vars</kbd> <kbd class="grm-toets grm-pijl">&#x25B6;</kbd> <span class="grm-schermtekst"><span class="grm-tab grm-actief">1:</span>Function...</span> <span
+class="grm-schermtekst"><span class="grm-tab grm-actief">1:</span>Y<sub>1</sub></span>. Druk <kbd class="grm-toets grm-licht">enter</kbd>: het toestel geeft <span class="grm-schermtekst">1.5</span>. In de
+stand CLASSIC typ je alles na elkaar:
+</p>
+</li>
+</ul>
+
+<div class="grm-scherm"><div class="grm-status">NORMAL FLOAT AUTO REAL RADIAN CL</div><div class="grm-inhoud"> <div class="grm-regel grm-links">nDeriv(Y<sub>1</sub>,X,3)</div> <div
+class="grm-regel grm-rechts">1.5</div> </div></div>
+
+<p>
+Ook in de grafiek kan het.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Druk <kbd class="grm-toets grm-bovenrij">graph</kbd> en kies <span class="grm-combinatie"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd"><span
+class="grm-boven grm-boven-2nd">calc</span><kbd class="grm-toets grm-bovenrij">trace</kbd></span></span> <span class="grm-schermtekst"><span class="grm-tab grm-actief">6:</span>dy/dx</span>.
+</p>
+</li>
+</ul>
+
+<div class="grm-scherm"><div class="grm-status">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud"> <div class="grm-tabs"><span class="grm-tab grm-actief">CALCULATE</span></div>
+<div class="grm-keuze"><span class="grm-tab">1:</span>value</div> <div class="grm-keuze"><span class="grm-tab">2:</span>zero</div> <div class="grm-keuze"><span
+class="grm-tab">3:</span>minimum</div> <div class="grm-keuze"><span class="grm-tab">4:</span>maximum</div> <div class="grm-keuze"><span class="grm-tab">5:</span>intersect</div> <div
+class="grm-keuze"><span class="grm-tab grm-actief">6:</span>dy/dx</div> </div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Typ <span class="grm-schermtekst">3</span> en druk <kbd class="grm-toets grm-licht">enter</kbd>. De cursor springt naar het punt \(P\bigl (3,\frac {9}{4}\bigr )\) en
+onderaan verschijnt <span class="grm-schermtekst">dy/dx=1.5</span>.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+<!--
+...... section Meetkundige betekenis ......
+-->
+<h4 id="autosec-26"><span class="sectionnumber">III&#x2003;</span>Meetkundige betekenis</h4>
+<a id="mkpiweb-autopage-26"></a>
+<!--
+...... subsection Besluit ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">1&#x2003;</span>Besluit</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+Het differentiequotie&#x0308;nt is de richtingscoe&#x0308;fficie&#x0308;nt van de rechte \(PQ\):
+</p>
+
+<p>
+\[ \left (\frac {\Delta f}{\Delta x}\right )_{\!a} = \frac {f(x)-f(a)}{x-a} = \text {rico van } PQ. \]
+</p>
+
+<p>
+Laten we \(Q\) naderen tot \(P\), dus \(x \to a\), dan nadert de rechte \(PQ\) tot haar limietstand \(t\), waarin \(P\) en \(Q\) samenvallen. Die rechte \(t\) is de <b>raaklijn</b> aan de grafiek van \(f\) in \(P\). Bijgevolg:
+</p>
+
+<p>
+\[ \boxed {\;f&apos;(a) = \text {rico van de raaklijn aan } y=f(x) \text { in } P\bigl (a,f(a)\bigr ).\;} \]
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="secante-raaklijn" data-hoogte="22rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+      y
+      4                   t
+      3
+
+      2
+                  P
+      1
+                              n
+
+−1        1   2       3           4   x
+     −1
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\) en \(Q\) over de grafiek, of \(a\) en \(x\) over de \(x\)-as, of laat \(Q\) naar \(P\) toe gaan, en volg hoe de
+secante \(PQ\) naar de raaklijn \(t\) toe draait.</figcaption> </figure>
+</p>
+<!--
+...... subsection Gevolgen ......
+-->
+<h5 id="autosec-31"><span class="sectionnumber">2&#x2003;</span>Gevolgen</h5>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+De raaklijn in \(P\bigl (a,f(a)\bigr )\) heeft als vergelijking
+</p>
+
+<p>
+\[ \boxed {\; t:    y - f(a) = f&apos;(a)\,(x-a) \;} \]
+</p>
+
+<p>
+De <b>normaal</b> in \(P\) is de rechte door \(P\) die loodrecht staat op \(t\). Omdat voor loodrechte rechten \(m_1 \cdot m_2 = -1\), wordt dat
+</p>
+
+<p>
+\[ \boxed {\; n:    y - f(a) = \frac {-1}{f&apos;(a)}\,(x-a) \;} \qquad \text {(op voorwaarde dat } f&apos;(a) \neq 0\text {)}.                \]
+</p>
+
+<p>
+Is \(f&apos;(a) = 0\), dan is \(t\) horizontaal en is de normaal de verticale rechte \(x = a\).
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-32"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p>
+Bepaal de raaklijn en de normaal aan \(y = 2x^2-2x+5\) in het punt met \(x\)-coo&#x0308;rdinaat \(0\).
+</p>
+
+<p>
+Eerst \(f(0) = 5\), daarna het afgeleid getal:
+</p>
+
+<p>
+\[ f&apos;(0) = \lim _{x\to 0} \frac {2x^2-2x+5-5}{x-0} = \lim _{x\to 0} \frac {x(2x-2)}{x} = \lim _{x\to 0} (2x-2) = -2.   \]
+</p>
+
+<p>
+Dus
+</p>
+
+<p>
+\[ t:   y - 5 = -2(x-0) \iff 2x+y-5 = 0, \qquad n:       y - 5 = \frac {1}{2}(x-0) \iff x-2y+10 = 0.     \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-33"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-33"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-34">Oefening 1</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+Bereken met de definitie het afgeleid getal.
+</p>
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(f(x) = x^2\) in \(a=-1\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(f(x) = \sqrt {x+1}\) in \(a=3\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(f(x) = \dfrac {1}{x}\) in \(a=-2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(f(x) = x^3\) in een willekeurige \(a\)
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\displaystyle f&apos;(-1) = \lim _{x\to -1}\frac {x^2-1}{x+1} = \lim _{x\to -1}(x-1) = -2\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\displaystyle f&apos;(3) = \lim _{x\to 3}\frac {\sqrt {x+1}-2}{x-3} = \lim _{x\to 3}\frac {x-3}{(x-3)\bigl (\sqrt {x+1}+2\bigr )} = \frac {1}{4}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\displaystyle f&apos;(-2) = \lim _{x\to -2}\frac {\frac {1}{x}+\frac {1}{2}}{x+2} = \lim _{x\to -2}\frac {2+x}{2x(x+2)} = \lim _{x\to -2}\frac {1}{2x} =
+-\frac {1}{4}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\displaystyle f&apos;(a) = \lim _{x\to a}\frac {x^3-a^3}{x-a} = \lim _{x\to a}(x^2+ax+a^2) = 3a^2\).
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-36">Oefening 2</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p>
+Bepaal telkens de vergelijking van de raaklijn en van de normaal.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(y = \dfrac {4x-2}{x}\) in het punt met \(x\)-coo&#x0308;rdinaat \(2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(y = \sqrt [3]{9-x^3}\) in het punt waar \(f(a) = 2\)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(f(2) = 3\) en
+</p>
+<p>
+\[ f&apos;(2) = \lim _{x\to 2}\frac {\frac {4x-2}{x}-3}{x-2} = \lim _{x\to 2}\frac {4x-2-3x}{x(x-2)} = \lim _{x\to 2}\frac {1}{x} = \frac {1}{2}.   \]
+</p>
+<p>
+Dus \(t: x-2y+4 = 0\) en \(n: 2x+y-7 = 0\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Uit \(\sqrt [3]{9-a^3} = 2\) volgt \(a = 1\). Met de worteltoegevoegde van een derdemachtswortel,
+</p>
+<p>
+\[ \begin {aligned} f&apos;(1) &amp;= \lim _{x\to 1}\frac {\sqrt [3]{9-x^3}-2}{x-1} \\ &amp;= \lim _{x\to 1}\frac {9-x^3-8}{(x-1)\Bigl (\sqrt [3]{(9-x^3)^2} + 2\sqrt [3]{9-x^3} + 4\Bigr )} =
+\frac {-3}{12} = -\frac {1}{4}. \end {aligned} \]
+</p>
+<p>
+Dus \(t: x+4y-9 = 0\) en \(n: 4x-y-2 = 0\).
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Afleidbaarheid en continuıteit ......
+-->
+<h4 id="autosec-37"><span class="sectionnumber">IV&#x2003;</span>Afleidbaarheid en continuı&#x0308;teit</h4>
+<a id="mkpiweb-autopage-37"></a>
+<!--
+...... subsection Stelling ......
+-->
+<h5 id="autosec-38"><span class="sectionnumber">1&#x2003;</span>Stelling</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+<em>Als een functie \(f\) afleidbaar is in \(a\), dan is \(f\) continu in \(a\).</em>
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-39">Bewijs.</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+Omdat \(f&apos;(a)\) bestaat, is
+</p>
+
+<p>
+\[ f&apos;(a) = \lim _{x\to a}\frac {f(x)-f(a)}{x-a} = \frac {\displaystyle \lim _{x\to a}\bigl (f(x)-f(a)\bigr )} {\displaystyle \lim _{x\to a}(x-a)} \in \R . \]
+</p>
+
+<p>
+De noemer is \(\lim \limits _{x\to a}(x-a) = 0\). Was de teller niet nul, dan kregen we de vorm \(\frac {k}{0} = \pm \infty \notin \R \), in strijd met het bestaan van \(f&apos;(a)\). Dus
+</p>
+
+<p>
+\[ \lim _{x\to a}\bigl (f(x)-f(a)\bigr ) = 0 \quad \Longrightarrow \quad \lim _{x\to a} f(x) = f(a), \]
+</p>
+
+<p>
+en dat is precies de hoofdeigenschap van de continuı&#x0308;teit van \(f\) in \(a\). &#x2003;&#x2003;<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+□
+--><img
+    src="mkpiweb-images/3752916C171806A9F7C6944BE55310EA.svg"
+    alt="(math image)"
+    role="math"
+    style="width:0.91205em"
+    class="lateximage"
+></span>
+</p>
+<!--
+...... subsection Gevolgen ......
+-->
+<h5 id="autosec-42"><span class="sectionnumber">2&#x2003;</span>Gevolgen</h5>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Is \(f\) niet continu in \(a\), dan is \(f\) zeker niet afleidbaar in \(a\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Is \(f\) wel continu in \(a\), dan zijn er twee mogelijkheden: \(f&apos;(a)\) bestaat, of \(f&apos;(a)\) bestaat niet. Continuı&#x0308;teit is dus nodig, maar niet voldoende.
+</p>
+</li>
+</ul>
+
+<p>
+Twee typische gevallen van een continue functie die niet afleidbaar is:
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="niet-afleidbaar" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+    y
+
+
+
+
+                    x
+
+
+
+ raaklijn ∥ y-as:
+f ′ (a) = ±∞ ∈/R
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span> <span style="width:40pt; display:inline-block"><!----></span> <span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+             y
+
+
+
+
+                               x
+
+    knikpunt: twee raaklijnen,
+linker- en rechterlimiet verschillen
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Kies een geval en schuif de punten links en rechts naar \(0\): bij het knikpunt blijven de linker- en de rechterrico verschillen,
+bij de verticale raaklijn groeien ze onbegrensd.</figcaption> </figure>
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+De functie \(f(x) = |x|\) is continu in \(0\), maar
+</p>
+
+<p>
+\[ \lim _{x \underset {&lt;}{\to } 0} \frac {|x|-0}{x-0} = -1 \qquad \text {en}\qquad \lim _{x \underset {&gt;}{\to } 0} \frac {|x|-0}{x-0} = +1 .   \]
+</p>
+
+<p>
+De linker- en de rechterlimiet verschillen, dus bestaat de limiet niet en is \(f\) niet afleidbaar in \(0\).
+</p>
+<!--
+...... section De afgeleide functie ......
+-->
+<h4 id="autosec-49"><span class="sectionnumber">V&#x2003;</span>De afgeleide functie</h4>
+<a id="mkpiweb-autopage-49"></a>
+<!--
+...... subsection Inleiding ......
+-->
+<h5 id="autosec-50"><span class="sectionnumber">1&#x2003;</span>Inleiding</h5>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p>
+Neem \(f(x) = x^2+2x-3\) en bereken \(f&apos;(a)\) voor een willekeurige \(a\):
+</p>
+
+<p>
+\[ \begin {aligned} f&apos;(a) &amp;= \lim _{x\to a}\frac {f(x)-f(a)}{x-a} = \lim _{x\to a}\frac {x^2+2x-3-a^2-2a+3}{x-a} \\ &amp;= \lim _{x\to a}\frac {x^2-a^2+2x-2a}{x-a} = \lim _{x\to
+a}\frac {(x-a)(x+a+2)}{x-a} = 2a+2 . \end {aligned} \]
+</p>
+
+<p>
+Met dat ene voorschrift berekenen we het afgeleid getal in elke waarde: \(f&apos;(3) = 8\), \(f&apos;(1) = 4\), &#x2026;
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-51"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<p>
+De ree&#x0308;le functie \(f&apos;\) die elk ree&#x0308;el getal \(x\) afbeeldt op het afgeleid getal van \(f\) in \(x\) noemen we de <b>afgeleide functie</b> van \(f\):
+</p>
+
+<p>
+\[ \boxed {\;f&apos; :     \R \to \R : x \mapsto f&apos;(x)\;} \]
+</p>
+
+<p>
+Voor het voorbeeld hierboven is dus \(f&apos;(x) = 2x+2\).
+</p>
+
+<p>
+Onder de grafiek van \(f\) tekenen we bij elke \(x\) de richtingscoe&#x0308;fficie&#x0308;nt van de raaklijn als het punt \(\bigl (x, f&apos;(x)\bigr )\). Samen vormen die punten de grafiek van \(f&apos;\): een rechte,
+want \(f&apos;(x) = 2x+2\).
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="afgeleide-functie" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+                     y
+                     8
+                                    f′
+                     6              f
+                     4
+                     2       rico = 4
+
+−4   −3   −2   −1        1      2        3 x
+                    −2
+                    −4
+                    −6
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep het punt over de grafiek van \(f\), of laat het doorlopen: het punt eronder tekent de grafiek van
+\(f&apos;\).</figcaption> </figure>
+</p>
+<!--
+...... section Rekenregels ......
+-->
+<h4 id="autosec-55"><span class="sectionnumber">VI&#x2003;</span>Rekenregels</h4>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+Telkens \(f\) en \(g\) afleidbare functies, \(c \in \R \) en \(n \in \N _0\).
+</p>
+<!--
+...... subsection Afgeleide van een constante functie ......
+-->
+<h5 id="autosec-56"><span class="sectionnumber">1&#x2003;</span>Afgeleide van een constante functie</h5>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p>
+Voor \(f(x) = c\) met \(c \in \R \):
+</p>
+
+<p>
+\[ f&apos;(a) = \lim _{x\to a}\frac {c-c}{x-a} = 0 \qquad \Longrightarrow \qquad \boxed {\;c&apos; = Dc = 0\;} \]
+</p>
+<!--
+...... subsection Afgeleide van de identieke functie ......
+-->
+<h5 id="autosec-57"><span class="sectionnumber">2&#x2003;</span>Afgeleide van de identieke functie</h5>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<p>
+Voor \(f(x) = x\):
+</p>
+
+<p>
+\[ f&apos;(a) = \lim _{x\to a}\frac {x-a}{x-a} = 1 \qquad \Longrightarrow \qquad \boxed {\;x&apos; = Dx = 1\;} \]
+</p>
+<!--
+...... subsection Afgeleide van een som ......
+-->
+<h5 id="autosec-58"><span class="sectionnumber">3&#x2003;</span>Afgeleide van een som</h5>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<p>
+\[ \begin {aligned} (f+g)&apos;(a) &amp;= \lim _{x\to a}\frac {(f+g)(x)-(f+g)(a)}{x-a} \\ &amp;= \lim _{x\to a}\frac {f(x)+g(x)-f(a)-g(a)}{x-a} \\ &amp;= \lim _{x\to a}\frac {f(x)-f(a)}{x-a} +
+\lim _{x\to a}\frac {g(x)-g(a)}{x-a} \\ &amp;= f&apos;(a)+g&apos;(a) \end {aligned} \]
+</p>
+
+<p>
+\[ \boxed {\;(f \pm g)&apos; = f&apos; \pm g&apos;\;} \]
+</p>
+<!--
+...... subsection Afgeleide van een product ......
+-->
+<h5 id="autosec-59"><span class="sectionnumber">4&#x2003;</span>Afgeleide van een product</h5>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<p>
+\[ \begin {aligned} (f\cdot g)&apos;(a) &amp;= \lim _{x\to a}\frac {(f\cdot g)(x)-(f\cdot g)(a)}{x-a} \\ &amp;= \lim _{x\to a} \frac {f(x)g(x) - f(a)g(x) + f(a)g(x) - f(a)g(a)}{x-a} \\ &amp;=
+\lim _{x\to a}\left (\frac {f(x)-f(a)}{x-a}\cdot g(x)\right ) + \lim _{x\to a}\left (f(a)\cdot \frac {g(x)-g(a)}{x-a}\right ) \\ &amp;= f&apos;(a)\,g(a) + f(a)\,g&apos;(a) \end {aligned} \]
+</p>
+
+<p>
+\[ \boxed {\;(f\cdot g)&apos; = f&apos;\cdot g + f\cdot g&apos;\;} \]
+</p>
+
+<p>
+In de derde stap gebruiken we \(\lim \limits _{x\to a} g(x) = g(a)\): dat mag, want \(g\) is afleidbaar en dus continu in \(a\).
+</p>
+<!--
+...... subsection Afgeleide van een constante maal een functie ......
+-->
+<h5 id="autosec-60"><span class="sectionnumber">5&#x2003;</span>Afgeleide van een constante maal een functie</h5>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+\[ (c\cdot f)&apos; = c&apos;\cdot f + c\cdot f&apos; = 0\cdot f + c\cdot f&apos; \qquad \Longrightarrow \qquad \boxed {\;(c\cdot f)&apos; = c\cdot f&apos; \quad (c\in \R )\;} \]
+</p>
+<!--
+...... subsection Afgeleide van een macht ......
+-->
+<h5 id="autosec-61"><span class="sectionnumber">6&#x2003;</span>Afgeleide van een macht</h5>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<p>
+\[ \begin {aligned} (f^n)&apos; &amp;= \bigl (f\cdot f^{n-1}\bigr )&apos; = f&apos;\cdot f^{n-1} + f\cdot \bigl (f^{n-1}\bigr )&apos; \\ &amp;= f&apos;\cdot f^{n-1} + f\cdot \Bigl (f&apos;\cdot
+f^{n-2} + f\cdot \bigl (f^{n-2}\bigr )&apos;\Bigr ) \\ &amp;= \underbrace {f&apos;\cdot f^{n-1} + f&apos;\cdot f^{n-1} + \cdots + f&apos;\cdot f^{n-1}}_{n \text { termen}} \end {aligned} \]
+</p>
+
+<p>
+\[ \boxed {\;\bigl (f^n\bigr )&apos; = n\cdot f^{n-1}\cdot f&apos;\;} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bijzonder geval: een macht van ......
+-->
+<h6 id="autosec-62">Bijzonder geval: een macht van \(x\)</h6>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p>
+\[ \bigl (x^n\bigr )&apos; = n\cdot x^{n-1}\cdot \underbrace {x&apos;}_{=1} \qquad \Longrightarrow \qquad \boxed {\;\bigl (x^n\bigr )&apos; = n\cdot x^{n-1} \quad (n \in \N )\;} \]
+</p>
+
+<p>
+Bijvoorbeeld \(\bigl (x^2\bigr )&apos; = 2x\), \(\bigl (x^3\bigr )&apos; = 3x^2\) en \(\bigl (x^{17}\bigr )&apos; = 17x^{16}\).
+</p>
+<!--
+...... subsection Uitbreiding: rationale exponenten ......
+-->
+<h5 id="autosec-63"><span class="sectionnumber">7&#x2003;</span>Uitbreiding: rationale exponenten</h5>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+Voor \(f(x) = \dfrac {1}{x}\):
+</p>
+
+<p>
+\[ f&apos;(a) = \lim _{x\to a}\frac {\frac {1}{x}-\frac {1}{a}}{x-a} = \lim _{x\to a}\frac {a-x}{ax(x-a)} = \lim _{x\to a}\frac {-1}{ax} = -\frac {1}{a^2} \qquad \Longrightarrow \qquad \boxed
+{\;\left (\frac {1}{x}\right )&apos; = -\frac {1}{x^2}\;} \]
+</p>
+
+<p>
+Merk op dat \(\left (\dfrac {1}{x}\right )&apos; = \bigl (x^{-1}\bigr )&apos; = -1\cdot x^{-2} = -\dfrac {1}{x^2}\): de formule blijft dus gelden voor negatieve machten.
+</p>
+
+<p>
+Voor \(f(x) = \sqrt {x}\):
+</p>
+
+<p>
+\[ f&apos;(a) = \lim _{x\to a}\frac {\sqrt {x}-\sqrt {a}}{x-a} = \lim _{x\to a}\frac {x-a}{(x-a)\bigl (\sqrt {x}+\sqrt {a}\bigr )} = \frac {1}{2\sqrt {a}} \qquad \Longrightarrow \qquad \boxed
+{\;\bigl (\sqrt {x}\bigr )&apos; = \frac {1}{2\sqrt {x}}\;} \]
+</p>
+
+<p>
+Ook hier klopt de machtsformule: \(\bigl (\sqrt {x}\bigr )&apos; = \bigl (x^{1/2}\bigr )&apos; = \tfrac 12 x^{-1/2} = \dfrac {1}{2\sqrt {x}}\), dus ze geldt ook voor breuken. Algemeen:
+</p>
+
+<p>
+\[ \boxed {\;\bigl (x^q\bigr )&apos; = q\cdot x^{q-1} \quad \text {en}\quad \bigl (f^q\bigr )&apos; = q\cdot f^{q-1}\cdot f&apos; \qquad (q \in \Q )\;} \]
+</p>
+<!--
+...... subsection Afgeleide van een quotient ......
+-->
+<h5 id="autosec-64"><span class="sectionnumber">8&#x2003;</span>Afgeleide van een quotie&#x0308;nt</h5>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p>
+\[ \begin {aligned} \left (\frac {f}{g}\right )&apos; &amp;= \left (f\cdot \frac {1}{g}\right )&apos; = f&apos;\cdot \frac {1}{g} + f\cdot \left (\frac {1}{g}\right )&apos; \\ &amp;=
+f&apos;\cdot \frac {1}{g} + f\cdot \frac {-1}{g^2}\cdot g&apos; = \frac {f&apos;\,g - f\,g&apos;}{g^2} \end {aligned} \]
+</p>
+
+<p>
+\[ \boxed {\;\left (\frac {f}{g}\right )&apos; = \frac {f&apos;\cdot g - f\cdot g&apos;}{g^2}\;} \qquad \text {en in het bijzonder}\qquad \boxed {\;\left (\frac {1}{f}\right )&apos; = \frac
+{-f&apos;}{f^2}\;} \]
+</p>
+<!--
+...... subsection Afgeleide van een samengestelde functie: de kettingregel ......
+-->
+<h5 id="autosec-65"><span class="sectionnumber">9&#x2003;</span>Afgeleide van een samengestelde functie: de kettingregel</h5>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<p>
+\[ \begin {aligned} (g\circ f)&apos;(a) &amp;= \lim _{x\to a}\frac {(g\circ f)(x)-(g\circ f)(a)}{x-a} = \lim _{x\to a}\frac {g\bigl (f(x)\bigr )-g\bigl (f(a)\bigr )}{x-a} \\ &amp;= \lim _{x\to
+a}\left ( \frac {g\bigl (f(x)\bigr )-g\bigl (f(a)\bigr )}{f(x)-f(a)} \cdot \frac {f(x)-f(a)}{x-a}\right ) \\ &amp;= \lim _{y\to b}\frac {g(y)-g(b)}{y-b} \cdot f&apos;(a) = g&apos;(b)\cdot
+f&apos;(a) = g&apos;\bigl (f(a)\bigr )\cdot f&apos;(a) \end {aligned} \]
+</p>
+
+<p>
+Daarbij stelden we \(y = f(x)\) en \(b = f(a)\): als \(x \to a\), dan \(y \to b\), want \(f\) is afleidbaar en dus continu in \(a\).
+</p>
+
+<p>
+\[ \boxed {\;(g\circ f)&apos; = (g&apos;\circ f)\cdot f&apos; \qquad \text {of}\qquad \frac {dy}{dx} = \frac {dy}{dt}\cdot \frac {dt}{dx}\;} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-66">Voorbeeld</h6>
+<a id="mkpiweb-autopage-66"></a>
+
+
+<p>
+Met \(x \overset {f}{\mapsto } x^2-1 \overset {g}{\mapsto } \sqrt {x^2-1}\):
+</p>
+
+<p>
+\[ \left (\sqrt {x^2-1}\right )&apos; = \frac {1}{2\sqrt {x^2-1}}\cdot \bigl (x^2-1\bigr )&apos; = \frac {x}{\sqrt {x^2-1}} .   \]
+</p>
+<!--
+...... subsection Overzicht van de rekenregels ......
+-->
+<h5 id="autosec-67"><span class="sectionnumber">10&#x2003;</span>Overzicht van de rekenregels</h5>
+<a id="mkpiweb-autopage-67"></a>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><br />
+
+\[ \begin {array}{ll} Dc = 0 &amp; D(f\pm g) = Df \pm Dg \\[0.7em] Dx = 1 &amp; D(f\cdot g) = Df\cdot g + f\cdot Dg \\[0.7em] Dx^{q} = q\cdot x^{q-1} \quad (q\in \Q ) &amp; D\left (\dfrac
+{f}{g}\right ) = \dfrac {Df\cdot g - f\cdot Dg}{g^2} \\[1.2em] D\dfrac {1}{x} = \dfrac {-1}{x^2} &amp; D(c\cdot f) = c\cdot Df \\[1.2em] D\sqrt {x} = \dfrac {1}{2\sqrt {x}} &amp; D\bigl
+(f^{q}\bigr ) = q\cdot f^{q-1}\cdot Df \\[1.2em] &amp; D\left (\dfrac {1}{f}\right ) = \dfrac {-Df}{f^2} \\[1.2em] &amp; D(g\circ f) = (Dg \circ f)\cdot Df \end {array} \]<br />
+
+</span>
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-69"><span class="sectionnumber">11&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-69"></a>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-70">Oefening 3</h5>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+Bereken de afgeleide functie.
+</p>
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(f(x) = 2x^3-5x+1\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(f(x) = -4x^3 + 2\sqrt {3}\,x\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(f(x) = (5-x)(x+3)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(f(x) = 7x\,(3-x^2)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(f(x) = (x^2-2x)(2x-4)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(f(x) = \dfrac {x-2}{3-x}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(f(x) = \dfrac {x^3-2}{x^2}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(f(x) = \dfrac {-3}{4x^2}\)
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="oplossing">
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(f&apos;(x) = \opl {6x^2-5}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(f&apos;(x) = \opl {-12x^2+2\sqrt {3}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(f&apos;(x) = \opl {2-2x}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(f&apos;(x) = \opl {21-21x^2}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(f&apos;(x) = \opl {6x^2-16x+8}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(f&apos;(x) = \opl {\dfrac {1}{(3-x)^2}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(f&apos;(x) = \opl {\dfrac {x^3+4}{x^3}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(f&apos;(x) = \opl {\dfrac {3}{2x^3}}\)
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-73">Oefening 4</h5>
+<a id="mkpiweb-autopage-73"></a>
+
+
+<p>
+Bereken de afgeleide en vereenvoudig zo ver mogelijk.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\bigl ((x^2-2x)^3\bigr )&apos;\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\left (\sqrt {x^2-2x+5}\right )&apos;\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\left (\dfrac {(x+1)^3}{(x-2)^2}\right )&apos;\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\left (\dfrac {-7}{(2-x)^3}\right )&apos;\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\bigl ((3x^2-2x-5)^4\bigr )&apos;\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\left (\sqrt [4]{3x^2-x+2}\right )&apos;\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(\left (\dfrac {x^2+5}{\sqrt {x^2+5}}\right )&apos;\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(\left ((3x-5)\sqrt {(1+2x)^3}\right )&apos;\)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(3(x^2-2x)^2(2x-2) = 6x^2(x-1)(x-2)^2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\dfrac {2x-2}{2\sqrt {x^2-2x+5}} = \dfrac {x-1}{\sqrt {x^2-2x+5}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\dfrac {3(x+1)^2(x-2)^2 - (x+1)^3\cdot 2(x-2)}{(x-2)^4} = \dfrac {(x+1)^2(x-8)}{(x-2)^3}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(-7\cdot (-3)(2-x)^{-4}\cdot (-1) = \dfrac {-21}{(2-x)^4}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(4(3x^2-2x-5)^3(6x-2) = 8(3x-1)(3x^2-2x-5)^3\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\dfrac {1}{4}\cdot \dfrac {6x-1}{\sqrt [4]{(3x^2-x+2)^3}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(\left (\sqrt {x^2+5}\right )&apos; = \dfrac {x}{\sqrt {x^2+5}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(3(1+2x)^{3/2} + (3x-5)\cdot \dfrac {3}{2}(1+2x)^{1/2}\cdot 2 = 3\sqrt {1+2x}\,(5x-4)\)
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Hogere afgeleiden ......
+-->
+<h4 id="autosec-74"><span class="sectionnumber">VII&#x2003;</span>Hogere afgeleiden</h4>
+<a id="mkpiweb-autopage-74"></a>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-75"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+Voor \(f(x) = 2x^4-2x^3+3x^2-3x+1\) vinden we
+</p>
+
+<p>
+\[ \begin {aligned} f&apos;(x) &amp;= 8x^3-6x^2+6x-3, \\ f&apos;&apos;(x) &amp;= \bigl (f&apos;(x)\bigr )&apos; = 24x^2-12x+6, \\ f&apos;&apos;&apos;(x)&amp;= \bigl (f&apos;&apos;(x)\bigr
+)&apos; = 48x-12, \quad \ldots \end {aligned} \]
+</p>
+
+<p>
+De afgeleide van de afgeleide noemen we de tweede afgeleide, enzovoort:
+</p>
+
+<p>
+\[ \begin {array}{lll} \text {1ste afgeleide} &amp; f&apos; = Df &amp; = \dfrac {df}{dx} \\[0.9em] \text {2de afgeleide} &amp; f&apos;&apos; = D^2f &amp; = \dfrac {d^2f}{dx^2} \\[0.9em] \text
+{3de afgeleide} &amp; f&apos;&apos;&apos; = f^{(3)} = D^3f &amp; = \dfrac {d^3f}{dx^3} \end {array} \]
+</p>
+
+<p>
+Vanaf de vierde afgeleide schrijven we \(f^{(4)}\), \(f^{(5)}\), &#x2026;met een getal tussen haakjes, om verwarring met een macht te vermijden.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-76"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-76"></a>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-77">Oefening 5</h5>
+<a id="mkpiweb-autopage-77"></a>
+
+
+<p>
+Bereken de gevraagde hogere afgeleide.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\bigl (6x^3-3x^2+1\bigr )&apos;&apos;&apos;\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\bigl (\sqrt [3]{x}\bigr )&apos;&apos;\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(f&apos;&apos;(x)\) met \(f(x) = \dfrac {x^3}{x^2-4}\)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\bigl (18x^2-6x\bigr )&apos;&apos; = \bigl (36x-6\bigr )&apos; = 36\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\bigl (\tfrac 13 x^{-2/3}\bigr )&apos; = \tfrac 13\cdot \left (-\tfrac 23\right )x^{-5/3} = \dfrac {-2}{9\,x\sqrt [3]{x^2}}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(f&apos;(x) = \dfrac {3x^2(x^2-4)-x^3\cdot 2x}{(x^2-4)^2} = \dfrac {x^4-12x^2}{(x^2-4)^2}\) en na afleiden en vereenvoudigen \(f&apos;&apos;(x) = \dfrac
+{8x(x^2+12)}{(x^2-4)^3}\).
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... section De regel van de l’Hospital ......
+-->
+<h4 id="autosec-78"><span class="sectionnumber">VIII&#x2003;</span>De regel van de l’Hospital</h4>
+<a id="mkpiweb-autopage-78"></a>
+<!--
+...... subsection De regel ......
+-->
+<h5 id="autosec-79"><span class="sectionnumber">1&#x2003;</span>De regel</h5>
+<a id="mkpiweb-autopage-79"></a>
+
+
+<p>
+Onderstel dat
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(f(a) = g(a) = 0\);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(g(x) \neq 0\) in de gereduceerde omgeving van \(a\);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(f\) en \(g\) afleidbaar zijn in \(a\);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(g&apos;(a) \neq 0\).
+</p>
+</li>
+</ul>
+
+<p>
+Dan is
+</p>
+
+<p>
+\[ \boxed {\;\lim _{x\to a}\frac {f(x)}{g(x)} \overset {&grave;&grave;\frac {0}{0}&apos;&apos;}{=} \lim _{x\to a}\frac {f&apos;(x)}{g&apos;(x)} = \frac {f&apos;(a)}{g&apos;(a)}\;} \]
+</p>
+
+<p>
+De regel geldt eveneens voor de onbepaalde vorm “\(\frac {\pm \infty }{\pm \infty }\)” en ook wanneer \(x \to \pm \infty \):
+</p>
+
+<p>
+\[ \lim _{x\to a}\frac {f(x)}{g(x)} \overset {&grave;&grave;\frac {\infty }{\infty }&apos;&apos;}{=} \lim _{x\to a}\frac {f&apos;(x)}{g&apos;(x)}, \qquad \lim _{x\to \pm \infty }\frac
+{f(x)}{g(x)} \overset {&grave;&grave;\frac {\infty }{\infty }&apos;&apos;}{=} \lim _{x\to \pm \infty }\frac {f&apos;(x)}{g&apos;(x)} . \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-80">Bewijs.</h6>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+We bewijzen enkel de eerste vorm. Omdat \(f(a) = g(a) = 0\) is
+</p>
+
+<p>
+\[ \begin {aligned} \lim _{x\to a}\frac {f(x)}{g(x)} &amp;= \lim _{x\to a}\left (\frac {f(x)}{g(x)}\cdot \frac {x-a}{x-a}\right ) = \lim _{x\to a} \frac {\dfrac {f(x)-\overbrace
+{f(a)}^{=0}}{x-a}} {\dfrac {g(x)-\underbrace {g(a)}_{=0}}{x-a}} \\[0.6em] &amp;= \frac {\displaystyle \lim _{x\to a}\frac {f(x)-f(a)}{x-a}} {\displaystyle \lim _{x\to a}\frac {g(x)-g(a)}{x-a}}
+= \frac {f&apos;(a)}{g&apos;(a)} . \end {aligned} \]
+</p>
+
+<p>
+&#x2003;&#x2003;<span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+□
+--><img
+    src="mkpiweb-images/3752916C171806A9F7C6944BE55310EA.svg"
+    alt="(math image)"
+    role="math"
+    style="width:0.91205em"
+    class="lateximage"
+></span>
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-83"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-83"></a>
+
+
+<p>
+We noteren met \(\overset {H}{=}\) de stap waarin we de regel toepassen.
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\displaystyle \lim _{x\to 1}\frac {x^3-1}{x^3-3x^2+3x-1} \overset {&grave;&grave;\frac {0}{0}&apos;&apos;}{\underset {H}{=}} \lim _{x\to 1}\frac
+{3x^2}{3x^2-6x+3} = \lim _{x\to 1}\frac {x^2}{(x-1)^2} = +\infty \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\displaystyle \lim _{x\to a}\frac {x^m-a^m}{x^n-a^n} \overset {&grave;&grave;\frac {0}{0}&apos;&apos;}{\underset {H}{=}} \lim _{x\to a}\frac
+{m\,x^{m-1}}{n\,x^{n-1}} = \frac {m}{n}\,a^{m-n} = \frac {m\,a^m}{n\,a^n}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\displaystyle \lim _{x\to +\infty }\frac {4x\sqrt {2x}+5}{\bigl (\sqrt {2x}+1\bigr )^3} \overset {&grave;&grave;\frac {\infty }{\infty
+}&apos;&apos;}{\underset {H}{=}} \lim _{x\to +\infty } \frac {4\sqrt {2x}+\frac {4x}{\sqrt {2x}}} {3\bigl (\sqrt {2x}+1\bigr )^2\cdot \frac {1}{\sqrt {2x}}} = \lim _{x\to +\infty }\frac
+{4x}{2x+2\sqrt {2x}+1} \overset {&grave;&grave;\frac {\infty }{\infty }&apos;&apos;}{\underset {H}{=}} 2\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Opgelet ......
+-->
+<h5 id="autosec-84"><span class="sectionnumber">3&#x2003;</span>Opgelet</h5>
+<a id="mkpiweb-autopage-84"></a>
+
+
+<p>
+De regel mag enkel toegepast worden op een onbepaalde vorm. Controleer dus telkens opnieuw of de vorm nog onbepaald is:
+</p>
+
+<p>
+\[ \lim _{x\to \frac 12}\frac {12x^2-4x-1}{4x^2-2x} \overset {&grave;&grave;\frac {0}{0}&apos;&apos;}{\underset {H}{=}} \lim _{x\to \frac 12}\frac {24x-4}{8x-2} = \frac {8}{2} = 4 .   \]
+</p>
+
+<p>
+Na de eerste stap is de vorm \(\frac {8}{2}\) en niet langer “\(\frac {0}{0}\)”: de regel een tweede keer toepassen zou hier een fout antwoord geven.
+</p>
+
+<p>
+Andere onbepaalde vormen, zoals \(0\cdot \infty \) of \(\infty -\infty \), herleid je eerst tot \(\frac {0}{0}\) of \(\frac {\infty }{\infty }\) voor je de regel gebruikt.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-85"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-85"></a>
+<!--
+...... subsection Oefening 6 ......
+-->
+<h5 id="autosec-86">Oefening 6</h5>
+<a id="mkpiweb-autopage-86"></a>
+
+
+<p>
+Bereken de volgende limieten met de regel van de l’Hospital.
+</p>
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\displaystyle \lim _{x\to 0}\frac {\sqrt {1+x}-1}{x}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\displaystyle \lim _{x\to 2}\frac {x^3-8}{x^2-4}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\displaystyle \lim _{x\to 1}\frac {x^4-1}{x^3-1}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\displaystyle \lim _{x\to 0}\frac {\sqrt [3]{1+x}-1}{x}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\displaystyle \lim _{x\to +\infty }\frac {x^2+1}{2x^2-3x}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\displaystyle \lim _{x\to 2}\frac {\sqrt
+[3]{x^2+4}-2}{\sqrt [4]{3x+250}-4}\)
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="oplossing">
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\opl {\dfrac {1}{2}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\opl {3}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\opl {\dfrac {4}{3}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\opl {\dfrac {1}{3}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\opl {\dfrac {1}{2}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\opl {\dfrac {256}{9}}\)
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+<!--
+...... subsection Oefening 7 ......
+-->
+<h5 id="autosec-89">Oefening 7</h5>
+<a id="mkpiweb-autopage-89"></a>
+
+
+<p>
+Toon aan dat de regel van de l’Hospital hier niet zomaar twee keer na elkaar mag toegepast worden, en bereken de limiet correct:
+</p>
+
+<p>
+\[ \lim _{x\to \frac 12}\frac {12x^2-4x-1}{4x^2-2x}.           \]
+</p>
+
+<div class="oplossing">
+
+<p>
+Na één toepassing is \(\displaystyle \lim _{x\to \frac 12}\frac {24x-4}{8x-2} = \frac {8}{2} = 4\). Die uitdrukking is niet meer van de vorm “\(\frac {0}{0}\)”, dus stopt het hier. Een tweede toepassing zou
+\(\frac {24}{8} = 3\) opleveren, en dat is fout. De limiet is dus \(4\).
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=2d7662c1c6c1"></script>
+<script src="vendor/jsxgraphcore.js?v=2d7662c1c6c1"></script>
+<script src="interactieve-grafieken.js?v=2d7662c1c6c1"></script>
+<script src="hoofdstuk.interactief.js?v=2d7662c1c6c1"></script>
+</body>
+</html>

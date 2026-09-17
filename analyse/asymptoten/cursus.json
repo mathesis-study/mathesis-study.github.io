@@ -1,0 +1,24 @@
+{
+ "titel": "Asymptoten",
+ "hoofdstuk": 15,
+ "code": "A15",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/asymptoten",
+ "secties": [
+  "Wat is een asymptoot?",
+  "Verticale asymptoten",
+  "Horizontale asymptoten",
+  "Schuine asymptoten",
+  "Uitgewerkt voorbeeld",
+  "Oefeningen"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.21",
+  "WD3_06.08.26"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": true
+}

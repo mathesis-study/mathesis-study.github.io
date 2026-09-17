@@ -1,0 +1,4654 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Continue kansvariabelen en de normale verdeling</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 8</p> <h1>Continue kansvariabelen en de normale verdeling</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                     exponentiële verdeling     normale verdeling
+uniforme verdeling
+
+
+
+
+                                                       1   1 x−µ 2
+f (x) = c, c ∈ R        f (x) = a e−ax        f (x) = √ e− 2 ( σ )
+                                                     σ 2π
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>BV3_06.16</b> (MD 06.16) De leerlingen gebruiken de normale verdeling als continu model bij gegeven data.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: grafische beoordeling van de toepasbaarheid van het model
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">rekenkundig gemiddelde en de standaardafwijking van de gegeven data als schatting voor de parameters van het model</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: grafische betekenis van gemiddelde en standaardafwijking van een normaal verdeelde kansvariabele in termen van de Gausskromme
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>BV3_06.17</b> (MD 06.17) De leerlingen berekenen kansen bij een normaal verdeelde kansvariabele.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.36</b> De leerlingen benaderen de binomiale verdeling door een normale verdeling.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> grafische beoordeling van de toepasbaarheid van het model, grafische betekenis van gemiddelde en standaardafwijking van een normaal verdeelde kansvariabele in termen van de Gausskromme,
+berekenen kansen bij een normaal verdeelde kansvariabele
+</p>
+
+<p>
+<b>Extra uitleg:</b> continue kansvariabelen, kansdichtheidsfunctie, cumulatieve verdelingsfunctie, verwachtingswaarde en variantie van een continue kansvariabele, uniforme verdeling, exponentie&#x0308;le verdeling,
+standaardnormale verdeling, Z-score, tabel van de standaardnormale verdeling, oneigenlijke integralen
+</p>
+
+</div>
+<!--
+...... section Continue kansvariabelen ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Continue kansvariabelen</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Inleiding ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Inleiding</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+Tot nu toe werkten we steeds met discrete kansvariabelen, waarbij de mogelijke \(X\)-waarden een interval van \(\mathbb {N}\) of \(\mathbb {N}\) zelf vormen. Indien de mogelijke waarden van een kansvariabele \(X\) echter een
+interval van \(\mathbb {R}\) of \(\mathbb {R}\) zelf vormen, spreken we van een <b>continue kansvariabele</b>.<a id="sec:continue_intro"></a>
+</p>
+
+<p>
+Enkele voorbeelden hiervan uit het dagelijkse leven zijn
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> De duur van een telefoongesprek opnemen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Het volume bier in flesjes van een zeker type
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De tijd in dagen tussen twee opeenvolgende pannes van een bepaalde machine in een bedrijf
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> ...
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-8"><span class="sectionnumber">&#x2003;</span>Voorbeelden</h6>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+Zeg telkens of het gaat om een continue of een discrete kansvariabele.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> De lengte van een willekeurig gekozen persoon in cm: <span class="opl opl-fill" >continue</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Het aantal besmette personen bij het uitbreken van een epidemie: <span class="opl opl-fill" >discreet</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Winst of verlies op de beurs: <span class="opl opl-fill" >continu</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Maandelijks nettoloon van een 40-jarige: <span class="opl opl-fill" >continu</span>
+</p>
+</li>
+</ul>
+<!--
+...... subsection Kansdichtheidsfunctie en cumulatieve verdelingsfunctie ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">2&#x2003;</span>Kansdichtheidsfunctie en cumulatieve verdelingsfunctie</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p>
+Waar men bij discrete kansvariabelen spreekt van de bijhorende kansfunctie, noemt men dit bij continue kansvariabelen de kansdichtheidsfunctie \(f(x)\).
+</p>
+<!--
+...... subsubsection kansdichtheidsfunctie ......
+-->
+<h6 id="autosec-10"><span class="sectionnumber">&#x2003;</span>kansdichtheidsfunctie \(f(x)\)</h6>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+<i>De kansdichtheidsfunctie \(f(x)\) van een continue kansvariabele \(X\) is de continue functie \(f\) in \([a,b]\subset \mathbb {R}\) die voldoet aan volgende eigenschappen:</i>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(f(x) \geq 0\) voor alle \(x \in [a,b]\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \int _a^b f(x).dx = 1\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \forall x_1, x_2 \in [a,b]:\) <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\displaystyle P(x_1\leq X\leq x_2)=\int _{x_1}^{x_2} f(x).dx\)</span>
+</p>
+</li>
+</ul>
+
+<p>
+M.a.w. een kansdichtheidsfunctie is een positieve functie, waarvan de oppervlakte tussen de grafiek van \(f\) en de \(x-as\) gelijk is aan 1. Merk op dat de laatste eigenschap ons een tool aanreikt voor het berekenen van kansen,
+indien \(f\) gekend is. Bovendien volgt hieruit dat de kans op een elementaire gebeurtenis nul is.
+</p>
+<!--
+...... subsubsection Verdelingsfunctie ......
+-->
+<h6 id="autosec-11"><span class="sectionnumber">&#x2003;</span>Verdelingsfunctie \(F(x)\)</h6>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+<i>We definie&#x0308;ren de cumulatieve verdelingsfunctie \(F\) als <span
+     class="fbox"
+     style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\displaystyle F(k)=P(X\leq k)=\int _{-\infty }^{k} f(x).dx\)</span>.<br />
+Dit stelt de totale oppervlakte voor tussen de x-as en de grafiek van de kansdichtheidsfunctie \(f(x)\) in het interval \(]-\infty , x]\).</i>
+</p>
+<!--
+...... subsubsection Gevolg ......
+-->
+<h6 id="autosec-12"><span class="sectionnumber">&#x2003;</span>Gevolg</h6>
+<a id="mkpiweb-autopage-12"></a>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\displaystyle P(x_1\leq X\leq x_2)=\int _{x_1}^{x_2} f(x).dx = F(x_2) - F(x_1)\)</span>
+</p>
+</div>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+    1
+F (x2 )                                       F (x)
+
+
+  0.6
+                                                      F (x2 ) − F (x1 )
+  0.4
+          f (x)
+                       Z x2
+F (x1 )                       f (x) dx
+                        x1
+
+     0
+                  x1                     x2
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Opmerking: Het is gevaarlijk om \(f\) en \(F\) te vergelijken!
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(f(x)\) is geen gans, maar een kansdichtheid;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(F(x)\) is wel een kans.
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Verwachtingswaarde en variantie ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">3&#x2003;</span>Verwachtingswaarde en variantie</h5>
+<a id="mkpiweb-autopage-17"></a>
+<!--
+...... subsubsection Definities ......
+-->
+<h6 id="autosec-18"><span class="sectionnumber">&#x2003;</span>Definities</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+We breiden ook hier de definities uit tot een ’oneindige som’, door over te gaan naar integralen:
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\begin {aligned} E(X)=\mu _X &amp;\,= \int _{a}^{b} x\,f(x)\,dx \\[6pt] \operatorname {var}(X)=\sigma _X^{2} &amp;\,= \int _{a}^{b} \bigl (x-\mu _X\bigr )^{2} f(x)\,dx \\[6pt] \sigma _X
+&amp;\,= \sqrt {\operatorname {var}(X)} \end {aligned} \) </span>
+</p>
+</div>
+<!--
+...... subsubsection Figuren ......
+-->
+<h6 id="autosec-20"><span class="sectionnumber">&#x2003;</span>Figuren</h6>
+<a id="mkpiweb-autopage-20"></a>
+<div class="center">
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:238pt ; ">
+
+<a id="mkpiweb-autopage-22"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+        zwaartepunt
+
+
+
+
+f (x)
+
+
+
+
+            µX
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+Verwachtingswaarde
+</p>
+
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:238pt ; ">
+
+<a id="mkpiweb-autopage-25"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+f (x)
+
+                 σX
+
+
+        µX − σ X µX + σ X
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+Standaardafwijking
+</p>
+
+
+</div>
+
+</div>
+<!--
+...... subsubsection Leuk weetje ......
+-->
+<h6 id="autosec-28"><span class="sectionnumber">&#x2003;</span>Leuk weetje</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+\[ \operatorname {var}(X)=E(X^2)-\bigl (E(X)\bigr )^2 \]
+</p>
+<!--
+...... subsection Opmerking ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">4&#x2003;</span>Opmerking</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+Indien de mogelijke X-waarden gans \(\mathbb {R}\) vormen, zullen de grenzen \(a\) en \(b\) in de integralen van \(P(x_1\leq X\leq x_2)\), \(E(X)\) en \(var(X)\) uiteraard moeten vervangen worden door \(-\infty \) en
+\(+\infty \). De bekomen integralen noemen we dan oneigenlijke integralen. We berekenen ze met analoge methodes als de gewone bepaalde integralen (basisintegralen, substitutie, partie&#x0308;le integratie). Bij het invullen
+van de grenzen zullen we echter soms rekenregels voor limieten moeten toepassen. Zie hiervoor de oefeningen en bewijzen verder in dit hoofdstuk.
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">5&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-30"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-31"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+Bij het verwerken van stukken metaaldraad van 15cm in een fabriek blijft van elk stuk draad een overschot met lengte \(x\)cm over. Het getal \(x\) kunnen we beschouwen als de getalwaarde van een continue kansvariabele \(X\)
+waarvoor geldt:
+</p>
+<div class="center">
+
+<p>
+\(f(x)=\frac {1}{15}\)
+</p>
+</div>
+
+<p>
+Wat is de kans dat een lukraak genomen draadoverschot een lengte van tenminste 5cm heeft?
+</p>
+
+<div class="oplossing">
+
+<p>
+Aangezien \(f(x)=\frac {1}{15}\), is \(X\) uniform verdeeld op \([0,15]\).
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                          Z 15
+                                                                                                                 1
+                                                                                            P (X ≥ 5) =             dx
+                                                                                                           5     15
+                                                                                                        1
+                                                                                                     =    (15 − 5)
+                                                                                                       15
+                                                                                                       10
+                                                                                                     =
+                                                                                                       15
+                                                                                                           2
+                                                                                                     =
+                                                                                                           3
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(X\geq 5) &amp;= \int _5^{15} \frac {1}{15}\,dx\\ &amp;= \frac {1}{15}(15-5)\\ &amp;= \frac {10}{15}\\ &amp;= \boxed {\frac {2}{3}}
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+             ·10−2
+                             1
+                     f (x) = 15
+        1
+        15
+
+
+f (x)
+                         P (X ≥ 5)
+
+
+
+             0       5               15
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Dus de kans bedraagt \(\frac {2}{3}\approx 0.667\).
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-36"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p>
+In een bepaald elektriciteitsnet is het tijdsverloop tussen twee stroomonderbrekingen gelijk aan \(x\) uur. Het getal \(x\) kunnen we beschouwen als de getalwaarde van een continue exponentieel verdeelde kansvariabele \(X\)
+waarvoor geldt:
+</p>
+<div class="center">
+
+<p>
+\(f(x)=\frac {1}{24}.e^{-\frac {x}{24}}\)
+</p>
+</div>
+
+<p>
+Stel dat zich op dit ogenblik een stroomonderbreking voordoet. Wat is de kans dat zich binnen de 24 uur nog een onderbreking voordoet?
+</p>
+<div class="oplossing">
+
+<p>
+\(X\) is exponentieel verdeeld met parameter \(\lambda =\frac {1}{24}\).
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                Z 24
+                                                                                                                          1 −x/24
+                                                                                                 P (X ≤ 24) =               e     dx
+                                                                                                                    0    24
+                                                                                                                h             i24
+                                                                                                            = −e−x/24
+                                                                                                                                0
+                                                                                                                        −1
+                                                                                                            = −e             − (−1)
+                                                                                                            = 1 − e−1
+
+                                                                                                            ≈ 0.6321
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(X\leq 24) &amp;= \int _0^{24} \frac {1}{24}e^{-x/24}\,dx\\ &amp;= \left [-e^{-x/24}\right ]_0^{24}\\ &amp;= -e^{-1}-(-1)\\ &amp;= 1-e^{-1}\\ &amp;\approx \boxed {0.6321}
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+f (x)
+                     1 −x/24
+             f (x) = 24 e
+
+
+                               x
+ 0      24
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+De kans dat er binnen de \(24\) uur opnieuw een stroomonderbreking optreedt, is dus ongeveer \(63.2\%\).
+</p>
+
+<p>
+Met <span
+     class="fbox"
+     style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+     class="makebox"
+     style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span>:<br />
+<span
+     class="fbox"
+     style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+     class="makebox"
+     style="display:inline-block ; width:68pt ; text-align:center ; "
+><kbd>Y=</kbd></span></span>: \(\mathtt {Y_1=\frac {1}{24}e^{-X/24}}\)<br />
+<span
+     class="fbox"
+     style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+     class="makebox"
+     style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span><span
+     class="fbox"
+     style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+     class="makebox"
+     style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>calc</kbd></span></span>\(\mathtt {7:\int f(x)dx}\)<br />
+of <kbd>fnInt(Y_1,X,0,24)</kbd>
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld 3 ......
+-->
+<h6 id="autosec-41"><span class="sectionnumber">&#x2003;</span>Voorbeeld 3</h6>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+In een telefooncentrale is het tijdsverloop tussen het ontvangen van een oproep en het tot stand brengen van de verbinding gelijk aan \(x\) seconden. In sommige gevallen kunnen we dit getal \(x\) beschouwen als de getalwaarde
+van een continue exponentieel verdeelde kansvariabele \(X\) waarvoor geldt:
+</p>
+<div class="center">
+
+<p>
+\(f(x)=a.e^{-ax}\) met \(a&gt;0\)
+</p>
+</div>
+
+<p>
+Bepaal de constante \(a\) zodanig dat \(P(X\leq 2)=0.95\)
+</p>
+
+<div class="oplossing">
+
+<p>
+We gebruiken de integraal van de dichtheidsfunctie:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       P (X ≤ 2) = 0.95
+                                                                                     Z 2
+                                             ⇔                                           ae−ax dx = 0.95
+                                                                                        0
+                                                                                        −2a
+                                             ⇔                                     −e        − (−e0 ) = 0.95
+                                                                                             −ax 2
+                                             ⇔                                               −e    0
+                                                                                                      = 0.95
+                                             ⇔                                                1 − e−2a = 0.95
+                                             ⇔                                                   e−2a = 0.05
+                                             ⇔                                                    −2a = ln(0.05)
+                                                                                                           ln(0.05)
+                                             ⇔                                                      a=−
+                                                                                                              2
+                                                                                                         ln(20)
+                                             ⇔                                                      a=          ≈ 1.4979
+                                                                                                            2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; P(X\leq 2) &amp;= 0.95 &amp;&amp;\\ &amp;\Leftrightarrow &amp; \int _0^2 a e^{-ax}\,dx &amp;= 0.95 &amp;&amp;\\ &amp;\Leftrightarrow &amp; -e^{-2a}-(-e^0) &amp;= 0.95 &amp;&amp;\\
+&amp;\Leftrightarrow &amp; \left [-e^{-ax}\right ]_0^2 &amp;= 0.95 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 1-e^{-2a} &amp;= 0.95 &amp;&amp;\\ &amp;\Leftrightarrow &amp; e^{-2a} &amp;= 0.05
+&amp;&amp;\\ &amp;\Leftrightarrow &amp; -2a &amp;= \ln (0.05) &amp;&amp;\\ &amp;\Leftrightarrow &amp; a &amp;= -\frac {\ln (0.05)}{2} &amp;&amp;\\ &amp;\Leftrightarrow &amp; \Aboxed
+{a&amp;=\frac {\ln (20)}{2}\approx 1.4979} &amp;&amp;
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+f (x)
+
+
+        f (x) = ae−ax
+
+        a = ln(20)
+               2
+
+
+
+
+                        x
+0       2
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-46"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+Oefeningen uit het handboek <i>Van Basis tot Limiet, Statistiek</i>: nrs. 21, 22, 27 en 28 p. 107 e.v..
+</p>
+<!--
+...... section De normale verdeling ......
+-->
+<h4 id="autosec-47"><span class="sectionnumber">II&#x2003;</span>De normale verdeling</h4>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+Naast de binomiale verdeling, kunnen we ook de normale verdeling beschouwen. De normale verdeling is zonder twijfel de meest gebruikte verdeling in de statistiek. Van heel wat gegevens is immers geweten dat ze normaal verdeeld
+zijn:
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> punten op een examen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> lengte en gewicht van mensen en dieren
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> het IQ
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> de effectieve inhoud van machinaal gevulde verpakkingen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> sportprestaties
+</p>
+</li>
+</ul>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+                                                      Deze leerling behaalde een resul-
+                                                      taat dat één standaardafwijking
+                                                      boven het klasgemiddelde ligt en
+                                                      presteerde daarmee beter dan 84.1%
+                                                      van haar klasgenoten.
+
+
+
+
+0.1%   2.2%   13.6%   34.1%        34.1%      13.6%       2.2%
+
+x̄−3σ     x̄−2σ   x̄−σ        x̄       x̄+σ       x̄+2σ        x̄+3σ
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Men mag hier echter niet uit besluiten dat alles normaal verdeeld zou zijn. Typische voorbeelden van niet-normaal verdeelde gegevens zijn:
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> winst of verlies bij beursgang
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> leeftijd bij het overlijden van mens of dier
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> inkomen
+</p>
+</li>
+</ul>
+<div class="center">
+
+<p>
+
+<a href="non-normal.png" target="_blank" ><img
+    src="non-normal.png"
+    style="
+    width:325pt;
+    "
+    class="inlineimage"
+    alt="(image)"
+></a>
+</p>
+</div>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-52"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+<i>Een continue kansvariabele \(X\) is normaal verdeeld als haar kansdichtheidsfunctie \(f\) gegeven wordt door</i>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\displaystyle f(x)=\dfrac {1}{\sigma {\sqrt {2\pi }}}\;e^{-\dfrac {1}{2}\left (\dfrac {x-\mu }{\sigma }\right )^2}\)</span>
+</p>
+</div>
+<!--
+...... subsubsection Notatie ......
+-->
+<h6 id="autosec-54"><span class="sectionnumber">&#x2003;</span>Notatie</h6>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+Een kansvariabele \(X\) die normaal verdeeld is wordt kort genoteerd met
+</p>
+
+<p>
+\[X\sim N(\mu , \sigma )\]
+</p>
+
+<p>
+Het is duidelijk dat de kansfunctie afhangt van twee parameters, het gemiddelde \(\mu \) en de standaardafwijking \(\sigma \) die de ligging van de verdeling bepalen.
+</p>
+<!--
+...... subsubsection Eigenschappen van de normale verdeling ......
+-->
+<h6 id="autosec-55"><span class="sectionnumber">&#x2003;</span>Eigenschappen van de normale verdeling</h6>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+Als \(X\sim N(\mu , \sigma )\), dan geldt
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> verwachtingswaarde: \(E(X)=\mu \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> variantie: \(var(X)=\sigma ^2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> standaardafwijking: \(\sigma \)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Grafische betekenis van en ......
+-->
+<h5 id="autosec-56"><span class="sectionnumber">2&#x2003;</span>Grafische betekenis van \(\mu \) en \(\sigma \)</h5>
+<a id="mkpiweb-autopage-56"></a>
+<!--
+...... subsubsection Grafische betekenis van ......
+-->
+<h6 id="autosec-57"><span class="sectionnumber">&#x2003;</span>Grafische betekenis van \(\mu \)</h6>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<p>
+We laten in het functievoorschrift van de normale verdeling
+</p>
+
+<p>
+\[f(x)=\dfrac {1}{\sigma {\sqrt {2\pi }}}\;e^{-\dfrac {1}{2}\left (\dfrac {x-\mu }{\sigma }\right )^2}\]
+</p>
+
+<p>
+het gemiddelde \(\mu \) varie&#x0308;ren, terwijl we de standaardafwijking \(\sigma \) constant houden (\(\sigma =1\)). Hieronder zie je de grafieken voor verschillende waarden van \(\mu \):
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+                              0.5
+                                    µ=0
+                              0.4
+     µ = −3
+                              0.3             µ=2
+
+                              0.2
+
+                              0.1
+
+
+−6   −5   −4   −3   −2   −1          1    2   3   4   5
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+We merken dat de grafieken van al deze normale verdelingen met constante \(\sigma =1\) op een verschuiving evenwijdig met de \(x\)-as met \(\mu \) eenheden na gelijk zijn.<br />
+
+</p>
+
+<p>
+Voor welke \(x\)-waarde vinden we steeds de top van de klokvormige kromme? <span class="opl opl-fill" >\(x=\mu \)</span>
+</p>
+<!--
+...... subsubsection Grafische betekenis van ......
+-->
+<h6 id="autosec-61"><span class="sectionnumber">&#x2003;</span>Grafische betekenis van \(\sigma \)</h6>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<p>
+We laten nu in het functievoorschrift
+</p>
+
+<p>
+\[f(x)=\dfrac {1}{\sigma {\sqrt {2\pi }}}\;e^{-\dfrac {1}{2}\left (\dfrac {x-\mu }{\sigma }\right )^2}\]
+</p>
+
+<p>
+de standaardafwijking \(\sigma \) varie&#x0308;ren, terwijl we het gemiddelde \(\mu \) constant houden op \(\mu =0\).
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+0.8
+      σ = 0.5
+
+0.6
+
+
+
+0.4
+
+        σ=1
+
+0.2        σ=2
+                 σ=4
+--><img
+    src="mkpiweb-images/image-10.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+We merken dat de grafieken van al deze normale verdelingen met constante \(\mu =0\) qua vorm gelijk zijn. Ze hebben wel allemaal een uitrekking of inkrimping evenwijdig met de \(y\)-as ondergaan.<br />
+
+</p>
+
+<p>
+Vul volgende tabel aan:
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:    1px solid black">\(\sigma \)</td>
+<td class="tdc">Hoogte van de top</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right: 1px solid black">0.5</td>
+<td class="tdc"><span class="opl opl-fill" >\(\frac {1}{0.5\sqrt {2\pi }} \approx 0.7979\)</span></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">1</td>
+<td class="tdc"><span class="opl opl-fill" >\(\frac {1}{1\sqrt {2\pi }} \approx 0.3989\)</span></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">2</td>
+<td class="tdc"><span class="opl opl-fill" >\(\frac {1}{2\sqrt {2\pi }} \approx 0.1995\)</span></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">4</td>
+<td class="tdc"><span class="opl opl-fill" >\(\frac {1}{4\sqrt {2\pi }} \approx 0.0997\)</span></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:    1px solid black">&#x22EE;</td>
+<td class="tdc">&#x22EE;</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(\sigma \)</td>
+<td class="tdc"><span class="opl opl-fill" >\(\frac {1}{\sigma \sqrt {2\pi }}\)</span></tr>
+</table>
+
+</div>
+<!--
+...... subsubsection Besluit grafische betekenis van en ......
+-->
+<h6 id="autosec-67"><span class="sectionnumber">&#x2003;</span>Besluit grafische betekenis van \(\mu \) en \(\sigma \)</h6>
+<a id="mkpiweb-autopage-67"></a>
+
+
+<p>
+\(f\) is een symmetrische klokvormige kromme met top \((\mu ;\approx \frac {0.4}{\sigma })\). De waarde van \(\mu \) bepaalt dus de ligging van de top en de waarde van \(\sigma \) bepaalt de spreiding rond deze top.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-68"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-68"></a>
+
+
+<p>
+Bepaal in de onderstaande grafieken het gemiddelde \(\mu \) en de standaardafwijking \(\sigma \) van de vet gedrukte functie.
+</p>
+<div class="multicols">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-11"
+    class="lateximagesource"
+><!--
+          0.8
+
+          0.6
+
+          0.4
+
+          0.2
+
+
+
+−4   −2         2   4
+--><img
+    src="mkpiweb-images/image-11.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+\[\mu =\opl {3}\]
+</p>
+
+<p>
+\[\sigma =\opl {0.5}\]
+</p>
+
+</div>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-12"
+    class="lateximagesource"
+><!--
+          0.8
+
+          0.6
+
+          0.4
+
+          0.2
+
+
+
+−4   −2         2   4
+--><img
+    src="mkpiweb-images/image-12.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+\[\mu =\opl {-2}\]
+</p>
+
+<p>
+\[\sigma =\opl {2}\]
+</p>
+
+</div>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-13"
+    class="lateximagesource"
+><!--
+          0.8
+
+          0.6
+
+          0.4
+
+          0.2
+
+
+
+−4   −2         2   4
+--><img
+    src="mkpiweb-images/image-13.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+\[\mu =\opl {-3}\]
+</p>
+
+<p>
+\[\sigma =\opl {1}\]
+</p>
+
+</div>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-14"
+    class="lateximagesource"
+><!--
+          0.8
+
+          0.6
+
+          0.4
+
+          0.2
+
+
+
+−4   −2         2   4
+--><img
+    src="mkpiweb-images/image-14.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+\[\mu =\opl {0}\]
+</p>
+
+<p>
+\[\sigma =\opl {4}\]
+</p>
+
+</div>
+
+</div>
+<!--
+...... section De standaardnormale verdeling ......
+-->
+<h4 id="autosec-82"><span class="sectionnumber">III&#x2003;</span>De standaardnormale verdeling</h4>
+<a id="mkpiweb-autopage-82"></a>
+<!--
+...... subsection Definitie en kenmerken ......
+-->
+<h5 id="autosec-83"><span class="sectionnumber">1&#x2003;</span>Definitie en kenmerken</h5>
+<a id="mkpiweb-autopage-83"></a>
+
+
+<p>
+In de vorige paragraaf werden grafieken van de normale verdeling verschoven (met behulp van \(\mu \)) en herschaald (met behulp van \(\sigma \)). Het is dus mogelijk om de normale verdeling te
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> verschuiven zodat het gemiddelde \(\mu =0\) wordt,
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> herschalen zodat de standaardafwijking \(\sigma =1\) wordt.
+</p>
+</li>
+</ul>
+
+<p>
+Een normale verdeling met gemiddelde 0 en standaardafwijking 1 of kort \(N(0,1)\) noemen we standaardnormaal verdeeld. Om aan te duiden dat we met de standaardnormale verdeling werken, gebruiken we de letter
+\(Z=\frac {X-\mu }{\sigma }\) voor gestandaardiseerde kansvariabele i.p.v. \(X\).
+</p>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                               1    z2
+                                                                                      f (z) = √ · e− 2
+                                                                                               2π
+                                                                                                              Z k
+                                                                                      F (k) = P (Z ≤ k) =           f (z) · dz = Φ(k) (zie verder)
+                                                                                                               −∞
+
+                                                                                               Z +∞
+                                                                                     E(Z) =           z · f (z) · dz = 0     ⇒µ=0
+                                                                                               −∞
+
+                                                                                               Z +∞
+                                                                                    var(Z) =          z 2 · f (z) · dz = 1   ⇒σ=1
+                                                                                               −∞
+
+
+-->
+
+<p>
+
+\begin{align*}
+f(z) &amp;= \frac {1}{\sqrt {2\pi }} \cdot e^{-\frac {z^2}{2}} \\[6pt] F(k) &amp;= P(Z\leq k) = \int _{-\infty }^{k} f(z) \cdot dz = \Phi (k) \text { (zie verder)} \\[6pt] E(Z) &amp;= \int
+_{-\infty }^{+\infty } z \cdot f(z) \cdot dz = 0 \; \quad \Rightarrow \mu = 0 \\[6pt] \operatorname {var}(Z) &amp;= \int _{-\infty }^{+\infty } z^2 \cdot f(z) \cdot dz = 1 \quad \Rightarrow
+\sigma = 1
+\end{align*}
+
+</p>
+
+</div>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-15"
+    class="lateximagesource"
+><!--
+                              µ=0
+
+                                                     1   2
+                                            f (z) = √ e−z /2
+                                                     2π
+
+f (z)
+                            σ=1
+                                      σ=1
+
+
+        Totale   opp. = 1
+        −3       −2     −1        0         1     2      3
+                                  z
+--><img
+    src="mkpiweb-images/image-15.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+We bewijzen de eigenschappen voor \(E(Z)=0\) en \(var(Z)=1\).
+</p>
+<!--
+...... subsubsection Stelling:     ......
+-->
+<h6 id="autosec-87"><span class="sectionnumber">&#x2003;</span>Stelling: \(E(Z)=0\)</h6>
+<a id="mkpiweb-autopage-87"></a>
+
+
+<div class="oplossing">
+
+<p>
+Voor de standaardnormale verdeling geldt:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                         Z +∞
+                                                                                               E(Z) =           z · f (z) dz
+                                                                                                         −∞
+                                                                                                         Z +∞
+                                                                                                                   1      2
+                                                                                                     =        z · √ e−z /2 dz
+                                                                                                        −∞         2π
+                                                                                                             Z +∞
+                                                                                                         1              2
+                                                                                                     =√             ze−z /2 dz
+                                                                                                         2π −∞
+                                                                                                           1 h −z2 /2 i+∞
+                                                                                                     = −√        e
+                                                                                                           2π           −∞
+
+                                                                                                           1
+                                                                                                     = − √ (0 − 0)
+                                                                                                           2π
+                                                                                                     = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+E(Z) &amp;= \int _{-\infty }^{+\infty } z\cdot f(z)\,dz\\ &amp;= \int _{-\infty }^{+\infty } z\cdot \frac {1}{\sqrt {2\pi }}e^{-z^2/2}\,dz\\ &amp;= \frac {1}{\sqrt {2\pi }}\int _{-\infty
+}^{+\infty } z e^{-z^2/2}\,dz\\ &amp;= -\frac {1}{\sqrt {2\pi }}\left [e^{-z^2/2}\right ]_{-\infty }^{+\infty }\\ &amp;= -\frac {1}{\sqrt {2\pi }}(0-0)\\ &amp;= \boxed {0}
+\end{align*}
+
+</p>
+
+<p>
+Opmerking: \(z e^{-z^2/2}\) is een oneven functie is, zodat de integraal over \(]-\infty ,+\infty [\) ook daarom gelijk is aan \(0\).
+</p>
+
+</div>
+<!--
+...... subsubsection Stelling:     ......
+-->
+<h6 id="autosec-88"><span class="sectionnumber">&#x2003;</span>Stelling: \(var(Z)=1\)</h6>
+<a id="mkpiweb-autopage-88"></a>
+
+
+<div class="oplossing">
+
+<p>
+Omdat \(E(Z)=0\), geldt:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                Z +∞
+                                                                     var(Z) =          z 2 · f (z) dz
+                                                                                −∞
+                                                                                Z +∞
+                                                                                         1      2
+                                                                            =     z 2 · √ e−z /2 dz
+                                                                              −∞          2π
+                                                                                 Z +∞
+                                                                              1                  2
+                                                                            =√           z · ze−z /2 dz
+                                                                               2π −∞
+                                                                                                                   2
+                                                                                        u=z           dv = ze−z /2 dz
+                                                                                                                    2
+                                                                                       du = dz          v = −e−z /2
+                                                                                      h                i+∞       Z +∞               
+                                                                              1                   2                         2
+                                                                            =√             −ze−z /2           +          e−z /2 dz
+                                                                               2π                       −∞         −∞
+                                                                                                      i+∞     Z +∞
+                                                                                1       h
+                                                                                        2                              1    2
+                                                                            = −√    ze−z /2    +                     √ e−z /2 dz
+                                                                                 2π         −∞                    −∞   2π
+                                                                                                                     |   {z   }
+                                                                                                                          =f (z)
+                                                                                       h    2
+                                                                                                i+∞           2             2
+                                                                                        ze−z /2     = lim ze−z /2 − lim ze−z /2
+                                                                                                 −∞  z→+∞          z→−∞
+                                                                                                     |    {z    } |     {z    }
+                                                                                                                   →+∞·0                 →−∞·0
+                                                                                                                                   2                 z
+                                                                                                                        lim ze−z /2 = lim            2
+                                                                                                                        z→+∞                 z→+∞ ez /2
+
+                                                                                                                                              +∞
+                                                                                                                                         =”      ”
+                                                                                                                                              +∞
+                                                                                                                                                         1
+                                                                                                                                         = lim
+                                                                                                                                             z→+∞ 2z ez /2
+                                                                                                                                                             2
+                                                                                                                                                   2
+                                                                                                                                                1
+                                                                                                                                         =
+                                                                                                                                             +∞ · +∞
+                                                                                                                                         =0
+                                                                                                          =0−0
+                                                                                                          =0
+                                                                                  Z +∞
+                                                                            =0+             f (z) dz          (omdat \(f(z)\) een kansfunctie is)
+                                                                                      −∞
+                                                                                  |         {z     }
+                                                                                            =1
+
+                                                                            = 1
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+var(Z) &amp;= \int _{-\infty }^{+\infty } z^2\cdot f(z)\,dz \\ &amp;= \int _{-\infty }^{+\infty } z^2\cdot \frac {1}{\sqrt {2\pi }}e^{-z^2/2}\,dz \\ &amp;= \frac {1}{\sqrt {2\pi }}\int
+_{-\infty }^{+\infty } z \cdot z e^{-z^2/2}\,dz \\ &amp; \qquad \qquad \begin{aligned} u &amp;= z &amp; dv &amp;= z e^{-z^2/2}dz \\ du &amp;= dz &amp; v &amp;= -e^{-z^2/2} \end {aligned}
+\\[0.5em] &amp;= \frac {1}{\sqrt {2\pi }}\left (\left [-z e^{-z^2/2}\right ]_{-\infty }^{+\infty } + \int _{-\infty }^{+\infty } e^{-z^2/2}\,dz\right ) \\ &amp;= -\frac {1}{\sqrt {2\pi }}\left
+[z e^{-z^2/2}\right ]_{-\infty }^{+\infty } + \int _{-\infty }^{+\infty }\underbrace {\frac {1}{\sqrt {2\pi }} e^{-z^2/2}}_{=f(z)}\,dz\\ &amp;\qquad \qquad \begin{aligned} \left [z
+e^{-z^2/2}\right ]_{-\infty }^{+\infty } &amp;= \underbrace {\lim _{z\to +\infty }ze^{-z^2/2}}_{\to +\infty \cdot 0}-\underbrace {\lim _{z\to -\infty }ze^{-z^2/2}}_{\to -\infty \cdot 0}\\
+&amp;\qquad \qquad \begin{aligned} \lim _{z\to +\infty }ze^{-z^2/2} &amp;= \lim _{z\to +\infty }\dfrac {z}{e^{z^2/2}}\\ &amp;= &quot;\dfrac {+\infty }{+\infty }&quot;\\ &amp;= \lim _{z\to
++\infty }\dfrac {1}{\frac {2z}{2}e^{z^2/2}}\\ &amp;= \dfrac {1}{+\infty \cdot +\infty }\\ &amp;= 0 \end {aligned}\\ &amp;= 0 - 0\\ &amp;= 0 \end {aligned}\\ &amp;= 0 + \underbrace {\int
+_{-\infty }^{+\infty } f(z)\,dz}_{=1} \qquad \text {(omdat $f(z)$ een kansfunctie is)}\\ &amp;= \boxed {1}
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Kansen berekenen bij standaardnormaal verdeelde populaties ......
+-->
+<h5 id="autosec-89"><span class="sectionnumber">2&#x2003;</span>Kansen berekenen bij standaardnormaal verdeelde populaties</h5>
+<a id="mkpiweb-autopage-89"></a>
+
+
+<p>
+Om de kans te berekenen dat iemand minder heeft dan een bepaalde waarde \(k\), volstaat het om de integraal voor \(F(k)\) te berekenen. Dit stelt de oppervlakte voor van het deel van het vlak begrepen tussen de
+gestandaardiseerde normale kromme \(f(z)\), de z-as en links van \(z=k\).<br />
+
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-16"
+    class="lateximagesource"
+><!--
+                           µ=0
+                                          1   2
+                                 f (z) = √ e−z /2
+        Φ(k) = P (Z ≤ k)                  2π
+
+f (z)
+
+
+
+
+                            0    k
+                            z
+--><img
+    src="mkpiweb-images/image-16.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+<p>
+\[F(k)=P(Z\leq k)=\dfrac {1}{\sqrt {2\pi }}\int _{-\infty }^{k}e^{-\frac {1}{2}z^2}dz=\Phi (k)\;.\]
+</p>
+
+<p>
+Omdat de integraal voor \(F\) enkel met numerieke methodes te berekenen valt (bv m.b.v. de middelpuntsregel), zullen wij hem voor de oefeningen niet zelf berekenen. Voor de standaardnormale verdeling bestaat er een tabel
+waaruit je deze kansen rechtstreeks kan aflezen, zie in de bijlage achteraan, of zie ook in het handboek <i>Van Basis tot Limiet, Statistiek</i> p. 51. Uiteraard kan deze integraal ook met onze GRM berekend worden (normalcdf).
+</p>
+
+<p>
+Naar verdere studies toe is het echter belangrijk goed met de tabel te leren werken.
+</p>
+<div class="center">
+
+<p>
+<span
+      class="fbox"
+      style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+> <b>Historisch weetje.</b> De eerste gepubliceerde tabel die als voorloper van onze moderne standaardnormaaltabel kan worden beschouwd, werd opgesteld door Chrétien Kramp in 1799. Laplace had al eerder het nut van zulke
+tabellen ingezien, maar Kramp was degene die ze effectief publiceerde.<br />
+
+David, H. A. (2005). <i>Tables Related to the Normal Distribution: A Short History</i>. <i>The American Statistician</i>, 59(4), 309–311. <kbd>https://doi.org/10.1198/000313005X70911</kbd> </span>
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-94"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-94"></a>
+
+
+<p>
+Gegeven: Een populatie die kan beschreven worden door een standaardnormale verdeling. Bereken het percentage waarnemingen kleiner dan \(1.36\).
+</p>
+
+<p>
+Figuur:
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-17"
+    class="lateximagesource"
+><!--
+                      1   2
+             f (z) = √ e−z /2
+                      2π
+
+
+
+
+0.9131
+
+         0    1.36
+         z
+--><img
+    src="mkpiweb-images/image-17.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+In symbolen: \(\Phi (1.36)=P(Z\leq 1.36)\)
+</p>
+
+<p>
+Methode:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Zoek de waarde \(1.36\) in de tabel.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> Voor de eerste 2 cijfers kijk je in de linkerkolom van de tabel: ga op zoek naar de rij die overeenstemt met de waarde 1.3.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Vervolgens schuif je op naar rechts tot de kolom die overeenkomt met 0.06.
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Het percentage waarnemingen kleiner dan 1.36 bedraagt dus 91.308&percnt;
+</p>
+</li>
+</ul>
+
+<p>
+Met <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span>:<br />
+<br />
+<kbd>normalcdf(-1E99,1.36,0,1)</kbd> &#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span><span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>distr</kbd></span></span><span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:121pt ; text-align:center ; "
+><kbd>2:normalcdf(</kbd></span></span><br />
+<br />
+<kbd>= 0.9130858&#x2026;</kbd><br />
+<br />
+
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-98"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-98"></a>
+
+
+<p>
+Gegeven: Een populatie die kan beschreven worden door een standaardnormale verdeling. Bereken het percentage waarnemingen gelegen tussen \(1.03\) en \(2.95\).
+</p>
+
+<p>
+In symbolen: \(P(1.03\leq Z\leq 2.95)\)
+</p>
+
+<p>
+Dit is niet rechtstreeks in de tabel af te lezen. We herschrijven het gevraagde als volgt:
+</p>
+
+<div class="oplossing">
+
+<p>
+Standaardnormale verdeling met gearceerde oppervlakte tussen \(z=1.03\) en \(z=2.95\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                             P (1.03 ≤ Z ≤ 2.95) = P (Z ≤ 2.95) − P (Z ≤ 1.03)
+                                                                                                                = Φ(2.95) − Φ(1.03)
+                                                                                                                = 0.9984 − 0.8485
+
+                                                                                                                = 0.1499
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(1.03\leq Z\leq 2.95) &amp;= P(Z\leq 2.95)-P(Z\leq 1.03)\\ &amp;= \Phi (2.95)-\Phi (1.03)\\ &amp;= 0.9984-0.8485\\ &amp;\boxed {= 0.1499}
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-18"
+    class="lateximagesource"
+><!--
+       0.1499
+    1.03        2.95
+z
+--><img
+    src="mkpiweb-images/image-18.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Dus ongeveer \(14.99\%\) van de waarnemingen ligt tussen \(1.03\) en \(2.95\).
+</p>
+
+<p>
+Met <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span>:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                 P (1.03 ≤ Z ≤ 2.95) = normalcdf(1.03, 2.95, 0, 1)
+
+                                                                                                     ≈ 0.1499
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(1.03\leq Z\leq 2.95) &amp;= \texttt {normalcdf}(1.03,2.95,0,1)\\ &amp;\approx \boxed {0.1499}
+\end{align*}
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>DISTR</kbd></span></span> <kbd>2:normalcdf(</kbd>
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld 3 ......
+-->
+<h6 id="autosec-102"><span class="sectionnumber">&#x2003;</span>Voorbeeld 3</h6>
+<a id="mkpiweb-autopage-102"></a>
+
+
+<p>
+Gegeven: Een populatie die kan beschreven worden door een standaardnormale verdeling. Bereken het percentage waarnemingen kleiner dan \(-2.07\).
+</p>
+
+<p>
+In symbolen: \(P(Z\leq -2.07)\)
+</p>
+
+<p>
+Ook dit is niet rechtstreeks uit de tabel af te lezen, maar we kunnen het gevraagde opnieuw herschrijven tot iets dat wel uit de tabel af te lezen is:
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                    P (Z ≤ −2.07) = P (Z ≥ 2.07)
+                                                                                                                    = 1 − P (Z ≤ 2.07)
+                                                                                                                    = 1 − Φ(2.07)
+                                                                                                                    = 1 − 0.9808
+
+                                                                                                                    = 0.0192
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(Z\leq -2.07) &amp;= P(Z\geq 2.07)\\ &amp;= 1-P(Z\leq 2.07)\\ &amp;= 1-\Phi (2.07)\\ &amp;= 1-0.9808\\ &amp;= \boxed {0.0192}
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-19"
+    class="lateximagesource"
+><!--
+0.0192
+     −2.07   0
+             z
+--><img
+    src="mkpiweb-images/image-19.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Dus ongeveer \(1.92\%\) van de waarnemingen is kleiner dan \(-2.07\).
+</p>
+
+<p>
+Met <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span>:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                            P (Z ≤ −2.07) = normalcdf(-1E99,-2.07,0,1)
+
+                                                                                           ≈ 0.0192
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(Z\leq -2.07) &amp;= \texttt {normalcdf(-1E99,-2.07,0,1)}\\ &amp;\approx \boxed {0.0192}
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsubsection Overzicht formules met ......
+-->
+<h6 id="autosec-106"><span class="sectionnumber">&#x2003;</span>Overzicht formules met \(a,b \in \mathbb {R}^+\)</h6>
+<a id="mkpiweb-autopage-106"></a>
+<div class="multicols">
+
+<p>
+\[P(Z\leq a)=\Phi (a)\]
+</p>
+
+<p>
+\[P(Z\geq a)=1-\Phi (a)\]
+</p>
+
+<p>
+\[P(Z\leq -a)=1-\Phi (a)\]
+</p>
+
+<p>
+\[P(Z\geq -a)=\Phi (a)\]
+</p>
+
+
+
+
+<p>
+\[P(a\leq Z \leq b)=\Phi (b)-\Phi (a)\]
+</p>
+
+<p>
+\[P(-a\leq Z \leq b)=\Phi (b)+\Phi (a)-1\]
+</p>
+
+<p>
+\[P(-a\leq Z \leq -b)=\Phi (a)-\Phi (b)\]
+</p>
+
+</div>
+
+<p>
+Het is niet nodig om deze formules uit het hoofd te leren. Maak een schets van de standaardnormale en duid er het gevraagde gebied er op aan. Beredeneer dan zelf hoe je aan het gebied komt door enkel \(\Phi (z)\) te gebruiken.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-108"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-108"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-109">Oefening 1</h5>
+<a id="mkpiweb-autopage-109"></a>
+
+
+<p>
+Bepaal met de tabel van de standaardnormale verdeling volgende kansen, maak telkens een verduidelijkende schets en controleer met je GRM:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(P(Z\leq 0.97)=\)<span class="opl opl-fill" >\(\Phi (0.97)=0.8340\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(P(0\leq Z\leq 0.71)=\)<span class="opl opl-fill" >\(\Phi (0.71)-\Phi (0)=0.7611-0.5000=0.2611\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(P(2\leq Z \leq 2.5)=\)<span class="opl opl-fill" >\(\Phi (2.50)-\Phi (2.00)=0.9938-0.9772=0.0166\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(P(Z \leq -0.44)=\)<span class="opl opl-fill" >\(\Phi (-0.44)=1-\Phi (0.44)=1-0.6700=0.3300\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(P(-1.42 \leq Z \leq 2.42)=\)<span class="opl opl-fill" >\(\Phi (2.42)-\Phi (-1.42)=0.9922-0.0778=0.9144\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(P(Z \geq -0.44)=\)<span class="opl opl-fill" >\(1-\Phi (-0.44)=1-0.3300=0.6700\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(P(-2.42 \leq Z \leq -1.42)=\)<span class="opl opl-fill" >\(\Phi (-1.42)-\Phi (-2.42)=0.0778-0.0078=0.0700\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(P(Z \geq 0.44)=\)<span class="opl opl-fill" >\(1-\Phi (0.44)=1-0.6700=0.3300\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(i)</span> \(P(|Z| \leq 2.1)=\)<span class="opl opl-fill" >\(P(-2.1\leq Z\leq 2.1)=\Phi (2.10)-\Phi (-2.10)=0.9642\)</span>
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-110">Oefening 2</h5>
+<a id="mkpiweb-autopage-110"></a>
+
+
+<p>
+Bepaal volgende kansen, zonder gebruik te maken van de tabel van de standaardnormale of GRM:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(P(-\infty \leq Z \leq +\infty )=\)<span class="opl opl-fill" >\(1\)</span>
+</p>
+<div class="oplossing">
+<p>
+Aangezien dit de volledige oppervlakte onder de dichtheidskromme is.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(P(Z\leq 0)=\)<span class="opl opl-fill" >\(0.5\)</span>
+</p>
+<div class="oplossing">
+<p>
+Aangezien de standaardnormale verdeling symmetrisch is ten opzichte van \(0\), is de oppervlakte links van \(0\) gelijk aan de helft van de totale oppervlakte.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(P(Z\geq 0)=\)<span class="opl opl-fill" >\(0.5\)</span>
+</p>
+<div class="oplossing">
+<p>
+Aangezien de standaardnormale verdeling symmetrisch is ten opzichte van \(0\), is de oppervlakte rechts van \(0\) gelijk aan de helft van de totale oppervlakte.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... section Kansen berekenen bij de normale verdeling ......
+-->
+<h4 id="autosec-111"><span class="sectionnumber">IV&#x2003;</span>Kansen berekenen bij de normale verdeling</h4>
+<a id="mkpiweb-autopage-111"></a>
+
+
+<p>
+Om kansen te berekenen bij willekeurig normaal verdeelde kansvariabelen zal het volstaan deze te hervormen naar een gestandaardiseerde normale verdeling m.b.v. de Z-score.<br />
+
+</p>
+
+<p>
+\(Z=\dfrac {X-\mu }{\sigma }\;.\)
+</p>
+
+<p>
+Een \(Z\)-score geeft aan hoeveel standaardafwijkingen de oorspronkelijke waarneming van het gemiddelde verwijderd is en in welke richting. Waarnemingen groter dan het gemiddelde geven een positieve \(Z\)-score, waarnemingen
+die kleiner zijn dan het gemiddelde een negatieve.
+</p>
+
+<p>
+\(Z\)-scores worden o.a. gebruikt om waarnemingen uit verschillende populaties en/of steekproeven met elkaar te vergelijken. Zie hiervoor ook hoofdstuk 3.
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-112"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-112"></a>
+
+
+<p>
+<span class="underline">Gegeven:</span> Een normaal verdeelde populatie met gemiddelde \(\mu =5\) en standaardafwijking \(\sigma =2\). Bepaal de kans \(P(5&lt;X&lt;9)\)<br />
+
+</p>
+<div class="oplossing">
+
+<p>
+We standaardiseren de grenzen:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                          
+                                                                                                             5−5     9−5
+                                                                                     P (5 < X < 9) = P           <Z<
+                                                                                                              2       2
+                                                                                                   = P (0 < Z < 2)
+                                                                                                   = Φ(2) − Φ(0)
+                                                                                                   = 0.9772 − 0.5
+                                                                                                   = 0.4772
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(5&lt;X&lt;9) &amp;= P\left (\frac {5-5}{2} &lt; Z &lt; \frac {9-5}{2}\right ) \\ &amp;= P(0 &lt; Z &lt; 2) \\ &amp;= \Phi (2) - \Phi (0) \\ &amp;= 0.9772 - 0.5 \\ &amp;= 0.4772
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-113"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-113"></a>
+
+
+<p>
+Zie handboek <i>Van Basis tot Limiet, Statistiek</i>: nrs. 4, 5, 8, 9, 10, 12, 14 en 20 p. 72 en volgende.
+</p>
+<!--
+...... section Binomiale verdeling benaderen door een normale verdeling ......
+-->
+<h4 id="autosec-114"><span class="sectionnumber">V&#x2003;</span>Binomiale verdeling benaderen door een normale verdeling</h4>
+<a id="mkpiweb-autopage-114"></a>
+<!--
+...... subsection Inleiding ......
+-->
+<h5 id="autosec-115"><span class="sectionnumber">1&#x2003;</span>Inleiding</h5>
+<a id="mkpiweb-autopage-115"></a>
+
+
+<p>
+Vroeger moest men aan de universiteit een 12 op 20 halen voor een vak om zeker geslaagd te zijn in eerste zit voor dat vak. Want haalde je voor één van de andere vakken minder dan 10 op 20, dan moest je een herexamen doen
+voor alle vakken onder de 12.<br />
+Bereken de kans om minstens 60&percnt; te halen op een meerkeuze examens bestaande uit 50 vragen met telkens 4 keuzes en zonder gok correctie, die je volledig willekeurig beantwoordt?
+</p>
+
+<p>
+Je ziet snel in dat het hier een binomiale verdeling \(X\sim B(50, 1/4)\) betreft en om dit zonder <span
+     class="fbox"
+     style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+     class="makebox"
+     style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span> uit te rekenen heb je 20 keer de formule
+</p>
+
+<p>
+\[f(k)=C_{50}^{k}(1/4)^k(3/4)^{n-k}\]
+</p>
+
+<p>
+nodig om \(P(X\geq 30)=f(30)+f(31)+\cdots +f(50)\) uit te rekenen.
+</p>
+
+<p>
+Laten we in de plaats van het vele rekenen eens kijken naar de grafiek van de kansfunctie:
+</p>
+<div class="oplossing">
+
+<p>
+<kbd>seq(X,X,0,50)</kbd> \(\to \) <kbd>L1</kbd> &#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span><span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>list</kbd></span></span><span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>OPS</kbd></span></span><span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>5:seq</kbd></span></span><br />
+<kbd>binompdf(50,1/4,\(L_1\))</kbd> \(\to \) <kbd>L2</kbd> &#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span><span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>distr</kbd></span></span><span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:115pt ; text-align:center ; "
+><kbd>A:binompdf(</kbd></span></span><br />
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:68pt ; text-align:center ; "
+><kbd>y=</kbd></span></span> Leeg!<br />
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:89pt ; text-align:center ; "
+><kbd>window</kbd></span></span> \(x: 0\to 50 \quad y: 0\to 0.2\)<br />
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:105pt ; text-align:center ; "
+><kbd>stat plot</kbd></span></span> Plot1 On, Type dots, L1, L2<br />
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>graph</kbd></span></span>
+</p>
+</div>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-20"
+    class="lateximagesource"
+><!--
+                                    E(X) = np = 12.5
+               0.12
+                0.1
+
+
+P (X = k)
+            8 · 10−2
+            6 · 10−2
+            4 · 10−2
+            2 · 10−2
+                  0
+                       0   5   10    15    20    25    30   35   40   45   50
+                                                 k
+--><img
+    src="mkpiweb-images/image-20.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Merk op dat we de \(x\) waarden door hebben laten lopen tot aan \(x=50\) want de kans is niet onbestaand dat we heel veel geluk hebben en dat we alle vragen juist beantwoorden.
+</p>
+
+<p>
+Bereken voor voorgaande oefening de verwachtingswaarde, standaardafwijking en de hoogte van de top. Duid deze aan op de bovenstaande grafiek.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(\mu =E(X)=n\cdot p=\) <span class="opl opl-fill" >\(12.5\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\sigma =\sqrt {n\cdot p\cdot q}=\) <span class="opl opl-fill" >\(3.06\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> hoogte top: <span class="opl opl-fill" >\(0.1294\)</span>
+</p>
+</li>
+</ul>
+
+<p>
+Mochten we nu de toppen van bovenstaande staafjes verbinden met een lijn, dan merken we op dat deze lijn goed te benaderen is door een normale verdeling met hetzelfde gemiddelde \(\mu \) als de verwachtingswaarde en met
+dezelfde standaardafwijking \(\sigma \) als die bij de binomiale verdeling horen.
+</p>
+<!--
+...... subsection Benadering ......
+-->
+<h5 id="autosec-119"><span class="sectionnumber">2&#x2003;</span>Benadering</h5>
+<a id="mkpiweb-autopage-119"></a>
+
+
+<p>
+Deze benadering zal steeds gelden voor voldoende grote \(n\), we zullen afspreken
+</p>
+<!--
+...... subsubsection Binomiale verdeling benaderen ......
+-->
+<h6 id="autosec-120"><span class="sectionnumber">&#x2003;</span>Binomiale verdeling benaderen</h6>
+<a id="mkpiweb-autopage-120"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+Een binomiale verdeling \(X\sim B(n,p)\) met verwachtingswaarde \(\mu \) en standaardafwijking \(\sigma \) mag worden benaderd door een normale verdeling
+</p>
+<p>
+\[B(n,p)\sim N(\mu ,\sigma )\]
+</p>
+<p>
+op voorwaarde dat \(n\cdot p\geq 5\), \(n\cdot q\geq 5\) en \(n\geq 20\).
+</p>
+
+</div>
+<!--
+...... subsubsection Opmerking ......
+-->
+<h6 id="autosec-121"><span class="sectionnumber">&#x2003;</span>Opmerking</h6>
+<a id="mkpiweb-autopage-121"></a>
+
+
+<p>
+De binomiale verdeling is een discrete verdeling. Ze wordt nu dus benaderd door een continue verdeling.
+</p>
+
+<p>
+Kansen berekenen van een binomiale verdeling wordt nu kinderspel, want de binomiale verdeling is normaal verdeeld en de normale verdeling kunnen we standaardiseren. We hoeven dus enkel maar nog op te zoeken in de tabel.
+</p>
+<!--
+...... subsection Continuıteitscorrectie ......
+-->
+<h5 id="autosec-122"><span class="sectionnumber">3&#x2003;</span>Continuı&#x0308;teitscorrectie</h5>
+<a id="mkpiweb-autopage-122"></a>
+
+
+<p>
+Er bestaat echter een essentieel verschil tussen een binomiale en een normale verdeling. De eerste is namelijk een discrete,
+</p>
+
+<p>
+\[ X\in \{0,1,2,\dots ,n\}, \]
+</p>
+
+<p>
+terwijl de normale verdeling een continue verdeling is,
+</p>
+
+<p>
+\[ X\in \R . \]
+</p>
+
+<p>
+Aangezien de kans op een elementaire gebeurtenis bij de normale verdeling gelijk aan nul is, is een kleine correctie noodzakelijk. Wanneer we een binomiale verdeling benaderen door een normale verdeling, vervangen we daarom elke
+gehele uitkomst \(k\) door een interval met breedte \(1\), namelijk
+</p>
+
+<p>
+\[ [k-0.5,\;k+0.5].      \]
+</p>
+<!--
+...... subsubsection Basisidee van de continuıteitscorrectie ......
+-->
+<h6 id="autosec-123"><span class="sectionnumber">&#x2003;</span>Basisidee van de continuı&#x0308;teitscorrectie</h6>
+<a id="mkpiweb-autopage-123"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+De kans \(P(X=k)\) bij een <em>discrete</em> verdeling benaderen we door de oppervlakte onder de <em>continue</em> normale kromme tussen \(k-0.5\) en \(k+0.5\):
+</p>
+<p>
+\[ P(X=k)\approx P(k-0.5\leq Y\leq k+0.5), \]
+</p>
+<p>
+waarbij \(Y\) de normale benadering van \(X\) is.
+</p>
+
+</div>
+<!--
+...... subsubsection Overzicht ......
+-->
+<h6 id="autosec-124"><span class="sectionnumber">&#x2003;</span>Overzicht</h6>
+<a id="mkpiweb-autopage-124"></a>
+
+
+<p>
+Als \(X\sim B(n,p)\) en \(Y\sim N(\mu ,\sigma )\) de normale benadering is, dan geldt voor een geheel getal \(k\):
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black">binomiale kans</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">normale benadering met continuı&#x0308;teitscorrectie</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black">\(P(X=k)\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(P(k-0.5\leq Y\leq k+0.5)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black">\(P(X&lt;k)\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(P(Y\leq k-0.5)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black">\(P(X\leq k)\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(P(Y\leq k+0.5)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black">\(P(X&gt;k)\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(P(Y\geq k+0.5)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black">\(P(X\geq k)\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(P(Y\geq k-0.5)\)</td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+</table>
+
+</div>
+<!--
+...... subsubsection Belangrijk ......
+-->
+<h6 id="autosec-127"><span class="sectionnumber">&#x2003;</span>Belangrijk</h6>
+<a id="mkpiweb-autopage-127"></a>
+
+
+<p>
+Let goed op het verschil tussen strikte en niet-strikte ongelijkheden:
+</p>
+
+<p>
+\[ X&gt;k \;\Rightarrow \; Y\geq k+0.5, \qquad X\geq k \;\Rightarrow \; Y\geq k-0.5.   \]
+</p>
+
+<p>
+Hier gebeuren de meeste fouten.
+</p>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-128"><span class="sectionnumber">&#x2003;</span>Voorbeelden</h6>
+<a id="mkpiweb-autopage-128"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                   P (X = 7) ≈ P (6.5 ≤ Y ≤ 7.5)
+                                                                                   P (X ≤ 7) ≈ P (Y ≤ 7.5)
+                                                                                   P (X < 7) ≈ P (Y ≤ 6.5)
+                                                                                   P (X ≥ 7) ≈ P (Y ≥ 6.5)
+                                                                                   P (X > 7) ≈ P (Y ≥ 7.5)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(X=7) &amp;\approx P(6.5\leq Y\leq 7.5)\\ P(X\leq 7) &amp;\approx P(Y\leq 7.5)\\ P(X&lt;7) &amp;\approx P(Y\leq 6.5)\\ P(X\geq 7) &amp;\approx P(Y\geq 6.5)\\ P(X&gt;7) &amp;\approx P(Y\geq
+7.5)
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-21"
+    class="lateximagesource"
+><!--
+              discreet: P (X = 7)
+
+
+
+
+                                             x
+5         6           7             8
+
+
+    continue benadering: P (6.5 ≤ Y ≤ 7.5)
+
+
+
+
+                                             y
+                6.5   7    7.5
+--><img
+    src="mkpiweb-images/image-21.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsubsection Toepassing op percentages ......
+-->
+<h6 id="autosec-132"><span class="sectionnumber">&#x2003;</span>Toepassing op percentages</h6>
+<a id="mkpiweb-autopage-132"></a>
+
+
+<p>
+Bij de vraag “minstens \(60\%\) halen op \(50\) vragen” geldt:
+</p>
+
+<p>
+\[ 60\%\text { van }50 = 30.      \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ P(X\geq 30)\approx P(Y\geq 29.5).       \]
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-133"><span class="sectionnumber">&#x2003;</span>Besluit</h6>
+<a id="mkpiweb-autopage-133"></a>
+
+
+<p>
+Gebruik bij een normale benadering steeds eerst de continuı&#x0308;teitscorrectie en standaardiseer pas daarna.
+</p>
+<!--
+...... subsection Voorbeeld 1 ......
+-->
+<h5 id="autosec-134"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 1</h5>
+<a id="mkpiweb-autopage-134"></a>
+
+
+<p>
+Bereken de kans om minstens 60&percnt; te halen op een meerkeuze examen bestaande uit 50 vragen met telkens 4 keuzes en zonder gok correctie, die je volledig willekeurig beantwoordt?
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bepaal de verdeling van de opgave: <span class="opl opl-fill" >\(X \sim B\left (50,\frac 14\right )\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Controleer de randvoorwaarden om te zien of we kunnen overgaan naar een normale verdeling:
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                   1
+                                                                                                         np = 50 ·   = 12.5
+                                                                                                                   4
+                                                                                                                   3
+                                                                                                    n(1 − p) = 50 · = 37.5
+                                                                                                                   4
+
+-->
+
+<p>
+
+\begin{align*}
+np &amp;= 50\cdot \frac 14 = 12.5\\ n(1-p) &amp;= 50\cdot \frac 34 = 37.5
+\end{align*}
+groter dan \(5\) \(\Rightarrow \) benaderen maar
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Ga over naar de normale verdeling:
+</p>
+<div class="oplossing">
+<p>
+
+</p>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:290pt ; ">
+<a id="mkpiweb-autopage-135"></a>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                µ = np = 12.5
+                                                                                                       r
+                                                                                     p                        1 3
+                                                                                σ=       np(1 − p) =   50 ·    · ≈ 3.06
+                                                                                                              4 4
+
+-->
+
+<p>
+
+\begin{align*}
+\mu &amp;= np = 12.5\\ \sigma &amp;= \sqrt {np(1-p)} = \sqrt {50\cdot \frac 14 \cdot \frac 34} \approx 3.06
+\end{align*}
+
+</p>
+
+</div>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:182pt ; ">
+<a id="mkpiweb-autopage-136"></a>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                               Y ∼ N (12.5, 3.06)
+
+
+-->
+
+<p>
+
+\begin{align*}
+Y &amp;\sim \mathcal {N}(12.5,3.06)
+\end{align*}
+
+</p>
+
+</div>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Bereken de \(z\)-score:
+</p>
+<div class="oplossing">
+<p>
+Met continuı&#x0308;teitscorrectie nemen we \(29.5\).
+</p>
+<p>
+\[z = \frac {29.5-12.5}{3.06} \approx \boxed {5.55}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> Bepaal de gevraagde kans:
+</p>
+<div class="oplossing">
+<p>
+Omdat \(60\%\) van \(50\) gelijk is aan \(30\), zoeken we:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                          P (X ≥ 30) ≈ P (Y ≥ 29.5)
+                                                                                                    = P (Z ≥ 5.55)
+                                                                                                    = 1 − P (Z < 5.55)
+                                                                                                    ≈ 1 − 0.99999999
+
+                                                                                                    ≈ 1.4 · 10−8
+
+
+-->
+
+<p>
+
+\begin{align*}
+P(X\geq 30) &amp;\approx P(Y\geq 29.5)\\ &amp;= P(Z\geq 5.55)\\ &amp;= 1-P(Z&lt;5.55)\\ &amp;\approx 1-0.99999999\\ &amp;\approx \boxed {1.4\cdot 10^{-8}}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> Antwoord:
+</p>
+<div class="oplossing">
+<p>
+De kans is verwaarloosbaar klein: ongeveer \(1.4\cdot 10^{-8}\), dus praktisch \(0\%\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Voorbeeld 2 ......
+-->
+<h5 id="autosec-137"><span class="sectionnumber">5&#x2003;</span>Voorbeeld 2</h5>
+<a id="mkpiweb-autopage-137"></a>
+
+
+<p>
+We gooien 100 maal een muntstuk op. Hoe groot is de kans op meer dan 60 keer munt?
+</p>
+<div class="oplossing">
+
+<p>
+\[ X \sim B\left (100,\frac 12\right ) \]
+</p>
+
+<p>
+We benaderen binomiaal met normaal:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                      1
+                                                                                     µ = np = 100 ·     = 50
+                                                                                                      2
+                                                                                                         r
+                                                                                          p                         1 1
+                                                                                     σ=    np(1 − p) =      100 ·    · =5
+                                                                                                                    2 2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\mu &amp;= np = 100\cdot \frac 12 = 50\\ \sigma &amp;= \sqrt {np(1-p)} = \sqrt {100\cdot \frac 12 \cdot \frac 12} = 5
+\end{align*}
+Dus:
+</p>
+
+<p>
+\[ Y \sim \mathcal {N}(50,5) \]
+</p>
+
+<p>
+We zoeken:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                          P (X > 60) = P (X ≥ 61)
+                                                                                                       ≈ P (Y ≥ 60.5)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(X&gt;60) &amp;= P(X\geq 61)\\ &amp;\approx P(Y\geq 60.5)
+\end{align*}
+De \(z\)-score is:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                      60.5 − 50
+                                                                                               z=
+                                                                                                          5
+                                                                                                 = 2.1
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+z &amp;= \frac {60.5-50}{5}\\ &amp;= 2.1
+\end{align*}
+Dus:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                        P (X > 60) ≈ P (Z > 2.1)
+                                                                                                      = 1 − P (Z < 2.1)
+                                                                                                      = 1 − 0.9821
+
+                                                                                                      = 0.0179
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(X&gt;60) &amp;\approx P(Z&gt;2.1)\\ &amp;= 1-P(Z&lt;2.1)\\ &amp;= 1-0.9821\\ &amp;= \boxed {0.0179}
+\end{align*}
+De kans op meer dan \(60\) keer munt is dus ongeveer \(1.79\%\).
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-138"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-138"></a>
+
+
+<p>
+Zie handboek <i>VBTL, Statistiek</i>, maak zeker nrs. 12, 13, 14, 15 en 16 op p. 167.
+</p>
+
+<div class="cursusappendix"><a href="S08_ContinueEnNormaleVerdeling_Appendix.pdf" download="S08_ContinueEnNormaleVerdeling_Appendix.pdf"></a></div>
+<!--
+...... section Tabel standaardnormale verdeling ......
+-->
+<h4 id="autosec-139"><span class="sectionnumber">A&#x2003;</span>Tabel standaardnormale verdeling</h4>
+<a id="mkpiweb-autopage-139"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-22"
+    class="lateximagesource"
+><!--
+Φ(z) = P (Z ≤ z)
+
+
+       0           z
+--><img
+    src="mkpiweb-images/image-22.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdr">\(z\)</td>
+<td class="tdr">0.00</td>
+<td class="tdat"> </td>
+<td class="tdr">0.01</td>
+<td class="tdat"> </td>
+<td class="tdr">0.02</td>
+<td class="tdat"> </td>
+<td class="tdr">0.03</td>
+<td class="tdat"> </td>
+<td class="tdr">0.04</td>
+<td class="tdat"> </td>
+<td class="tdr">0.05</td>
+<td class="tdat"> </td>
+<td class="tdr">0.06</td>
+<td class="tdat"> </td>
+<td class="tdr">0.07</td>
+<td class="tdat"> </td>
+<td class="tdr">0.08</td>
+<td class="tdat"> </td>
+<td class="tdr">0.09</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">0.0</td>
+<td class="tdr">0.5000</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5040</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5080</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5120</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5160</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5199</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5239</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5279</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5319</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5359</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">0.1</td>
+<td class="tdr">0.5398</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5438</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5478</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5517</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5557</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5596</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5636</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5675</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5714</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5753</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">0.2</td>
+<td class="tdr">0.5793</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5832</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5871</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5910</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5948</td>
+<td class="tdat"> </td>
+<td class="tdr">0.5987</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6026</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6064</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6103</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6141</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">0.3</td>
+<td class="tdr">0.6179</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6217</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6255</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6293</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6331</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6368</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6406</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6443</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6480</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6517</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">0.4</td>
+<td class="tdr">0.6554</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6591</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6628</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6664</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6700</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6736</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6772</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6808</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6844</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6879</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">0.5</td>
+<td class="tdr">0.6915</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6950</td>
+<td class="tdat"> </td>
+<td class="tdr">0.6985</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7019</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7054</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7088</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7123</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7157</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7190</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7224</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">0.6</td>
+<td class="tdr">0.7257</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7291</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7324</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7357</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7389</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7422</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7454</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7486</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7517</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7549</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">0.7</td>
+<td class="tdr">0.7580</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7611</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7642</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7673</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7703</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7734</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7764</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7794</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7823</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7852</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">0.8</td>
+<td class="tdr">0.7881</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7910</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7939</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7967</td>
+<td class="tdat"> </td>
+<td class="tdr">0.7995</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8023</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8051</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8078</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8106</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8133</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">0.9</td>
+<td class="tdr">0.8159</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8186</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8212</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8238</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8264</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8289</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8315</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8340</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8365</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8389</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">1.0</td>
+<td class="tdr">0.8413</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8438</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8461</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8485</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8508</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8531</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8554</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8577</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8599</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8621</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">1.1</td>
+<td class="tdr">0.8643</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8665</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8686</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8708</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8729</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8749</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8770</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8790</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8810</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8830</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">1.2</td>
+<td class="tdr">0.8849</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8869</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8888</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8907</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8925</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8944</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8962</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8980</td>
+<td class="tdat"> </td>
+<td class="tdr">0.8997</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9015</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">1.3</td>
+<td class="tdr">0.9032</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9049</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9066</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9082</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9099</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9115</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9131</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9147</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9162</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9177</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">1.4</td>
+<td class="tdr">0.9192</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9207</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9222</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9236</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9251</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9265</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9279</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9292</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9306</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9319</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">1.5</td>
+<td class="tdr">0.9332</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9345</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9357</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9370</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9382</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9394</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9406</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9418</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9429</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9441</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">1.6</td>
+<td class="tdr">0.9452</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9463</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9474</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9484</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9495</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9505</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9515</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9525</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9535</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9545</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">1.7</td>
+<td class="tdr">0.9554</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9564</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9573</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9582</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9591</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9599</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9608</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9616</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9625</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9633</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">1.8</td>
+<td class="tdr">0.9641</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9649</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9656</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9664</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9671</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9678</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9686</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9693</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9699</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9706</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">1.9</td>
+<td class="tdr">0.9713</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9719</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9726</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9732</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9738</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9744</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9750</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9756</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9761</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9767</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">2.0</td>
+<td class="tdr">0.9772</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9778</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9783</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9788</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9793</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9798</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9803</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9808</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9812</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9817</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">2.1</td>
+<td class="tdr">0.9821</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9826</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9830</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9834</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9838</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9842</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9846</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9850</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9854</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9857</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">2.2</td>
+<td class="tdr">0.9861</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9864</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9868</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9871</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9875</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9878</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9881</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9884</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9887</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9890</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">2.3</td>
+<td class="tdr">0.9893</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9896</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9898</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9901</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9904</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9906</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9909</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9911</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9913</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9916</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">2.4</td>
+<td class="tdr">0.9918</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9920</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9922</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9925</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9927</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9929</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9931</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9932</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9934</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9936</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">2.5</td>
+<td class="tdr">0.9938</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9940</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9941</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9943</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9945</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9946</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9948</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9949</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9951</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9952</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">2.6</td>
+<td class="tdr">0.9953</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9955</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9956</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9957</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9959</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9960</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9961</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9962</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9963</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9964</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">2.7</td>
+<td class="tdr">0.9965</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9966</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9967</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9968</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9969</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9970</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9971</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9972</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9973</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9974</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">2.8</td>
+<td class="tdr">0.9974</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9975</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9976</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9977</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9977</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9978</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9979</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9979</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9980</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9981</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">2.9</td>
+<td class="tdr">0.9981</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9982</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9982</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9983</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9984</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9984</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9985</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9985</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9986</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9986</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">3.0</td>
+<td class="tdr">0.9987</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9987</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9987</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9988</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9988</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9989</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9989</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9989</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9990</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9990</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">3.1</td>
+<td class="tdr">0.9990</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9991</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9991</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9991</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9992</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9992</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9992</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9992</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9993</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9993</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">3.2</td>
+<td class="tdr">0.9993</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9993</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9994</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9994</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9994</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9994</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9994</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9995</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9995</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9995</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">3.3</td>
+<td class="tdr">0.9995</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9995</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9995</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9996</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9996</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9996</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9996</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9996</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9996</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9997</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">3.4</td>
+<td class="tdr">0.9997</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9997</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9997</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9997</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9997</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9997</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9997</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9997</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9997</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">3.5</td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">3.6</td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9998</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">3.7</td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">3.8</td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr">0.9999</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+
+<tr>
+<td class="tdr">3.9</td>
+<td class="tdr">1.0000</td>
+<td class="tdat"> </td>
+<td class="tdr">1.0000</td>
+<td class="tdat"> </td>
+<td class="tdr">1.0000</td>
+<td class="tdat"> </td>
+<td class="tdr">1.0000</td>
+<td class="tdat"> </td>
+<td class="tdr">1.0000</td>
+<td class="tdat"> </td>
+<td class="tdr">1.0000</td>
+<td class="tdat"> </td>
+<td class="tdr">1.0000</td>
+<td class="tdat"> </td>
+<td class="tdr">1.0000</td>
+<td class="tdat"> </td>
+<td class="tdr">1.0000</td>
+<td class="tdat"> </td>
+<td class="tdr">1.0000</td>
+<td class="tdat"> </td>
+<td class="tdr"></td>
+</tr>
+</table>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

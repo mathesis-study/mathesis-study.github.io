@@ -1,0 +1,28 @@
+{
+ "titel": "Exponentiële groei",
+ "hoofdstuk": 7,
+ "code": "A07",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/exponentiele-groei",
+ "secties": [
+  "Inleiding",
+  "Lineair versus exponentieel",
+  "Procentuele toe- en afname",
+  "Machten met reële exponenten",
+  "Exponentiële functies",
+  "Functies met voorschrift \\(f(x)=b\\cdot a^x\\)",
+  "Exponentiële vergelijkingen"
+ ],
+ "leerplandoelen": [
+  "BV3_06.05",
+  "BV3_06.06",
+  "BV3_06.07",
+  "WD3_06.08.18",
+  "WD3_06.08.21"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

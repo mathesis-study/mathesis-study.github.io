@@ -1,0 +1,19 @@
+{
+ "titel": "Extremumvraagstukken",
+ "hoofdstuk": 17,
+ "code": "A17",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/extremumvraagstukken",
+ "secties": [
+  "Extremumvraagstukken"
+ ],
+ "leerplandoelen": [
+  "BV3_06.20",
+  "WD3_06.08.29"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

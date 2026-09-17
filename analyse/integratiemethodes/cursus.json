@@ -1,0 +1,22 @@
+{
+ "titel": "Integratiemethodes",
+ "hoofdstuk": 19,
+ "code": "A19",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/integratiemethodes",
+ "secties": [
+  "Onbepaalde integraal",
+  "Basisintegralen",
+  "Substitutiemethode",
+  "Partiële integratie",
+  "Herhalingsoefeningen"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.32"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

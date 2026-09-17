@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Irrationale functies</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 4</p> <h1>Irrationale functies</h1> </header>
+</p>
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-2">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p>
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>BV3_06.20</b> (MD 06.20) De leerlingen lossen vraagstukken en problemen op door te mathematiseren en demathematiseren en door gebruik te maken van heuristieken.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>BV3_06.21</b> (MD 06.21) De leerlingen gebruiken ICT om <span class="leerplan-grijs">berekeningen uit te voeren</span> en grafische voorstellingen te maken.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.18</b> (MD 06.08.13) De leerlingen lossen eenvoudige <span class="leerplan-grijs">veeltermvergelijkingen</span>, <span class="leerplan-grijs">rationale
+vergelijkingen</span>, irrationale vergelijkingen, <span class="leerplan-grijs">exponentie&#x0308;le vergelijkingen</span>, <span class="leerplan-grijs">logaritmische vergelijkingen</span> en <span
+class="leerplan-grijs">goniometrische vergelijkingen</span> algebraı&#x0308;sch op.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">deling van veeltermen</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">deling door \((x-a)\)</span>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.21</b> (MD 06.08.07) De leerlingen leggen het verband tussen de grafiek en het voorschrift van een functie en haar kenmerken.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">veeltermfuncties</span>, <span class="leerplan-grijs">rationale functies</span>, (elementaire) irrationale functies, <span
+class="leerplan-grijs">exponentie&#x0308;le functies</span>, <span class="leerplan-grijs">logaritmische functies \(f(x)=\log _a(x)\)</span>, <span class="leerplan-grijs">goniometrische functies \(f(x)=\cos
+x\) en \(f(x)=\tan x\)</span>, <span class="leerplan-grijs">cyclometrische functies</span>, <span class="leerplan-grijs">absolute waardenfunctie</span>, <span class="leerplan-grijs">meervoudig
+functievoorschrift</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: domein, <span class="leerplan-grijs">bereik</span>, nulwaarden, tekenverloop, stijgen/dalen/constant, extrema, <span
+class="leerplan-grijs">constante/toenemende/afnemende stijging/daling</span>, symmetrie, <span class="leerplan-grijs">periode</span>, <span class="leerplan-grijs">amplitude</span>, <span
+class="leerplan-grijs">asymptotisch gedrag</span>, <span class="leerplan-grijs">gedrag op oneindig</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Irrationale vergelijkingen ......
+-->
+<h4 id="autosec-3"><span class="sectionnumber">I&#x2003;</span>Irrationale vergelijkingen</h4>
+<a id="mkpiweb-autopage-3"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-4"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-4"></a>
+
+
+<p>
+Een <b>irrationale vergelijking</b> in \(\mathbb {R}\) is een vergelijking in \(\mathbb {R}\) waarbij de onbekende onder het wortelteken voorkomt.
+</p>
+<!--
+...... subsection Oplossingsmethode ......
+-->
+<h5 id="autosec-5"><span class="sectionnumber">2&#x2003;</span>Oplossingsmethode</h5>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+Om een irrationale vergelijking op te lossen zetten we de vergelijking om naar een nieuwe vergelijking zonder worteltermen. Dit doen we typisch door te kwadrateren.
+</p>
+
+<p>
+\[ A(x)=B(x)\ \Longleftrightarrow \ \bigl (A(x)\bigr )^2=\bigl (B(x)\bigr )^2, \]
+</p>
+
+<p>
+maar daarbij moeten we altijd de <em>kwadrateringsvoorwaarde</em> (KV) opstellen: <b>beide leden moeten hetzelfde teken hebben</b>.
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <b>B.V. (bestaansvoorwaarde):</b> eis dat alle uitdrukkingen onder een wortel \(\ge 0\) zijn.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <b>Vergelijking in standaardvorm brengen:</b> zet alle worteltermen aan e&#x0301;e&#x0301;n kant (isoleer een wortelterm).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> <b>K.V. (kwadrateringsvoorwaarde):</b> zorg dat linker lid en rechter lid hetzelfde teken hebben (meestal beide \(\ge 0\)).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> <b>Oplossen:</b> kwadrateer (en herhaal indien nodig) tot er geen wortels meer zijn.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> <b>Controleren:</b> controleer B.V. en K.V. (en eventueel in de oorspronkelijke vergelijking) en noteer \(V\).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Voorbeeld 1 ......
+-->
+<h5 id="autosec-6"><span class="sectionnumber">3&#x2003;</span>Voorbeeld 1</h5>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<p>
+Los op in \(\mathbb {R}\):
+</p>
+
+<p>
+\[ \sqrt {x-1}-2=0.   \]
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \text {B.V.:   } x-1\ge 0 \Longleftrightarrow x\ge 1.   \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                  √
+                                                                                      x−1−2=0
+                                                                                       √
+                                                                                         x−1=2
+                                                                                        x−1=4
+                                                                                          x=5
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\sqrt {x-1}-2&amp;=0\\ \sqrt {x-1}&amp;=2\\ x-1&amp;=4\\ x&amp;=5
+\end{align*}
+Dus \(V=\{5\}\).
+</p>
+</div>
+<!--
+...... subsection Voorbeeld 2 ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 2</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+Los op in \(\mathbb {R}\):
+</p>
+
+<p>
+\[ \sqrt {x-1}=7-x.    \]
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \text {B.V.:   } x-1\ge 0 \Longleftrightarrow x\ge 1 \qquad \text {en}\qquad \text {K.V.:    } 7-x\ge 0 \Longleftrightarrow x\le 7, \]
+</p>
+
+<p>
+dus \(x\in [1,7]\).
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                       √
+                                                                                           x−1=7−x
+                                                                                           x − 1 = (7 − x)2
+                                                                                           x − 1 = 49 − 14x + x2
+                                                                                               0 = x2 − 15x + 50
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\sqrt {x-1}&amp;=7-x\\ x-1&amp;=(7-x)^2\\ x-1&amp;=49-14x+x^2\\ 0&amp;=x^2-15x+50
+\end{align*}
+
+</p>
+
+<p>
+\[ D=(-15)^2-4\cdot 1\cdot 50=225-200=25.      \]
+</p>
+
+<p>
+\[ x=\frac {15\pm 5}{2}\ \Rightarrow \ x=5\ \text { of }\ x=10.     \]
+</p>
+
+<p>
+Controle met \(x\in [1,7]\) geeft enkel \(x=5\). Dus \(V=\{5\}\).
+</p>
+</div>
+<!--
+...... subsection Voorbeeld 3 ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">5&#x2003;</span>Voorbeeld 3</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+Los op in \(\mathbb {R}\):
+</p>
+
+<p>
+\[ \sqrt {x+4}-\sqrt {x-4}=\sqrt {x-1}.      \]
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \text {B.V.:    }\;x+4\ge 0,\;x-4\ge 0,\;x-1\ge 0 \;\Longrightarrow \; x\ge 4.   \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                    √           √          √
+                                                                                         x+4−       x−4=       x−1
+                                                                                                √          √          √
+                                                                                                    x+4=       x−1+       x−4
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\sqrt {x+4}-\sqrt {x-4}&amp;=\sqrt {x-1}\\ \sqrt {x+4}&amp;=\sqrt {x-1}+\sqrt {x-4}
+\end{align*}
+
+</p>
+
+<p>
+(K.V.: geen, beide leden \(\ge 0\).)
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                             p
+                                                                                x + 4 = (x − 1) + (x − 4) + 2 (x − 1)(x − 4)
+                                                                                                   p
+                                                                                x + 4 = 2x − 5 + 2 x2 − 5x + 4
+                                                                                         p
+                                                                               −x + 9 = 2 x2 − 5x + 4
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x+4&amp;=(x-1)+(x-4)+2\sqrt {(x-1)(x-4)}\\ x+4&amp;=2x-5+2\sqrt {x^2-5x+4}\\ -x+9&amp;=2\sqrt {x^2-5x+4}
+\end{align*}
+
+</p>
+
+<p>
+\[ \text {K.V.2:    }-x+9\ge 0 \Longleftrightarrow x\le 9 \quad \Rightarrow \quad x\in [4,9].        \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                            (−x + 9)2 = 4(x2 − 5x + 4)
+                                                                                         x2 − 18x + 81 = 4x2 − 20x + 16
+                                                                                                      0 = 3x2 − 2x − 65
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+(-x+9)^2&amp;=4(x^2-5x+4)\\ x^2-18x+81&amp;=4x^2-20x+16\\ 0&amp;=3x^2-2x-65
+\end{align*}
+
+</p>
+
+<p>
+\[ D=(-2)^2-4\cdot 3\cdot (-65)=4+780=784=28^2.       \]
+</p>
+
+<p>
+\[ x=\frac {2\pm 28}{6}\ \Rightarrow \ x=5\ \text { of }\ x=-\frac {13}{3}.    \]
+</p>
+
+<p>
+Controle met \(x\in [4,9]\) geeft enkel \(x=5\). Dus \(V=\{5\}\).
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p>
+p111 nr3
+</p>
+<!--
+...... section Bespreken van irrationale functies ......
+-->
+<h4 id="autosec-10"><span class="sectionnumber">II&#x2003;</span>Bespreken van irrationale functies</h4>
+<a id="mkpiweb-autopage-10"></a>
+<!--
+...... subsection Voorbeeld 1:     ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">1&#x2003;</span>Voorbeeld 1: \(f(x)=\sqrt {4-x^2}\)</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection a. Domein ......
+-->
+<h6 id="autosec-12">a. Domein</h6>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+Eis onder het wortelteken niet-negatief:
+</p>
+
+<p>
+\[ 4-x^2 \ge 0.     \]
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(x\)</td>
+<td class="tdc"></td>
+<td class="tdc">\(-2\)</td>
+<td class="tdc"></td>
+<td class="tdc">\(2\)</td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(4-x^2\)</td>
+<td class="tdc">\(-\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(+\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(-\)</td>
+</tr>
+
+<tr>
+<td colspan="6" class="tdl"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td colspan="3" class="tdc"> <span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span></td>
+<td class="tdc"></td>
+</tr>
+</table>
+
+</div>
+
+<p>
+\[ \boxed {\ \dom (f)=[-2,2]\ }.     \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection b. Symmetrie ......
+-->
+<h6 id="autosec-17">b. Symmetrie</h6>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+\[ f(-x)=\sqrt {4-(-x)^2}=\sqrt {4-x^2}=f(x).         \]
+</p>
+
+<p>
+Dus \(f\) is <b>even</b> en de grafiek is symmetrisch t.o.v. de \(y\)-as.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection c. Nulwaarden ......
+-->
+<h6 id="autosec-18">c. Nulwaarden</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+\[ f(x)=0 \Longleftrightarrow \sqrt {4-x^2}=0 \Longleftrightarrow 4-x^2=0 \Longleftrightarrow x=\pm 2.   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection d. Snijpunten met de assen ......
+-->
+<h6 id="autosec-19">d. Snijpunten met de assen</h6>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Met de \(x\)-as: \((-2,0)\) en \((2,0)\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Met de \(y\)-as: \(x=0 \Rightarrow f(0)=\sqrt {4}=2\), dus \((0,2)\).
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection e. Tekenverloop ......
+-->
+<h6 id="autosec-20">e. Tekenverloop</h6>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+Op het domein geldt \(f(x)=\sqrt {4-x^2}\ge 0\).
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdr tvertbarr" style="border-right:   1px solid black">\(x\)</td>
+<td class="tdc"></td>
+<td class="tdc">\(-2\)</td>
+<td class="tdc"></td>
+<td class="tdc">\(2\)</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdr tvertbarr" style="border-right:   1px solid black">\(4-x^2\)</td>
+<td class="tdc">\(-\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(+\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(-\)</td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdr tvertbarr" style="border-right:   1px solid black">\(\sqrt {4-x^2}\)</td>
+<td class="tdc">\(\undefsign\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">+</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(\undefsign\)</td>
+<td class="tdc"></td>
+</tr>
+
+</table>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection f. Grafiek (met GRM) ......
+-->
+<h6 id="autosec-23">f. Grafiek (met GRM)</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+\[ y=\sqrt {4-x^2}\ \Longleftrightarrow \ y^2=4-x^2\ \Longleftrightarrow \ x^2+y^2=4,\quad y\ge 0.   \]
+</p>
+
+<p>
+De grafiek is dus de <b>bovenste halve cirkel</b> met straal \(2\) en middelpunt \((0,0)\).
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+         y
+     2
+
+
+
+
+                 x
+−2   0       2
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection g. Extrema (grafisch) ......
+-->
+<h6 id="autosec-27">g. Extrema (grafisch)</h6>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Absoluut maximum: \(f(0)=2\), dus maximumwaarde \(2\) bij \(x=0\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Absoluut minimum: \(f(\pm 2)=0\), dus minimumwaarde \(0\) bij \(x=-2\) en \(x=2\).
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection h. Stijgen en dalen (grafisch) ......
+-->
+<h6 id="autosec-28">h. Stijgen en dalen (grafisch)</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+\[ \begin {array}{c|cccccccc} x &amp; &amp; -2 &amp; &amp; 0 &amp; &amp; 2 \\ \hline f(x) &amp; \undefsign &amp; 0 &amp; \nearrow &amp; 2 &amp; \searrow &amp; 0 &amp; \undefsign \end {array} \]
+</p>
+<!--
+...... subsection Expliciet versus impliciet voorschrift ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">2&#x2003;</span>Expliciet versus impliciet voorschrift</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-30">Definitie</h6>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als het voorschrift in feite in de vorm \(y=f(x)\) staat, spreken we van een <b>expliciet gedefinieerde functie</b>. Voor elke \(x\in \dom (f)\) kunnen we \(y\) berekenen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als een uitdrukking in \(x\) en \(y\) in de vorm \(F(x,y)=c\) (\(c\in \mathbb {R}\)) staat, spreken we van een <b>impliciet gedefinieerd voorschrift</b>.
+</p>
+</li>
+</ul>
+<!--
+......   paragraph Voorbeelden ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-31">Voorbeelden</span>
+<a id="mkpiweb-autopage-31"></a>
+
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Expliciet: \(y = \sqrt {4-x^2}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Impliciet: \(x^2+y^2=4\)
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Merk op ......
+-->
+<h6 id="autosec-32">Merk op</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een impliciet voorschrift stelt niet noodzakelijk een functie voor.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> We proberen een impliciet voorschrift expliciet te schrijven (zie verder).
+</p>
+</li>
+</ul>
+<!--
+......   paragraph Impliciet      expliciet ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-33">Impliciet \(\to \) expliciet</span>
+<a id="mkpiweb-autopage-33"></a>
+
+</p>
+
+<p>
+\[ x^2+y^2=4 \Longleftrightarrow y^2=4-x^2 \Longleftrightarrow y=\sqrt {4-x^2}\ \ \text {of}\ \ y=-\sqrt {4-x^2}.                      \]
+</p>
+
+<p>
+Dit impliciete voorschrift stelt dus <b>geen</b> (enkelvoudige) functie voor, maar kan wel beschreven worden door twee irrationale functies:
+</p>
+
+<p>
+\[f_1(x)=\sqrt {4-x^2} \text { en } f_2(x)=-\sqrt {4-x^2}\]
+</p>
+<!--
+...... subsection Voorbeeld 2: Bespreek ......
+-->
+<h5 id="autosec-34"><span class="sectionnumber">3&#x2003;</span>Voorbeeld 2: Bespreek \(3x^2+y^2=4\)</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+Om dit impliciet voorschrift te bespreken, zetten we het eerst om naar een expliciet voorschrift (zie vorige paragraaf):
+</p>
+
+<p>
+\[ 3x^2+y^2=4 \Longleftrightarrow y^2=4-3x^2 \Longleftrightarrow y=\sqrt {4-3x^2}\ \ \text {of}\ \ y=-\sqrt {4-3x^2}.                          \]
+</p>
+
+<p>
+Dit impliciete voorschrift stelt dus <b>geen</b> (enkelvoudige) functie voor, maar kan wel beschreven worden door twee irrationale functies:
+</p>
+
+<p>
+\[ f_1(x)=\sqrt {4-3x^2} \qquad \text {en}\qquad f_2(x)=-\sqrt {4-3x^2}.                 \]
+</p>
+
+<p>
+Deze twee grafieken zijn elkaars spiegelbeeld t.o.v. de \(x\)-as.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bespreking van ......
+-->
+<h6 id="autosec-35">Bespreking van \(f_1(x)=\sqrt {4-3x^2}\)</h6>
+<a id="mkpiweb-autopage-35"></a>
+<!--
+......   paragraph 1.   Domein ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-36">1. Domein</span>
+<a id="mkpiweb-autopage-36"></a>
+
+</p>
+
+<p>
+\[ 4-3x^2\ge 0 \Longleftrightarrow 3x^2\le 4 \Longleftrightarrow x^2\le \frac {4}{3} \Longleftrightarrow -\frac {2\sqrt {3}}{3}\le x\le \frac {2\sqrt {3}}{3}.   \]
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(x\)</td>
+<td class="tdc"></td>
+<td class="tdc">\(-\frac {2\sqrt {3}}{3}\)</td>
+<td class="tdc"></td>
+<td class="tdc">\(\frac {2\sqrt {3}}{3}\)</td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(4-3x^2\)</td>
+<td class="tdc">\(-\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(+\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(-\)</td>
+</tr>
+
+<tr>
+<td colspan="6" class="tdl"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td colspan="3" class="tdc"> <span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span></td>
+<td class="tdc"></td>
+</tr>
+</table>
+
+</div>
+
+<p>
+\[ \boxed {\ \dom (f_1)=\left [-\frac {2\sqrt {3}}{3},\frac {2\sqrt {3}}{3}\right ]\ }.   \]
+</p>
+<!--
+......   paragraph 2.    Symmetrie ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-41">2. Symmetrie</span>
+<a id="mkpiweb-autopage-41"></a>
+
+</p>
+
+<p>
+\[ f_1(-x)=\sqrt {4-3(-x)^2}=\sqrt {4-3x^2}=f_1(x), \]
+</p>
+
+<p>
+dus \(f_1\) is <b>even</b> (symmetrisch t.o.v. de \(y\)-as).
+</p>
+<!--
+......   paragraph 3.   Nulwaarden ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-42">3. Nulwaarden</span>
+<a id="mkpiweb-autopage-42"></a>
+
+</p>
+
+<p>
+\[ f_1(x)=0 \Longleftrightarrow \sqrt {4-3x^2}=0 \Longleftrightarrow 4-3x^2=0 \Longleftrightarrow x=\pm \frac {2\sqrt {3}}{3}.   \]
+</p>
+
+<p>
+Nulpunten: \(\left (-\frac {2\sqrt {3}}{3},0\right )\) en \(\left (\frac {2\sqrt {3}}{3},0\right )\).
+</p>
+<!--
+......   paragraph 4.   Snijpunten met de assen ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-43">4. Snijpunten met de assen</span>
+<a id="mkpiweb-autopage-43"></a>
+
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Met de \(x\)-as: \(\left (-\frac {2\sqrt {3}}{3},0\right )\) en \(\left (\frac {2\sqrt {3}}{3},0\right )\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Met de \(y\)-as: \(x=0 \Rightarrow f_1(0)=2\), dus \((0,2)\).
+</p>
+</li>
+</ul>
+<!--
+......   paragraph 5.   Tekenverloop ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-44">5. Tekenverloop</span>
+<a id="mkpiweb-autopage-44"></a>
+
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdr tvertbarr" style="border-right: 1px solid black">\(x\)</td>
+<td class="tdc"></td>
+<td class="tdc">\(-\frac {2\sqrt {3}}{3}\)</td>
+<td class="tdc"></td>
+<td class="tdc">\(\frac {2\sqrt {3}}{3}\)</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdr tvertbarr" style="border-right:   1px solid black">\(4-3x^2\)</td>
+<td class="tdc">\(-\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(+\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(-\)</td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdr tvertbarr" style="border-right:   1px solid black">\(f_1(x)\)</td>
+<td class="tdc">\(\undefsign\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(+\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(\undefsign\)</td>
+<td class="tdc"></td>
+</tr>
+
+</table>
+
+</div>
+<!--
+......   paragraph 6.   Grafiek ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-47">6. Grafiek</span>
+<a id="mkpiweb-autopage-47"></a>
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+            y
+        2       f1
+
+
+
+  √                   √    x
+−233    0            2 3
+                      3
+
+
+
+
+       −2       f2
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+\[ y=\sqrt {4-3x^2} \Longleftrightarrow y^2=4-3x^2 \Longleftrightarrow 3x^2+y^2=4,\quad y\ge 0.   \]
+</p>
+
+<p>
+Dit is de <b>bovenste helft</b> van de ellips \(3x^2+y^2=4\).
+</p>
+<!--
+......   paragraph 7.   Extrema (grafisch) ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-51">7. Extrema (grafisch)</span>
+<a id="mkpiweb-autopage-51"></a>
+
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Absoluut maximum: \(f_1(0)=2\) bij \(x=0\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Absoluut minimum: \(0\) bij \(x=\pm \frac {2\sqrt {3}}{3}\).
+</p>
+</li>
+</ul>
+<!--
+......   paragraph 8.   Stijgen en dalen (grafisch) ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-52">8. Stijgen en dalen (grafisch)</span>
+<a id="mkpiweb-autopage-52"></a>
+
+</p>
+
+<p>
+\[ \begin {array}{c|cccccccc} x &amp; &amp; -\frac {2\sqrt {3}}{3} &amp; &amp; 0 &amp; &amp; \frac {2\sqrt {3}}{3} \\ \hline f_1(x) &amp; \undefsign &amp; 0 &amp; \nearrow &amp; 2 &amp;
+\searrow &amp; 0 &amp; \undefsign \end {array} \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-53"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+p111 nr2<br />
+p112 nr4, 5
+</p>
+<!--
+...... section Vraagstukken ......
+-->
+<h4 id="autosec-54"><span class="sectionnumber">III&#x2003;</span>Vraagstukken</h4>
+<a id="mkpiweb-autopage-54"></a>
+<!--
+...... subsection Voorbeeld (Dakar) ......
+-->
+<h5 id="autosec-55"><span class="sectionnumber">1&#x2003;</span>Voorbeeld (Dakar)</h5>
+<a id="mkpiweb-autopage-55"></a>
+<div class="minipage" style="vertical-align:top ; justify-content:flex-start ; width:225pt ; ">
+
+<a id="mkpiweb-autopage-56"></a>
+
+<p>
+Gegeven:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span>
+\(|AO|=320\) km
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span>
+\(|OB|=600\) km.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span>
+Snelheden:
+</p>
+<ul class="itemize"
+style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span>
+woestijn \(100\) km/h
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> weg
+\(250\) km/h.
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+Gevraagd: Kies \(P\) op de weg en minimaliseer de reistijd van \(A\to P\to B\).
+</p>
+
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:225pt ; ">
+
+<a id="mkpiweb-autopage-57"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+    B
+
+
+    P   |AO| = 320
+        |OB| = 600
+
+
+
+A
+    O
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+
+</div>
+<!--
+......   paragraph a) Rechtstreeks door de woestijn ().     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-60">a) Rechtstreeks door de woestijn (\(A\to B\)).</span>
+<a id="mkpiweb-autopage-60"></a>
+
+</p>
+
+<p>
+\[ |AB|=\sqrt {|AO|^2+|OB|^2}=\sqrt {320^2+600^2}=680\text { km} \]
+</p>
+
+<p>
+\[ t_{AB}=\frac {680}{100}=6.8\text { h}=6\text { h }48\text { min}.      \]
+</p>
+<!--
+......   paragraph b) Eerst naar de weg, dan over de weg ().     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-61">b) Eerst naar de weg, dan over de weg (\(A\to O\to B\)).</span>
+<a id="mkpiweb-autopage-61"></a>
+
+</p>
+
+<p>
+\[ t_{AOB}=\frac {|AO|}{100}+\frac {|OB|}{250} =\frac {320}{100}+\frac {600}{250} =3.2+2.4=5.6\text { h}=5\text { h }36\text { min}.   \]
+</p>
+<!--
+......    paragraph c) Algemeen punt    op de weg.   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-62">c) Algemeen punt \(P\) op de weg.</span>
+<a id="mkpiweb-autopage-62"></a>
+Stel \(|OP|=x\) (met \(0\le x\le 600\)). Dan
+</p>
+
+<p>
+\[ |AP|=\sqrt {320^2+x^2} \qquad \text {en}\qquad |PB|=600-x.        \]
+</p>
+
+<p>
+De totale tijd is
+</p>
+
+<p>
+\[ t(x)=\frac {\sqrt {320^2+x^2}}{100}+\frac {600-x}{250}, \qquad 0\le x\le 600.   \]
+</p>
+
+<p>
+Bepaal (grafisch met GRM) de waarde van \(x\) waarvoor \(t(x)\) minimaal is.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-63"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+p112 nr6, 11
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

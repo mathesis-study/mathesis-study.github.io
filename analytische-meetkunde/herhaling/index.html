@@ -1,0 +1,1749 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Herhaling Meetkunde</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 1</p> <h1>Herhaling Meetkunde</h1> </header>
+</p>
+<!--
+...... section Formules ......
+-->
+<h4 id="autosec-2"><span class="sectionnumber">I&#x2003;</span>Formules</h4>
+<a id="mkpiweb-autopage-2"></a>
+<!--
+...... subsection Afstand twee punten ......
+-->
+<h5 id="autosec-3">Afstand twee punten</h5>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<p>
+\[P(x_1,y_1) \wedge Q(x_2,y_2) \Rightarrow d(P,Q) = |PQ| = \sqrt {(x_2-x_1)^2+(y_2-y_1)^2}\]
+</p>
+<!--
+...... subsection Midden lijnstuk ......
+-->
+<h5 id="autosec-4">Midden lijnstuk</h5>
+<a id="mkpiweb-autopage-4"></a>
+
+
+<p>
+\[P(x_1,y_1) \wedge Q(x_2,y_2) \wedge M=\text {midden}_{[PQ]}\Rightarrow co(M)=\left (\dfrac {x_1+x_2}{2},\dfrac {y_1+y_2}{2}\right )\]
+</p>
+<!--
+...... subsection Zwaartepunt driehoek ......
+-->
+<h5 id="autosec-5">Zwaartepunt driehoek</h5>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+\[P(x_1,y_1) \wedge Q(x_2,y_2) \wedge R(x_3,y_3) \Rightarrow co(Z)=\left (\dfrac {x_1+x_2+x_3}{3},\dfrac {y_1+y_2+y_3}{3}\right )\]
+</p>
+
+<p>
+met \(Z=\text {zwaartepunt}_{\Delta PQR}\)
+</p>
+<!--
+...... subsection Vergelijking rechte ......
+-->
+<h5 id="autosec-6">Vergelijking rechte</h5>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Vergelijking van een rechte door punt \(P(x_1,y_1)\) met rico \(m\):
+</p>
+<p>
+\[y - y_1 = m(x - x_1) \qquad \mbox {of} \qquad \begin {vmatrix}x &amp; y &amp; 1 \\ x_1 &amp; y_1 &amp; 1 \\ 1 &amp; m &amp; 0\end {vmatrix} = 0\]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Vergelijking van een rechte door punt \(P(x_1,y_1)\) en \(Q(x_2,y_2)\):
+</p>
+<p>
+\[y - y_1 = \dfrac {y_2-y_1}{x_2-x_1}(x - x_1) \qquad \mbox {of} \qquad \begin {vmatrix}x &amp; y &amp; 1 \\ x_1 &amp; y_1 &amp; 1 \\ x_2 &amp; y_2 &amp; 1\end {vmatrix} = 0\]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Onderlinge ligging rechten ......
+-->
+<h5 id="autosec-7">Onderlinge ligging rechten</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+Als \(a \leftrightarrow y = m_1 x + q_1 \wedge b \leftrightarrow y = m_2 x + q_2\)
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> dan wordt de hoek tussen \(a\) en \(b\) bepaald door \(\cos (\widehat {a,b}) = \dfrac {|1+m_1m_2|}{\sqrt {1+m_1^2}\sqrt {1+m_2^2}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> dan is \(a \parallel b\) als \(m_1=m_2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> dan is \(a \perp b\) als \(m_1m_2=-1\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Afstand punt tot rechte ......
+-->
+<h5 id="autosec-8">Afstand punt tot rechte</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+\[P(x_1,y_1) \wedge a \leftrightarrow ux+vy+w=0 \Rightarrow d(P,a) = \dfrac {|ux_1+vy_1+w|}{\sqrt {u^2+v^2}}\]
+</p>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-9"><span class="sectionnumber">II&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-9"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-10">Oefening 1</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+Gegeven zijn de punten \(P(-2, 2) \), \(Q(6, 4) \) en \(R(6, -2) \).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bepaal de onderlinge afstanden tussen deze drie punten.
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                     (6 − (−2))2 + (4 − 2)2 (afstandformule)
+                                                                                                 p
+                                                                                       |P Q| =
+                                                                                                 p             √          √       √
+                                                                                             =       82 + 22 = 64 + 4 = 68 = 2 17.
+                                                                                                 p
+                                                                                       |P R| =       (6 − (−2))2 + (−2 − 2)2
+                                                                                                 p                √          √    √
+                                                                                             =       82 + (−4)2 = 64 + 16 = 80 = 4 5.
+                                                                                                 p
+                                                                                       |QR| =        (6 − 6)2 + (−2 − 4)2
+                                                                                                 p
+                                                                                             =       02 + (−6)2 = 6.
+
+
+-->
+
+<p>
+
+\begin{align*}
+|PQ| &amp;= \sqrt {(6-(-2))^2+(4-2)^2} \quad \text {(afstandformule)}\\ &amp;= \sqrt {8^2+2^2} = \sqrt {64+4} = \sqrt {68} = 2\sqrt {17}.\\[4pt] |PR| &amp;= \sqrt {(6-(-2))^2+(-2-2)^2}\\
+&amp;= \sqrt {8^2+(-4)^2} = \sqrt {64+16} = \sqrt {80} = 4\sqrt {5}.\\[4pt] |QR| &amp;= \sqrt {(6-6)^2+(-2-4)^2}\\ &amp;= \sqrt {0^2+(-6)^2} = 6.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {|PQ|=2\sqrt {17},\quad |PR|=4\sqrt {5},\quad |QR|=6.} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bepaal de coo&#x0308;rdinaat van het zwaartepunt \(Z \) van de driehoek \(PQR \).
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                        
+                                                                                              xP + xQ + xR yP + yQ + yR
+                                                                                    co(Z) =                ,                 (zwaartepunt)
+                                                                                                    3             3
+                                                                                                                             
+                                                                                              −2 + 6 + 6 2 + 4 + (−2)      10 4
+                                                                                          =             ,              =      ,   .
+                                                                                                  3            3            3 3
+
+-->
+
+<p>
+
+\begin{align*}
+co(Z) &amp;=\left (\frac {x_P+x_Q+x_R}{3},\frac {y_P+y_Q+y_R}{3}\right )\quad \text {(zwaartepunt)}\\ &amp;=\left (\frac {-2+6+6}{3},\frac {2+4+(-2)}{3}\right ) =\left (\frac {10}{3},\frac
+{4}{3}\right ).
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {Z\left (\frac {10}{3},\frac {4}{3}\right ).} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Zoek de vergelijking van de rechten \(r = \overline {PQ} \), \(q = \overline {PR} \) en \(p = \overline {QR} \).
+</p>
+<div class="oplossing">
+<p>
+<em>Rechte \(r\) door \(P(-2,2)\) en \(Q(6,4)\):</em>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                4−2     2   1
+                                                                                                        mr =           = =      (rico)
+                                                                                                              6 − (−2)  8   4
+                                                                                                              1
+                                                                                                      y − 2 = (x + 2) (punt-rico)
+                                                                                                              4
+                                                                                                     4y − 8 = x + 2
+                                                                                            x − 4y + 10 = 0.
+
+
+-->
+
+<p>
+
+\begin{align*}
+m_r&amp;=\frac {4-2}{6-(-2)}=\frac {2}{8}=\frac 14 \quad \text {(rico)}\\ y-2&amp;=\frac 14(x+2) \quad \text {(punt-rico)}\\ 4y-8&amp;=x+2\\ x-4y+10&amp;=0.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {r:\ x-4y+10=0 \quad (\text {of } y=\tfrac 14x+\tfrac 52)} \]
+</p>
+<p>
+<em>Rechte \(q\) door \(P(-2,2)\) en \(R(6,-2)\):</em>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                −2 − 2    −4    1
+                                                                                                         mq =           =    =−
+                                                                                                               6 − (−2)    8    2
+                                                                                                                 1
+                                                                                                       y − 2 = − (x + 2)
+                                                                                                                 2
+                                                                                                      2y − 4 = −x − 2
+                                                                                                 x + 2y − 2 = 0.
+
+
+-->
+
+<p>
+
+\begin{align*}
+m_q&amp;=\frac {-2-2}{6-(-2)}=\frac {-4}{8}=-\frac 12\\ y-2&amp;=-\frac 12(x+2)\\ 2y-4&amp;=-x-2\\ x+2y-2&amp;=0.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {q:\ x+2y-2=0 \quad (\text {of } y=-\tfrac 12x+1)} \]
+</p>
+<p>
+<em>Rechte \(p\) door \(Q(6,4)\) en \(R(6,-2)\):</em>
+</p>
+<p>
+\[ \boxed {p:\ x=6 \quad (\text {of } x-6=0)} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Zoek de grootte van de hoeken die deze drie rechten onderling maken.
+</p>
+<div class="oplossing">
+<p>
+<em>Tussen \(r\) en \(q\) (beide niet-verticaal):</em>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                              |1 + mr mq |
+                                                                                  cos(r,
+                                                                                      cq) = p        q           (hoekformule)
+                                                                                             1 + m2r 1 + m2q
+
+                                                                                                1 + 14 · − 12             7        7
+                                                                                                              
+                                                                                                                          8             7
+                                                                                          =q          q             = q     q   = √8 = √    .
+                                                                                                  1 2
+                                                                                                               1 2
+                                                                                                                        17   5    85    85
+                                                                                             1+ 4        1 + −2          16   4    8
+
+
+-->
+
+<p>
+
+\begin{align*}
+\cos (\widehat {r,q}) &amp;=\frac {|1+m_rm_q|}{\sqrt {1+m_r^2}\sqrt {1+m_q^2}}\quad \text {(hoekformule)}\\ &amp;=\frac {\left |1+\frac 14\cdot \left (-\frac 12\right )\right |}{\sqrt {1+\left
+(\frac 14\right )^2}\sqrt {1+\left (-\frac 12\right )^2}} =\frac {\left |\frac 78\right |}{\sqrt {\frac {17}{16}}\sqrt {\frac 54}} =\frac {\frac 78}{\frac {\sqrt {85}}{8}} =\frac {7}{\sqrt
+{85}}.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {\widehat {r,q}=\arccos \!\left (\frac {7}{\sqrt {85}}\right )\approx 40.6^\circ } \]
+</p>
+<p>
+<em>Tussen \(r\) en \(p\) (met richtingsvectoren):</em><br />
+Neem \(\vec {u}_r=(4,1)\) en \(\vec {u}_p=(0,1)\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                             |⃗ur · ⃗up |
+                                                                                            cos(r,
+                                                                                                cp) =                         (inproduct)
+                                                                                                           ∥⃗ur ∥ ∥⃗up ∥
+                                                                                                          |(4, 1) · (0, 1)|  |1| 1
+                                                                                                        = √                 =√ =√ .
+                                                                                                               2
+                                                                                                             4 +1 ·1 2        17 17
+
+-->
+
+<p>
+
+\begin{align*}
+\cos (\widehat {r,p}) &amp;=\frac {|\vec {u}_r\cdot \vec {u}_p|}{\|\vec {u}_r\|\ \|\vec {u}_p\|}\quad \text {(inproduct)}\\ &amp;=\frac {|(4,1)\cdot (0,1)|}{\sqrt {4^2+1^2}\cdot 1} =\frac
+{|1|}{\sqrt {17}} =\frac {1}{\sqrt {17}}.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {\widehat {r,p}=\arccos \!\left (\frac {1}{\sqrt {17}}\right )\approx 76.0^\circ } \]
+</p>
+<p>
+<em>Tussen \(q\) en \(p\):</em><br />
+Neem \(\vec {u}_q=(2,-1)\) en \(\vec {u}_p=(0,1)\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                            |⃗uq · ⃗up |
+                                                                                            cos(q,
+                                                                                                cp) =
+                                                                                                          ∥⃗uq ∥ ∥⃗up ∥
+                                                                                                        |(2, −1) · (0, 1)|   |−1| 1
+                                                                                                       =p                  = √ =√ .
+                                                                                                           2
+                                                                                                          2 + (−1) · 12        5   5
+
+-->
+
+<p>
+
+\begin{align*}
+\cos (\widehat {q,p}) &amp;=\frac {|\vec {u}_q\cdot \vec {u}_p|}{\|\vec {u}_q\|\ \|\vec {u}_p\|}\\ &amp;=\frac {|(2,-1)\cdot (0,1)|}{\sqrt {2^2+(-1)^2}\cdot 1} =\frac {|{-1}|}{\sqrt {5}}
+=\frac {1}{\sqrt {5}}.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {\widehat {q,p}=\arccos \!\left (\frac {1}{\sqrt {5}}\right )\approx 63.4^\circ } \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> Bepaal de afstand van het punt \(Q \) tot de rechte \(q \).
+</p>
+<div class="oplossing">
+<p>
+\(q:\ x+2y-2=0 \Rightarrow (u,v,w)=(1,2,-2)\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                 |uxQ + vyQ + w|
+                                                                                     d(Q, q) =      √                       (afstand punt–rechte)
+                                                                                                      u2 + v 2
+                                                                                                                                       √
+                                                                                              |1 · 6 + 2 · 4 − 2|   |6 + 8 − 2|  12  12 5
+                                                                                            =      √              =     √       =√ =      .
+                                                                                                     12 + 22              5       5    5
+
+-->
+
+<p>
+
+\begin{align*}
+d(Q,q) &amp;=\frac {|ux_Q+vy_Q+w|}{\sqrt {u^2+v^2}}\quad \text {(afstand punt--rechte)}\\ &amp;=\frac {|1\cdot 6+2\cdot 4-2|}{\sqrt {1^2+2^2}} =\frac {|6+8-2|}{\sqrt {5}} =\frac {12}{\sqrt
+{5}} =\frac {12\sqrt {5}}{5}.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {d(Q,q)=\frac {12}{\sqrt {5}}=\frac {12\sqrt {5}}{5}\approx 5.37} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> Bepaal de oppervlakte van de driehoek \(PQR \).
+</p>
+<div class="oplossing">
+<p>
+Neem basis \(QR\) en hoogte vanuit \(P\) op \(QR\).
+</p>
+<p>
+\[ |QR|=6 \quad \text {(uit 1.)} \]
+</p>
+<p>
+Omdat \(QR\) op \(x=6\) ligt, is de hoogte de horizontale afstand van \(P(-2,2)\) tot \(x=6\):
+</p>
+<p>
+\[ h = |6-(-2)|=8. \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                 1
+                                                                                                      A△P QR =     · basis · hoogte
+                                                                                                                 2
+                                                                                                                 1
+                                                                                                                = · 6 · 8 = 24.
+                                                                                                                 2
+
+-->
+
+<p>
+
+\begin{align*}
+A_{\triangle PQR} &amp;=\frac 12\cdot \text {basis}\cdot \text {hoogte}\\ &amp;=\frac 12\cdot 6\cdot 8 =24.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {\text {Oppervlakte} = 24} \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-11">Oefening 2</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+Gegeven is de driehoek bepaald door de punten \(A(3, 7) \), \(B(-1, -1) \) en \(C(7, 1) \).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bepaal de vergelijking van de zwaartelijn \(z_A \) uit \(A \).
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                         
+                                                                                                         −1 + 7 −1 + 1
+                                                                                          MBC =                ,                (midden)
+                                                                                                           2      2
+                                                                                                 = (3, 0).
+
+
+-->
+
+<p>
+
+\begin{align*}
+M_{BC} &amp;=\left (\frac {-1+7}{2},\frac {-1+1}{2}\right )\quad \text {(midden)}\\ &amp;=(3,0).
+\end{align*}
+Rechte door \(A(3,7)\) en \(M_{BC}(3,0)\) is verticaal:
+</p>
+<p>
+\[ \boxed {z_A:\ x=3.} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bepaal de vergelijking van de hoogtelijn \(h_A \) en \(h_B \) uit \(A \) en \(B \).
+</p>
+<div class="oplossing">
+<p>
+Eerst de rico’s van de zijden:
+</p>
+<p>
+\[ BC:\ m_{BC}=\frac {1-(-1)}{7-(-1)}=\frac {2}{8}=\frac 14, \qquad AC:\ m_{AC}=\frac {1-7}{7-3}=\frac {-6}{4}=-\frac 32.                            \]
+</p>
+<p>
+<em>Hoogtelijn uit \(A\) (loodrecht op \(BC\)):</em>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                           1
+                                                                                              mhA = −         = −4        (loodrecht)
+                                                                                                          mBC
+                                                                                              y − 7 = −4(x − 3)       (punt-rico)
+                                                                                                  y = −4x + 19.
+
+
+-->
+
+<p>
+
+\begin{align*}
+m_{h_A}&amp;=-\frac {1}{m_{BC}}=-4 \quad \text {(loodrecht)}\\ y-7&amp;=-4(x-3)\quad \text {(punt-rico)}\\ y&amp;=-4x+19.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {h_A:\ y=-4x+19 \quad (\text {of } 4x+y-19=0)} \]
+</p>
+<p>
+<em>Hoogtelijn uit \(B\) (loodrecht op \(AC\)):</em>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                         1    2
+                                                                                                              mhB = −       =
+                                                                                                                        mAC   3
+                                                                                                                   2
+                                                                                                           y+1=      (x + 1)
+                                                                                                                   3
+                                                                                                          3y + 3 = 2x + 2
+                                                                                                  2x − 3y − 1 = 0.
+
+
+-->
+
+<p>
+
+\begin{align*}
+m_{h_B}&amp;=-\frac {1}{m_{AC}}=\frac 23\\ y+1&amp;=\frac 23(x+1)\\ 3y+3&amp;=2x+2\\ 2x-3y-1&amp;=0.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {h_B:\ 2x-3y-1=0 \quad (\text {of } y=\tfrac 23x-\tfrac 13)} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Bepaal de coo&#x0308;rdinaat van het hoogtepunt \(H \).
+</p>
+<div class="oplossing">
+<p>
+Snijpunt van \(h_A\) en \(h_B\):
+</p>
+<p>
+\[ h_A:\ y=-4x+19, \qquad h_B:\ y=\frac {2x-1}{3}. \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                2x − 1
+                                                                                                       = −4x + 19
+                                                                                                  3
+                                                                                                2x − 1 = −12x + 57
+                                                                                                     14x = 58
+                                                                                                               29
+                                                                                                         x=
+                                                                                                               7
+                                                                                                                    29        17
+                                                                                                         y = −4 ·      + 19 =    .
+                                                                                                                     7         7
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {2x-1}{3}&amp;=-4x+19\\ 2x-1&amp;=-12x+57\\ 14x&amp;=58\\ x&amp;=\frac {29}{7}\\ y&amp;=-4\cdot \frac {29}{7}+19=\frac {17}{7}.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {H\left (\frac {29}{7},\frac {17}{7}\right ).} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Bepaal de vergelijkingen van de middellijnen \(m_{BC} \) en \(m_{AC} \) en de lijnstukken \([BC] \) en \([AC] \).
+</p>
+<div class="oplossing">
+<p>
+<em>Middelloodlijn van \(BC\):</em>
+</p>
+<p>
+\[ M_{BC}=(3,0),\quad m_{BC}=\frac 14 \Rightarrow m_{m_{BC}}=-4. \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                         y − 0 = −4(x − 3)
+                                                                                                              y = −4x + 12.
+
+
+-->
+
+<p>
+
+\begin{align*}
+y-0&amp;=-4(x-3)\\ y&amp;=-4x+12.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {m_{BC}:\ y=-4x+12 \quad (\text {of } 4x+y-12=0)} \]
+</p>
+<p>
+<em>Middelloodlijn van \(AC\):</em>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                        
+                                                                                                              3+7 7+1
+                                                                                               MAC =             ,            = (5, 4),
+                                                                                                               2   2
+                                                                                                              3         2
+                                                                                               mAC = −          ⇒ mmAC = .
+                                                                                                              2         3
+
+-->
+
+<p>
+
+\begin{align*}
+M_{AC}&amp;=\left (\frac {3+7}{2},\frac {7+1}{2}\right )=(5,4),\\ m_{AC}&amp;=-\frac 32 \Rightarrow m_{m_{AC}}=\frac 23.
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                    2
+                                                                                                              y−4=    (x − 5)
+                                                                                                                    3
+                                                                                                          3y − 12 = 2x − 10
+                                                                                                   2x − 3y + 2 = 0.
+
+
+-->
+
+<p>
+
+\begin{align*}
+y-4&amp;=\frac 23(x-5)\\ 3y-12&amp;=2x-10\\ 2x-3y+2&amp;=0.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {m_{AC}:\ 2x-3y+2=0 \quad (\text {of } y=\tfrac 23x+\tfrac 23)} \]
+</p>
+<p>
+<em>Dragers (rechten) van de zijden:</em>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                1
+                                                                                   BC : y + 1 =   (x + 1) ⇒ BC : x − 4y − 3 = 0 ,
+                                                                                                4
+                                                                                                  3
+                                                                                   AC : y − 7 = − (x − 3) ⇒ AC : 3x + 2y − 23 = 0 .
+                                                                                                  2
+
+-->
+
+<p>
+
+\begin{align*}
+BC:\ y+1&amp;=\frac 14(x+1)\ \Rightarrow \ \boxed {BC:\ x-4y-3=0},\\ AC:\ y-7&amp;=-\frac 32(x-3)\ \Rightarrow \ \boxed {AC:\ 3x+2y-23=0}.
+\end{align*}
+
+</p>
+<p>
+<em>Parametervoorstelling van de lijnstukken:</em>
+</p>
+<p>
+\[ \boxed {[BC]:\ (x,y)=(-1,-1)+t(8,2)=(-1+8t,\,-1+2t),\ \ 0\le t\le 1} \]
+</p>
+<p>
+\[ \boxed {[AC]:\ (x,y)=(3,7)+t(4,-6)=(3+4t,\,7-6t),\ \ 0\le t\le 1} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> Bepaal de vergelijking van de bissectrices van \(AB \) en \(AC \).
+</p>
+<div class="oplossing">
+<p>
+Eerst de rechten:
+</p>
+<p>
+\[ AB:\ y=2x+1 \ \Rightarrow \ \boxed {AB:\ 2x-y+1=0}, \qquad \boxed {AC:\ 3x+2y-23=0}. \]
+</p>
+<p>
+Normen:
+</p>
+<p>
+\[ \sqrt {2^2+(-1)^2}=\sqrt 5,\qquad \sqrt {3^2+2^2}=\sqrt {13}. \]
+</p>
+<p>
+Bissectrices:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                           2x − y + 1    3x + 2y − 23
+                                                                                              √       =±     √         (bissectrices)
+                                                                                                5              13
+                                                                                     √                   √
+                                                                                       13(2x − y + 1) = ± 5(3x + 2y − 23).
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {2x-y+1}{\sqrt 5}&amp;=\pm \frac {3x+2y-23}{\sqrt {13}} \quad \text {(bissectrices)}\\ \sqrt {13}(2x-y+1)&amp;=\pm \sqrt 5(3x+2y-23).
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {\sqrt {13}(2x-y+1)=\sqrt 5(3x+2y-23)} \quad \text {en} \quad \boxed {\sqrt {13}(2x-y+1)=-\sqrt 5(3x+2y-23)}.                         \]
+</p>
+<p>
+(De <em>inwendige</em> bissectrice is diegene die door het inwendige van de driehoek gaat.)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> Bepaal de vergelijking van de bissectrices van \(AB \) en \(BC \).
+</p>
+<div class="oplossing">
+<p>
+\[ \boxed {AB:\ 2x-y+1=0},\qquad \boxed {BC:\ x-4y-3=0}. \]
+</p>
+<p>
+Normen:
+</p>
+<p>
+\[ \sqrt {2^2+(-1)^2}=\sqrt 5,\qquad \sqrt {1^2+(-4)^2}=\sqrt {17}. \]
+</p>
+<p>
+Bissectrices:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                 2x − y + 1    x − 4y − 3
+                                                                                                    √       =± √
+                                                                                                      5             17
+                                                                                           √                   √
+                                                                                             17(2x − y + 1) = ± 5(x − 4y − 3).
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {2x-y+1}{\sqrt 5}&amp;=\pm \frac {x-4y-3}{\sqrt {17}}\\ \sqrt {17}(2x-y+1)&amp;=\pm \sqrt 5(x-4y-3).
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {\sqrt {17}(2x-y+1)=\sqrt 5(x-4y-3)} \quad \text {en} \quad \boxed {\sqrt {17}(2x-y+1)=-\sqrt 5(x-4y-3)}.                        \]
+</p>
+<p>
+(De <em>inwendige</em> bissectrice is diegene die door het inwendige van de driehoek gaat.)
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-12">Oefening 3</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+Gegeven zijn de rechten \(a \) en \(b \):
+</p>
+
+<p>
+\[ a \leftrightarrow y = 2x - 3 \]
+</p>
+
+<p>
+\[ b \leftrightarrow 2y - 4x - 5 = 0 \]
+</p>
+
+<p>
+Bepaal de meetkundige plaats van de punten \(D \) die even ver verwijderd zijn van de rechten \(a \) en \(b \).
+</p>
+<div class="oplossing">
+
+<p>
+Neem \(D(x,y)\) willekeurig. We zoeken \(d(D,a)=d(D,b)\).
+</p>
+
+<p>
+Zet beide rechten in vorm \(ux+vy+w=0\):
+</p>
+
+<p>
+\[ a:\ y=2x-3 \ \Longleftrightarrow \ 2x-y-3=0, \qquad b:\ 2y-4x-5=0 \ \Longleftrightarrow \ 4x-2y+5=0 \]
+</p>
+
+<p>
+en vereenvoudig \(b\) door \(2\):
+</p>
+
+<p>
+\[ b:\ 2x-y+\frac 52=0.     \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                |2x − y − 3|  2x − y + 25
+                                                                           d(D, a) = d(D, b) ⇐⇒ p            =p                        (afstand punt–rechte)
+                                                                                                  22 + (−1)2    22 + (−1)2
+                                                                                                                                5
+                                                                                               ⇐⇒ |2x − y − 3| = 2x − y +         .
+                                                                                                                                2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+d(D,a)=d(D,b) &amp;\Longleftrightarrow \frac {|2x-y-3|}{\sqrt {2^2+(-1)^2}} =\frac {\left |2x-y+\frac 52\right |}{\sqrt {2^2+(-1)^2}} \quad \text {(afstand punt--rechte)}\\
+&amp;\Longleftrightarrow |2x-y-3|=\left |2x-y+\frac 52\right |.
+\end{align*}
+
+</p>
+
+<p>
+Zet \(t=2x-y\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                 |t − 3| = |t + 52 | ⇐⇒ t − 3 = −(t + 52 )   (enige mogelijke tekenkeuze)
+                                                                                                  ⇐⇒ 2t = 12
+                                                                                                  ⇐⇒ t = 41 .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+|t-3|=|t+\tfrac 52| &amp;\Longleftrightarrow t-3=-(t+\tfrac 52) \quad \text {(enige mogelijke tekenkeuze)}\\ &amp;\Longleftrightarrow 2t=\tfrac 12\\ &amp;\Longleftrightarrow t=\tfrac 14.
+\end{align*}
+
+</p>
+
+<p>
+Dus
+</p>
+
+<p>
+\[ 2x-y=\frac 14 \ \Longleftrightarrow \ \boxed {y=2x-\frac 14}.            \]
+</p>
+
+<p>
+<b>Meetkundige plaats:</b> de rechte evenwijdig met \(a\) en \(b\) die er precies tussenin ligt.
+</p>
+</div>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-13">Oefening 4</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+Gegeven twee punten \(A(1, 2) \) en \(B(5, 4) \). Gevraagd: de meetkundige plaats van de punten \(D \) waarvoor geldt:
+</p>
+
+<p>
+\[ \frac {d(A, D)}{d(B, D)} = 2 \]
+</p>
+
+<div class="oplossing">
+
+<p>
+Neem \(D(x,y)\). Dan
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                       d(A, D)
+                                                                               = 2 ⇐⇒ d(A, D) = 2 d(B, D)
+                                                                       d(B, D)
+                                                                                      p                        p
+                                                                                   ⇐⇒ (x − 1)2 + (y − 2)2 = 2 (x − 5)2 + (y − 4)2
+                                                                                   ⇐⇒ (x − 1)2 + (y − 2)2 = 4 (x − 5)2 + (y − 4)2   (kwadrateren).
+                                                                                                                                  
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\frac {d(A,D)}{d(B,D)}=2 &amp;\Longleftrightarrow d(A,D)=2\,d(B,D)\\ &amp;\Longleftrightarrow \sqrt {(x-1)^2+(y-2)^2}=2\sqrt {(x-5)^2+(y-4)^2}\\ &amp;\Longleftrightarrow (x-1)^2+(y-2)^2=4\big
+((x-5)^2+(y-4)^2\big )\quad \text {(kwadrateren)}.
+\end{align*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                  x2 + y 2 − 2x − 4y + 5 = 4x2 + 4y 2 − 40x − 32y + 164
+                                                                                                      0 = 3x2 + 3y 2 − 38x − 28y + 159
+                                                                                                                          38    28
+                                                                                                      0 = x2 + y 2 −         x − y + 53.
+                                                                                                                          3     3
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2+y^2-2x-4y+5 &amp;=4x^2+4y^2-40x-32y+164\\ 0&amp;=3x^2+3y^2-38x-28y+159\\ 0&amp;=x^2+y^2-\frac {38}{3}x-\frac {28}{3}y+53.
+\end{align*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                    2
+                                                                                              2 38              19            361
+                                                                                             x − x=          x−           −       ,
+                                                                                                 3               3             9
+                                                                                                                    2
+                                                                                              2 28              14            196
+                                                                                             y − y=          y−           −       .
+                                                                                                3                3             9
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2-\frac {38}{3}x &amp;=\left (x-\frac {19}{3}\right )^2-\frac {361}{9},\\ y^2-\frac {28}{3}y &amp;=\left (y-\frac {14}{3}\right )^2-\frac {196}{9}.
+\end{align*}
+Dus
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                            2       2
+                                                                                          19        14      361 196
+                                                                                       x−      + y−       =    +    − 53
+                                                                                           3         3       9   9
+                                                                                                                     557 477   80
+                                                                                                                =       −    =    .
+                                                                                                                      9   9     9
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\left (x-\frac {19}{3}\right )^2+\left (y-\frac {14}{3}\right )^2 &amp;=\frac {361}{9}+\frac {196}{9}-53\\ &amp;=\frac {557}{9}-\frac {477}{9} =\frac {80}{9}.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\ \text {Meetkundige plaats:      de cirkel } \left (x-\frac {19}{3}\right )^2+\left (y-\frac {14}{3}\right )^2=\frac {80}{9}\ } \]
+</p>
+
+<p>
+met middelpunt \(\left (\frac {19}{3},\frac {14}{3}\right )\) en straal \(\frac {4\sqrt 5}{3}\) (punt \(B\) uitgesloten omdat \(d(B,D)\neq 0\)).
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{
+ "titel": "Goniometrische formules",
+ "hoofdstuk": 3,
+ "code": "G03",
+ "vak": "Wiskunde",
+ "domein": "Goniometrie",
+ "domeinnaam": "Goniometrie",
+ "url": "goniometrie/goniometrische-formules",
+ "secties": [
+  "Optellingsformules",
+  "Verdubbelingsformules",
+  "Halveringsformules (= Formules van Carnot)",
+  "Cosinusregel",
+  "Inproduct"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.22"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": true
+}

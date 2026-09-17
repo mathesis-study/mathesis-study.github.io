@@ -1,0 +1,2845 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Matrices</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=e921ac91c588" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=e921ac91c588" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=e921ac91c588" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+\(\newcommand {\by }{\times }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 1</p> <h1>Matrices</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                  0.4
+
+
+
+
+                  R                                        
+                                              W B R
+         0.1            0.5
+                                            0.6 0.3 0.1 W 
+                 0.3     0.3              A=
+                                            0.3 0.4 0.5 B 
+                                                            
+                  0.3
+                                              0.1 0.3 0.4 R
+        W                      B
+                  0.3
+
+0.6                                0.4
+
+      een netwerk van overgangen         een schema van getallen: een matrix
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.12</b> (MD 06.08.01) De leerlingen voeren bewerkingen uit met matrices: optelling, scalaire vermenigvuldiging, matrixvermenigvuldiging, machtsverheffing en transpositie.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: rekenregels en eigenschappen
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.13</b> (MD 06.08.02) De leerlingen gebruiken matrixmodellen om evoluties te beschrijven.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: migratiematrices, Lesliematrices, matrixvoorstelling van een graaf
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: evenwichtstoestand
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> het begrip matrix en de bijzondere matrices, gelijkheid van matrices, de getransponeerde matrix, de som van matrices en het product met een ree&#x0308;el getal met hun eigenschappen
+(commutatieve groep, ree&#x0308;le vectorruimte), het product van matrices, de macht van een vierkante matrix en de eigenschappen van dat product (niet-commutatieve ring met eenheidselement), en toepassingen met overgangs-,
+migratie- en Lesliematrices.
+</p>
+
+</div>
+<!--
+...... section Inleiding ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Inleiding</h4>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<p>
+Zie handboek VBTL - Matrices, inleidend voorbeeld p 9.
+</p>
+<!--
+...... section Definitie ......
+-->
+<h4 id="autosec-7"><span class="sectionnumber">II&#x2003;</span>Definitie</h4>
+<a id="mkpiweb-autopage-7"></a>
+<!--
+...... subsection Algemeen ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">1&#x2003;</span>Algemeen</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+Het schema van ree&#x0308;le getallen
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="matrix-orde" data-hoogte="20rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \begin {pmatrix} a_{11}&amp;a_{12}&amp;a_{13}&amp;\cdots &amp;a_{1n}\\ a_{21}&amp;a_{22}&amp;a_{23}&amp;\cdots &amp;a_{2n}\\ \vdots &amp;\vdots &amp;\vdots &amp; &amp;\vdots \\
+a_{m1}&amp;a_{m2}&amp;a_{m3}&amp;\cdots &amp;a_{mn} \end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element: de rij en de kolom waarin het staat, lichten op. Met de knoppen verander je het aantal rijen en
+kolommen, en dus de orde van de matrix.</figcaption> </figure>
+</p>
+
+<p>
+noemen we een <b>matrix</b> met \(m\) <b>rijen</b> en \(n\) <b>kolommen</b>, kort een <b>\(m\by n\)-matrix</b>.
+</p>
+<!--
+...... subsection Bijzonder geval: -matrix ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">2&#x2003;</span>Bijzonder geval: \(2\by 2\)-matrix</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<div class="oplossing">
+
+<p>
+Voor \(a,b,c,d\in \mathbb {R}\) noemen we
+</p>
+
+<p>
+\[ \begin {pmatrix}a&amp;b\\ c&amp;d\end {pmatrix} \]
+</p>
+
+<p>
+een <b>matrix</b> met \(2\) <b>rijen</b> en \(2\) <b>kolommen</b>, kort een <b>\(2\by 2\)-matrix</b>. De getallen \(a\), \(b\), \(c\) en \(d\) noemen we de <b>elementen</b> van de matrix.
+</p>
+</div>
+<!--
+...... subsection Notatie ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">3&#x2003;</span>Notatie</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+Rond de elementen schrijven we haken. Daarvoor bestaan er twee gebruiken: <b>ronde</b> haken en <b>vierkante</b> haken. Beide betekenen precies hetzelfde.
+</p>
+
+<p>
+\[ A=\begin {pmatrix}1&amp;-2&amp;0\\3&amp;5&amp;4\end {pmatrix} \qquad \text {of}\qquad A=\begin {bmatrix}1&amp;-2&amp;0\\3&amp;5&amp;4\end {bmatrix} \]
+</p>
+
+<p>
+Ik gebruik graag <b>ronde</b> haken. Jij kiest voor jezelf.
+</p>
+
+<p>
+
+</p>
+
+
+<div class="hint hint-blok">
+
+<p>
+Let op: <em>verticale strepen</em> betekenen iets anders. Die noteren geen matrix, maar een getal: de <b>determinant</b> van een vierkante matrix (zie het volgende hoofdstuk).
+</p>
+
+<p>
+\[ \begin {pmatrix}1&amp;-2\\3&amp;5\end {pmatrix}\ \text {is een matrix,} \qquad \begin {vmatrix}1&amp;-2\\3&amp;5\end {vmatrix}\ \text {is een getal.} \]
+</p>
+
+</div>
+<!--
+...... subsection Opmerkingen ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">4&#x2003;</span>Opmerkingen</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(a_{ij}\) is het element dat in de \(i^\text {e}\) rij en de \(j^\text {e}\) kolom staat. De <em>rij</em> staat dus eerst.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Verkorte notatie: \(A=(a_{ij})\). Een matrix noteren we met een <b>hoofdletter</b>.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De verzameling van alle \(m\by n\)-matrices noteren we met \(\mathbb {R}^{m\times n}\).
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Het aantal rijen en kolommen samen noemen we de <b>orde</b> van de matrix, bijvoorbeeld orde \(m\by n\).
+</p>
+</li>
+</ul>
+<!--
+...... section Enkele bijzondere matrices ......
+-->
+<h4 id="autosec-12"><span class="sectionnumber">III&#x2003;</span>Enkele bijzondere matrices</h4>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Nulmatrix ......
+-->
+<h5 id="autosec-13"><span class="sectionnumber">1&#x2003;</span>Nulmatrix</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-14">Definitie</h6>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+Een matrix waarvan alle elementen gelijk zijn aan \(0\), noemen we een <b>nulmatrix</b>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Notatie ......
+-->
+<h6 id="autosec-15">Notatie</h6>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+We noteren een nulmatrix met \(O\), of met \(O_{m\times n}\) als we de orde \(m\by n\) willen benadrukken.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-16">Voorbeelden</h6>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="nulmatrix" data-hoogte="18rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \text {in }\mathbb {R}^{3\times 2}:\; \begin {pmatrix}0&amp;0\\0&amp;0\\0&amp;0\end {pmatrix} \qquad \text {in }\mathbb {R}^{4\times 1}:\; \begin {pmatrix}0\\0\\0\\0\end {pmatrix} \qquad
+\text {in }\mathbb {R}^{1\times 2}:\; \begin {pmatrix}0&amp;0\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Verander het aantal rijen en kolommen. Welke orde je ook kiest: elk element van de nulmatrix blijft \(0\).</figcaption>
+</figure>
+</p>
+
+<p>
+</div>
+</p>
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Rij- / kolommatrix ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">2&#x2003;</span>Rij- / kolommatrix</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-18">Definitie</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Een matrix met precies één rij noemen we een <b>rijmatrix</b>. Een matrix met precies één kolom noemen we een <b>kolommatrix</b>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-19">Voorbeelden</h6>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="rij-kolommatrix" data-hoogte="18rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ R=\begin {pmatrix}1&amp;7&amp;4\end {pmatrix} \qquad K=\begin {pmatrix}1\\-9\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Kies een rijmatrix of kolommatrix. Met <em>Wijzig</em> krijg je andere elementen; de matrix houdt precies één rij of één
+kolom.</figcaption> </figure>
+</p>
+
+<p>
+</div>
+</p>
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Vierkante matrix ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">3&#x2003;</span>Vierkante matrix</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-21">Definitie</h6>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+Een matrix met evenveel rijen als kolommen noemen we een <b>vierkante matrix</b>. Een vierkante matrix van orde \(n\by n\) noemen we kort een vierkante matrix van orde \(n\).
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-22">Voorbeeld</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="bijzondere-matrices" data-hoogte="22rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \text {in }\mathbb {R}^{3\times 3}:\; \begin {pmatrix} \boxed {3}&amp;0&amp;1\\ 7&amp;\boxed {6}&amp;2\\ 5&amp;2&amp;\boxed {4} \end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Met <em>Wijzig A</em> krijg je een andere matrix. <em>Kleiner</em> en <em>Groter</em> veranderen de orde;
+<em>Hoofddiagonaal</em> en <em>Nevendiagonaal</em> tonen of verbergen de overeenkomstige diagonaal.</figcaption> </figure>
+</p>
+
+<p>
+De aangeduide elementen vormen de <b>hoofddiagonaal</b>.
+</p>
+
+<p>
+</div>
+</p>
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Diagonaalmatrix ......
+-->
+<h5 id="autosec-23"><span class="sectionnumber">4&#x2003;</span>Diagonaalmatrix</h5>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-24">Definitie</h6>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+Een vierkante matrix waarvan alle elementen buiten de hoofddiagonaal gelijk zijn aan \(0\), noemen we een <b>diagonaalmatrix</b>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection In symbolen ......
+-->
+<h6 id="autosec-25">In symbolen</h6>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+\[ A=(a_{ij})\in \mathbb {R}^{n\times n}\text { is diagonaal} \quad \Longleftrightarrow \quad a_{ij}=0\text { voor }i\ne j.   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-26">Voorbeeld</h6>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="diagonaalmatrix" data-hoogte="19rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \text {in }\mathbb {R}^{3\times 3}:\; \begin {pmatrix}3&amp;0&amp;0\\0&amp;6&amp;0\\0&amp;0&amp;4\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Verander de orde of de elementen op de hoofddiagonaal. Buiten die diagonaal blijft elk element \(0\).</figcaption>
+</figure>
+</p>
+
+<p>
+</div>
+</p>
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Scalaire matrix ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">5&#x2003;</span>Scalaire matrix</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-28">Definitie</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+Een diagonaalmatrix waarvan alle elementen op de hoofddiagonaal aan elkaar gelijk zijn, noemen we een <b>scalaire matrix</b>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-29">Voorbeeld</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="scalaire-matrix" data-hoogte="19rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \text {in }\mathbb {R}^{3\times 3}:\; \begin {pmatrix}5&amp;0&amp;0\\0&amp;5&amp;0\\0&amp;0&amp;5\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Verander de scalaire waarde of de orde. Op de hoofddiagonaal staat telkens hetzelfde getal; daarbuiten staat
+\(0\).</figcaption> </figure>
+</p>
+
+<p>
+</div>
+</p>
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Eenheidsmatrix ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">6&#x2003;</span>Eenheidsmatrix \(I\)</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-31">Definitie</h6>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+Een diagonaalmatrix waarvan alle elementen op de hoofddiagonaal gelijk zijn aan \(1\), noemen we een <b>eenheidsmatrix</b>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-32">Voorbeeld</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="eenheidsmatrix" data-hoogte="19rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \text {in }\mathbb {R}^{2\times 2}:\; \begin {pmatrix}1&amp;0\\0&amp;1\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Verander de orde. De eenheidsmatrix heeft altijd enen op de hoofddiagonaal en nullen daarbuiten.</figcaption> </figure>
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Notatie ......
+-->
+<h6 id="autosec-33">Notatie</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+We noteren een eenheidsmatrix met \(I\), of met \(I_n\) als we de orde willen benadrukken.
+</p>
+
+<p>
+</div>
+</p>
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Driehoeksmatrix ......
+-->
+<h5 id="autosec-34"><span class="sectionnumber">7&#x2003;</span>Driehoeksmatrix</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-35">Definitie</h6>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p>
+Een vierkante matrix waarvan alle elementen onder de hoofddiagonaal gelijk zijn aan \(0\), noemen we een <b>bovendriehoeksmatrix</b>. Zijn alle elementen boven de hoofddiagonaal gelijk aan \(0\), dan spreken we van een
+<b>onderdriehoeksmatrix</b>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection In symbolen ......
+-->
+<h6 id="autosec-36">In symbolen</h6>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p>
+\[ \begin {aligned} A=(a_{ij})\in \mathbb {R}^{n\times n}\text { is bovendriehoekig} &amp;\quad \Longleftrightarrow \quad a_{ij}=0\text { voor }i&gt;j,\\ A=(a_{ij})\in \mathbb {R}^{n\times
+n}\text { is onderdriehoekig} &amp;\quad \Longleftrightarrow \quad a_{ij}=0\text { voor }i&lt;j. \end {aligned} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-37">Voorbeelden</h6>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="driehoeksmatrix" data-hoogte="20rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \text {in }\mathbb {R}^{3\times 3}:\; \begin {pmatrix}1&amp;0&amp;0\\2&amp;3&amp;0\\4&amp;5&amp;6\end {pmatrix} = \text {\textbf {onder}driehoeksmatrix} \qquad \text {in }\mathbb
+{R}^{2\times 2}:\; \begin {pmatrix}-1&amp;3\\0&amp;5\end {pmatrix} = \text {\textbf {boven}driehoeksmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Schakel tussen boven- en onderdriehoekig. De nuldriehoek ligt telkens aan de andere kant van de
+hoofddiagonaal.</figcaption> </figure>
+</p>
+
+<p>
+</div>
+</p>
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Eigenschappen combineren ......
+-->
+<h5 id="autosec-38"><span class="sectionnumber">8&#x2003;</span>Eigenschappen combineren</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+Een matrix kan tegelijk tot verschillende bijzondere soorten behoren. Of dat mogelijk is, hangt soms af van haar orde en soms van de gekozen eigenschappen.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="bijzondere-eigenschappen-combineren" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ I_3= \begin {pmatrix} 1&amp;0&amp;0\\ 0&amp;1&amp;0\\ 0&amp;0&amp;1 \end {pmatrix} \quad \text {is tegelijk vierkant, diagonaal, scalair, eenheids-, boven- en onderdriehoekig.} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Schakel een of meer bijzondere eigenschappen in. Met <em>Kleiner</em> en <em>Groter</em> pas je de orde aan wanneer de
+gekozen eigenschappen dat toelaten. Als de eigenschappen verenigbaar zijn, verschijnt een voorbeeldmatrix.</figcaption> </figure>
+</p>
+
+<p>
+</div>
+</p>
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... section Gelijke matrices ......
+-->
+<h4 id="autosec-39"><span class="sectionnumber">IV&#x2003;</span>Gelijke matrices</h4>
+<a id="mkpiweb-autopage-39"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-40"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+Twee \(m\by n\)-matrices zijn <b>gelijk</b> als elke twee overeenkomstige elementen gelijk zijn.
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-41"><span class="sectionnumber">2&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+Gegeven is de gelijkheid
+</p>
+
+<p>
+\[ \begin {pmatrix} 2a-1&amp;-\sqrt {c}\\ d^2&amp;\dfrac {b}{2} \end {pmatrix} = \begin {pmatrix} 5&amp;-3\\ 4&amp;-2 \end {pmatrix}.   \]
+</p>
+
+<p>
+Omdat overeenkomstige elementen gelijk zijn, vinden we
+</p>
+
+<p>
+\[ \left \{ \begin {aligned} a&amp;=3,\\ b&amp;=-4,\\ c&amp;=9,\\ d&amp;=2\text { of }d=-2.   \end {aligned} \right .   \]
+</p>
+
+<p>
+</div>
+</p>
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... section Tegengestelde matrices ......
+-->
+<h4 id="autosec-42"><span class="sectionnumber">V&#x2003;</span>Tegengestelde matrices</h4>
+<a id="mkpiweb-autopage-42"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-43"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+De <b>tegengestelde</b> matrix \(-A\) van een matrix \(A\) krijgen we door elk element van \(A\) te vervangen door zijn tegengestelde:
+</p>
+
+<p>
+\[ -A=(-a_{ij}).    \]
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-44"><span class="sectionnumber">2&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p>
+De matrices
+</p>
+
+<p>
+\[ A=\begin {pmatrix}x&amp;-2\\\sqrt {3}&amp;y-1\end {pmatrix} \qquad \text {en}\qquad B=\begin {pmatrix}-4&amp;2\\-\sqrt {3}&amp;-5\end {pmatrix} \]
+</p>
+
+<p>
+zijn elkaars tegengestelde. Uit \(B=-A\) volgt
+</p>
+
+<p>
+\[ \left \{ \begin {aligned} -x&amp;=-4,\\ -(y-1)&amp;=-5 \end {aligned} \right .   \quad \Longleftrightarrow \quad \left \{ \begin {aligned} x&amp;=4,\\ y&amp;=6.   \end {aligned} \right .   \]
+</p>
+
+<p>
+Inderdaad, voor deze waarden geldt \(A+B=O\). </div>
+</p>
+<!--
+...... section Getransponeerde van een matrix ......
+-->
+<h4 id="autosec-45"><span class="sectionnumber">VI&#x2003;</span>Getransponeerde van een matrix</h4>
+<a id="mkpiweb-autopage-45"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-46"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+De <b>getransponeerde</b> (of gespiegelde) matrix \(A^{\mathsf T}\) van een gegeven matrix \(A\) krijgen we door de opeenvolgende <em>rijen</em> van \(A\) te schrijven als opeenvolgende <em>kolommen</em>.
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-47"><span class="sectionnumber">2&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="transponeren" data-hoogte="17rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ A=\begin {pmatrix}3&amp;7\\-1&amp;2\\0&amp;-3\end {pmatrix} \qquad \Longrightarrow \qquad A^{\mathsf T}=\begin {pmatrix}3&amp;-1&amp;0\\7&amp;2&amp;-3\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Selecteer een rij van \(A\): de volledige rij licht samen met de overeenkomstige kolom van \(A^{\mathsf T}\) op. Selecteren
+vanuit \(A^{\mathsf T}\) werkt omgekeerd.</figcaption> </figure>
+</p>
+
+<p>
+Een \(3\by 2\)-matrix wordt dus een \(2\by 3\)-matrix.
+</p>
+<!--
+...... subsection Symmetrische matrix ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">3&#x2003;</span>Symmetrische matrix</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+Een vierkante matrix \(A\) waarvoor \(A^{\mathsf T}=A\) geldt, noemen we een <b>symmetrische matrix</b>.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="symmetrie" data-hoogte="17rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ A=\begin {pmatrix}2&amp;1\\1&amp;3\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element van \(A\): ook het overeenkomstige element aan de andere kant van de hoofddiagonaal licht op. Omdat
+beide gelijk zijn, geldt \(A^{\mathsf T}=A\).</figcaption> </figure>
+</p>
+<!--
+...... subsection Antisymmetrische matrix ......
+-->
+<h5 id="autosec-49"><span class="sectionnumber">4&#x2003;</span>Antisymmetrische matrix</h5>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+Een vierkante matrix \(A\) waarvoor \(A^{\mathsf T}=-A\) geldt, noemen we een <b>antisymmetrische matrix</b>.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="antisymmetrie" data-hoogte="17rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ A=\begin {pmatrix}0&amp;2\\-2&amp;0\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element van \(A\): ook het overeenkomstige element aan de andere kant van de hoofddiagonaal licht op. Beide
+zijn elkaars tegengestelde en op de hoofddiagonaal staat steeds \(0\), zodat \(A^{\mathsf T}=-A\).</figcaption> </figure>
+</p>
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-50"><span class="sectionnumber">VII&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Handboek ......
+-->
+<h6 id="autosec-51">Handboek</h6>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<p>
+p 19 nr 1, 2, 3
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Extra ......
+-->
+<h6 id="autosec-52">Extra</h6>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+Bepaal \(x\), \(y\), \(z\) en \(u\) zodat
+</p>
+
+<p>
+\[ \begin {pmatrix}\sqrt 3\,x+1 &amp; \sqrt 5\\[2pt] z &amp; 3\end {pmatrix} = \begin {pmatrix}\sqrt 6 &amp; \sqrt 3\,y-\sqrt 6\\[2pt] -4 &amp; 1-10u\end {pmatrix}.   \]
+</p>
+
+<div class="oplossing">
+
+<p>
+Twee matrices zijn gelijk als alle overeenkomstige elementen gelijk zijn:
+</p>
+
+<p>
+\[ \begin {cases} \sqrt 3\,x+1=\sqrt 6\\ \sqrt 3\,y-\sqrt 6=\sqrt 5\\ z=-4\\ 1-10u=3 \end {cases} \iff \begin {cases} x=\dfrac {\sqrt 6-1}{\sqrt 3}=\dfrac {\sqrt {18}-\sqrt 3}{3}=\sqrt 2-\dfrac
+{\sqrt 3}{3}\\[8pt] y=\dfrac {\sqrt 5+\sqrt 6}{\sqrt 3}=\dfrac {\sqrt {15}+\sqrt {18}}{3}=\sqrt 2+\dfrac {\sqrt {15}}{3}\\[8pt] z=-4\\[4pt] u=-\dfrac {1}{5} \end {cases} \]
+</p>
+
+</div>
+
+<p>
+</div>
+</p>
+<!--
+...... section Som van -matrices ......
+-->
+<h4 id="autosec-53"><span class="sectionnumber">VIII&#x2003;</span>Som van \(m\by n\)-matrices</h4>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-54"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+De scooters uit de inleiding: de verhuur tijdens de <em>volledige</em> zomervakantie is \(J+A\) (juli \(+\) augustus).
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-55"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+De <b>som</b> van \(2\) matrices van dezelfde orde is de matrix van die orde die men bekomt door de overeenkomstige elementen op te tellen:
+</p>
+
+<p>
+\[ (a_{ij})+(b_{ij})=(a_{ij}+b_{ij}).       \]
+</p>
+<!--
+...... subsection Opmerking ......
+-->
+<h5 id="autosec-56"><span class="sectionnumber">3&#x2003;</span>Opmerking</h5>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p>
+Matrices van een <em>verschillende</em> orde kunnen <b>niet</b> opgeteld worden!
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-57"><span class="sectionnumber">4&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="matrix-som" data-hoogte="17rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1)</span> \(\begin {pmatrix}3&amp;-2&amp;6\\-1&amp;5&amp;0\end {pmatrix} +\begin {pmatrix}-1&amp;3&amp;2\\0&amp;1&amp;-2\end {pmatrix} =\begin
+{pmatrix}2&amp;1&amp;8\\-1&amp;6&amp;-2\end {pmatrix}\)
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2)</span> \(\begin {pmatrix}2&amp;3\\0&amp;1\end {pmatrix} +\begin {pmatrix}1&amp;5&amp;-7&amp;0\end {pmatrix}\) kan niet: verschillende orde!
+</p>
+</li>
+</ul>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element van de som: de twee getallen die samen dat element vormen, lichten op. Met <em>Verschillende
+orde</em> zie je waarom optellen dan niet lukt.</figcaption> </figure>
+</p>
+
+<p>
+</div>
+</p>
+<!--
+...... subsection Eigenschappen van de optelling ......
+-->
+<h5 id="autosec-58"><span class="sectionnumber">5&#x2003;</span>Eigenschappen van de optelling</h5>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1)</span> <b>Inwendig en overal gedefinieerd:</b>
+</p>
+<p>
+\[\forall A,B\in \mathbb {R}^{m\times n}:\quad A+B\in \mathbb {R}^{m\times n}\]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2)</span> <b>Associatief:</b>
+</p>
+<p>
+\[\forall A,B,C\in \mathbb {R}^{m\times n}:\quad (A+B)+C=A+(B+C)=A+B+C\]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3)</span> <b>Neutraal element</b> (\(=\) de nulmatrix):
+</p>
+<p>
+\[\exists \,O\in \mathbb {R}^{m\times n},\ \forall A\in \mathbb {R}^{m\times n}:\quad A+O=A=O+A\]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">4)</span> <b>Symmetrisch element:</b>
+</p>
+<p>
+\[\forall A\in \mathbb {R}^{m\times n},\ \exists !\,-A\in \mathbb {R}^{m\times n}:\quad A+(-A)=O=(-A)+A\]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">5)</span> <b>Commutatief:</b>
+</p>
+<p>
+\[\forall A,B\in \mathbb {R}^{m\times n}:\quad A+B=B+A\]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+\[ \boxed {\;\bigl (\mathbb {R}^{m\times n},+\bigr )\ \text {is een commutatieve groep.}\;} \]
+</p>
+<!--
+...... section Product van een matrix met een reeel getal ......
+-->
+<h4 id="autosec-59"><span class="sectionnumber">IX&#x2003;</span>Product van een matrix met een ree&#x0308;el getal</h4>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Inleiding ......
+-->
+<h5 id="autosec-60"><span class="sectionnumber">1&#x2003;</span>Inleiding</h5>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+Zes gelijke maanden verhuur geeft \(6\cdot M\).
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-61"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<p>
+Om een \(m\by n\)-matrix te vermenigvuldigen met een ree&#x0308;el getal, vermenigvuldigt men <em>elk element</em> met dat getal:
+</p>
+
+<p>
+\[ r\cdot (a_{ij})=(r\,a_{ij}).     \]
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-62"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="scalair-veelvoud" data-hoogte="19rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ 4\cdot \begin {pmatrix}1&amp;2\\3&amp;4\\5&amp;6\end {pmatrix} =\begin {pmatrix}4&amp;8\\12&amp;16\\20&amp;24\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(r\) en volg hoe elk element mee verandert. Kijk zeker eens naar \(r=1\), \(r=0\) en \(r=-1\): het neutraal
+element, de nulmatrix en de tegengestelde matrix.</figcaption> </figure>
+</p>
+
+<p>
+</div>
+</p>
+<!--
+...... subsection Eigenschappen ......
+-->
+<h5 id="autosec-63"><span class="sectionnumber">4&#x2003;</span>Eigenschappen</h5>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+Voor alle \(r,s\in \mathbb {R}\) (getallen) en alle \(A,B\in \mathbb {R}^{m\times n}\) (matrices) geldt; dit is een <b>uitwendige</b> vermenigvuldiging.
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1)</span> \(r\cdot A\in \mathbb {R}^{m\times n}\)<br />
+getal \(\by \) matrix geeft een matrix van dezelfde orde.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2)</span> <b>Gemengde associativiteit:</b> \(r\cdot (s\cdot A)=(r\cdot s)\cdot A\)
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3)</span> De uitwendige vermenigvuldiging is <b>distributief</b> t.o.v. de optelling van <em>matrices</em>: \(r\cdot (A+B)=r\cdot A+r\cdot B\)
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">4)</span> De uitwendige vermenigvuldiging is <b>distributief</b> t.o.v. de optelling van <em>getallen</em>: \((r+s)\cdot A=r\cdot A+s\cdot A\)
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">5)</span> <b>Neutraal element:</b> \(1\cdot A=A\)
+</p>
+</li>
+</ul>
+
+<p>
+Samen met de \(5\) eigenschappen van de optelling van matrices besluiten we:
+</p>
+
+<p>
+\[ \boxed {\;\bigl (\mathbb {R},\mathbb {R}^{m\times n},+\bigr )\ \text {is een reÃńle vectorruimte.}\;} \]
+</p>
+<!--
+...... subsection Waarom een vectorruimte? ......
+-->
+<h5 id="autosec-64"><span class="sectionnumber">5&#x2003;</span>Waarom een vectorruimte?</h5>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p>
+Een matrix is een geordende lijst van \(mn\) ree&#x0308;le coo&#x0308;rdinaten. We kunnen haar daarom uitvouwen tot een gewone vector:
+</p>
+
+<p>
+\[ \Phi :\mathbb {R}^{m\times n}\longrightarrow \mathbb {R}^{mn}:\quad (a_{ij})\longmapsto (a_{11},a_{12},\ldots ,a_{1n},a_{21},\ldots ,a_{mn}).                           \]
+</p>
+
+<p>
+Deze identificatie bewaart precies de twee bewerkingen:
+</p>
+
+<p>
+\[ \Phi (A+B)=\Phi (A)+\Phi (B) \qquad \text {en}\qquad \Phi (rA)=r\Phi (A). \]
+</p>
+
+<p>
+Voor \(2\by 1\)-matrices kunnen we dat letterlijk tekenen. Matrixoptelling wordt de parallellogramregel en vermenigvuldigen met een getal rekt een vector uit, krimpt hem in of keert zijn zin om.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="vectorruimte-matrices" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+              x2
+              A + B ↔ (1, 3)
+
+                                   2A ↔ (4, 2)
+B ↔ (−1, 2)
+
+                          A ↔ (2, 1)
+                                       x1
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep de punten \(A\) en \(B\): de parallellogramregel bepaalt telkens \(A+B\). Verander \(r\) met de schuifregelaar en
+merk dat \(rA\) op dezelfde rechte als \(A\) blijft liggen.</figcaption> </figure>
+</p>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-68"><span class="sectionnumber">X&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-68"></a>
+
+
+<p>
+p 18 nr 3
+</p>
+<!--
+...... section Product van matrices ......
+-->
+<h4 id="autosec-69"><span class="sectionnumber">XI&#x2003;</span>Product van matrices</h4>
+<a id="mkpiweb-autopage-69"></a>
+<!--
+...... subsection Inleidend voorbeeld ......
+-->
+<h5 id="autosec-70"><span class="sectionnumber">1&#x2003;</span>Inleidend voorbeeld</h5>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+p 14 vb 1
+</p>
+<!--
+...... subsection Enkele voorbeelden ......
+-->
+<h5 id="autosec-71"><span class="sectionnumber">2&#x2003;</span>Enkele voorbeelden</h5>
+<a id="mkpiweb-autopage-71"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="product-orde" data-hoogte="18rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1)</span> Neem
+</p>
+<p>
+\[ A_{2\by \mathbf {3}}=\begin {pmatrix}2&amp;3&amp;1\\4&amp;2&amp;5\end {pmatrix} \qquad B_{\mathbf {3}\by 2}=\begin {pmatrix}1&amp;-3\\0&amp;1\\2&amp;5\end {pmatrix} \]
+</p>
+<p>
+De <em>binnenste</em> afmetingen zijn gelijk, dus \(A\cdot B\) bestaat en is een \(2\by 2\)-matrix:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                                      
+                                                                                           2·1+3·0+1·2      2 · (−3) + 3 · 1 + 1 · 5            4    2
+                                                                               A·B =                                                       =
+                                                                                           4·1+2·0+5·2      4 · (−3) + 2 · 1 + 5 · 5           14   15
+
+-->
+
+<p>
+
+\begin{align*}
+A\cdot B &amp;=\begin{pmatrix} 2\cdot 1+3\cdot 0+1\cdot 2 &amp; 2\cdot (-3)+3\cdot 1+1\cdot 5\\ 4\cdot 1+2\cdot 0+5\cdot 2 &amp; 4\cdot (-3)+2\cdot 1+5\cdot 5 \end {pmatrix}
+=\begin{pmatrix}4&amp;2\\14&amp;15\end {pmatrix}
+\end{align*}
+Ook \(B\cdot A\) bestaat hier, maar is een \(3\by 3\)-matrix:
+</p>
+<p>
+\[ B\cdot A=\begin {pmatrix}-10&amp;-3&amp;-14\\4&amp;2&amp;5\\24&amp;16&amp;27\end {pmatrix} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2)</span> Neem
+</p>
+<p>
+\[ A_{1\by \mathbf {4}}=\begin {pmatrix}1&amp;2&amp;3&amp;4\end {pmatrix} \qquad B_{\mathbf {4}\by 2}=\begin {pmatrix}0&amp;2\\1&amp;0\\3&amp;4\\2&amp;1\end {pmatrix} \]
+</p>
+<p>
+\[ (A\cdot B)_{1\by 2}=\begin {pmatrix}19&amp;18\end {pmatrix} \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Verander met de knoppen de orde van \(A\) en van \(B\). Enkel als de <em>binnenste</em> afmetingen gelijk zijn, bestaat
+\(A\cdot B\); de <em>buitenste</em> afmetingen geven dan de orde van het product.</figcaption> </figure>
+</p>
+<!--
+...... subsection Algemeen ......
+-->
+<h5 id="autosec-72"><span class="sectionnumber">3&#x2003;</span>Algemeen</h5>
+<a id="mkpiweb-autopage-72"></a>
+
+
+<p>
+Het <b>product</b> van een \(m\by n\)-matrix \(A\) met een \(n\by p\)-matrix \(B\) is de \(m\by p\)-matrix \(C\), waarbij het element \(c_{ij}\) verkregen wordt door de som te nemen van de producten van de elementen
+van de \(i^\text {e}\) <em>rij</em> van \(A\) met de overeenkomstige elementen van de \(j^\text {e}\) <em>kolom</em> van \(B\):
+</p>
+
+<p>
+\[ \boxed {\;c_{ij}=a_{i1}b_{1j}+a_{i2}b_{2j}+\cdots +a_{in}b_{nj}\;} \]
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="matrixproduct" data-hoogte="19rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \begin {pmatrix} a_{11}&amp;a_{12}&amp;\cdots &amp;a_{1n}\\ \boxed {a_{i1}}&amp;\boxed {a_{i2}}&amp;\cdots &amp;\boxed {a_{in}}\\ a_{m1}&amp;a_{m2}&amp;\cdots &amp;a_{mn} \end {pmatrix}
+\cdot \begin {pmatrix} b_{11}&amp;\boxed {b_{1j}}&amp;\cdots &amp;b_{1p}\\ b_{21}&amp;\boxed {b_{2j}}&amp;\cdots &amp;b_{2p}\\ b_{n1}&amp;\boxed {b_{nj}}&amp;\cdots &amp;b_{np} \end {pmatrix}
+= \begin {pmatrix} c_{11}&amp;c_{1j}&amp;\cdots &amp;c_{1p}\\ c_{i1}&amp;\boxed {c_{ij}}&amp;\cdots &amp;c_{ip}\\ c_{m1}&amp;c_{mj}&amp;\cdots &amp;c_{mp} \end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element van het product: de rij van \(A\) en de kolom van \(B\) die het opleveren, lichten op, en eronder staat de
+som van producten uitgeschreven. Ook met letters in plaats van getallen, en in de omgekeerde volgorde.</figcaption> </figure>
+</p>
+<!--
+...... subsection Transponeren en vermenigvuldigen ......
+-->
+<h5 id="autosec-73"><span class="sectionnumber">4&#x2003;</span>Transponeren en vermenigvuldigen</h5>
+<a id="mkpiweb-autopage-73"></a>
+
+
+<p>
+Neem
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="transponeer-product" data-hoogte="18rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ A=\begin {pmatrix}1&amp;0\\2&amp;1\\3&amp;4\end {pmatrix}\ (3\by 2) \qquad B=\begin {pmatrix}5\\-5\end {pmatrix}\ (2\by 1) \qquad \Longrightarrow \qquad A\cdot B=\begin {pmatrix}5\\5\\-5\end
+{pmatrix}\ (3\by 1) \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Vergelijk de drie producten: \(A\cdot B\) bestaat, \(A^{\mathsf T}\cdot B^{\mathsf T}\) niet, en \(B^{\mathsf
+T}\cdot A^{\mathsf T}\) geeft de getransponeerde van \(A\cdot B\). De volgorde keert dus om.</figcaption> </figure>
+</p>
+
+<p>
+Transponeren we beide factoren:
+</p>
+
+<p>
+\[ A^{\mathsf T}=\begin {pmatrix}1&amp;2&amp;3\\0&amp;1&amp;4\end {pmatrix}\ (2\by 3) \qquad B^{\mathsf T}=\begin {pmatrix}5&amp;-5\end {pmatrix}\ (1\by 2) \]
+</p>
+
+<p>
+dan is \(A^{\mathsf T}\cdot B^{\mathsf T}\) <em>niet</em> zinvol, maar
+</p>
+
+<p>
+\[ B^{\mathsf T}\cdot A^{\mathsf T}=\begin {pmatrix}5&amp;5&amp;-5\end {pmatrix} =(A\cdot B)^{\mathsf T}.                 \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-74">Besluit</h6>
+<a id="mkpiweb-autopage-74"></a>
+
+
+<p>
+\[ \boxed {\;(A\cdot B)^{\mathsf T}=B^{\mathsf T}\cdot A^{\mathsf T}\;} \]
+</p>
+
+<p>
+De volgorde keert dus om.
+</p>
+<!--
+...... subsection Macht van een vierkante matrix ......
+-->
+<h5 id="autosec-75"><span class="sectionnumber">5&#x2003;</span>Macht van een vierkante matrix</h5>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+Voor \(A\in \mathbb {R}^{n\times n}\) en \(p\in \mathbb {N}_0\):
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="matrixmacht" data-hoogte="16rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ A^p=\underbrace {A\cdot A\cdot A\cdots A}_{p\text { factoren}} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Verhoog \(p\) en volg wat er met de elementen gebeurt. Bij de eerste matrix verschijnen de getallen van Fibonacci, bij de
+laatste naderen de machten een evenwicht.</figcaption> </figure>
+</p>
+
+<p>
+Enkel bij een <em>vierkante</em> matrix is dit zinvol.
+</p>
+<!--
+...... subsection Eigenschappen van het product van vierkante matrices ......
+-->
+<h5 id="autosec-76"><span class="sectionnumber">6&#x2003;</span>Eigenschappen van het product van vierkante matrices</h5>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1)</span> <b>Inwendig en overal gedefinieerd:</b>
+</p>
+<p>
+\[\forall A,B\in \mathbb {R}^{n\times n}:\quad A\cdot B\in \mathbb {R}^{n\times n}\]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2)</span> <b>Associatief:</b>
+</p>
+<p>
+\[\forall A,B,C\in \mathbb {R}^{n\times n}:\quad (A\cdot B)\cdot C=A\cdot (B\cdot C)\]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3)</span> <b>Neutraal element</b> \(=I_n\):
+</p>
+<p>
+\[\exists \,I_n\in \mathbb {R}^{n\times n},\ \forall A\in \mathbb {R}^{n\times n}:\quad I_n\cdot A=A=A\cdot I_n\]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">4)</span> <b>Symmetrisch element</b> \(=A^{-1}\):
+</p>
+<p>
+\[A\cdot A^{-1}=I_n\]
+</p>
+<p>
+Deze bestaat <em>niet altijd</em> en is niet gemakkelijk te bepalen; zie verder in de cursus (determinanten).
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">5)</span> <b>Commutatief ?</b> Neen!
+</p>
+<p>
+<figure class="interactieve-grafiek" data-grafiek="niet-commutatief" data-hoogte="23rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<p>
+\[ \begin {pmatrix}3&amp;-1\\-2&amp;4\end {pmatrix}\cdot \begin {pmatrix}5&amp;0\\1&amp;6\end {pmatrix} =\begin {pmatrix}14&amp;-6\\-6&amp;24\end {pmatrix} \qquad \begin
+{pmatrix}5&amp;0\\1&amp;6\end {pmatrix}\cdot \begin {pmatrix}3&amp;-1\\-2&amp;4\end {pmatrix} =\begin {pmatrix}15&amp;-5\\-9&amp;23\end {pmatrix} \]
+</p>
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">\(A\cdot B\) staat boven, \(B\cdot A\) eronder: de plaatsen waar de twee verschillen, lichten op. Kies ook eens \(B=I\) of
+\(B=2A\); dan valt het verschil weg, maar dat is geen regel.</figcaption> </figure>
+</p>
+<p>
+\[ \boxed {\;\text {Let op: } A\cdot B\neq B\cdot A \text { voor niet alle } A,B\in \mathbb {R}^{n\times n}.\;} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">6)</span> <b>Distributief:</b> ja, maar de volgorde bewaren!
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                     A · (B + C) = A · B + A · C
+                                                                                                     (B + C) · A = B · A + C · A
+
+
+-->
+
+<p>
+
+\begin{align*}
+A\cdot (B+C)&amp;=A\cdot B+A\cdot C\\ (B+C)\cdot A&amp;=B\cdot A+C\cdot A
+\end{align*}
+
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Overzicht:       ......
+-->
+<h6 id="autosec-77">Overzicht: \(\bigl (\mathbb {R}^{n\times n},+,\cdot \bigr )\)</h6>
+<a id="mkpiweb-autopage-77"></a>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td colspan="1" class="tdc tvertbarr" style="border-right:           1px solid black">\(+\)</td>
+<td colspan="1" class="tdc">\(\cdot \)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdp tvertbarr" style="border-right:         1px solid black">
+
+<p>
+1) inwendig en overal gedefinieerd
+</p>
+</td>
+<td class="tdp">
+
+<p>
+1) inwendig en overal gedefinieerd
+</p>
+</td>
+</tr>
+
+<tr>
+<td class="tdp tvertbarr" style="border-right:         1px solid black">
+
+<p>
+2) associatief
+</p>
+</td>
+<td class="tdp">
+
+<p>
+2) associatief
+</p>
+</td>
+</tr>
+
+<tr>
+<td class="tdp tvertbarr" style="border-right:         1px solid black">
+
+<p>
+3) N.E. \(=O\)
+</p>
+</td>
+<td class="tdp">
+
+<p>
+3) N.E. \(=I_n\)
+</p>
+</td>
+</tr>
+
+<tr>
+<td class="tdp tvertbarr" style="border-right:         1px solid black">
+
+<p>
+4) S.E. \(=-A\)
+</p>
+</td>
+<td class="tdp">
+
+<p>
+4) (S.E. \(=A^{-1}=?\))
+</p>
+</td>
+</tr>
+
+<tr>
+<td class="tdp tvertbarr" style="border-right:         1px solid black">
+
+<p>
+5) commutatief
+</p>
+</td>
+<td class="tdp">
+
+<p>
+5) <b>niet</b> commutatief
+</p>
+</td>
+</tr>
+
+</table>
+
+</div>
+
+<p>
+Uit \(1\)–\(5\) voor \(+\) en \(1\)–\(3,5\) voor \(\cdot \) volgt:
+</p>
+
+<p>
+\[ \boxed {\;\bigl (\mathbb {R}^{n\times n},+,\cdot \bigr )\ \text {is een niet-commutatieve ring met eenheidselement.}\;} \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-80"><span class="sectionnumber">7&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+p 18 e.v. nr 4, 5, 7, 8, 9, 13
+</p>
+<!--
+...... section Toepassingen ......
+-->
+<h4 id="autosec-81"><span class="sectionnumber">XII&#x2003;</span>Toepassingen</h4>
+<a id="mkpiweb-autopage-81"></a>
+<!--
+...... subsection Overgangsmatrices ......
+-->
+<h5 id="autosec-82"><span class="sectionnumber">1&#x2003;</span>Overgangsmatrices</h5>
+<a id="mkpiweb-autopage-82"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opgave ......
+-->
+<h6 id="autosec-83">Opgave</h6>
+<a id="mkpiweb-autopage-83"></a>
+
+
+<p>
+Thomas wil meteoroloog worden. Na bestudering van een groot aantal statistieken voor april komt hij tot de volgende resultaten.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Is het vandaag warm (\(W\)), dan zijn de kansen voor morgen:<br />
+\(W:0.6\qquad B:0.3\qquad R:0.1\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Is het vandaag bewolkt (\(B\)), dan:<br />
+\(W:0.3\qquad B:0.4\qquad R:0.3\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Is het vandaag regenachtig (\(R\)), dan:<br />
+\(W:0.1\qquad B:0.5\qquad R:0.4\)
+</p>
+</li>
+</ul>
+
+<p>
+Vandaag regent het. Maarten wil overmorgen een BBQ organiseren. Wat is de kans dat het mooi weer is?
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Kansboom ......
+-->
+<h6 id="autosec-84">Kansboom</h6>
+<a id="mkpiweb-autopage-84"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+vandaag         morgen         overmorgen
+
+
+                                  W
+                         0.6
+                         0.3
+                 W                B
+                         0.1
+                                   R
+          0.1
+
+                                  W
+                         0.3
+                         0.4
+  R       0.5     B               B
+                         0.3
+                                   R
+          0.4
+                                  W
+                         0.1
+                         0.5
+                  R               B
+                         0.4
+                                   R
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+\[ \begin {array}{rcl} 0.1\cdot 0.6 &amp;=&amp; 0.06\\ 0.5\cdot 0.3 &amp;=&amp; 0.15\\ 0.4\cdot 0.1 &amp;=&amp; 0.04\\ \hline \text {samen} &amp;=&amp; 0.25 \end {array} \]
+</p>
+
+<p>
+Er is dus \(25\,\%\) kans op mooi weer.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Schematische voorstelling: ‘‘graaf’’ ......
+-->
+<h6 id="autosec-88">Schematische voorstelling: “graaf”</h6>
+<a id="mkpiweb-autopage-88"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+                                     0.4
+
+
+
+
+                                     R
+
+
+                      0.1                         0.5
+knooppunt
+                               0.3         0.3
+
+                                     0.3
+
+                  W                                     B
+                                     0.3
+            0.6                                             0.4
+
+   lus
+                            overgangen of wegen
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Een <b>gewogen graaf</b>: de knooppunten zijn de toestanden, de pijlen de overgangen, en het gewicht is de kans.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Matrix: ‘‘overgangsmatrix’’ ......
+-->
+<h6 id="autosec-92">Matrix: “overgangsmatrix”</h6>
+<a id="mkpiweb-autopage-92"></a>
+
+
+<p>
+\[ A=\begin {array}{c|ccc} {} &amp; W &amp; B &amp; R\\\hline W &amp; 0.6 &amp; 0.3 &amp; 0.1\\ B &amp; 0.3 &amp; 0.4 &amp; 0.5\\ R &amp; 0.1 &amp; 0.3 &amp; 0.4 \end {array} \]
+</p>
+
+<p>
+De <em>kolommen</em> zeggen waar we van vertrekken (“van”), de <em>rijen</em> waar we aankomen (“naar”). Elke kolom telt op tot \(1\).
+</p>
+
+<p>
+Overmorgen:
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="overgangsmatrix" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ A^2=A\cdot A= \begin {pmatrix} 0.46 &amp; 0.33 &amp; 0.25\\ 0.35 &amp; 0.40 &amp; 0.43\\ 0.19 &amp; 0.27 &amp; 0.32 \end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">De drie kansen, dag na dag. Versleep <em>dag</em> of gebruik de knoppen; dag \(2\) geeft de \(0.25\) van de kansboom
+terug. Kies ook een ander weer voor vandaag: na een aantal dagen loopt alles naar hetzelfde evenwicht.</figcaption> </figure>
+</p>
+
+<p>
+Vandaag regent het, dus we lezen de kolom \(R\): de kans op \(W\) overmorgen is \(0.25\), dus \(25\,\%\). Dat is precies wat de kansboom gaf.
+</p>
+
+<p>
+Volgende dag: \(A^3=A^2\cdot A\), enzovoort.
+</p>
+<!--
+...... subsection Migratiematrices ......
+-->
+<h5 id="autosec-93"><span class="sectionnumber">2&#x2003;</span>Migratiematrices</h5>
+<a id="mkpiweb-autopage-93"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opgave ......
+-->
+<h6 id="autosec-94">Opgave</h6>
+<a id="mkpiweb-autopage-94"></a>
+
+
+<p>
+In een bepaald land verhuist elk jaar \(10\,\%\) van de stedelingen naar het platteland, en \(15\,\%\) van de plattelandsbewoners naar de stad. In \(2002\) woonden er \(68\,000\) mensen in de steden en \(82\,000\) op het
+platteland.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Graaf ......
+-->
+<h6 id="autosec-95">Graaf</h6>
+<a id="mkpiweb-autopage-95"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+           0.15
+
+0.85   P          S   0.90
+
+           0.10
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Matrix: ‘‘migratiematrix’’ ......
+-->
+<h6 id="autosec-99">Matrix: “migratiematrix” \(M\)</h6>
+<a id="mkpiweb-autopage-99"></a>
+
+
+<p>
+\[ M=\begin {array}{c|cc} {} &amp; S &amp; P\\\hline S &amp; 0.90 &amp; 0.15\\ P &amp; 0.10 &amp; 0.85 \end {array} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bevolkingsevolutie ......
+-->
+<h6 id="autosec-100">Bevolkingsevolutie</h6>
+<a id="mkpiweb-autopage-100"></a>
+
+
+<p>
+De <b>bevolkingsmatrix</b> in \(2002\) is
+</p>
+
+<p>
+\[ B_{2002}= \begin {pmatrix}68\,000\\82\,000\end {pmatrix} \begin {matrix}S\\P\end {matrix} \]
+</p>
+
+<p>
+\(1\) jaar later:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                     0.90 · 68 000 + 0.15 · 82 000 = 73 500   in de stad
+                                                                                     0.10 · 68 000 + 0.85 · 82 000 = 76 500   op het platteland
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+0.90\cdot 68\,000+0.15\cdot 82\,000 &amp;= 73\,500 \quad \text {in de stad}\\ 0.10\cdot 68\,000+0.85\cdot 82\,000 &amp;= 76\,500 \quad \text {op het platteland}
+\end{align*}
+of korter:
+</p>
+
+<p>
+\[ B_{2003}=M\cdot B_{2002}=\begin {pmatrix}73\,500\\76\,500\end {pmatrix} \]
+</p>
+
+<p>
+\(2\) jaar later: \(B_{2004}=M^2\cdot B_{2002}=\cdots \)
+</p>
+
+<p>
+Komt er op een bepaald moment een evenwicht?
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="migratie-evenwicht" data-hoogte="27rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ B_{2012}=M^{10}\cdot B_{2002}=\begin {pmatrix}88\,761\\61\,239\end {pmatrix} \qquad M^{20}\cdot B_{2002}=\begin {pmatrix}89\,930\\60\,070\end {pmatrix} \]
+</p>
+
+<p>
+\[ M^{30}\cdot B_{2002}=\begin {pmatrix}89\,996\\60\,004\end {pmatrix} \qquad \cdots \qquad M^{50}\cdot B_{2002}=\begin {pmatrix}90\,000\\60\,000\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">De twee bevolkingsgroepen jaar na jaar. Versleep <em>start</em> langs de verticale as: waar je ook begint, beide krommen
+lopen naar \(90\,000\) en \(60\,000\). Met <em>jaar</em> lees je een bepaald jaar af.</figcaption> </figure>
+</p>
+
+<p>
+Op een bepaald ogenblik ontstaat er dus een <b>evenwicht</b>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Exacte berekening van de evenwichtstoestand ......
+-->
+<h6 id="autosec-101">Exacte berekening van de evenwichtstoestand</h6>
+<a id="mkpiweb-autopage-101"></a>
+
+
+<p>
+Stel \(s=\) het aantal stedelingen bij evenwicht en \(p=\) het aantal plattelandsbewoners bij evenwicht. Dan verandert de bevolkingsmatrix niet meer:
+</p>
+
+<p>
+\[ M\cdot \begin {pmatrix}s\\p\end {pmatrix}=\begin {pmatrix}s\\p\end {pmatrix} \qquad \text {met}\qquad s+p=150\,000 \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                              
+                                                                                                                        0.90s + 0.15p = s
+                                                                                                                                              −0.10s + 0.15p = 0
+                                                                                                                                               
+                                                           ⇔                                                              0.10s + 0.85p = p   ⇔ 0.10s − 0.15p = 0
+                                                                                                                                              
+                                                                                                                          s + p = 150 000       s + p = 150 000
+                                                                                                                                              
+
+                                                                                                                        
+                                                                                                                        s = 0.15 p = 1.5 p
+                                                                                                                                                (
+                                                                                                                                                 p = 60 000
+                                                           ⇔                                                                 0.10             ⇔
+                                                                                                                        s + p = 150 000         s = 90 000
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Leftrightarrow &amp; \begin{cases} 0.90s+0.15p=s\\ 0.10s+0.85p=p\\ s+p=150\,000 \end {cases} &amp;\Leftrightarrow \begin{cases} -0.10s+0.15p=0\\ 0.10s-0.15p=0\\ s+p=150\,000 \end
+{cases}\\[6pt] &amp;\Leftrightarrow &amp; \begin{cases} s=\dfrac {0.15}{0.10}\,p=1.5\,p\\ s+p=150\,000 \end {cases} &amp;\Leftrightarrow \begin{cases} p=60\,000\\ s=90\,000 \end {cases}
+\end{align*}
+
+</p>
+<!--
+...... subsection Populatie- of Lesliematrices ......
+-->
+<h5 id="autosec-102"><span class="sectionnumber">3&#x2003;</span>Populatie- of Lesliematrices</h5>
+<a id="mkpiweb-autopage-102"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opgave ......
+-->
+<h6 id="autosec-103">Opgave</h6>
+<a id="mkpiweb-autopage-103"></a>
+
+
+<p>
+Een vogelsoort wordt hoogstens \(4\) jaar oud. We verdelen de populatie in leeftijdsklassen van \(1\) jaar: \(0j\) (de eieren), \(1j\), \(2j\), \(3j\) en \(4j\). Van de \(0\)-jarigen overleeft \(40\,\%\) het eerste jaar, van elke
+volgende klasse overleeft \(60\,\%\). Vogels van \(2j\) en \(3j\) leggen elk gemiddeld \(2\) eieren per jaar, vogels van \(4j\) gemiddeld \(1\) ei. Vandaag telt de populatie \(180\) eieren, \(80\) eenjarigen, \(50\) tweejarigen,
+\(30\) driejarigen en \(20\) vierjarigen.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Graaf ......
+-->
+<h6 id="autosec-104">Graaf</h6>
+<a id="mkpiweb-autopage-104"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+                          1
+
+                    2
+
+               2
+
+
+ 0j            1j         2j         3j         4j
+         0.4        0.6        0.6        0.6
+
+eieren
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Matrix: ‘‘Lesliematrix’’ ......
+-->
+<h6 id="autosec-108">Matrix: “Lesliematrix” \(L\)</h6>
+<a id="mkpiweb-autopage-108"></a>
+
+
+<p>
+\[ L=\begin {array}{c|ccccc} {} &amp; 0j &amp; 1j &amp; 2j &amp; 3j &amp; 4j\\\hline 0j &amp; 0 &amp; 0 &amp; 2 &amp; 2 &amp; 1\\ 1j &amp; 0.4 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\ 2j &amp; 0 &amp;
+0.6 &amp; 0 &amp; 0 &amp; 0\\ 3j &amp; 0 &amp; 0 &amp; 0.6 &amp; 0 &amp; 0\\ 4j &amp; 0 &amp; 0 &amp; 0 &amp; 0.6 &amp; 0 \end {array} \]
+</p>
+
+<p>
+De eerste rij bevat de <b>geboortecijfers</b>, de onderdiagonaal de <b>overlevingskansen</b>, en alle andere plaatsen zijn onmogelijke overgangen. Een Lesliematrix is dus eigenlijk een bijzondere overgangsmatrix.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Evolutie ......
+-->
+<h6 id="autosec-109">Evolutie</h6>
+<a id="mkpiweb-autopage-109"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="leslie-populatie" data-hoogte="27rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ P_0=\begin {pmatrix}180\\80\\50\\30\\20\end {pmatrix} =\text {&grave;&grave;populatiematrix&apos;&apos;} \qquad \text {na }1j:\ P_1=L\cdot P_0=\begin {pmatrix}180\\72\\48\\30\\18\end
+{pmatrix} \]
+</p>
+
+<p>
+\[ \text {na }16j:\ P_{16}=L^{16}\cdot P_0=\begin {pmatrix}92\\38\\24\\15\\9\end {pmatrix} \ \ \Bigl (\text {samen }178\Bigr ) \qquad \text {na }32j:\ P_{32}=L^{32}\cdot P_0=\begin
+{pmatrix}45\\19\\12\\7\\5\end {pmatrix} \ \ \Bigl (\text {samen }88\Bigr ) \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Het totaal en het aantal eieren jaar na jaar. Versleep <em>jaar</em> om een jaar af te lezen, en verzet de overlevingskans van
+de eieren: onder een bepaalde waarde sterft de soort uit, erboven groeit de populatie.</figcaption> </figure>
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-110">Besluit</h6>
+<a id="mkpiweb-autopage-110"></a>
+
+
+<p>
+De populatie (samen \(360\) bij de start) halveert om de \(16\) jaar. De vogelsoort zal uitsterven.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-111"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-111"></a>
+
+
+<p>
+p 35 e.v.
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=e921ac91c588"></script>
+<script src="vendor/jsxgraphcore.js?v=e921ac91c588"></script>
+<script src="interactieve-grafieken.js?v=e921ac91c588"></script>
+<script src="hoofdstuk.interactief.js?v=e921ac91c588"></script>
+</body>
+</html>

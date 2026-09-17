@@ -1,0 +1,28 @@
+{
+ "titel": "De cirkel",
+ "hoofdstuk": 2,
+ "code": "M02",
+ "vak": "Wiskunde",
+ "domein": "AnalytischeMeetkunde",
+ "domeinnaam": "Analytische meetkunde",
+ "url": "analytische-meetkunde/cirkels",
+ "secties": [
+  "Definitie van een cirkel",
+  "Cartesische vergelijking",
+  "Algemene gedaante",
+  "Raaklijn aan een cirkel",
+  "Functioneel verloop van de cirkel",
+  "Parametervoorstelling",
+  "Toepassingen"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.11.02",
+  "WD3_06.08.11.03",
+  "WD3_06.08.21",
+  "WD3_06.08.28.01",
+  "WD3_06.08.29"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

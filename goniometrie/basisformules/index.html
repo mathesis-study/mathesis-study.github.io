@@ -1,0 +1,3856 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Basisformules</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=60900c6e0182" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=60900c6e0182" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=60900c6e0182" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 2</p> <h1>Basisformules</h1> </header>
+</p>
+
+
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="gonio-cirkel-overzicht" data-hoogte="30rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                     y
+
+
+ P180◦ −α                        Pα
+
+
+
+                         1
+             sin α                             P90◦ −α
+
+                             α
+                                                         x
+                O        cos α
+
+
+
+
+ P180◦ +α                        P−α
+
+
+                                       sin α
+sin2 α + cos2 α = 1          tan α =
+                                       cos α
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep het punt \(P_{\alpha }\) over de cirkel: \(\cos \alpha \) en \(\sin \alpha \) veranderen mee, en de vier
+verwante punten volgen \(\alpha \).</figcaption> </figure>
+</p>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.22</b> (MD 06.08.23) De leerlingen gebruiken goniometrische formules om uitdrukkingen te vereenvoudigen.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: formules: <span class="leerplan-grijs">som- en verschilformules</span>, <span class="leerplan-grijs">verdubbelingsformules</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> de goniometrische cirkel als drager van de goniometrische getallen, sinus, cosinus, tangens en cotangens van een georie&#x0308;nteerde hoek, de grondformule en de verbanden tussen de vier
+goniometrische getallen, de goniometrische getallen van de bijzondere hoeken, en de formules voor verwante hoeken: gelijke, tegengestelde, complementaire, supplementaire en antisupplementaire hoeken.
+</p>
+
+</div>
+<!--
+...... section Goniometrische cirkel ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Goniometrische cirkel</h4>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+= eenheidscirkel \(\mathcal {C}(O,1)\) voorzien v/e orthonormale basis en een positieve draairichting.
+</p>
+<!--
+...... subsection Grafisch ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Grafisch</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="gonio-cirkel-definitie" data-hoogte="19rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+    y
+
+
+
+
+            P
+
+
+
+        α
+                     x
+O               E1
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\) over de cirkel en zie welke georie&#x0308;nteerde hoek \(\alpha \) met dat punt overeenkomt.</figcaption>
+</figure>
+</p>
+<!--
+...... subsection Eigenschap ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">3&#x2003;</span>Eigenschap</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+Met elk punt \(P\) op de gon. cirkel komt een georie&#x0308;nteerde hoek \(\alpha \) overeen (= hoek met vast beginbeen \([OE_1]\)). </div>
+</p>
+<!--
+...... section Goniometrische getallen ......
+-->
+<h4 id="autosec-13"><span class="sectionnumber">II&#x2003;</span>Goniometrische getallen</h4>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+<div class="sameslide">
+</p>
+<!--
+...... subsection Definities ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">1&#x2003;</span>Definities</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                     P = (cos α, sin α)   voor P ∈ C(O, 1),
+                                                                                          sin α
+                                                                                  tan α =         (cos α ̸= 0),
+                                                                                          cos α
+                                                                                          cos α
+                                                                                  cot α =         (sin α ̸= 0).
+                                                                                          sin α
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P &amp;=(\cos \alpha ,\ \sin \alpha )\quad \text {voor }P\in \mathcal {C}(O,1),\\ \tan \alpha &amp;= \frac {\sin \alpha }{\cos \alpha }\quad (\cos \alpha \neq 0),\\ \cot \alpha &amp;= \frac
+{\cos \alpha }{\sin \alpha }\quad (\sin \alpha \neq 0).
+\end{align*}
+
+</p>
+<!--
+...... subsection Grafisch ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">2&#x2003;</span>Grafisch</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="gonio-cirkel" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+        y
+
+                    cot α
+  E2
+                     P
+
+sin α                         tan α
+            α
+                                      x
+   O        cos α           1 E1
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\) over de cirkel en lees af waar \(\cos \alpha \), \(\sin \alpha \), \(\tan \alpha \) en \(\cot \alpha \)
+als lijnstuk in de figuur staan.</figcaption> </figure>
+</p>
+
+<p>
+</div>
+</p>
+<!--
+...... section Basisformules ......
+-->
+<h4 id="autosec-19"><span class="sectionnumber">III&#x2003;</span>Basisformules</h4>
+<a id="mkpiweb-autopage-19"></a>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><br />
+
+\[ \begin {aligned} \cos ^2\alpha +\sin ^2\alpha &amp;= 1 &amp; \text {(grondformule)}\\[0.2em] \tan \alpha &amp;= \frac {\sin \alpha }{\cos \alpha } &amp;\qquad \cot \alpha &amp;= \frac {\cos
+\alpha }{\sin \alpha }\\ \tan \alpha &amp;= \frac {1}{\cot \alpha } &amp; \cot \alpha &amp;= \frac {1}{\tan \alpha }\\ \sec \alpha &amp;= \frac {1}{\cos \alpha } &amp; \csc \alpha &amp;= \frac
+{1}{\sin \alpha }\\[0.2em] 1+\tan ^2\alpha &amp;= \frac {1}{\cos ^2\alpha } &amp; 1+\cot ^2\alpha &amp;= \frac {1}{\sin ^2\alpha } \end {aligned} \]<br />
+
+</span>
+</p>
+</div>
+<!--
+...... section Enkele bijzondere hoeken ......
+-->
+<h4 id="autosec-21"><span class="sectionnumber">IV&#x2003;</span>Enkele bijzondere hoeken</h4>
+<a id="mkpiweb-autopage-21"></a>
+<!--
+...... subsection Tabel ......
+-->
+<h5 id="autosec-22"><span class="sectionnumber">1&#x2003;</span>Tabel</h5>
+<a id="mkpiweb-autopage-22"></a>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(\alpha \)</td>
+<td class="tdc">\(\begin {array}{c}0\\[2pt]{\small \color {gray}0\degree }\end {array}\)</td>
+<td class="tdc">\(\begin {array}{c}\dfrac {\pi }{6}\\[2pt]{\small \color {gray}30\degree }\end {array}\)</td>
+<td class="tdc">\(\begin {array}{c}\dfrac {\pi }{4}\\[2pt]{\small \color {gray}45\degree }\end {array}\)</td>
+<td class="tdc">\(\begin {array}{c}\dfrac {\pi }{3}\\[2pt]{\small \color {gray}60\degree }\end {array}\)</td>
+<td class="tdc">\(\begin {array}{c}\dfrac {\pi }{2}\\[2pt]{\small \color {gray}90\degree }\end {array}\)</td>
+<td class="tdc">\(\begin {array}{c}\pi \\[2pt]{\small \color {gray}180\degree }\end {array}\)</td>
+<td class="tdc">\(\begin {array}{c}\dfrac {3\pi }{2}\\[2pt]{\small \color {gray}270\degree }\end {array}\)</td>
+<td class="tdc">\(\begin {array}{c}2\pi \\[2pt]{\small \color {gray}360\degree }\end {array}\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\sin \alpha \)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(\tfrac 12\)</td>
+<td class="tdc">\(\tfrac {\sqrt 2}{2}\)</td>
+<td class="tdc">\(\tfrac {\sqrt 3}{2}\)</td>
+<td class="tdc">\(1\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(-1\)</td>
+<td class="tdc">\(0\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\cos \alpha \)</td>
+<td class="tdc">\(1\)</td>
+<td class="tdc">\(\tfrac {\sqrt 3}{2}\)</td>
+<td class="tdc">\(\tfrac {\sqrt 2}{2}\)</td>
+<td class="tdc">\(\tfrac 12\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(-1\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(1\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\tan \alpha \)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(\tfrac {\sqrt 3}{3}\)</td>
+<td class="tdc">\(1\)</td>
+<td class="tdc">\(\sqrt 3\)</td>
+<td class="tdc">\(\notin \mathbb {R}\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(\notin \mathbb {R}\)</td>
+<td class="tdc">\(0\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\cot \alpha \)</td>
+<td class="tdc">\(\notin \mathbb {R}\)</td>
+<td class="tdc">\(\sqrt 3\)</td>
+<td class="tdc">\(1\)</td>
+<td class="tdc">\(\tfrac {\sqrt 3}{3}\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(\notin \mathbb {R}\)</td>
+<td class="tdc">\(0\)</td>
+<td class="tdc">\(\notin \mathbb {R}\)</td>
+</tr>
+
+</table>
+
+</div>
+<!--
+...... subsection Grafisch ......
+-->
+<h5 id="autosec-25"><span class="sectionnumber">2&#x2003;</span>Grafisch</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="bijzondere-hoeken" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+                    y
+
+           (0, 1)                √ 
+                            1       3
+                            2
+                              ,    2
+                                      √      √ 
+                                       2      2
+                                      2
+                                         ,   2
+                                              √      
+                                                 3 1
+                                                2
+                                                  , 2
+
+
+
+
+                                                          x
+(−1, 0)                                          (1, 0)
+
+
+
+
+          (0, −1)
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Kies een bijzondere hoek en bekijk het bijbehorende punt op de cirkel, met de exacte waarden uit de tabel
+hierboven.</figcaption> </figure>
+</p>
+<!--
+...... section Verwante hoeken ......
+-->
+<h4 id="autosec-29"><span class="sectionnumber">V&#x2003;</span>Verwante hoeken</h4>
+<a id="mkpiweb-autopage-29"></a>
+<!--
+...... subsection Gelijke hoeken ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">1&#x2003;</span>Gelijke hoeken</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+\[ \alpha -\beta =k\cdot 2\pi \;\Rightarrow \; \beta =\alpha +k\cdot 2\pi \qquad (k\in \mathbb {Z}) \qquad {\small \color {gray}(2\pi =360\degree )} \]
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-32"></a>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="gelijke-hoeken" data-hoogte="20rem"> <div class="interactieve-grafiek-terugval"> <span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+      y
+
+
+
+
+           α
+                 x
+
+
+
+
+β = α + k · 2π
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\) en verander \(k\): \(\beta =\alpha +k\cdot 2\pi \) komt telkens op dezelfde straal uit.</figcaption>
+</figure>
+</p>
+
+</div>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-35"></a>
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><br />
+
+\[ \begin {aligned} \cos (\alpha +k\cdot 2\pi )&amp;=\cos \alpha ,\\ \sin (\alpha +k\cdot 2\pi )&amp;=\sin \alpha ,\\ \tan (\alpha +k\cdot 2\pi )&amp;=\tan \alpha ,\\ \cot (\alpha +k\cdot 2\pi
+)&amp;=\cot \alpha . \end {aligned} \]<br />
+
+</span>
+</p>
+
+
+</div>
+
+</div>
+<!--
+...... subsubsection Opmerking ......
+-->
+<h6 id="autosec-36"><span class="sectionnumber">&#x2003;</span>Opmerking</h6>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p>
+Voor \(\tan \) en \(\cot \) geldt er meer: die hebben periode \(\pi \) in plaats van \(2\pi \). Twee hoeken die \(\pi \) verschillen, liggen immers op <em>dezelfde</em> rechte door de oorsprong, en die rechte snijdt de raaklijn
+\(x=1\) in één enkel punt.
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-38"></a>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="periode-tangens" data-hoogte="20rem"> <div class="interactieve-grafiek-terugval"> <span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+  y
+
+
+
+α+π       tan α
+
+
+      α
+             x
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\): \(\alpha \) en \(\alpha +\pi \) liggen op e&#x0301;e&#x0301;n rechte, die de raaklijn \(x=1\) in
+e&#x0301;e&#x0301;n punt snijdt.</figcaption> </figure>
+</p>
+
+</div>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-41"></a>
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><br />
+
+\[ \begin {aligned} \tan (\alpha +k\cdot \pi )&amp;=\tan \alpha ,\\ \cot (\alpha +k\cdot \pi )&amp;=\cot \alpha .   \end {aligned} \]<br />
+
+</span>
+</p>
+
+
+</div>
+
+</div>
+<!--
+...... subsection Tegengestelde hoeken ......
+-->
+<h5 id="autosec-42"><span class="sectionnumber">2&#x2003;</span>Tegengestelde hoeken</h5>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+\[ \alpha +\beta =0 \text { of } 2\pi \;\Rightarrow \; \beta =-\alpha \qquad {\small \color {gray}(2\pi =360\degree )} \]
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-44"></a>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="tegengestelde-hoeken" data-hoogte="20rem"> <div class="interactieve-grafiek-terugval"> <span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+y
+
+
+
+
+       α
+             x
+    β = −α
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P_{\alpha }\) en volg \(P_{\beta }\) met \(\beta =-\alpha \): het spiegelbeeld om de
+\(x\)-as.</figcaption> </figure>
+</p>
+
+</div>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-47"></a>
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><br />
+
+\[ \begin {aligned} \cos (-\alpha )&amp;=\cos \alpha ,\\ \sin (-\alpha )&amp;=-\sin \alpha ,\\ \tan (-\alpha )&amp;=-\tan \alpha ,\\ \cot (-\alpha )&amp;=-\cot \alpha .   \end {aligned} \]<br />
+
+</span>
+</p>
+
+
+</div>
+
+</div>
+<!--
+...... subsection Complementaire hoeken ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">3&#x2003;</span>Complementaire hoeken</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+\[ \alpha +\beta =\frac {\pi }{2} \;\Rightarrow \; \beta =\frac {\pi }{2}-\alpha \qquad {\small \color {gray}\left (\tfrac {\pi }{2}=90\degree \right )} \]
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-50"></a>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="complementaire-hoeken" data-hoogte="20rem"> <div class="interactieve-grafiek-terugval"> <span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+y
+
+
+
+
+    β = π2 − α
+       α         x
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P_{\alpha }\) en volg \(P_{\beta }\) met \(\beta =\tfrac {\pi }{2}-\alpha \): het spiegelbeeld om de
+eerste bissectrice.</figcaption> </figure>
+</p>
+
+</div>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-53"></a>
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><br />
+
+\[ \begin {aligned} \cos \left (\tfrac {\pi }{2}-\alpha \right )&amp;=\sin \alpha ,\\ \sin \left (\tfrac {\pi }{2}-\alpha \right )&amp;=\cos \alpha ,\\ \tan \left (\tfrac {\pi }{2}-\alpha
+\right )&amp;=\cot \alpha ,\\ \cot \left (\tfrac {\pi }{2}-\alpha \right )&amp;=\tan \alpha . \end {aligned} \]<br />
+
+</span>
+</p>
+
+
+</div>
+
+</div>
+<!--
+...... subsection Supplementaire hoeken ......
+-->
+<h5 id="autosec-54"><span class="sectionnumber">4&#x2003;</span>Supplementaire hoeken</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+\[ \alpha +\beta =\pi \;\Rightarrow \; \beta =\pi -\alpha \qquad {\small \color {gray}(\pi =180\degree )} \]
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-56"></a>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="supplementaire-hoeken" data-hoogte="20rem"> <div class="interactieve-grafiek-terugval"> <span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+         y
+
+
+
+
+β =π−α       α
+                 x
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P_{\alpha }\) en volg \(P_{\beta }\) met \(\beta =\pi -\alpha \): het spiegelbeeld om de
+\(y\)-as.</figcaption> </figure>
+</p>
+
+</div>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-59"></a>
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><br />
+
+\[ \begin {aligned} \cos (\pi -\alpha )&amp;=-\cos \alpha ,\\ \sin (\pi -\alpha )&amp;=\sin \alpha ,\\ \tan (\pi -\alpha )&amp;=-\tan \alpha ,\\ \cot (\pi -\alpha )&amp;=-\cot \alpha .   \end
+{aligned} \]<br />
+
+</span>
+</p>
+
+
+</div>
+
+</div>
+<!--
+...... subsection Antisupplementaire hoeken ......
+-->
+<h5 id="autosec-60"><span class="sectionnumber">5&#x2003;</span>Antisupplementaire hoeken</h5>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+\[ \beta -\alpha =\pi \;\Rightarrow \; \beta =\alpha +\pi \qquad {\small \color {gray}(\pi =180\degree )} \]
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-62"></a>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="antisupplementaire-hoeken" data-hoogte="20rem"> <div class="interactieve-grafiek-terugval"> <span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+    y
+
+
+
+β =α+π
+
+         α   x
+--><img
+    src="mkpiweb-images/image-10.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P_{\alpha }\) en volg \(P_{\beta }\) met \(\beta =\alpha +\pi \): het punt diametraal tegenover
+\(P_{\alpha }\).</figcaption> </figure>
+</p>
+
+</div>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-65"></a>
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><br />
+
+\[ \begin {aligned} \cos (\alpha +\pi )&amp;=-\cos \alpha ,\\ \sin (\alpha +\pi )&amp;=-\sin \alpha ,\\ \tan (\alpha +\pi )&amp;=\tan \alpha ,\\ \cot (\alpha +\pi )&amp;=\cot \alpha .   \end
+{aligned} \]<br />
+
+</span>
+</p>
+
+
+</div>
+
+</div>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-66"><span class="sectionnumber">VI&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-66"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-67">Oefening 1</h5>
+<a id="mkpiweb-autopage-67"></a>
+
+
+<p>
+Gegeven dat de volgende vormen zinvol zijn. Vereenvoudig:
+</p>
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\cos \alpha \cdot \tan \alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\sin ^2 \alpha - 1\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\dfrac {\sin \alpha }{\tan \alpha }\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\dfrac {\cos \alpha }{\cot \alpha }\)
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                               sin α
+                                                                                     cos α · tan α = cos α ·
+                                                                                                               cos α
+                                                                                                  = sin α
+
+
+-->
+
+<p>
+
+\begin{align*}
+\cos \alpha \cdot \tan \alpha &amp;= \cos \alpha \cdot \frac {\sin \alpha }{\cos \alpha }\\ &amp;= \sin \alpha
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                sin2 α − 1 = sin2 α − cos2 α + sin2 α
+                                                                                                                        
+
+                                                                                          = sin2 α − cos2 α − sin2 α
+                                                                                          = − cos2 α
+
+
+-->
+
+<p>
+
+\begin{align*}
+\sin ^2\alpha - 1 &amp;= \sin ^2\alpha - \left (\cos ^2\alpha + \sin ^2\alpha \right )\\ &amp;= \sin ^2\alpha - \cos ^2\alpha - \sin ^2\alpha \\ &amp;= -\cos ^2\alpha
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                        sin α   sin α
+                                                                                              =
+                                                                                        tan α   sin α
+                                                                                                cos α
+                                                                                                           cos α
+                                                                                               = sin α ·
+                                                                                                           sin α
+                                                                                               = cos α
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {\sin \alpha }{\tan \alpha } &amp;= \frac {\sin \alpha }{\dfrac {\sin \alpha }{\cos \alpha }}\\ &amp;= \sin \alpha \cdot \frac {\cos \alpha }{\sin \alpha }\\ &amp;= \cos \alpha
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                        cos α   cos α
+                                                                                              = cos α
+                                                                                        cot α
+                                                                                                sin α
+                                                                                                           sin α
+                                                                                               = cos α ·
+                                                                                                           cos α
+                                                                                               = sin α
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {\cos \alpha }{\cot \alpha } &amp;= \frac {\cos \alpha }{\dfrac {\cos \alpha }{\sin \alpha }}\\ &amp;= \cos \alpha \cdot \frac {\sin \alpha }{\cos \alpha }\\ &amp;= \sin \alpha
+\end{align*}
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-69">Oefening 2</h5>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+Bewijs de volgende identiteiten voor elke \(\alpha \) waarvoor beide leden zinvol zijn:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\cos \alpha - \cos ^3 \alpha = \cos \alpha \cdot \sin ^2 \alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \((\sin \alpha + \cos \alpha )^2 = 1 + 2 \sin \alpha \cdot \cos \alpha \)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Te bewijzen: \(\cos \alpha - \cos ^3\alpha = \cos \alpha \cdot \sin ^2\alpha \).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                ⇔                                                           cos α = cos α · sin2 α + cos3 α
+                                                                ⇔                                                           cos α = cos α · sin2 α + cos α · cos2 α
+                                                                                                                            cos α = cos α sin2 α + cos2 α
+                                                                                                                                                           
+                                                                ⇔
+                                                                ⇔                                                           cos α = cos α · 1     □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\Leftrightarrow &amp; \cos \alpha &amp;= \cos \alpha \cdot \sin ^2\alpha + \cos ^3\alpha \\ &amp;\Leftrightarrow &amp; \cos \alpha &amp;= \cos \alpha \cdot \sin ^2\alpha + \cos \alpha
+\cdot \cos ^2\alpha \\ &amp;\Leftrightarrow &amp; \cos \alpha &amp;= \cos \alpha \left (\sin ^2\alpha + \cos ^2\alpha \right )\\ &amp;\Leftrightarrow &amp; \cos \alpha &amp;= \cos \alpha \cdot
+1\qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Te bewijzen: \((\sin \alpha + \cos \alpha )^2 = 1 + 2\sin \alpha \cos \alpha \).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                  2
+                                                                                          LL = (sin α + cos α)
+                                                                                             = sin2 α + 2 sin α cos α + cos2 α
+                                                                                             = sin2 α + cos2 α + 2 sin α cos α
+                                                                                             grondf.
+                                                                                               =       1 + 2 sin α cos α
+                                                                                             = RL          □
+
+
+-->
+
+<p>
+
+\begin{align*}
+LL &amp;= \left (\sin \alpha + \cos \alpha \right )^2\\ &amp;= \sin ^2\alpha + 2\sin \alpha \cos \alpha + \cos ^2\alpha \\ &amp;= \sin ^2\alpha + \cos ^2\alpha + 2\sin \alpha \cos \alpha \\
+&amp;\overset {\text {grondf.}}{=} 1 + 2\sin \alpha \cos \alpha \\ &amp;= RL \qquad \square
+\end{align*}
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-70">Oefening 3</h5>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+Bewijs de volgende identiteiten voor elke \(\alpha \) en \(\beta \) waarvoor beide leden zinvol zijn:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\sin ^2 \alpha - \sin ^2\beta = \cos ^2 \beta - \cos ^2 \alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\sin ^2 \alpha \cdot \cos ^2 \beta - \cos ^2 \alpha \cdot \sin ^2 \beta = \sin ^2 \alpha - \sin ^2 \beta \)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                                         sin2 α − sin2 β = cos2 β − cos2 α
+                                                                   ⇔                                                    sin2 α + cos2 α = cos2 β + sin2 β
+                                                                   ⇔                                                                   1=1       □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; \sin ^2\alpha - \sin ^2\beta &amp;= \cos ^2\beta - \cos ^2\alpha \\ &amp;\Leftrightarrow &amp; \sin ^2\alpha + \cos ^2\alpha &amp;= \cos ^2\beta + \sin ^2\beta \\
+&amp;\Leftrightarrow &amp; 1 &amp;= 1 \qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> We brengen \(\cos ^2\alpha \sin ^2\beta \) naar rechts en \(\sin ^2\alpha \) naar links:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                            sin2 α cos2 β − cos2 α sin2 β = sin2 α − sin2 β
+                                                           ⇔                                                      sin2 α cos2 β − sin2 α = cos2 α sin2 β − sin2 β
+                                                                                                                     sin2 α cos2 β − 1 = cos2 α − 1 sin2 β
+                                                                                                                                                      
+                                                           ⇔
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; \sin ^2\alpha \cos ^2\beta - \cos ^2\alpha \sin ^2\beta &amp;= \sin ^2\alpha - \sin ^2\beta \\ &amp;\Leftrightarrow &amp; \sin ^2\alpha \cos ^2\beta - \sin ^2\alpha &amp;= \cos
+^2\alpha \sin ^2\beta - \sin ^2\beta \\ &amp;\Leftrightarrow &amp; \sin ^2\alpha \left (\cos ^2\beta - 1\right ) &amp;= \left (\cos ^2\alpha - 1\right )\sin ^2\beta
+\end{align*}
+Uit de grondformule volgt namelijk
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                                         cos2 θ + sin2 θ = 1
+                                                                   ⇔                                                               sin2 θ = 1 − cos2 θ
+                                                                                                                                − sin2 θ = − 1 − cos2 θ
+                                                                                                                                                          
+                                                                   ⇔
+                                                                   ⇔                                                            − sin2 θ = −1 + cos2 θ
+                                                                   ⇔                                                            − sin2 θ = cos2 θ − 1
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; \cos ^2\theta + \sin ^2\theta &amp;= 1\\ &amp;\Leftrightarrow &amp; \sin ^2\theta &amp;= 1 - \cos ^2\theta \\ &amp;\Leftrightarrow &amp; -\sin ^2\theta &amp;= -\left (1 - \cos
+^2\theta \right )\\ &amp;\Leftrightarrow &amp; -\sin ^2\theta &amp;= -1 + \cos ^2\theta \\ &amp;\Leftrightarrow &amp; -\sin ^2\theta &amp;= \cos ^2\theta - 1
+\end{align*}
+en dus
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                                 sin2 α · − sin2 β = − sin2 α · sin2 β
+                                                                                                                                  
+                                                               ⇔                                                                                              □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\Leftrightarrow &amp; \sin ^2\alpha \cdot \left (-\sin ^2\beta \right ) &amp;= -\sin ^2\alpha \cdot \sin ^2\beta \qquad \square
+\end{align*}
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-71">Oefening 4</h5>
+<a id="mkpiweb-autopage-71"></a>
+
+
+<p>
+Gegeven dat de volgende vormen zinvol zijn. Schrijf zo eenvoudig mogelijk:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\tan ^2 \alpha - \dfrac {\sec ^2 \alpha }{\csc ^2 \alpha }\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\dfrac {1}{\sec ^2 \alpha } + \dfrac {1}{\csc ^2 \alpha }\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\left (1 + \cot \alpha - \csc \alpha \right )\left (1 + \tan \alpha + \sec \alpha \right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\left (\sin \alpha \cdot \cos \beta + \cos \alpha \cdot \sin \beta \right )^2 + \left (\cos \alpha \cdot \cos \beta - \sin \alpha \cdot \sin \beta \right
+)^2\)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                           1
+                                                                                                   2  sec2 α      2     cos 2α
+                                                                                              tan α −        = tan α −
+                                                                                                         2
+                                                                                                      csc α                1
+                                                                                                                        sin2 α
+                                                                                                               sin2 α   sin2 α
+                                                                                                             =        −
+                                                                                                               cos α cos2 α
+                                                                                                                  2
+
+                                                                                                             =0
+
+
+-->
+
+<p>
+
+\begin{align*}
+\tan ^2\alpha - \frac {\sec ^2\alpha }{\csc ^2\alpha } &amp;= \tan ^2\alpha - \frac {\dfrac {1}{\cos ^2\alpha }}{\dfrac {1}{\sin ^2\alpha }}\\ &amp;= \frac {\sin ^2\alpha }{\cos ^2\alpha } -
+\frac {\sin ^2\alpha }{\cos ^2\alpha }\\ &amp;= 0
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                 1     1
+                                                                                                    +       = cos2 α + sin2 α
+                                                                                               sec α csc2 α
+                                                                                                  2
+
+                                                                                                            =1
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {1}{\sec ^2\alpha } + \frac {1}{\csc ^2\alpha } &amp;= \cos ^2\alpha + \sin ^2\alpha \\ &amp;= 1
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                     (1 + cot α − csc α) (1 + tan α + sec α)
+                                                                                                                             
+                                                                                              cos α      1          sin α    1
+                                                                                     = 1+           −           1+         +
+                                                                                              sin α    sin α        cos α cos α
+                                                                                       sin α + cos α − 1 cos α + sin α + 1
+                                                                                     =                   ·
+                                                                                              sin α              cos α
+                                                                                       (sin α + cos α − 1) (cos α + sin α + 1)
+                                                                                     =
+                                                                                                     sin α cos α
+                                                                                                            2
+                                                                                     MPII (sin α + cos α)       −1
+                                                                                         =
+                                                                                                sin α cos α
+                                                                                               2                        2
+                                                                                     MPI sin α + 2 sin α cos α + cos α − 1
+                                                                                      =
+                                                                                                       sin α cos α
+                                                                                        sin α cos α + sin2 α + cos2 α + sin α cos α − 1
+                                                                                                                         
+                                                                                     =
+                                                                                                             sin α cos α
+                                                                                        2 sin α cos α
+                                                                                     =
+                                                                                         sin α cos α
+                                                                                     =2
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\left (1 + \cot \alpha - \csc \alpha \right )\left (1 + \tan \alpha + \sec \alpha \right )\\ &amp;= \left (1 + \frac {\cos \alpha }{\sin \alpha } - \frac {1}{\sin \alpha }\right ) \left
+(1 + \frac {\sin \alpha }{\cos \alpha } + \frac {1}{\cos \alpha }\right )\\ &amp;= \frac {\sin \alpha + \cos \alpha - 1}{\sin \alpha }\cdot \frac {\cos \alpha + \sin \alpha + 1}{\cos \alpha
+}\\ &amp;= \frac {\left (\sin \alpha + \cos \alpha - 1\right )\left (\cos \alpha + \sin \alpha + 1\right )}{\sin \alpha \cos \alpha }\\ &amp;\overset {\text {MPII}}{=} \frac {\left (\sin
+\alpha + \cos \alpha \right )^2 - 1}{\sin \alpha \cos \alpha }\\ &amp;\overset {\text {MPI}}{=} \frac {\sin ^2\alpha + 2\sin \alpha \cos \alpha + \cos ^2\alpha - 1}{\sin \alpha \cos \alpha }\\
+&amp;= \frac {\sin \alpha \cos \alpha + \left (\sin ^2\alpha + \cos ^2\alpha \right ) + \sin \alpha \cos \alpha - 1}{\sin \alpha \cos \alpha }\\ &amp;= \frac {2\sin \alpha \cos \alpha }{\sin
+\alpha \cos \alpha }\\ &amp;= 2
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> We werken de merkwaardige producten uit:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                           2                            2
+                                                                               (sin α cos β + cos α sin β) + (cos α cos β − sin α sin β)
+                                                                                                                      ((
+                                                                               = sin2 α cos2 β + 2 sin  α cos(β(  (α(sin
+                                                                                                                cos      β + cos2 α sin2 β
+                                                                                                  ((((
+                                                                                                                         ((
+                                                                                  + cos2 α cos2 β − 2 cos  α cos(β( (α(sin
+                                                                                                                  sin      β + sin2 α sin2 β
+                                                                                                     ((((
+                                                                               = sin2 α cos2 β + cos2 α cos2 β + cos2 α sin2 β + sin2 α sin2 β
+                                                                               = cos2 β sin2 α + cos2 α + sin2 β cos2 α + sin2 α
+                                                                                                                                   
+
+                                                                               grondf.
+                                                                                 =       cos2 β + sin2 β
+                                                                               grondf.
+                                                                                 =       1
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\left (\sin \alpha \cos \beta + \cos \alpha \sin \beta \right )^2 + \left (\cos \alpha \cos \beta - \sin \alpha \sin \beta \right )^2\\ &amp;= \sin ^2\alpha \cos ^2\beta + \cancel {2\sin
+\alpha \cos \beta \cos \alpha \sin \beta } + \cos ^2\alpha \sin ^2\beta \\ &amp;\quad + \cos ^2\alpha \cos ^2\beta - \cancel {2\cos \alpha \cos \beta \sin \alpha \sin \beta } + \sin ^2\alpha
+\sin ^2\beta \\ &amp;= \sin ^2\alpha \cos ^2\beta + \cos ^2\alpha \cos ^2\beta + \cos ^2\alpha \sin ^2\beta + \sin ^2\alpha \sin ^2\beta \\ &amp;= \cos ^2\beta \left (\sin ^2\alpha + \cos
+^2\alpha \right ) + \sin ^2\beta \left (\cos ^2\alpha + \sin ^2\alpha \right )\\ &amp;\overset {\text {grondf.}}{=} \cos ^2\beta + \sin ^2\beta \\ &amp;\overset {\text {grondf.}}{=} 1
+\end{align*}
+<span class="hint">Opmerking: in het volgende hoofdstuk zullen we extra formules zien. Maak deze oefening dan nog eens opnieuw, ze is dan op te lossen in 2 stappen!</span>
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-72">Oefening 5</h5>
+<a id="mkpiweb-autopage-72"></a>
+
+
+<p>
+Gegeven dat de volgende vormen zinvol zijn. Herschrijf eenvoudiger:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\left (3 \cdot \sin \alpha + 2 \cdot \cos \alpha \right )^2 + \left (3 \cdot \sin \alpha - 2 \cdot \cos \alpha \right )^2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\dfrac {1 + \sec ^2 \alpha + \cot ^2 \alpha }{\cot ^2 \alpha }\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\dfrac {\cos \alpha \cdot \tan \alpha \cdot \csc \alpha + 1}{\csc \alpha }\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\dfrac {1}{\csc \alpha - 1} - \dfrac {1}{\csc \alpha + 1}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\dfrac {\sin \alpha }{1 + \cos \alpha } + \dfrac {1 + \cos \alpha }{\sin \alpha }\)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Voor elke \(A\) en \(B\) geldt
+</p>
+<p>
+\[ (A+B)^2 + (A-B)^2 = A^2 + 2AB + B^2 + A^2 - 2AB + B^2 = 2A^2 + 2B^2, \]
+</p>
+<p>
+dus
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                2                         2                2              2
+                                                                              (3 sin α + 2 cos α) + (3 sin α − 2 cos α) = 2 (3 sin α) + 2 (2 cos α)
+                                                                                                                              = 2 · 9 sin2 α + 2 · 4 cos2 α
+                                                                                                                              = 18 sin2 α + 8 cos2 α
+                                                                                                                              = 10 sin2 α + 8 sin2 α + 8 cos2 α
+                                                                                                                              = 10 sin2 α + 8 sin2 α + cos2 α
+                                                                                                                                                               
+
+                                                                                                                              = 10 sin2 α + 8
+
+
+-->
+
+<p>
+
+\begin{align*}
+\left (3\sin \alpha + 2\cos \alpha \right )^2 + \left (3\sin \alpha - 2\cos \alpha \right )^2 &amp;= 2\left (3\sin \alpha \right )^2 + 2\left (2\cos \alpha \right )^2\\ &amp;= 2\cdot 9\sin
+^2\alpha + 2\cdot 4\cos ^2\alpha \\ &amp;= 18\sin ^2\alpha + 8\cos ^2\alpha \\ &amp;= 10\sin ^2\alpha + 8\sin ^2\alpha + 8\cos ^2\alpha \\ &amp;= 10\sin ^2\alpha + 8\left (\sin ^2\alpha + \cos
+^2\alpha \right )\\ &amp;= 10\sin ^2\alpha + 8
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Merk eerst op dat
+</p>
+<p>
+\[ \frac {1}{\cot ^2\alpha } = \tan ^2\alpha = \frac {\sin ^2\alpha }{\cos ^2\alpha } \qquad \text {en}\qquad \frac {\sec ^2\alpha }{\cot ^2\alpha } = \frac {\dfrac {1}{\cos ^2\alpha }}{\dfrac
+{\cos ^2\alpha }{\sin ^2\alpha }} = \frac {1}{\cos ^2\alpha }\cdot \frac {\sin ^2\alpha }{\cos ^2\alpha } = \frac {\sin ^2\alpha }{\cos ^4\alpha }. \]
+</p>
+<p>
+Daarmee wordt
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                   1 + sec2 α + cot2 α      1       sec2 α cot2 α
+                                                             2         =         +          +
+                                                         cot α           cot α cot2 α cot2 α
+                                                                             2
+
+                                                                         sin2 α     sin2 α
+                                                                       =         +          +1
+                                                                         cos α cos4 α
+                                                                             2
+
+                                                                         sin2 α cos2 α + sin2 α + cos4 α
+                                                                       =                                                                                           (cos2 α vooropzetten)
+                                                                                       cos4 α
+                                                                         cos2 α sin2 α + cos2 α + sin2 α
+                                                                                                
+                                                                       =
+                                                                                        cos4 α
+                                                                             2        2
+                                                                         cos α + sin α
+                                                                       =
+                                                                               cos4 α
+                                                                            1
+                                                                       =
+                                                                         cos4 α
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {1 + \sec ^2\alpha + \cot ^2\alpha }{\cot ^2\alpha } &amp;= \frac {1}{\cot ^2\alpha } + \frac {\sec ^2\alpha }{\cot ^2\alpha } + \frac {\cot ^2\alpha }{\cot ^2\alpha }\\ &amp;= \frac
+{\sin ^2\alpha }{\cos ^2\alpha } + \frac {\sin ^2\alpha }{\cos ^4\alpha } + 1\\ &amp;= \frac {\sin ^2\alpha \cos ^2\alpha + \sin ^2\alpha + \cos ^4\alpha }{\cos ^4\alpha } &amp;&amp;(\cos
+^2\alpha \ \text {vooropzetten})\\ &amp;= \frac {\cos ^2\alpha \left (\sin ^2\alpha + \cos ^2\alpha \right ) + \sin ^2\alpha }{\cos ^4\alpha }\\ &amp;= \frac {\cos ^2\alpha + \sin ^2\alpha
+}{\cos ^4\alpha }\\ &amp;= \frac {1}{\cos ^4\alpha }
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Er geldt \(\dfrac {1}{\csc \alpha } = \dfrac {1}{\dfrac {1}{\sin \alpha }} = 1\cdot \sin \alpha = \sin \alpha \), dus
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                           
+                                                                                       cos α tan α csc α + 1                 sin α   1
+                                                                                                             = sin α cos α ·       ·     +1
+                                                                                               csc α                         cos α sin α
+                                                                                                              = sin α (1 + 1)
+                                                                                                              = 2 sin α
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {\cos \alpha \tan \alpha \csc \alpha + 1}{\csc \alpha } &amp;= \sin \alpha \left (\cos \alpha \cdot \frac {\sin \alpha }{\cos \alpha }\cdot \frac {1}{\sin \alpha } + 1\right )\\ &amp;=
+\sin \alpha \left (1 + 1\right )\\ &amp;= 2\sin \alpha
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Er staan te veel breuken: we vermenigvuldigen teller en noemer van elke breuk met \(\sin \alpha \). In de noemer herkennen we daarna MP I.
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                   1         1             1             1
+                                                                                        −          =              −
+                                                                               csc α − 1 csc α + 1       1             1
+                                                                                                             −1            +1
+                                                                                                       sin α         sin α
+                                                                                                         sin α        sin α
+                                                                                                     =            −
+                                                                                                       1 − sin α 1 + sin α
+                                                                                                          sin α (1 + sin α)       sin α (1 − sin α)
+                                                                                                     =                        −
+                                                                                                       (1 − sin α) (1 + sin α) (1 + sin α) (1 − sin α)
+                                                                                                         sin α (1 + sin α) − sin α (1 − sin α)
+                                                                                                     =
+                                                                                                                (1 − sin α) (1 + sin α)
+                                                                                                       sin α ((1 + sin α) − (1 − sin α))
+                                                                                                     =
+                                                                                                                    1 − sin2 α
+                                                                                                       sin α (1 + sin α − 1 + sin α)
+                                                                                                     =
+                                                                                                                    cos2 α
+                                                                                                       sin α · 2 sin α
+                                                                                                     =
+                                                                                                           cos2 α
+                                                                                                         sin2 α
+                                                                                                     =2
+                                                                                                         cos2 α
+                                                                                                     = 2 tan2 α
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {1}{\csc \alpha - 1} - \frac {1}{\csc \alpha + 1} &amp;= \frac {1}{\dfrac {1}{\sin \alpha } - 1} - \frac {1}{\dfrac {1}{\sin \alpha } + 1}\\ &amp;= \frac {\sin \alpha }{1 - \sin \alpha }
+- \frac {\sin \alpha }{1 + \sin \alpha }\\ &amp;= \frac {\sin \alpha \left (1 + \sin \alpha \right )}{\left (1 - \sin \alpha \right )\left (1 + \sin \alpha \right )} - \frac {\sin \alpha \left
+(1 - \sin \alpha \right )}{\left (1 + \sin \alpha \right )\left (1 - \sin \alpha \right )}\\ &amp;= \frac {\sin \alpha \left (1 + \sin \alpha \right ) - \sin \alpha \left (1 - \sin \alpha
+\right )} {\left (1 - \sin \alpha \right )\left (1 + \sin \alpha \right )}\\ &amp;= \frac {\sin \alpha \left (\left (1 + \sin \alpha \right ) - \left (1 - \sin \alpha \right )\right )}{1 -
+\sin ^2\alpha }\\ &amp;= \frac {\sin \alpha \left (1 + \sin \alpha - 1 + \sin \alpha \right )}{\cos ^2\alpha }\\ &amp;= \frac {\sin \alpha \cdot 2\sin \alpha }{\cos ^2\alpha }\\ &amp;=
+2\,\frac {\sin ^2\alpha }{\cos ^2\alpha }\\ &amp;= 2\tan ^2\alpha
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                   sin α     1 + cos α      sin α · sin α    (1 + cos α) (1 + cos α)
+                                                                                           +           =                   +
+                                                                                 1 + cos α     sin α     (1 + cos α) sin α      sin α (1 + cos α)
+                                                                                                                   sin2 α          1 + 2 cos α + cos2 α
+                                                                                                         =                       +
+                                                                                                             sin α + cos α sin α    sin α + cos α sin α
+                                                                                                             sin2 α + 1 + 2 cos α + cos2 α
+                                                                                                         =
+                                                                                                                   sin α + cos α sin α
+                                                                                                           sin2 α + cos2 α + 1 + 2 cos α
+                                                                                                         =
+                                                                                                                  sin α (1 + cos α)
+                                                                                                            1 + 1 + 2 cos α
+                                                                                                         =
+                                                                                                           sin α (1 + cos α)
+                                                                                                              2 + 2 cos α
+                                                                                                         =
+                                                                                                           sin α (1 + cos α)
+                                                                                                              2 (1 + cos α)
+                                                                                                         =
+                                                                                                           sin α (1 + cos α)
+                                                                                                              2
+                                                                                                         =
+                                                                                                           sin α
+                                                                                                         = 2 csc α
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {\sin \alpha }{1 + \cos \alpha } + \frac {1 + \cos \alpha }{\sin \alpha } &amp;= \frac {\sin \alpha \cdot \sin \alpha }{\left (1 + \cos \alpha \right )\sin \alpha } + \frac {\left (1 +
+\cos \alpha \right )\left (1 + \cos \alpha \right )}{\sin \alpha \left (1 + \cos \alpha \right )}\\ &amp;= \frac {\sin ^2\alpha }{\sin \alpha + \cos \alpha \sin \alpha } + \frac {1 + 2\cos
+\alpha + \cos ^2\alpha }{\sin \alpha + \cos \alpha \sin \alpha }\\ &amp;= \frac {\sin ^2\alpha + 1 + 2\cos \alpha + \cos ^2\alpha }{\sin \alpha + \cos \alpha \sin \alpha }\\ &amp;= \frac {\sin
+^2\alpha + \cos ^2\alpha + 1 + 2\cos \alpha }{\sin \alpha \left (1 + \cos \alpha \right )}\\ &amp;= \frac {1 + 1 + 2\cos \alpha }{\sin \alpha \left (1 + \cos \alpha \right )}\\ &amp;= \frac {2
++ 2\cos \alpha }{\sin \alpha \left (1 + \cos \alpha \right )}\\ &amp;= \frac {2\left (1 + \cos \alpha \right )}{\sin \alpha \left (1 + \cos \alpha \right )}\\ &amp;= \frac {2}{\sin \alpha }\\
+&amp;= 2\csc \alpha
+\end{align*}
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 6 ......
+-->
+<h5 id="autosec-73">Oefening 6</h5>
+<a id="mkpiweb-autopage-73"></a>
+
+
+<p>
+Bewijs de volgende identiteiten voor elke \(\alpha \) waarvoor beide leden zinvol zijn:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\dfrac {\sin ^3 \alpha + \cos ^3 \alpha }{\sin \alpha + \cos \alpha } = 1 - \sin \alpha \cos \alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\dfrac {\tan \alpha }{\sin \alpha } + \dfrac {\cot \alpha }{\cos \alpha } = \dfrac {\sin \alpha + \cos \alpha }{\sin \alpha \cos \alpha }\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\dfrac {\sin \alpha + \cos \alpha }{\sin \alpha - \cos \alpha } = \dfrac {1 + \cot \alpha }{1 - \cot \alpha }\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\left ( \tan \alpha + \cot \alpha \right )^2 - 2 = \left ( \tan \alpha - \cot \alpha \right )^2 + 2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\sin ^6 \alpha + \cos ^6 \alpha = 2 \sin ^4 \alpha + \cos ^4 \alpha - \sin ^2 \alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\dfrac {\tan ^3 \alpha }{1 + \tan ^2 \alpha } + \dfrac {\cot ^3 \alpha }{1 + \cot ^2 \alpha } = \dfrac {1 - 2 \sin ^2 \alpha \cos ^2 \alpha }{\sin \alpha
+\cos \alpha }\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(\dfrac {\sin \alpha + \cos \alpha }{\sin \alpha - \cos \alpha } + \dfrac {\sin \alpha - \cos \alpha }{\sin \alpha + \cos \alpha } = \dfrac {1}{0.5 - \cos ^2
+\alpha }\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(\sin ^4 \alpha - \cos ^4 \alpha = \sin ^2 \alpha - \cos ^2 \alpha \)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                                                    sin3 α + cos3 α
+                                                                                                                                                    = 1 − sin α cos α
+                                                                                                                                     sin α + cos α
+                                                         ⇔                                                                          sin3 α + cos3 α = (1 − sin α cos α) (sin α + cos α)
+                                                         ⇔                                                                          sin3 α + cos3 α = sin α − sin2 α cos α + cos α − sin α cos2 α
+                                                                                                                                    sin3 α + cos3 α = sin α 1 − cos2 α + cos α 1 − sin2 α
+                                                                                                                                                                                            
+                                                         ⇔
+                                                         ⇔                                                                          sin3 α + cos3 α = sin3 α + cos3 α          □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; \frac {\sin ^3\alpha + \cos ^3\alpha }{\sin \alpha + \cos \alpha } &amp;= 1 - \sin \alpha \cos \alpha \\ &amp;\Leftrightarrow &amp; \sin ^3\alpha + \cos ^3\alpha &amp;= \left (1 -
+\sin \alpha \cos \alpha \right )\left (\sin \alpha + \cos \alpha \right )\\ &amp;\Leftrightarrow &amp; \sin ^3\alpha + \cos ^3\alpha &amp;= \sin \alpha - \sin ^2\alpha \cos \alpha + \cos
+\alpha - \sin \alpha \cos ^2\alpha \\ &amp;\Leftrightarrow &amp; \sin ^3\alpha + \cos ^3\alpha &amp;= \sin \alpha \left (1 - \cos ^2\alpha \right ) + \cos \alpha \left (1 - \sin ^2\alpha
+\right )\\ &amp;\Leftrightarrow &amp; \sin ^3\alpha + \cos ^3\alpha &amp;= \sin ^3\alpha + \cos ^3\alpha \qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> We vermenigvuldigen linker- en rechterlid met \(\sin \alpha \cos \alpha \):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                                          tan α cot α       sin α + cos α
+                                                                                                                                                                 +        =
+                                                                                                                                                           sin α   cos α      sin α cos α
+                                                             ⇔                                                                                  tan α cos α + cot α sin α = sin α + cos α
+                                                                                                                                                sin α         cos α
+                                                             ⇔                                                                                        cos α +        sin α = sin α + cos α
+                                                                                                                                                cos α          sin α
+                                                             ⇔                                                                                              sin α + cos α = sin α + cos α      □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; \frac {\tan \alpha }{\sin \alpha } + \frac {\cot \alpha }{\cos \alpha } &amp;= \frac {\sin \alpha + \cos \alpha }{\sin \alpha \cos \alpha }\\ &amp;\Leftrightarrow &amp; \tan \alpha
+\cos \alpha + \cot \alpha \sin \alpha &amp;= \sin \alpha + \cos \alpha \\ &amp;\Leftrightarrow &amp; \frac {\sin \alpha }{\cos \alpha }\cos \alpha + \frac {\cos \alpha }{\sin \alpha }\sin
+\alpha &amp;= \sin \alpha + \cos \alpha \\ &amp;\Leftrightarrow &amp; \sin \alpha + \cos \alpha &amp;= \sin \alpha + \cos \alpha \qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> We delen teller en noemer door \(\sin \alpha \):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                            sin α + cos α
+                                                                                                                  LL =
+                                                                                                                            sin α − cos α
+                                                                                                                            sin α + cos α
+                                                                                                                          =      sin α
+                                                                                                                            sin α − cos α
+                                                                                                                                 sin α
+                                                                                                                            sin α cos α
+                                                                                                                                   +
+                                                                                                                          = sin α     sin α
+                                                                                                                            sin α cos α
+                                                                                                                                   −
+                                                                                                                            sin α     sin α
+                                                                                                                            1 + cot α
+                                                                                                                          =
+                                                                                                                            1 − cot α
+                                                                                                                          = RL        □
+
+
+-->
+
+<p>
+
+\begin{align*}
+LL &amp;= \frac {\sin \alpha + \cos \alpha }{\sin \alpha - \cos \alpha }\\ &amp;= \frac {\dfrac {\sin \alpha + \cos \alpha }{\sin \alpha }}{\dfrac {\sin \alpha - \cos \alpha }{\sin \alpha }}\\
+&amp;= \frac {\dfrac {\sin \alpha }{\sin \alpha } + \dfrac {\cos \alpha }{\sin \alpha }} {\dfrac {\sin \alpha }{\sin \alpha } - \dfrac {\cos \alpha }{\sin \alpha }}\\ &amp;= \frac {1 + \cot
+\alpha }{1 - \cot \alpha }\\ &amp;= RL \qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                                            2                         2
+                                                                                                                                            (tan α + cot α) − 2 = (tan α − cot α) + 2
+                                                     ⇔                                                                tan2 α + 2 tan α cot α + cot2 α − 2 = tan2 α − 2 tan α cot α + cot2 α + 2
+                                                     ⇔                                                                                           2 tan α cot α − 2 = 2 − 2 tan α cot α
+                                                     ⇔                                                                                            tan α cot α − 1 = 1 − tan α cot α
+                                                     ⇔                                                                                                      1−1=1−1             □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; \left (\tan \alpha + \cot \alpha \right )^2 - 2 &amp;= \left (\tan \alpha - \cot \alpha \right )^2 + 2\\ &amp;\Leftrightarrow &amp; \tan ^2\alpha + 2\tan \alpha \cot \alpha + \cot
+^2\alpha - 2 &amp;= \tan ^2\alpha - 2\tan \alpha \cot \alpha + \cot ^2\alpha + 2\\ &amp;\Leftrightarrow &amp; 2\tan \alpha \cot \alpha - 2 &amp;= 2 - 2\tan \alpha \cot \alpha \\
+&amp;\Leftrightarrow &amp; \tan \alpha \cot \alpha - 1 &amp;= 1 - \tan \alpha \cot \alpha \\ &amp;\Leftrightarrow &amp; 1 - 1 &amp;= 1 - 1 \qquad \square
+\end{align*}
+want \(\tan \alpha \cot \alpha = \dfrac {\sin \alpha }{\cos \alpha }\cdot \dfrac {\cos \alpha }{\sin \alpha } = 1\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> We werken beide leden apart uit, telkens met de grondformule \(\cos ^2\alpha + \sin ^2\alpha = 1\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                        RL = 2 sin2 α sin2 α + cos2 α cos2 α − sin2 α
+                                                                                           = 2 sin2 α 1 − cos2 α + cos2 α 1 − sin2 α − sin2 α
+                                                                                                                                     
+
+                                                                                               = 2 sin2 α − 2 cos2 α sin2 α + cos2 α − cos2 α sin2 α − sin2 α
+                                                                                               = sin2 α + cos2 α − 3 cos2 α sin2 α
+                                                                                               = 1 − 3 cos2 α sin2 α          (∗)
+
+
+-->
+
+<p>
+
+\begin{align*}
+RL &amp;= 2\sin ^2\alpha \sin ^2\alpha + \cos ^2\alpha \cos ^2\alpha - \sin ^2\alpha \\ &amp;= 2\sin ^2\alpha \left (1 - \cos ^2\alpha \right ) + \cos ^2\alpha \left (1 - \sin ^2\alpha \right
+) - \sin ^2\alpha \\ &amp;= 2\sin ^2\alpha - 2\cos ^2\alpha \sin ^2\alpha + \cos ^2\alpha - \cos ^2\alpha \sin ^2\alpha - \sin ^2\alpha \\ &amp;= \sin ^2\alpha + \cos ^2\alpha - 3\cos ^2\alpha
+\sin ^2\alpha \\ &amp;= 1 - 3\cos ^2\alpha \sin ^2\alpha \qquad (*)
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                       LL = sin4 α · sin2 α + cos4 α · cos2 α
+                                                                                          = sin4 α 1 − cos2 α + cos4 α 1 − sin2 α
+                                                                                                                                 
+
+                                                                                                               2                  2
+                                                                                          = sin2 α 1 − cos2 α + cos2 α 1 − sin2 α
+                                                                                          = sin2 α 1 − 2 cos2 α + cos4 α + cos2 α 1 − 2 sin2 α + sin4 α
+                                                                                                                                                       
+
+                                                                                             = sin2 α − 2 cos2 α sin2 α + cos4 α sin2 α
+                                                                                               + cos2 α − 2 cos2 α sin2 α + cos2 α sin4 α
+                                                                                             = 1 − 4 cos2 α sin2 α + cos4 α sin2 α + cos2 α sin4 α
+                                                                                             = 1 − 4 cos2 α sin2 α + cos2 α sin2 α cos2 α + sin2 α
+                                                                                                                                                             
+
+                                                                                             = 1 − 4 cos2 α sin2 α + cos2 α sin2 α
+                                                                                             = 1 − 3 cos2 α sin2 α          (∗)
+
+
+-->
+
+<p>
+
+\begin{align*}
+LL &amp;= \sin ^4\alpha \cdot \sin ^2\alpha + \cos ^4\alpha \cdot \cos ^2\alpha \\ &amp;= \sin ^4\alpha \left (1 - \cos ^2\alpha \right ) + \cos ^4\alpha \left (1 - \sin ^2\alpha \right )\\
+&amp;= \sin ^2\alpha \left (1 - \cos ^2\alpha \right )^2 + \cos ^2\alpha \left (1 - \sin ^2\alpha \right )^2\\ &amp;= \sin ^2\alpha \left (1 - 2\cos ^2\alpha + \cos ^4\alpha \right ) + \cos
+^2\alpha \left (1 - 2\sin ^2\alpha + \sin ^4\alpha \right )\\ &amp;= \sin ^2\alpha - 2\cos ^2\alpha \sin ^2\alpha + \cos ^4\alpha \sin ^2\alpha \\ &amp;\quad + \cos ^2\alpha - 2\cos ^2\alpha
+\sin ^2\alpha + \cos ^2\alpha \sin ^4\alpha \\ &amp;= 1 - 4\cos ^2\alpha \sin ^2\alpha + \cos ^4\alpha \sin ^2\alpha + \cos ^2\alpha \sin ^4\alpha \\ &amp;= 1 - 4\cos ^2\alpha \sin ^2\alpha +
+\cos ^2\alpha \sin ^2\alpha \left (\cos ^2\alpha + \sin ^2\alpha \right )\\ &amp;= 1 - 4\cos ^2\alpha \sin ^2\alpha + \cos ^2\alpha \sin ^2\alpha \\ &amp;= 1 - 3\cos ^2\alpha \sin ^2\alpha
+\qquad (*)
+\end{align*}
+Beide leden zijn gelijk aan \((*)\), dus \(LL = RL\). \(\square \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                                                                       tan3 α     cot3 α     1 − 2 sin2 α cos2 α
+                                                                                                                                                               +           =
+                                                                                                                                                     1 + tan2 α 1 + cot2 α       sin α cos α
+                                                                                                                                                             tan3 α   cot3 α   1 − 2 sin2 α cos2 α
+                                                         ⇔                                                                                                          +        =
+                                                                                                                                                               1         1         sin α cos α
+                                                                                                                                                                2
+                                                                                                                                                             cos α    sin2 α
+                                                                                                                                                sin3 α          cos3 α          1 − 2 sin2 α cos2 α
+                                                         ⇔                                                                                         3
+                                                                                                                                                       cos2 α +    3   sin2 α =
+                                                                                                                                                cos α           sin α               sin α cos α
+                                                                                                                                                                sin3 α cos3 α    1 − 2 sin2 α cos2 α
+                                                         ⇔                                                                                                            +        =
+                                                                                                                                                                cos α    sin α       sin α cos α
+                                                         ⇔                                                                                                       sin α + cos α = 1 − 2 sin2 α cos2 α
+                                                                                                                                                                    4       4
+
+
+                                                         ⇔                                                                                sin4 α + 2 sin2 α cos2 α + cos4 α = 1
+                                                                                                                                           2                            2
+                                                         ⇔                                                                          sin2 α + 2 sin2 α cos2 α + cos2 α = 1
+                                                                                                                                                                         2
+                                                         ⇔                                                                                                sin2 α + cos2 α = 1
+                                                         ⇔                                                                                                                   12 = 1       □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; \frac {\tan ^3\alpha }{1 + \tan ^2\alpha } + \frac {\cot ^3\alpha }{1 + \cot ^2\alpha } &amp;= \frac {1 - 2\sin ^2\alpha \cos ^2\alpha }{\sin \alpha \cos \alpha }\\
+&amp;\Leftrightarrow &amp; \frac {\tan ^3\alpha }{\dfrac {1}{\cos ^2\alpha }} + \frac {\cot ^3\alpha }{\dfrac {1}{\sin ^2\alpha }} &amp;= \frac {1 - 2\sin ^2\alpha \cos ^2\alpha }{\sin \alpha
+\cos \alpha }\\ &amp;\Leftrightarrow &amp; \frac {\sin ^3\alpha }{\cos ^3\alpha }\cos ^2\alpha + \frac {\cos ^3\alpha }{\sin ^3\alpha }\sin ^2\alpha &amp;= \frac {1 - 2\sin ^2\alpha \cos
+^2\alpha }{\sin \alpha \cos \alpha }\\ &amp;\Leftrightarrow &amp; \frac {\sin ^3\alpha }{\cos \alpha } + \frac {\cos ^3\alpha }{\sin \alpha } &amp;= \frac {1 - 2\sin ^2\alpha \cos ^2\alpha
+}{\sin \alpha \cos \alpha }\\ &amp;\Leftrightarrow &amp; \sin ^4\alpha + \cos ^4\alpha &amp;= 1 - 2\sin ^2\alpha \cos ^2\alpha \\ &amp;\Leftrightarrow &amp; \sin ^4\alpha + 2\sin ^2\alpha \cos
+^2\alpha + \cos ^4\alpha &amp;= 1\\ &amp;\Leftrightarrow &amp; \left (\sin ^2\alpha \right )^2 + 2\sin ^2\alpha \cos ^2\alpha + \left (\cos ^2\alpha \right )^2 &amp;= 1\\ &amp;\Leftrightarrow
+&amp; \left (\sin ^2\alpha + \cos ^2\alpha \right )^2 &amp;= 1\\ &amp;\Leftrightarrow &amp; 1^2 &amp;= 1 \qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                              2                         2
+                                                                                               (sin α + cos α) + (sin α − cos α)
+                                                                                       LL =
+                                                                                                  (sin α − cos α) (sin α + cos α)
+                                                                                               sin2 α + 2 sin α cos α + cos2 α + sin2 α − 2 sin α cos α + cos2 α
+                                                                                         =
+                                                                                                                        sin2 α − cos2 α
+                                                                                           sin2 α + cos2 α + sin2 α + cos2 α
+                                                                                         =
+                                                                                                     sin2 α − cos2 α
+                                                                                                1+1
+                                                                                         =
+                                                                                           sin2 α − cos2 α
+                                                                                                   2
+                                                                                         =    2
+                                                                                           sin α − cos2 α
+                                                                                                     2
+                                                                                         =
+                                                                                           1 − cos α − cos2 α
+                                                                                                   2
+
+                                                                                                 2
+                                                                                         =
+                                                                                           1 − 2 cos2 α
+                                                                                                1
+                                                                                         = 1        2α
+                                                                                           2 −  cos
+                                                                                         = RL          □
+
+
+-->
+
+<p>
+
+\begin{align*}
+LL &amp;= \frac {\left (\sin \alpha + \cos \alpha \right )^2 + \left (\sin \alpha - \cos \alpha \right )^2} {\left (\sin \alpha - \cos \alpha \right )\left (\sin \alpha + \cos \alpha \right
+)}\\ &amp;= \frac {\sin ^2\alpha + 2\sin \alpha \cos \alpha + \cos ^2\alpha + \sin ^2\alpha - 2\sin \alpha \cos \alpha + \cos ^2\alpha }{\sin ^2\alpha - \cos ^2\alpha }\\ &amp;= \frac {\sin
+^2\alpha + \cos ^2\alpha + \sin ^2\alpha + \cos ^2\alpha }{\sin ^2\alpha - \cos ^2\alpha }\\ &amp;= \frac {1 + 1}{\sin ^2\alpha - \cos ^2\alpha }\\ &amp;= \frac {2}{\sin ^2\alpha - \cos
+^2\alpha }\\ &amp;= \frac {2}{1 - \cos ^2\alpha - \cos ^2\alpha }\\ &amp;= \frac {2}{1 - 2\cos ^2\alpha }\\ &amp;= \frac {1}{\tfrac 12 - \cos ^2\alpha }\\ &amp;= RL \qquad \square
+\end{align*}
+Hierbij gebruikten we \(\sin ^2\alpha = 1 - \cos ^2\alpha \) en deelden we op het einde teller en noemer door \(2\). <em>Alternatief</em> met \(\cot \alpha \) (de oplossing hierboven is eenvoudiger). Met behulp van (c):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                         1 + cot α 1 − cot α
+                                                                                                 LL =             +
+                                                                                                         1 − cot α 1 + cot α
+                                                                                                                      2                     2
+                                                                                                         (1 + cot α) + (1 − cot α)
+                                                                                                     =
+                                                                                                           (1 − cot α) (1 + cot α)
+                                                                                                         12 + 2 cot α + cot2 α + 12 − 2 cot α + cot2 α
+                                                                                                     =
+                                                                                                                          1 − cot2 α
+                                                                                                         2 + 2 cot2 α
+                                                                                                     =                        (∗)
+                                                                                                          1 − cot2 α
+
+-->
+
+<p>
+
+\begin{align*}
+LL &amp;= \frac {1 + \cot \alpha }{1 - \cot \alpha } + \frac {1 - \cot \alpha }{1 + \cot \alpha }\\ &amp;= \frac {\left (1 + \cot \alpha \right )^2 + \left (1 - \cot \alpha \right )^2} {\left
+(1 - \cot \alpha \right )\left (1 + \cot \alpha \right )}\\ &amp;= \frac {1^2 + 2\cot \alpha + \cot ^2\alpha + 1^2 - 2\cot \alpha + \cot ^2\alpha }{1 - \cot ^2\alpha }\\ &amp;= \frac {2 +
+2\cot ^2\alpha }{1 - \cot ^2\alpha } \qquad (*)
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                    1
+                                                         RL =                                                                                                            (teller en noemer × 2)
+                                                               0,5 − cos2 α
+                                                                    2
+                                                             =
+                                                               1 − 2 cos2 α
+                                                                    2 cos2 α + sin2 α
+                                                                                         
+                                                             =
+                                                                 cos2 α + sin2 α − 2 cos2 α
+                                                                 2 cos2 α + 2 sin2 α
+                                                             =                                                                                                           (teller en noemer : sin2 α)
+                                                                   sin2 α − cos2 α
+                                                                 2 cot2 α + 2
+                                                             =                    (∗)
+                                                                  1 − cot2 α
+
+-->
+
+<p>
+
+\begin{align*}
+RL &amp;= \frac {1}{0{,}5 - \cos ^2\alpha } &amp;&amp; (\text {teller en noemer} \times 2)\\ &amp;= \frac {2}{1 - 2\cos ^2\alpha }\\ &amp;= \frac {2\left (\cos ^2\alpha + \sin ^2\alpha \right
+)}{\cos ^2\alpha + \sin ^2\alpha - 2\cos ^2\alpha }\\ &amp;= \frac {2\cos ^2\alpha + 2\sin ^2\alpha }{\sin ^2\alpha - \cos ^2\alpha } &amp;&amp; (\text {teller en noemer} : \sin ^2\alpha )\\
+&amp;= \frac {2\cot ^2\alpha + 2}{1 - \cot ^2\alpha } \qquad (*)
+\end{align*}
+Beide leden zijn gelijk aan \((*)\), dus \(LL = RL\). \(\square \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                 LL = sin2 α sin2 α − cos2 α cos2 α
+                                                                                                    = sin2 α 1 − cos2 α − cos2 α 1 − sin2 α
+                                                                                                                                           
+
+                                                                                                     = sin2 α − cos2 α sin2 α − cos2 α + cos2 α sin2 α
+                                                                                                     = sin2 α − cos2 α
+                                                                                                     = RL         □
+
+
+-->
+
+<p>
+
+\begin{align*}
+LL &amp;= \sin ^2\alpha \sin ^2\alpha - \cos ^2\alpha \cos ^2\alpha \\ &amp;= \sin ^2\alpha \left (1 - \cos ^2\alpha \right ) - \cos ^2\alpha \left (1 - \sin ^2\alpha \right )\\ &amp;= \sin
+^2\alpha - \cos ^2\alpha \sin ^2\alpha - \cos ^2\alpha + \cos ^2\alpha \sin ^2\alpha \\ &amp;= \sin ^2\alpha - \cos ^2\alpha \\ &amp;= RL \qquad \square
+\end{align*}
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 7 ......
+-->
+<h5 id="autosec-74">Oefening 7</h5>
+<a id="mkpiweb-autopage-74"></a>
+
+
+<p>
+Bewijs de volgende identiteiten voor elke \(\alpha \) waarvoor beide leden zinvol zijn:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\sin \alpha \tan \alpha = \sec \alpha - \cos \alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\sec ^4 \alpha (1 - \sin ^4 \alpha ) = 1 + 2 \tan ^2 \alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\dfrac {1 + \cos \alpha }{\tan ^2 \alpha } = \dfrac {\cos \alpha }{\sec \alpha - 1}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\left ( 1 + \tan \alpha \right )^2 + \left ( 1 - \tan \alpha \right )^2 = 2 \sec ^2 \alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\left ( 1 - \tan \alpha \right )^2 + \left ( 1 - \cot \alpha \right )^2 = \left ( \sec \alpha - \csc \alpha \right )^2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\dfrac {\sec \alpha - \csc \alpha }{\sec \alpha - \sin \alpha } \cdot \dfrac {\sin ^3 \alpha + \cos ^3 \alpha }{\sin ^2 \alpha - \cos ^2 \alpha } = \csc
+\alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(1 + 2 \cot ^2 \alpha + \cot ^4 \alpha = \csc ^4 \alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(\dfrac {\sin \alpha }{1 + \sin \alpha } = \dfrac {\csc \alpha - 1}{\cot ^2 \alpha }\)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Te bewijzen: \(\sin \alpha \tan \alpha = \sec \alpha - \cos \alpha \).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                     sin α     1
+                                          ⇔                                             sin α ·            =       − cos α
+                                                                                                     cos α   cos α
+                                                                                                    sin2 α     1
+                                          ⇔                                                                =       − cos α                                                         (linker- en rechterlid × cos α)
+                                                                                                    cos α    cos α
+                                          ⇔                                                         sin2 α = 1 − cos2 α    □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\Leftrightarrow &amp; \sin \alpha \cdot \frac {\sin \alpha }{\cos \alpha } &amp;= \frac {1}{\cos \alpha } - \cos \alpha \\ &amp;\Leftrightarrow &amp; \frac {\sin ^2\alpha }{\cos \alpha }
+&amp;= \frac {1}{\cos \alpha } - \cos \alpha &amp;&amp;(\text {linker- en rechterlid} \times \cos \alpha )\\ &amp;\Leftrightarrow &amp; \sin ^2\alpha &amp;= 1 - \cos ^2\alpha \qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Te bewijzen: \(\sec ^4\alpha \left (1 - \sin ^4\alpha \right ) = 1 + 2\tan ^2\alpha \).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                           1
+                                                                · 1 − sin4 α
+                                                                              
+                                                  LL =      4
+                                                        cos α
+                                                           1
+                                                                 1 − sin2 α 1 + sin2 α                                                                                 A2 − B 2 = (A − B)(A + B)
+                                                                                                                                                                                              
+                                                      =     4
+                                                        cos α
+                                                           1                       1
+                                                                 1 − sin2 α ·           1 + sin2 α                                                                     a4 = a2 · a2
+                                                                                                                                                                                    
+                                                      =     2                       2
+                                                        cos α                   cos α
+                                                                                              
+                                                              1         2           1         2
+                                                      =           − tan α               + tan α
+                                                          cos2 α                 cos2 α
+                                                      = 1 + tan2 α − tan2 α 1 + tan2 α + tan2 α
+                                                                                                    
+
+                                                      = 1 · 1 + 2 tan2 α
+                                                                          
+
+                                                      = RL        □
+
+
+-->
+
+<p>
+
+\begin{align*}
+LL &amp;= \frac {1}{\cos ^4\alpha }\cdot \left (1 - \sin ^4\alpha \right )\\ &amp;= \frac {1}{\cos ^4\alpha }\left (1 - \sin ^2\alpha \right )\left (1 + \sin ^2\alpha \right ) &amp;&amp; \left
+(A^2 - B^2 = (A-B)(A+B)\right )\\ &amp;= \frac {1}{\cos ^2\alpha }\left (1 - \sin ^2\alpha \right )\cdot \frac {1}{\cos ^2\alpha }\left (1 + \sin ^2\alpha \right ) &amp;&amp; \left (a^4 =
+a^2\cdot a^2\right )\\ &amp;= \left (\frac {1}{\cos ^2\alpha } - \tan ^2\alpha \right ) \left (\frac {1}{\cos ^2\alpha } + \tan ^2\alpha \right )\\ &amp;= \left (1 + \tan ^2\alpha - \tan
+^2\alpha \right ) \left (1 + \tan ^2\alpha + \tan ^2\alpha \right )\\ &amp;= 1\cdot \left (1 + 2\tan ^2\alpha \right )\\ &amp;= RL \qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                           1 + cos α     cos α
+                                                                                                                     =
+                                                                                                            tan2 α     sec α − 1
+                                                                                                           1 + cos α     cos α
+                                          ⇔                                                                          =
+                                                                                                             sin2 α      1
+                                                                                                                             −1
+                                                                                                             cos2 α    cos α
+                                                                                                  (1 + cos α) cos2 α     cos2 α
+                                          ⇔                                                                          =
+                                                                                                        sin2 α         1 − cos α
+                                                                                                           1 + cos α       1
+                                          ⇔                                                                          =
+                                                                                                             sin2 α    1 − cos α
+                                          ⇔                                             (1 + cos α) (1 − cos α) = sin2 α                                                                          (kruisproduct)
+                                          ⇔                                                                1 − cos2 α = sin2 α
+                                          ⇔                                                                         1 = sin2 α + cos2 α        □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; \frac {1 + \cos \alpha }{\tan ^2\alpha } &amp;= \frac {\cos \alpha }{\sec \alpha - 1}\\ &amp;\Leftrightarrow &amp; \frac {1 + \cos \alpha }{\dfrac {\sin ^2\alpha }{\cos ^2\alpha }}
+&amp;= \frac {\cos \alpha }{\dfrac {1}{\cos \alpha } - 1}\\ &amp;\Leftrightarrow &amp; \frac {\left (1 + \cos \alpha \right )\cos ^2\alpha }{\sin ^2\alpha } &amp;= \frac {\cos ^2\alpha }{1 -
+\cos \alpha }\\ &amp;\Leftrightarrow &amp; \frac {1 + \cos \alpha }{\sin ^2\alpha } &amp;= \frac {1}{1 - \cos \alpha }\\ &amp;\Leftrightarrow &amp; \left (1 + \cos \alpha \right )\left (1 -
+\cos \alpha \right ) &amp;= \sin ^2\alpha &amp;&amp;(\text {kruisproduct})\\ &amp;\Leftrightarrow &amp; 1 - \cos ^2\alpha &amp;= \sin ^2\alpha \\ &amp;\Leftrightarrow &amp; 1 &amp;= \sin
+^2\alpha + \cos ^2\alpha \qquad \square
+\end{align*}
+In het linkerlid vermenigvuldigden we teller en noemer met \(\cos ^2\alpha \), in het rechterlid met \(\cos \alpha \).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                     LL = 1 + 2 tan α + tan2 α + 1 − 2 tan α + tan2 α
+                                                          = 2 + 2 tan2 α
+                                                          = 2 1 + tan2 α
+                                                                             
+
+                                                                  1
+                                                                                                                                                                              1 + tan2 α = cos12 α
+                                                                                                                                                                                                      
+                                                          =2·
+                                                                cos2 α
+                                                          = 2 sec2 α
+                                                          = RL          □
+
+
+-->
+
+<p>
+
+\begin{align*}
+LL &amp;= 1 + 2\tan \alpha + \tan ^2\alpha + 1 - 2\tan \alpha + \tan ^2\alpha \\ &amp;= 2 + 2\tan ^2\alpha \\ &amp;= 2\left (1 + \tan ^2\alpha \right )\\ &amp;= 2\cdot \frac {1}{\cos ^2\alpha
+} &amp;&amp; \left (1 + \tan ^2\alpha = \tfrac {1}{\cos ^2\alpha }\right )\\ &amp;= 2\sec ^2\alpha \\ &amp;= RL \qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                           2              2                    2
+                                                                                                                             (1 − tan α) + (1 − cot α) = (sec α − csc α)
+                                                         ⇔                                                                       1 − 2 tan α + tan2 α + 1 − 2 cot α + cot2 α
+                                                                                                                                                      = sec2 α − 2 sec α csc α + csc2 α
+                                                                                                                             1 + tan2 α − 2 tan α + 1 + cot2 α − 2 cot α
+                                                                                                                                                             
+                                                         ⇔
+                                                                                                                                                               1         1        1     1
+                                                                                                                                                              =     +        −2
+                                                                                                                                                            cos2 α sin2 α       cos α sin α
+                                                                                                                                           1                   1
+                                                         ⇔                                                                                      − 2 tan α +        − 2 cot α
+                                                                                                                                       cos α2
+                                                                                                                                                            sin2 α
+                                                                                                                                                               1         1         2
+                                                                                                                                                          =         +        −
+                                                                                                                                                            cos2 α sin2 α cos α sin α
+                                                                                                                                                                   2
+                                                         ⇔                                                                            −2 (tan α + cot α) = −
+                                                                                                                                                              cos α sin α
+                                                                                                                                           sin α    cos α        1
+                                                         ⇔                                                                                       +        =
+                                                                                                                                           cos α    sin α   cos α sin α
+                                                                                                                                         sin2 α + cos2 α         1
+                                                         ⇔                                                                                                =
+                                                                                                                                            cos α sin α     cos α sin α
+                                                         ⇔                                                                                              1=1       □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; \left (1 - \tan \alpha \right )^2 + \left (1 - \cot \alpha \right )^2 &amp;= \left (\sec \alpha - \csc \alpha \right )^2\\ &amp;\Leftrightarrow &amp; 1 - 2\tan \alpha + \tan
+^2\alpha + 1 - 2\cot \alpha + \cot ^2\alpha \hspace {-8em}\\ &amp;&amp;&amp;= \sec ^2\alpha - 2\sec \alpha \csc \alpha + \csc ^2\alpha \\ &amp;\Leftrightarrow &amp; \left (1 + \tan ^2\alpha
+\right ) - 2\tan \alpha + \left (1 + \cot ^2\alpha \right ) - 2\cot \alpha \hspace {-8em}\\ &amp;&amp;&amp;= \frac {1}{\cos ^2\alpha } + \frac {1}{\sin ^2\alpha } - 2\,\frac {1}{\cos \alpha
+}\frac {1}{\sin \alpha }\\ &amp;\Leftrightarrow &amp; \frac {1}{\cos ^2\alpha } - 2\tan \alpha + \frac {1}{\sin ^2\alpha } - 2\cot \alpha \hspace {-8em}\\ &amp;&amp;&amp;= \frac {1}{\cos
+^2\alpha } + \frac {1}{\sin ^2\alpha } - \frac {2}{\cos \alpha \sin \alpha }\\ &amp;\Leftrightarrow &amp; -2\left (\tan \alpha + \cot \alpha \right ) &amp;= -\frac {2}{\cos \alpha \sin \alpha
+}\\ &amp;\Leftrightarrow &amp; \frac {\sin \alpha }{\cos \alpha } + \frac {\cos \alpha }{\sin \alpha } &amp;= \frac {1}{\cos \alpha \sin \alpha }\\ &amp;\Leftrightarrow &amp; \frac {\sin
+^2\alpha + \cos ^2\alpha }{\cos \alpha \sin \alpha } &amp;= \frac {1}{\cos \alpha \sin \alpha }\\ &amp;\Leftrightarrow &amp; 1 &amp;= 1 \qquad \square
+\end{align*}
+Hierbij gebruikten we \(1 + \tan ^2\alpha = \dfrac {1}{\cos ^2\alpha }\) en \(1 + \cot ^2\alpha = \dfrac {1}{\sin ^2\alpha }\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                            1        1
+                                                                                                −             3        3
+                                                                                    LL = cos  α    sin α · sin α + cos α
+                                                                                            1                 2        2
+                                                                                                − sin α sin α − cos α
+                                                                                          cos α
+                                                                                                 sin α − cos α                   sin3 α + cos3 α
+                                                                                       =                             ·
+                                                                                                         1               (sin α − cos α) (sin α + cos α)
+                                                                                         sin α cos α          − sin α
+                                                                                                       cos α
+                                                                                                             sin3 α + cos3 α
+                                                                                        =
+                                                                                                 sin α (1 − sin α cos α) (sin α + cos α)
+
+-->
+
+<p>
+
+\begin{align*}
+LL &amp;= \frac {\dfrac {1}{\cos \alpha } - \dfrac {1}{\sin \alpha }}{\dfrac {1}{\cos \alpha } - \sin \alpha } \cdot \frac {\sin ^3\alpha + \cos ^3\alpha }{\sin ^2\alpha - \cos ^2\alpha }\\
+&amp;= \frac {\sin \alpha - \cos \alpha }{\sin \alpha \cos \alpha \left (\dfrac {1}{\cos \alpha } - \sin \alpha \right )} \cdot \frac {\sin ^3\alpha + \cos ^3\alpha } {\left (\sin \alpha -
+\cos \alpha \right )\left (\sin \alpha + \cos \alpha \right )}\\ &amp;= \frac {\sin ^3\alpha + \cos ^3\alpha } {\sin \alpha \left (1 - \sin \alpha \cos \alpha \right )\left (\sin \alpha + \cos
+\alpha \right )}
+\end{align*}
+Dit is gelijk aan \(RL = \csc \alpha = \dfrac {1}{\sin \alpha }\) als
+</p>
+<p>
+\[ \frac {\sin ^3\alpha + \cos ^3\alpha }{\left (1 - \sin \alpha \cos \alpha \right )\left (\sin \alpha + \cos \alpha \right )} = 1, \]
+</p>
+<p>
+en dat klopt:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                    ⇔                                                                       sin3 α + cos3 α = (1 − sin α cos α) (sin α + cos α)
+                                                                                                                         1 − cos2 α sin α + 1 − sin2 α cos α
+                                                                                                                                                       
+                                                    ⇔
+                                                                                                                                               = sin α + cos α − sin2 α cos α − sin α cos2 α
+                                                    ⇔                                                               sin α − cos2 α sin α + cos α − sin2 α cos α
+                                                                                                                                               = sin α + cos α − sin2 α cos α − sin α cos2 α          □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\Leftrightarrow &amp; \sin ^3\alpha + \cos ^3\alpha &amp;= \left (1 - \sin \alpha \cos \alpha \right )\left (\sin \alpha + \cos \alpha \right )\\ &amp;\Leftrightarrow &amp; \left (1 -
+\cos ^2\alpha \right )\sin \alpha + \left (1 - \sin ^2\alpha \right )\cos \alpha \hspace {-8em}\\ &amp;&amp;&amp;= \sin \alpha + \cos \alpha - \sin ^2\alpha \cos \alpha - \sin \alpha \cos
+^2\alpha \\ &amp;\Leftrightarrow &amp; \sin \alpha - \cos ^2\alpha \sin \alpha + \cos \alpha - \sin ^2\alpha \cos \alpha \hspace {-8em}\\ &amp;&amp;&amp;= \sin \alpha + \cos \alpha - \sin
+^2\alpha \cos \alpha - \sin \alpha \cos ^2\alpha \qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                            2
+                                                        LL = 12 + 2 · 1 · cot2 α + cot2 α
+                                                                          2
+                                                           = 1 + cot2 α                                                                                           A2 + 2AB + B 2 = (A + B)2
+                                                                                                                                                                                                  
+
+                                                                     2
+                                                                  1
+                                                                                                                                                                  cot2 α + 1 = sin12 α
+                                                                                                                                                                                          
+                                                           =
+                                                               sin2 α
+                                                                    2
+                                                           = csc2 α
+                                                             = csc4 α
+                                                             = RL        □
+
+
+-->
+
+<p>
+
+\begin{align*}
+LL &amp;= 1^2 + 2\cdot 1\cdot \cot ^2\alpha + \left (\cot ^2\alpha \right )^2\\ &amp;= \left (1 + \cot ^2\alpha \right )^2 &amp;&amp; \left (A^2 + 2AB + B^2 = (A+B)^2\right )\\ &amp;= \left
+(\frac {1}{\sin ^2\alpha }\right )^2 &amp;&amp; \left (\cot ^2\alpha + 1 = \tfrac {1}{\sin ^2\alpha }\right )\\ &amp;= \left (\csc ^2\alpha \right )^2\\ &amp;= \csc ^4\alpha \\ &amp;= RL
+\qquad \square
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                   sin α     csc α − 1
+                                                                                                           =
+                                                                                                 1 + sin α    cot2 α
+                                           ⇔                                                sin α cot2 α = (csc α − 1) (1 + sin α)                                                               (kruisproduct)
+                                                                                                       2
+                                                                                                    cos α
+                                           ⇔                                                               = csc α + csc α sin α − 1 − sin α
+                                                                                                     sin α
+                                                                                                    cos2 α     1
+                                           ⇔                                                               =       + 1 − 1 − sin α
+                                                                                                     sin α   sin α
+                                                                                                    cos2 α   1 − sin2 α
+                                           ⇔                                                               =
+                                                                                                     sin α      sin α
+                                           ⇔                                                        cos2 α = 1 − sin2 α      □
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; \frac {\sin \alpha }{1 + \sin \alpha } &amp;= \frac {\csc \alpha - 1}{\cot ^2\alpha }\\ &amp;\Leftrightarrow &amp; \sin \alpha \cot ^2\alpha &amp;= \left (\csc \alpha - 1\right
+)\left (1 + \sin \alpha \right ) &amp;&amp;(\text {kruisproduct})\\ &amp;\Leftrightarrow &amp; \frac {\cos ^2\alpha }{\sin \alpha } &amp;= \csc \alpha + \csc \alpha \sin \alpha - 1 - \sin
+\alpha \\ &amp;\Leftrightarrow &amp; \frac {\cos ^2\alpha }{\sin \alpha } &amp;= \frac {1}{\sin \alpha } + 1 - 1 - \sin \alpha \\ &amp;\Leftrightarrow &amp; \frac {\cos ^2\alpha }{\sin \alpha
+} &amp;= \frac {1 - \sin ^2\alpha }{\sin \alpha }\\ &amp;\Leftrightarrow &amp; \cos ^2\alpha &amp;= 1 - \sin ^2\alpha \qquad \square
+\end{align*}
+wegens de grondformule.
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 8 ......
+-->
+<h5 id="autosec-75">Oefening 8</h5>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+Bepaal \(\sin \alpha \) en \(\cos \alpha \) als
+</p>
+
+<p>
+\[\left ( \sin \alpha + \cos \alpha \right )^2 = 0.04\]
+</p>
+
+<div class="oplossing">
+
+<p>
+<span class="hint">(Moeilijkere oefening.)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                                2
+                                                                                                                                (sin α + cos α) = 0,04
+                                                    ⇔                                                             sin2 α + cos2 α + 2 sin α cos α = 0,04
+                                                    ⇔                                                                           1 + 2 sin α cos α = 0,04
+                                                                                                                                                     0,04 − 1             12
+                                                    ⇔                                                                                sin α cos α =            = −0,48 = −
+                                                                                                                                                        2                 25
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; \left (\sin \alpha + \cos \alpha \right )^2 &amp;= 0{,}04\\ &amp;\Leftrightarrow &amp; \sin ^2\alpha + \cos ^2\alpha + 2\sin \alpha \cos \alpha &amp;= 0{,}04\\ &amp;\Leftrightarrow
+&amp; 1 + 2\sin \alpha \cos \alpha &amp;= 0{,}04\\ &amp;\Leftrightarrow &amp; \sin \alpha \cos \alpha &amp;= \frac {0{,}04 - 1}{2} = -0{,}48 = -\frac {12}{25}
+\end{align*}
+Uit de grondformule volgt \(\cos \alpha = \pm \sqrt {1 - \sin ^2\alpha }\), dus
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                               p                    12
+                                        ⇔                                            ± sin α       1 − sin2 α = −
+                                                                                                                    25
+                                                                                               p                     12
+                                        ⇔                                                 ±        1 − sin2 α = −    25
+                                                                                                                                                                           (α ̸= 90◦ , α ̸= −90◦ )
+                                                                                                                    sin α
+                                                                                                                   144
+                                        ⇔                                                          1 − sin2 α =    625
+                                                                                                                    2                                                      (kwadrateren)
+                                                                                                                  sin α
+                                                                                                        144
+                                        ⇔                                        − sin4 α + sin2 α −        =0
+                                                                                                        625
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Leftrightarrow &amp; \pm \sin \alpha \sqrt {1 - \sin ^2\alpha } &amp;= -\frac {12}{25}\\ &amp;\Leftrightarrow &amp; \pm \sqrt {1 - \sin ^2\alpha } &amp;= -\frac {\frac {12}{25}}{\sin
+\alpha } &amp;&amp; (\alpha \neq 90\degree ,\ \alpha \neq -90\degree )\\ &amp;\Leftrightarrow &amp; 1 - \sin ^2\alpha &amp;= \frac {\frac {144}{625}}{\sin ^2\alpha } &amp;&amp; (\text
+{kwadrateren})\\ &amp;\Leftrightarrow &amp; -\sin ^4\alpha + \sin ^2\alpha - \frac {144}{625} &amp;= 0
+\end{align*}
+Stel \(\sin ^2\alpha = t\):
+</p>
+
+<p>
+\[ t^2 - t + \frac {144}{625} = 0,\qquad D = 1 - 4\cdot \frac {144}{625} = \frac {49}{625},\qquad \sqrt {D} = \frac {7}{25}, \]
+</p>
+
+<p>
+\[ t_1 = \frac {1 - \frac {7}{25}}{2} = \frac {9}{25},\qquad t_2 = \frac {1 + \frac {7}{25}}{2} = \frac {16}{25}.                      \]
+</p>
+
+<p>
+Dus
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                                9                     16
+                                                           ⇔                                                                        sin2 α =         of    sin2 α =
+                                                                                                                                               25                     25
+                                                                                                                                                3                      4
+                                                           ⇔                                                                        sin α = ±        of    sin α = ±
+                                                                                                                                                5                      5
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Leftrightarrow &amp; \sin ^2\alpha = \frac {9}{25} \quad &amp;\text {of}\quad \sin ^2\alpha = \frac {16}{25}\\ &amp;\Leftrightarrow &amp; \boxed {\sin \alpha = \pm \frac {3}{5}} \quad
+&amp;\text {of}\quad \boxed {\sin \alpha = \pm \frac {4}{5}}
+\end{align*}
+De bijhorende \(\cos \alpha \) vinden we met \(\cos \alpha = \pm \sqrt {1 - \sin ^2\alpha }\), waarbij \(\sin \alpha \cos \alpha = -\frac {12}{25} &lt; 0\): sinus en cosinus hebben dus een tegengesteld teken.
+Dat geeft \(4\) oplossingen:
+</p>
+
+<p>
+\[ \left (\sin \alpha , \cos \alpha \right ) \in \left \{ \left (\tfrac {3}{5}, -\tfrac {4}{5}\right ), \left (-\tfrac {3}{5}, \tfrac {4}{5}\right ), \left (\tfrac {4}{5}, -\tfrac {3}{5}\right
+), \left (-\tfrac {4}{5}, \tfrac {3}{5}\right ) \right \}. \]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 9 ......
+-->
+<h5 id="autosec-76">Oefening 9</h5>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<p>
+Gegeven
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                  x = tan θ + cot θ
+                                                                                                  y = tan θ − cot θ
+                                                                                                  z=2
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x &amp;= \tan \theta + \cot \theta \\ y &amp;= \tan \theta - \cot \theta \\ z &amp;= 2
+\end{align*}
+Bepaal \(x^2 + y^2 + z^2\).
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                             2                    2
+                                                               x2 + y 2 + z 2 = (tan θ + cot θ) + (tan θ − cot θ) + 22
+                                                                              = tan2 θ + 2      cot θ + cot2 θ + tan2 θ − 2     cot θ + cot2 θ + 4
+                                                                                                  (
+                                                                                                  (                               (
+                                                                                                                                  (
+                                                                                         (tan
+                                                                                           ((  θ(                         (tan
+                                                                                                                            (( θ(
+                                                                            = 2 tan2 θ + 2 cot2 θ + 4
+                                                                            = 2 tan2 θ + cot2 θ + 2
+                                                                                                     
+
+                                                                            = 2 1 + tan2 θ + 1 + cot2 θ
+                                                                                                          
+                                                                                               
+                                                                                   1        1
+                                                                            =2         +
+                                                                                 cos2 θ sin2 θ
+                                                                                sin2 θ + cos2 θ
+                                                                            =2
+                                                                                  cos2 θ sin2 θ
+                                                                                      1
+                                                                            =2
+                                                                                cos θ sin2 θ
+                                                                                    2
+
+                                                                            = 2 sec2 θ csc2 θ
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2 + y^2 + z^2 &amp;= \left (\tan \theta + \cot \theta \right )^2 + \left (\tan \theta - \cot \theta \right )^2 + 2^2\\ &amp;= \tan ^2\theta + \cancel {2\tan \theta \cot \theta } + \cot
+^2\theta + \tan ^2\theta - \cancel {2\tan \theta \cot \theta } + \cot ^2\theta + 4\\ &amp;= 2\tan ^2\theta + 2\cot ^2\theta + 4\\ &amp;= 2\left (\tan ^2\theta + \cot ^2\theta + 2\right )\\
+&amp;= 2\left (1 + \tan ^2\theta + 1 + \cot ^2\theta \right )\\ &amp;= 2\left (\frac {1}{\cos ^2\theta } + \frac {1}{\sin ^2\theta }\right )\\ &amp;= 2\,\frac {\sin ^2\theta + \cos ^2\theta
+}{\cos ^2\theta \sin ^2\theta }\\ &amp;= 2\,\frac {1}{\cos ^2\theta \sin ^2\theta }\\ &amp;= 2\sec ^2\theta \csc ^2\theta
+\end{align*}
+Hierbij gebruikten we \(1 + \tan ^2\theta = \dfrac {1}{\cos ^2\theta }\) en \(1 + \cot ^2\theta = \dfrac {1}{\sin ^2\theta }\).
+</p>
+</div>
+<!--
+...... subsection Oefening 10 ......
+-->
+<h5 id="autosec-77">Oefening 10</h5>
+<a id="mkpiweb-autopage-77"></a>
+
+
+<p>
+Vereenvoudig, neem aan dat \(\alpha \) zodanig is dat de uitdrukking zinvol is.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\dfrac {\cos (90\degree - \alpha )}{\tan (180\degree + \alpha )}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\dfrac {\sin (\frac {\pi }{2} - \alpha )\cdot \cos (2\pi + \alpha )\cdot \cot (\frac {\pi }{2} - \alpha )}{\tan (\pi - \alpha )\cdot \cot (\alpha + \pi
+)\cdot \cos (-\alpha )}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\dfrac {\sec ( - \alpha ) \cdot \tan (\alpha - 90\degree )}{\sin (540\degree - \alpha )}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\dfrac {\sin (\frac {\pi }{2} - \alpha )\cdot \sin (\pi + \alpha )}{\cos (\frac {\pi }{2} + \alpha )\cdot \cos (\pi - \alpha )} + \dfrac {\sin (3\pi -
+\alpha )\cdot \tan (\alpha - \frac {\pi }{2})}{\cot (\alpha + \pi )\cdot \cos (\frac {3\pi }{2} - \alpha )}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\dfrac {\cos ( \frac {\pi }{2} + \alpha ) \cdot \tan (\frac {3\pi }{2} + \alpha )}{\sin (\frac {3\pi }{2} - \alpha )\cdot \sin (\frac {35\pi }{2})}\)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<p>
+Teken telkens de goniometrische cirkel om de verwante hoeken te herleiden.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                            cos(90◦ − α)        sin α
+                                                                                                         =
+                                                                                           tan(180◦ + α)   sin(180◦ + α)
+                                                                                                           cos(180◦ + α)
+                                                                                                                  sin α
+                                                                                                              =
+                                                                                                                 − sin α
+                                                                                                                 − cos α
+                                                                                                                        cos α
+                                                                                                              = sin α ·
+                                                                                                                        sin α
+                                                                                                              = cos α
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {\cos (90\degree - \alpha )}{\tan (180\degree + \alpha )} &amp;= \frac {\sin \alpha }{\dfrac {\sin (180\degree + \alpha )}{\cos (180\degree + \alpha )}}\\ &amp;= \frac {\sin \alpha
+}{\dfrac {-\sin \alpha }{-\cos \alpha }}\\ &amp;= \sin \alpha \cdot \frac {\cos \alpha }{\sin \alpha }\\ &amp;= \cos \alpha
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Met \(\cos (-\alpha ) = \cos \alpha \), \(\sin (\frac {\pi }{2} - \alpha ) = \cos \alpha \), \(\cos (\frac {\pi }{2} - \alpha ) = \sin \alpha \), \(\sin (\pi -
+\alpha ) = \sin \alpha \) en \(\cos (\pi - \alpha ) = -\cos \alpha \):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                          sin( π2 − α) cos(2π + α) cot( π2 − α)
+                                                                                            tan(π − α) cot(α + π) cos(−α)
+                                                                                                          cos( π2 − α)
+                                                                                                cos α · cos α ·
+                                                                                                           sin( π2 − α)
+                                                                                          =
+                                                                                            sin(π − α) cos(α + π)
+                                                                                                      ·             · cos α
+                                                                                            cos(π − α) sin(α + π)
+                                                                                                     sin α
+                                                                                                cos α ·
+                                                                                          =          cos α
+                                                                                             sin α − cos α
+                                                                                                   ·
+                                                                                            − cos α − sin α
+                                                                                          = − sin α
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\frac {\sin (\frac {\pi }{2} - \alpha )\cos (2\pi + \alpha )\cot (\frac {\pi }{2} - \alpha )} {\tan (\pi - \alpha )\cot (\alpha + \pi )\cos (-\alpha )}\\ &amp;= \frac {\cos \alpha \cdot
+\cos \alpha \cdot \dfrac {\cos (\frac {\pi }{2} - \alpha )}{\sin (\frac {\pi }{2} - \alpha )}} {\dfrac {\sin (\pi - \alpha )}{\cos (\pi - \alpha )}\cdot \dfrac {\cos (\alpha + \pi )}{\sin
+(\alpha + \pi )}\cdot \cos \alpha }\\ &amp;= \frac {\cos \alpha \cdot \dfrac {\sin \alpha }{\cos \alpha }} {\dfrac {\sin \alpha }{-\cos \alpha }\cdot \dfrac {-\cos \alpha }{-\sin \alpha }}\\
+&amp;= -\sin \alpha
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> De hoeken worden eerst herleid modulo \(360\degree \), zodat \(540\degree - \alpha = 180\degree - \alpha \). Met \(\cos (-\alpha ) = \cos \alpha \), \(\sin (\alpha -
+90\degree ) = -\cos \alpha \), \(\cos (\alpha - 90\degree ) = \sin \alpha \) en \(\sin (180\degree - \alpha ) = \sin \alpha \):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                             1        sin(α − 90◦ )
+                                                                                                          ◦         ·
+                                                                                  sec(−α) tan(α − 90 )   cos(−α) cos(α − 90◦ )
+                                                                                                       =
+                                                                                      sin(540◦ − α)            sin(180◦ − α)
+                                                                                                           1      − cos α
+                                                                                                                ·
+                                                                                                       = cos α sin α
+                                                                                                               sin α
+                                                                                                             1
+                                                                                                         −
+                                                                                                       = sin α
+                                                                                                          sin α
+                                                                                                              1
+                                                                                                                       = − csc2 α
+                                                                                                                                  
+                                                                                                       =− 2
+                                                                                                           sin α
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {\sec (-\alpha )\tan (\alpha - 90\degree )}{\sin (540\degree - \alpha )} &amp;= \frac {\dfrac {1}{\cos (-\alpha )}\cdot \dfrac {\sin (\alpha - 90\degree )}{\cos (\alpha - 90\degree )}}
+{\sin (180\degree - \alpha )}\\ &amp;= \frac {\dfrac {1}{\cos \alpha }\cdot \dfrac {-\cos \alpha }{\sin \alpha }}{\sin \alpha }\\ &amp;= \frac {-\dfrac {1}{\sin \alpha }}{\sin \alpha }\\
+&amp;= -\frac {1}{\sin ^2\alpha } \quad \left (= -\csc ^2\alpha \right )
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                  sin( π2 − α) sin(π + α)   sin(3π − α) tan(α − π2 )
+                                                                                                          +
+                                                                                  cos( π2 + α) cos(π − α)   cot(α + π) cos( 3π
+                                                                                                                             2 − α)
+                                                                                       cos α (− sin α)   sin α (− cot α)
+                                                                                  =                    +
+                                                                                      − sin α (− cos α) cot α (− sin α)
+                                                                                  = −1 + 1
+                                                                                  =0
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\frac {\sin (\frac {\pi }{2} - \alpha )\sin (\pi + \alpha )}{\cos (\frac {\pi }{2} + \alpha )\cos (\pi - \alpha )} + \frac {\sin (3\pi - \alpha )\tan (\alpha - \frac {\pi }{2})}{\cot
+(\alpha + \pi )\cos (\frac {3\pi }{2} - \alpha )}\\ &amp;= \frac {\cos \alpha \left (-\sin \alpha \right )}{-\sin \alpha \left (-\cos \alpha \right )} + \frac {\sin \alpha \left (-\cot \alpha
+\right )}{\cot \alpha \left (-\sin \alpha \right )}\\ &amp;= -1 + 1\\ &amp;= 0
+\end{align*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> Met \(\cos \left (\frac {\pi }{2} + \alpha \right ) = -\sin \alpha \), \(\tan \left (\frac {3\pi }{2} + \alpha \right ) = -\cot \alpha \), \(\sin \left (\frac
+{3\pi }{2} - \alpha \right ) = -\cos \alpha \) en
+</p>
+<p>
+\[ \sin \frac {35\pi }{2} = \sin \left (\frac {32\pi }{2} + \frac {3\pi }{2}\right ) = \sin \frac {3\pi }{2} = -1 \]
+</p>
+<p>
+vinden we
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                  cos π2 + α tan 3π
+                                                                                                           
+                                                                                                     2 + α     (− sin α) · (− cot α)
+                                                                                                              =
+                                                                                    sin 3π            35π
+                                                                                               
+                                                                                         2 − α   sin   2
+                                                                                                                  (− cos α) · (−1)
+                                                                                                                  =1
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {\cos \left (\frac {\pi }{2} + \alpha \right )\tan \left (\frac {3\pi }{2} + \alpha \right )} {\sin \left (\frac {3\pi }{2} - \alpha \right )\sin \left (\frac {35\pi }{2}\right )} &amp;=
+\frac {\left (-\sin \alpha \right )\cdot \left (-\cot \alpha \right )} {\left (-\cos \alpha \right )\cdot \left (-1\right )}\\ &amp;= 1
+\end{align*}
+<span class="hint">Opmerking: het antwoord in het handboek is fout. Vul maar eens een willekeurige hoek in voor \(\alpha \).</span>
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 11 ......
+-->
+<h5 id="autosec-78">Oefening 11</h5>
+<a id="mkpiweb-autopage-78"></a>
+
+
+<p>
+Bepaal \(\theta \)
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(- \sin \dfrac {5\pi }{12} = \sin \theta \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(- \cos 40\degree = \cos \theta \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(- \cos \dfrac {\pi }{5} = \cos \theta \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(- \tan \dfrac {\pi }{7} = \tan \theta \)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Op de goniometrische cirkel is \(-\sin \tfrac {5\pi }{12}\) de tegengestelde van de sinus van \(\tfrac {5\pi }{12}\), dus \(-\sin \tfrac {5\pi }{12} = \sin \left (-\tfrac
+{5\pi }{12}\right )\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                           5π
+                                                                                             sin θ = − sin
+                                                                                                           12
+                                                                                                              
+                                                                                                            5π
+                                                                                                   = sin −
+                                                                                                            12
+                                                                                                                    
+                                                                                                            5π
+                                                                                                   = sin −     + 2π
+                                                                                                            12
+                                                                                                                  
+                                                                                                               5π
+                                                                                                   = sin 2π −
+                                                                                                                12
+                                                                                                          19π
+                                                                                                  = sin
+                                                                                                           12
+
+-->
+
+<p>
+
+\begin{align*}
+\sin \theta &amp;= -\sin \frac {5\pi }{12}\\ &amp;= \sin \left (-\frac {5\pi }{12}\right )\\ &amp;= \sin \left (-\frac {5\pi }{12} + 2\pi \right )\\ &amp;= \sin \left (2\pi - \frac {5\pi
+}{12}\right )\\ &amp;= \sin \frac {19\pi }{12}
+\end{align*}
+Maar ook de antisupplementaire redenering geeft een oplossing: \(\sin \left (\pi + \tfrac {5\pi }{12}\right ) = -\sin \tfrac {5\pi }{12}\), dus \(\theta = \tfrac {17\pi }{12}\) voldoet eveneens.
+</p>
+<p>
+\[ \theta = \frac {17\pi }{12} + k\cdot 2\pi \quad \text {of}\quad \theta = \frac {19\pi }{12} + k\cdot 2\pi , \qquad k \in \mathbb {Z} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Op de goniometrische cirkel is \(-\cos 40\degree \) de tegengestelde van de cosinus van \(40\degree \):
+</p>
+<p>
+\[ \theta = 180\degree - 40\degree = 140\degree \quad \text {of}\quad \theta = 180\degree + 40\degree = 220\degree , \]
+</p>
+<p>
+dus
+</p>
+<p>
+\[ \theta = 140\degree + k\cdot 360\degree \quad \text {of}\quad \theta = 220\degree + k\cdot 360\degree , \qquad k \in \mathbb {Z} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Op de goniometrische cirkel is \(-\cos \tfrac {\pi }{5}\) de tegengestelde van de cosinus van \(\tfrac {\pi }{5}\), dus \(-\cos \tfrac {\pi }{5} = \cos \left (\pi - \tfrac
+{\pi }{5}\right )\):
+</p>
+<p>
+\[ \theta = \pi - \frac {\pi }{5} = \frac {4\pi }{5} \quad \text {of}\quad \theta = \pi + \frac {\pi }{5} = \frac {6\pi }{5}, \]
+</p>
+<p>
+dus
+</p>
+<p>
+\[ \theta = \frac {4\pi }{5} + k\cdot 2\pi \quad \text {of}\quad \theta = \frac {6\pi }{5} + k\cdot 2\pi , \qquad k \in \mathbb {Z} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Voor de tangens geldt \(-\tan \tfrac {\pi }{7} = \tan \left (-\tfrac {\pi }{7}\right )\), en \(\tan \) heeft periode \(\pi \):
+</p>
+<p>
+\[ \theta = -\frac {\pi }{7} + k\cdot \pi , \qquad k \in \mathbb {Z} \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=60900c6e0182"></script>
+<script src="vendor/jsxgraphcore.js?v=60900c6e0182"></script>
+<script src="interactieve-grafieken.js?v=60900c6e0182"></script>
+<script src="hoofdstuk.interactief.js?v=60900c6e0182"></script>
+</body>
+</html>

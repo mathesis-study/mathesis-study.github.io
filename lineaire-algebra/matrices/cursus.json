@@ -1,0 +1,30 @@
+{
+ "titel": "Matrices",
+ "hoofdstuk": 1,
+ "code": "L01",
+ "vak": "Wiskunde",
+ "domein": "LineaireAlgebra",
+ "domeinnaam": "Lineaire algebra",
+ "url": "lineaire-algebra/matrices",
+ "secties": [
+  "Inleiding",
+  "Definitie",
+  "Enkele bijzondere matrices",
+  "Gelijke matrices",
+  "Tegengestelde matrices",
+  "Getransponeerde van een matrix",
+  "Oefeningen",
+  "Som van \\(m\\by n\\)-matrices",
+  "Product van een matrix met een reëel getal",
+  "Oefeningen",
+  "Product van matrices",
+  "Toepassingen"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.12",
+  "WD3_06.08.13"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": false
+}

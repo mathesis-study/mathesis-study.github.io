@@ -1,0 +1,1407 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>T -Formules en Formules van Simpson</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 4</p> <h1>T&#x202f;-Formules en Formules van Simpson</h1> </header>
+</p>
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-2">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.18</b> (MD 06.08.13) De leerlingen lossen eenvoudige <span class="leerplan-grijs">veeltermvergelijkingen</span>, <span class="leerplan-grijs">rationale
+vergelijkingen</span>, <span class="leerplan-grijs">irrationale vergelijkingen</span>, <span class="leerplan-grijs">exponentie&#x0308;le vergelijkingen</span>, <span class="leerplan-grijs">logaritmische
+vergelijkingen</span> en goniometrische vergelijkingen algebraı&#x0308;sch op.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">deling van veeltermen</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">deling door \((x-a)\)</span>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.22</b> (MD 06.08.23) De leerlingen gebruiken goniometrische formules om uitdrukkingen te vereenvoudigen.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: formules: som- en verschilformules, verdubbelingsformules
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Wat ga je leren? ......
+-->
+<h4 id="autosec-3">Wat ga je leren?</h4>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>T&#x202f;-formules:</b> schrijf \(\sin \alpha \), \(\cos \alpha \), \(\tan \alpha \) in functie van \(t=\tan \dfrac {\alpha }{2}\) en los vergelijkingen op via een
+<em>kwadratische</em> in \(t\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Formules van Simpson:</b> zet sommen om naar producten en omgekeerd (handig om te vereenvoudigen en vergelijkingen op te lossen).
+</p>
+</li>
+</ul>
+<!--
+...... section T--formules (universele t-substitutie) ......
+-->
+<h4 id="autosec-4"><span class="sectionnumber">I&#x2003;</span>T&#x202f;-formules (universele t-substitutie)</h4>
+<a id="mkpiweb-autopage-4"></a>
+
+
+<p>
+We zetten
+</p>
+
+<p>
+\[ \boxed {\ t=\tan \frac {\alpha }{2}\ }\qquad (\text {dus } \alpha =2\arctan t).       \]
+</p>
+
+<p>
+Dan gelden de <em>t&#x202f;-formules</em>
+</p>
+
+<p>
+\[ \boxed {\ \sin \alpha =\frac {2t}{1+t^2}\ },\qquad \boxed {\ \cos \alpha =\frac {1-t^2}{1+t^2}\ },\qquad \boxed {\ \tan \alpha =\frac {2t}{1-t^2}\ }.   \]
+</p>
+
+<p>
+(Voorwaarden: \(1+t^2\neq 0\) (altijd waar) en \(1-t^2\neq 0\) voor \(\tan \alpha \).)
+</p>
+<!--
+......   paragraph Bewijs (via halve-hoek).     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-5">Bewijs (via halve-hoek).</span>
+<a id="mkpiweb-autopage-5"></a>
+Vertrek van de verdubbelingsformules met \(\alpha =2\theta \) en neem \(t=\tan \theta \):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                      2 tan θ     2t
+                                                                                sin α = sin(2θ) = 2 sin θ cos θ =           2 =        ,
+                                                                                                                    1 + tan θ   1 + t2
+                                                                                                                       1 − tan2 θ   1 − t2
+                                                                                cos α = cos(2θ) = cos2 θ − sin2 θ =           2   =        ,
+                                                                                                                       1 + tan θ    1 + t2
+                                                                                          sin α     2t
+                                                                                tan α =         =        .
+                                                                                          cos α   1 − t2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\sin \alpha &amp;=\sin (2\theta )=2\sin \theta \cos \theta =\frac {2\tan \theta }{1+\tan ^2\theta } =\frac {2t}{1+t^2},\\ \cos \alpha &amp;=\cos (2\theta )=\cos ^2\theta -\sin ^2\theta =\frac
+{1-\tan ^2\theta }{1+\tan ^2\theta } =\frac {1-t^2}{1+t^2},\\ \tan \alpha &amp;=\frac {\sin \alpha }{\cos \alpha } =\frac {2t}{1-t^2}.
+\end{align*}
+&#x2003;&#x2003;<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+□
+--><img
+    src="mkpiweb-images/3752916C171806A9F7C6944BE55310EA.svg"
+    alt="(math image)"
+    role="math"
+    style="width:0.91205em"
+    class="lateximage"
+></span>
+</p>
+<!--
+......   paragraph Handige omkeringen.   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-8">Handige omkeringen.</span>
+<a id="mkpiweb-autopage-8"></a>
+Uit \(\sin \alpha =\dfrac {2t}{1+t^2}\) en \(\cos \alpha =\dfrac {1-t^2}{1+t^2}\) volgt ook
+</p>
+
+<p>
+\[ \boxed {\ t=\frac {\sin \alpha }{1+\cos \alpha }=\frac {1-\cos \alpha }{\sin \alpha }\ }\quad (\sin \alpha \neq 0 \text { voor de tweede vorm}).   \]
+</p>
+<!--
+...... subsection Toepassing: vergelijkingen oplossen met ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">1&#x2003;</span>Toepassing: vergelijkingen oplossen met \(t=\tan \dfrac {\alpha }{2}\)</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-10">Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+Los op in \(\mathbb {R}\):
+</p>
+
+<p>
+\[ \sin \alpha +\cos \alpha =\tfrac {3}{2}.       \]
+</p>
+
+<p>
+<b>Oplossing.</b> Schrijf in functie van \(t\):
+</p>
+
+<p>
+\[ \sin \alpha +\cos \alpha =\frac {2t}{1+t^2}+\frac {1-t^2}{1+t^2} =\frac {1+2t-t^2}{1+t^2} =\frac {3}{2}.   \]
+</p>
+
+<p>
+Kruislings vermenigvuldigen:
+</p>
+
+<p>
+\[ 2(1+2t-t^2)=3(1+t^2) \ \Leftrightarrow \ 2+4t-2t^2=3+3t^2 \]
+</p>
+
+<p>
+\[ \Leftrightarrow \ 0=3+3t^2-2-4t+2t^2 =5t^2-4t+1.      \]
+</p>
+
+<p>
+\[ 5t^2-4t+1=0\ \Rightarrow \ t=\frac {4\pm \sqrt {16-20}}{10}=\frac {4\pm \sqrt {-4}}{10} \]
+</p>
+
+<p>
+Geen ree&#x0308;le oplossingen voor \(t\) \(\Rightarrow \) <em>geen ree&#x0308;le \(\alpha \)</em>.<br />
+(Controle: \(\sin \alpha +\cos \alpha \le \sqrt {2}&lt;\tfrac {3}{2}\).)
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-11">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+Los op in \(\mathbb {R}\):
+</p>
+
+<p>
+\[ \tan \alpha + \sec \alpha =2, \quad \sec \alpha =\frac {1}{\cos \alpha }.    \]
+</p>
+
+<p>
+<b>Oplossing.</b> In \(t\):
+</p>
+
+<p>
+\[ \tan \alpha =\frac {2t}{1-t^2},\qquad \sec \alpha =\frac {1+t^2}{1-t^2}.    \]
+</p>
+
+<p>
+Dan
+</p>
+
+<p>
+\[ \frac {2t}{1-t^2}+\frac {1+t^2}{1-t^2}=2 \ \Leftrightarrow \ \frac {1+t^2+2t}{1-t^2}=2 \ \Leftrightarrow \ 1+t^2+2t=2(1-t^2).   \]
+</p>
+
+<p>
+Dus
+</p>
+
+<p>
+\[ 1+t^2+2t=2-2t^2 \ \Leftrightarrow \ 3t^2+2t-1=0 \ \Rightarrow \ t=\frac {-2\pm \sqrt {4+12}}{6}=\frac {-2\pm 4}{6}.      \]
+</p>
+
+<p>
+\[ t=\frac {1}{3}\quad \text {of}\quad t=-1.    \]
+</p>
+
+<p>
+Terug naar \(\alpha \) via \(t=\tan \dfrac {\alpha }{2}\):
+</p>
+
+<p>
+\[ \boxed {\ \tan \frac {\alpha }{2}=\frac {1}{3}\quad \text {of}\quad \tan \frac {\alpha }{2}=-1\ }.   \]
+</p>
+
+<p>
+Dus
+</p>
+
+<p>
+\[ \frac {\alpha }{2}=\arctan \!\frac {1}{3}+k\pi \ \Rightarrow \ \alpha =2\arctan \!\frac {1}{3}+2k\pi , \]
+</p>
+
+<p>
+\[ \frac {\alpha }{2}=-\frac {\pi }{4}+k\pi \ \Rightarrow \ \alpha =-\frac {\pi }{2}+2k\pi ,\qquad k\in \mathbb {Z}.   \]
+</p>
+<!--
+......   paragraph Oefeningen.   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-12">Oefeningen.</span>
+<a id="mkpiweb-autopage-12"></a>
+Los op in \(\mathbb {R}\) met \(t=\tan \dfrac {\alpha }{2}\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\sin \alpha =\dfrac {3}{5}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\cos \alpha -\sin \alpha =\dfrac {1}{2}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(2\sin \alpha =\tan \alpha \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\dfrac {1-\cos \alpha }{\sin \alpha }=\dfrac {1}{3}\)
+</p>
+</li>
+</ul>
+<!--
+...... section Formules van Simpson (som--product en product--som) ......
+-->
+<h4 id="autosec-13"><span class="sectionnumber">II&#x2003;</span>Formules van Simpson (som–product en product–som)</h4>
+<a id="mkpiweb-autopage-13"></a>
+<!--
+...... subsection Som product ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">1&#x2003;</span>Som \(\leftrightarrow \) product</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+\[ \boxed {\ \sin A+\sin B=2\sin \frac {A+B}{2}\cos \frac {A-B}{2}\ } \]
+</p>
+
+<p>
+\[ \boxed {\ \sin A-\sin B=2\cos \frac {A+B}{2}\sin \frac {A-B}{2}\ } \]
+</p>
+
+<p>
+\[ \boxed {\ \cos A+\cos B=2\cos \frac {A+B}{2}\cos \frac {A-B}{2}\ } \]
+</p>
+
+<p>
+\[ \boxed {\ \cos A-\cos B=-2\sin \frac {A+B}{2}\sin \frac {A-B}{2}\ } \]
+</p>
+<!--
+......   paragraph Bewijs (voorbeeld).   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-15">Bewijs (voorbeeld).</span>
+<a id="mkpiweb-autopage-15"></a>
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                     
+                                                                                                A+B
+                                                                      sin A + sin B = sin        2  + A−B
+                                                                                                       2        + sin       A+B
+                                                                                                                             2  − A−B
+                                                                                                                                   2
+
+                                                                                   = sin u cos v + cos u sin v + sin u cos v − cos u sin v
+                                                                                                                A+B     A−B
+                                                                                   = 2 sin u cos v = 2 sin          cos     .
+                                                                                                                 2       2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\sin A+\sin B &amp;=\sin \!\Big (\tfrac {A+B}{2}+\tfrac {A-B}{2}\Big ) +\sin \!\Big (\tfrac {A+B}{2}-\tfrac {A-B}{2}\Big )\\ &amp;= \sin u\cos v+\cos u\sin v+\sin u\cos v-\cos u\sin v\\
+&amp;=2\sin u\cos v =2\sin \frac {A+B}{2}\cos \frac {A-B}{2}.
+\end{align*}
+De andere formules analoog. &#x2003;&#x2003;<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+□
+--><img
+    src="mkpiweb-images/3752916C171806A9F7C6944BE55310EA.svg"
+    alt="(math image)"
+    role="math"
+    style="width:0.91205em"
+    class="lateximage"
+></span>
+</p>
+<!--
+...... subsection Product som ......
+-->
+<h5 id="autosec-18"><span class="sectionnumber">2&#x2003;</span>Product \(\leftrightarrow \) som</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+\[ \boxed {\ \sin A\sin B=\tfrac 12\bigl [\cos (A-B)-\cos (A+B)\bigr ]\ } \]
+</p>
+
+<p>
+\[ \boxed {\ \cos A\cos B=\tfrac 12\bigl [\cos (A-B)+\cos (A+B)\bigr ]\ } \]
+</p>
+
+<p>
+\[ \boxed {\ \sin A\cos B=\tfrac 12\bigl [\sin (A+B)+\sin (A-B)\bigr ]\ } \]
+</p>
+<!--
+......   paragraph Bewijs.    ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-19">Bewijs.</span>
+<a id="mkpiweb-autopage-19"></a>
+Volgt onmiddellijk door optellingsformules toe te passen op de rechterleden bij de som–productvormen (of begin met \(\cos (A\pm B)\) en herschik). &#x2003;&#x2003;<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+□
+--><img
+    src="mkpiweb-images/3752916C171806A9F7C6944BE55310EA.svg"
+    alt="(math image)"
+    role="math"
+    style="width:0.91205em"
+    class="lateximage"
+></span>
+</p>
+<!--
+...... subsection Toepassingen ......
+-->
+<h5 id="autosec-22"><span class="sectionnumber">3&#x2003;</span>Toepassingen</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Exacte waarden en vereenvoudigen ......
+-->
+<h6 id="autosec-23">Exacte waarden en vereenvoudigen</h6>
+<a id="mkpiweb-autopage-23"></a>
+<!--
+......   paragraph Voorbeeld 1.   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-24">Voorbeeld 1.</span>
+<a id="mkpiweb-autopage-24"></a>
+Bereken \(\sin 20^\circ +\sin 40^\circ \).
+</p>
+
+<p>
+\[ \sin 20^\circ +\sin 40^\circ =2\sin 30^\circ \cos 10^\circ =2\cdot \tfrac 12\cdot \cos 10^\circ =\boxed {\ \cos 10^\circ \ }.   \]
+</p>
+<!--
+......   paragraph Voorbeeld 2.     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-25">Voorbeeld 2.</span>
+<a id="mkpiweb-autopage-25"></a>
+Herschrijf \(\sin x+\sin 3x\) als product en los \(\sin x+\sin 3x=0\) op.
+</p>
+
+<p>
+\[ \sin x+\sin 3x =2\sin \frac {4x}{2}\cos \frac {-2x}{2} =2\sin (2x)\cos (-x) =2\sin (2x)\cos x.   \]
+</p>
+
+<p>
+Vergelijking \(2\sin (2x)\cos x=0\):
+</p>
+
+<p>
+\[ \sin (2x)=0\ \text { of }\ \cos x=0.       \]
+</p>
+
+<p>
+Dus \(2x=k\pi \) of \(x=\dfrac {\pi }{2}+k\pi \):
+</p>
+
+<p>
+\[ \boxed {\ x=\frac {k\pi }{2}\quad (k\in \mathbb {Z})\ }.         \]
+</p>
+
+<p>
+(Opmerking: dit omvat beide reeksen oplossingen.)
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Integraalvoorbereiding (algebraısch) ......
+-->
+<h6 id="autosec-26">Integraalvoorbereiding (algebraı&#x0308;sch)</h6>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+Zet \(\sin ^2 x\) om naar een som:
+</p>
+
+<p>
+\[ \sin ^2x=\tfrac 12(1-\cos 2x),\quad \cos ^2x=\tfrac 12(1+\cos 2x) \]
+</p>
+
+<p>
+(dit zijn de halveringsformules; nuttig voor gemiddelden en integralen).
+</p>
+<!--
+......   paragraph Oefeningen.   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-27">Oefeningen.</span>
+<a id="mkpiweb-autopage-27"></a>
+
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Schrijf \(\cos 7x-\cos 5x\) als product.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Vereenvoudig \(\sin 5x\cos 3x+\sin 3x\cos 5x\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Los op: \(\cos x+\cos 3x=1\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Toon aan: \(\sin A\sin B+\cos A\cos B=\cos (A-B)\) via Simpson.
+</p>
+</li>
+</ul>
+<!--
+...... section Combineren: t--formules en Simpson ......
+-->
+<h4 id="autosec-28"><span class="sectionnumber">III&#x2003;</span>Combineren: t&#x202f;-formules <em>en</em> Simpson</h4>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 3 ......
+-->
+<h6 id="autosec-29">Voorbeeld 3</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+Los op in \(\mathbb {R}\):
+</p>
+
+<p>
+\[ \sin \alpha +\sin 3\alpha =\tfrac {3}{2}.        \]
+</p>
+
+<p>
+<b>Stap 1 (Simpson).</b> \(\sin \alpha +\sin 3\alpha =2\sin (2\alpha )\cos \alpha \).
+</p>
+
+<p>
+\[ 2\sin (2\alpha )\cos \alpha =\tfrac {3}{2}.           \]
+</p>
+
+<p>
+<b>Stap 2 (t&#x202f;-formules).</b> Neem \(t=\tan \dfrac {\alpha }{2}\):
+</p>
+
+<p>
+\[ \sin (2\alpha )=\frac {4t(1-t^2)}{(1+t^2)^2},\qquad \cos \alpha =\frac {1-t^2}{1+t^2}.               \]
+</p>
+
+<p>
+Dus
+</p>
+
+<p>
+\[ 2\cdot \frac {4t(1-t^2)}{(1+t^2)^2}\cdot \frac {1-t^2}{1+t^2} =\frac {8t(1-t^2)^2}{(1+t^2)^3} =\frac {3}{2}.                   \]
+</p>
+
+<p>
+Kruisproduct:
+</p>
+
+<p>
+\[ 16t(1-t^2)^2=3(1+t^2)^3.     \]
+</p>
+
+<p>
+Dit geeft een (ree&#x0308;le) vergelijking van graad \(3\) in \(t\). Werk uit of gebruik CAS om wortels te vinden; hou enkel die \(t\) waarvoor de bijhorende \(\alpha =2\arctan t\) aan de beginvoorwaarde voldoet (en vermijd
+\(\cos \alpha =0\) bij terugrekenen).
+</p>
+<!--
+......   paragraph Oefening (uitwerking op apart blad).      ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-30">Oefening (uitwerking op apart blad).</span>
+<a id="mkpiweb-autopage-30"></a>
+Los exact op: \(\sin 2x+\sin 4x=1\).<br />
+(<em>Hint:</em> Simpson \(\Rightarrow \) product van \(\sin 3x\) en \(\cos x\); daarna t&#x202f;-formules of herschrijven met \(\sin 3x=3\sin x-4\sin ^3x\).)
+</p>
+<!--
+...... section Overzicht op één blik ......
+-->
+<h4 id="autosec-31">Overzicht op één blik</h4>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+\[ \boxed { \begin {aligned} t&amp;=\tan \frac {\alpha }{2},\\[0.2em] \sin \alpha &amp;=\frac {2t}{1+t^2},\quad \cos \alpha =\frac {1-t^2}{1+t^2},\quad \tan \alpha =\frac {2t}{1-t^2}. \end
+{aligned}} \qquad \boxed { \begin {aligned} \sin A\pm \sin B&amp;=2\sin \frac {A\pm B}{2}\cos \frac {A\mp B}{2},\\ \cos A+\cos B&amp;=2\cos \frac {A+B}{2}\cos \frac {A-B}{2},\\ \cos A-\cos
+B&amp;=-2\sin \frac {A+B}{2}\sin \frac {A-B}{2}. \end {aligned}} \]
+</p>
+<!--
+...... section Extra oefenset ......
+-->
+<h4 id="autosec-32">Extra oefenset</h4>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Zet om naar één sinus of cosinus met Simpson:
+</p>
+<p>
+\[ \sin 15^\circ +\sin 75^\circ ,\quad \cos 50^\circ -\cos 10^\circ . \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Herschrijf als som:
+</p>
+<p>
+\[ \sin 4x\cos x,\qquad \cos 2x\cos 5x. \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Los op in \(\mathbb {R}\):
+</p>
+<p>
+\[ \sin x+\cos x=1,\qquad \cos x+\cos 3x=0. \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Gebruik \(t=\tan \dfrac {x}{2}\):
+</p>
+<p>
+\[ 2\cos x=\tan x,\qquad \frac {1-\cos x}{\sin x}=\frac {1}{2}. \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<div class="cursusappendix"><a href="G04_tFormulesEnSimpson_Appendix.pdf" download="G04_tFormulesEnSimpson_Appendix.pdf"></a></div>
+<!--
+...... section Appendix: Geometrische gids voor ......
+-->
+<h4 id="autosec-33">Appendix: Geometrische gids voor \(t=\tan \dfrac {\alpha }{2}\)</h4>
+<a id="mkpiweb-autopage-33"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+y
+        x=1
+    P (cos α, sin α)
+
+
+
+        α/2T
+    α
+               t
+                       x
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Op de raaklijn \(x=1\) aan de eenheidscirkel is \(t\) precies de georie&#x0308;nteerde \(y\)-coo&#x0308;rdinaat van het snijpunt \(T\) van de halve-hoekstraal met die raaklijn. Hieruit kunnen de t&#x202f;-formules ook zuiver
+<em>geometrisch</em> afgeleid worden.
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

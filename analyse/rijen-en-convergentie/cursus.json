@@ -1,0 +1,25 @@
+{
+ "titel": "Rijen en convergentie",
+ "hoofdstuk": 11,
+ "code": "A11",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/rijen-en-convergentie",
+ "secties": [
+  "Rijen",
+  "Rekenkundige rijen (RR)",
+  "Meetkundige rijen (MR)",
+  "Harmonische rijen",
+  "Limiet van een rij",
+  "Convergentie van rijen"
+ ],
+ "leerplandoelen": [
+  "BV3_06.12",
+  "WD3_06.08.24",
+  "WD3_06.08.25.02"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

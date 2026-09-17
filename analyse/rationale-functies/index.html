@@ -1,0 +1,3003 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rationale functies</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 3</p> <h1>Rationale functies</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                   y
+
+          ax + b                               3
+f (x) =                               y = 2 + x−1
+          cx + d
+
+                                                    y=2
+                             y = x1
+                                                          x
+
+
+
+
+                       x=1
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.17</b> (MD 06.08.09) De leerlingen lossen vergelijkingen en ongelijkheden grafisch op.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.18</b> (MD 06.08.13) De leerlingen lossen eenvoudige <span class="leerplan-grijs">veeltermvergelijkingen</span>, rationale vergelijkingen, <span
+class="leerplan-grijs">irrationale vergelijkingen</span>, <span class="leerplan-grijs">exponentie&#x0308;le vergelijkingen</span>, <span class="leerplan-grijs">logaritmische vergelijkingen</span> en <span
+class="leerplan-grijs">goniometrische vergelijkingen</span> algebraı&#x0308;sch op.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: deling van veeltermen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: deling door \((x-a)\)
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.19</b> De leerlingen lossen eenvoudige <span class="leerplan-grijs">veeltermongelijkheden</span> en rationale ongelijkheden algebraı&#x0308;sch op.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: tekenonderzoek
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.21</b> (MD 06.08.07) De leerlingen leggen het verband tussen de grafiek en het voorschrift van een functie en haar kenmerken.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">veeltermfuncties</span>, rationale functies, <span class="leerplan-grijs">(elementaire) irrationale functies</span>, <span
+class="leerplan-grijs">exponentie&#x0308;le functies</span>, <span class="leerplan-grijs">logaritmische functies \(f(x)=\log _a(x)\)</span>, <span class="leerplan-grijs">goniometrische functies \(f(x)=\cos
+x\) en \(f(x)=\tan x\)</span>, <span class="leerplan-grijs">cyclometrische functies</span>, <span class="leerplan-grijs">absolute waardenfunctie</span>, <span class="leerplan-grijs">meervoudig
+functievoorschrift</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: domein, bereik, nulwaarden, tekenverloop, stijgen/dalen/constant, <span class="leerplan-grijs">extrema</span>, <span
+class="leerplan-grijs">constante/toenemende/afnemende stijging/daling</span>, <span class="leerplan-grijs">symmetrie</span>, <span class="leerplan-grijs">periode</span>, <span
+class="leerplan-grijs">amplitude</span>, asymptotisch gedrag, gedrag op oneindig
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.26</b> (MD 06.08.16) De leerlingen bepalen grafisch en algebraı&#x0308;sch limieten van functies en analyseren het asymptotisch gedrag.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: continuı&#x0308;teit
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: horizontaal, verticaal en schuin asymptotisch gedrag
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> rationale vergelijkingen, rationale ongelijkheden, rationale functies en homografische functies, domein en bereik, nulwaarden en polen, tekenverloop, grafisch en algebraı&#x0308;sch oplossen,
+stijgen en dalen, Euclidische deling van veeltermen, benaderen van rationale functies door veeltermfuncties, verticale, horizontale en schuine asymptoten, en toepassingen van rationale functies in context.
+</p>
+
+</div>
+<!--
+...... section Rationale vergelijkingen ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Rationale vergelijkingen</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+Een <b>rationale vergelijking</b> is een vergelijking waarbij de onbekende(n) optreden in een <b>noemer</b>.
+</p>
+<!--
+...... subsection Voorbeeld en methode ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Voorbeeld en methode</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+Beschouw:
+</p>
+
+<p>
+\[ \frac {1}{x+2}+\frac {4}{3x-4}=1 \]
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <b>Bestaansvoorwaarden opstellen (BV)</b><br />
+Noemers mogen niet nul zijn:
+</p>
+<p>
+\[ x+2\neq 0 \quad \text {en} \quad 3x-4\neq 0 \]
+</p>
+<p>
+dus
+</p>
+<p>
+\[ x\neq -2 \quad \text {en} \quad x\neq \frac {4}{3}. \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <b>Noemers wegwerken</b><br />
+Vermenigvuldig beide leden met het k.g.v. van de noemers, namelijk \((x+2)(3x-4)\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                        
+                                                                                                            1     4
+                                                                                                               +             (x + 2)(3x − 4) = 1 · (x + 2)(3x − 4)
+                                                                                                          x + 2 3x − 4
+                                                      ⇐⇒                                                            (3x − 4) + 4(x + 2) = (x + 2)(3x − 4).
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp;\left (\frac {1}{x+2}+\frac {4}{3x-4}\right )(x+2)(3x-4) &amp;= 1\cdot (x+2)(3x-4) \\ \iff &amp;&amp;(3x-4) + 4(x+2) &amp;= (x+2)(3x-4).
+\end{align*}
+
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> <b>Bekomen veeltermvergelijking oplossen</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                                    3x − 4 + 4x + 8 = (x + 2)(3x − 4)
+                                                             ⇐⇒                                                                  7x + 4 = 3x2 + 2x − 8
+                                                             ⇐⇒                                                                       0 = 3x2 − 5x − 12.
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp;3x-4 + 4x + 8 &amp;= (x+2)(3x-4) \\ \iff &amp;&amp;7x+4 &amp;= 3x^2+2x-8 \\ \iff &amp;&amp;0 &amp;= 3x^2-5x-12.
+\end{align*}
+Discriminant:
+</p>
+<p>
+\[ D = (-5)^2 - 4\cdot 3\cdot (-12)=25+144=169=13^2. \]
+</p>
+<p>
+Oplossingen:
+</p>
+<p>
+\[ x=\frac {5-13}{6}=-\frac {4}{3} \qquad \text {of} \qquad x=\frac {5+13}{6}=3. \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> <b>BV controleren en \(V\) noteren</b><br />
+Beide oplossingen voldoen aan de bestaansvoorwaarden (\(x\neq -2\) en \(x\neq \frac {4}{3}\)), dus:
+</p>
+<p>
+\[ V=\left \{-\frac {4}{3},\,3\right \}. \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Grafisch controleren m.b.v. GRM ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">3&#x2003;</span>Grafisch controleren m.b.v. <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span></h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>y=</kbd></span></span><br />
+\(Y_1=\dfrac {1}{X+2}+\dfrac {4}{3X-4}\)<br />
+\(Y_2=1\)
+</p>
+
+<p>
+De oplossingen zijn de <b>x-coo&#x0308;rdinaten</b> van de <b>snijpunten</b> van de grafieken van \(y_1\) en \(y_2\).
+</p>
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:89pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>calc</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:115pt ; text-align:center ; "
+><kbd>5:intersect</kbd></span></span>
+</p>
+
+<p>
+<b>Controle:</b> de snijpunten liggen bij
+</p>
+
+<p>
+\[ x=-\frac {4}{3}\quad \text {en}\quad x=3.      \]
+</p>
+<!--
+...... subsection Extra voorbeelden ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">4&#x2003;</span>Extra voorbeelden</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+Los op in \(\R \)
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\displaystyle \frac {4}{x+2}+\frac {6}{x+3}=\frac {37}{x^2+5x+6}\)
+</p>
+<div class="oplossing">
+<p>
+<b>BV:</b>&#x2003;\(x\neq -2\) en \(x\neq -3\) &#x2003;&#x2003;(want \(x^2+5x+6=(x+2)(x+3)\))
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                               
+                                                                                   4   6                                       37
+                                                                      ⇔              +              (x + 2)(x + 3) =                    (x + 2)(x + 3)
+                                                                                  x+2 x+3                                (x + 2)(x + 3)
+                                                                                      ⇔     4(x + 3) + 6(x + 2) = 37
+                                                                                        ⇔    4x + 12 + 6x + 12 = 37
+                                                                                                    ⇔     10x + 24 = 37
+                                                                                                          ⇔       10x = 13
+                                                                                                                         13
+                                                                                                              ⇔     x=
+                                                                                                                         10
+
+-->
+
+<p>
+
+\begin{align*}
+\Leftrightarrow \quad \left (\frac {4}{x+2}+\frac {6}{x+3}\right )(x+2)(x+3) &amp;= \frac {37}{(x+2)(x+3)}(x+2)(x+3)\\ \Leftrightarrow \quad 4(x+3)+6(x+2) &amp;= 37\\ \Leftrightarrow \quad
+4x+12+6x+12 &amp;= 37\\ \Leftrightarrow \quad 10x+24 &amp;= 37\\ \Leftrightarrow \quad 10x &amp;= 13\\ \Leftrightarrow \quad x &amp;= \frac {13}{10}
+\end{align*}
+
+</p>
+<p>
+\[ V=\left \{\frac {13}{10}\right \}.   \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\displaystyle \frac {x-2}{x+2}+\frac {x+2}{x-2}=\frac {4+6x}{x^2-4}\)<br />
+
+</p>
+<div class="oplossing">
+<p>
+<b>BV:</b>&#x2003;\(x\neq -2\) en \(x\neq 2\) &#x2003;&#x2003;(want \(x^2-4=(x-2)(x+2)\))
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                               
+                                                                                  x−2 x+2                                    4 + 6x
+                                                                      ⇔              +              (x + 2)(x − 2) =                    (x + 2)(x − 2)
+                                                                                  x+2 x−2                                (x + 2)(x − 2)
+                                                                                       ⇔    (x − 2)2 + (x + 2)2 = 4 + 6x
+                                                                          ⇔       (x2 − 4x + 4) + (x2 + 4x + 4) = 4 + 6x
+                                                                                                     ⇔     2x2 + 8 = 4 + 6x
+                                                                                             ⇔       2x2 − 6x + 4 = 0
+                                                                                                ⇔       x2 − 3x + 2 = 0
+                                                                                            ⇔       (x − 1)(x − 2) = 0
+                                                                                            ⇔       x = 1 of x = 2
+
+
+-->
+
+<p>
+
+\begin{align*}
+\Leftrightarrow \quad \left (\frac {x-2}{x+2}+\frac {x+2}{x-2}\right )(x+2)(x-2) &amp;= \frac {4+6x}{(x+2)(x-2)}(x+2)(x-2)\\ \Leftrightarrow \quad (x-2)^2+(x+2)^2 &amp;= 4+6x\\ \Leftrightarrow
+\quad (x^2-4x+4)+(x^2+4x+4) &amp;= 4+6x\\ \Leftrightarrow \quad 2x^2+8 &amp;= 4+6x\\ \Leftrightarrow \quad 2x^2-6x+4 &amp;= 0\\ \Leftrightarrow \quad x^2-3x+2 &amp;= 0\\ \Leftrightarrow \quad
+(x-1)(x-2) &amp;= 0\\ \Leftrightarrow \quad x=1 \ \text {of}\ x=2
+\end{align*}
+
+</p>
+<p>
+<b>BV controleren:</b> \(x=2\) mag niet, dus
+</p>
+<p>
+\[ V=\{1\}. \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+p95 nr27
+</p>
+<!--
+...... section Rationale ongelijkheden ......
+-->
+<h4 id="autosec-12"><span class="sectionnumber">II&#x2003;</span>Rationale ongelijkheden</h4>
+<a id="mkpiweb-autopage-12"></a>
+<!--
+...... subsection Voorbeeld en methode ......
+-->
+<h5 id="autosec-13"><span class="sectionnumber">1&#x2003;</span>Voorbeeld en methode</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ \frac {3x-1}{12x^2-6x-6}\ge 0 \]
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <b>Standaardvorm</b><br />
+De ongelijkheid staat al in standaardvorm: \(\dfrac {T(x)}{N(x)}\ge 0\).
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <b>Nulwaarden van teller \(T\) en noemer \(N\) bepalen</b><br />
+
+</p>
+<p>
+\[ T(x)=3x-1 \quad \Rightarrow \quad 3x-1=0 \Rightarrow x=\frac {1}{3}.         \]
+</p>
+<p>
+\[ N(x)=12x^2-6x-6=6(2x^2-x-1)=6(2x+1)(x-1). \]
+</p>
+<p>
+\[ N(x)=0 \Rightarrow x=-\frac {1}{2}\ \text {of}\ x=1. \]
+</p>
+<p>
+Dit zijn de <b>polen</b> (waarden waarvoor de breuk niet bestaat).
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> <b>Tekenverloop opstellen</b><br />
+Kritieke waarden in volgorde: \(-\dfrac {1}{2} &lt; \dfrac {1}{3} &lt; 1\).
+</p>
+<p>
+\[ \begin {array}{c|ccccccc} x &amp; &amp; -\tfrac 12 &amp; &amp; \tfrac 13 &amp; &amp; 1 &amp; \\ \hline T(x) &amp; - &amp; &amp; - &amp; 0 &amp; + &amp; &amp; + \\ N(x) &amp; + &amp; 0 &amp;
+- &amp; &amp; - &amp; 0 &amp; + \\ \hline f(x)=\dfrac {T(x)}{N(x)} &amp; - &amp; | &amp; + &amp; 0 &amp; - &amp; | &amp; + \end {array} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> <b>Ongelijkheid toepassen en \(V\) noteren</b><br />
+\(\dfrac {T(x)}{N(x)}\ge 0\) betekent: <b>positief of nul</b>.<br />
+Nul komt voor bij \(x=\dfrac {1}{3}\) (mag), polen \(x=-\dfrac {1}{2}\) en \(x=1\) (mogen niet).
+</p>
+<p>
+\[ V= \left ]-\frac {1}{2},\,\frac {1}{3}\right ] \cup \left ]1,\,+\infty \right [. \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Grafisch controleren m.b.v. GRM ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">2&#x2003;</span>Grafisch controleren m.b.v. <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span></h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>y=</kbd></span></span><br />
+\(Y_1=\dfrac {3X-1}{12X^2-6X-6}\)<br />
+
+</p>
+
+<p>
+We zoeken waar \(Y_1\ge 0\). Dat zijn de <b>x-waarden</b> waarvoor de grafiek van \(Y_1\) <b>boven</b> (of <b>op</b>) de \(x\)-as ligt.
+</p>
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:89pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>calc</kbd></span></span> &#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:89pt ; text-align:center ; "
+><kbd>2:zero</kbd></span></span>
+</p>
+
+<p>
+Bepaal eerst het <b>nulpunt</b> van \(Y_1\) (snijpunt met de \(x\)-as):
+</p>
+
+<p>
+\[ x=\frac {1}{3}.    \]
+</p>
+
+<p>
+De grafiek heeft <b>verticale asymptoten</b> (polen) bij
+</p>
+
+<p>
+\[ x=-\frac {1}{2}\quad \text {en}\quad x=1, \]
+</p>
+
+<p>
+want daar is de noemer nul. Die waarden horen <b>niet</b> bij de oplossing.
+</p>
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:100pt ; text-align:center ; "
+><kbd>trace</kbd></span></span> &#x2003;(gebruik de pijltjestoetsen om \(X\) te laten lopen)
+</p>
+
+<p>
+Je ziet dat \(Y_1\ge 0\) op
+</p>
+
+<p>
+\[ V=\left ]-\frac {1}{2},\,\frac {1}{3}\right ]\cup \left ]1,\,+\infty \right [.          \]
+</p>
+<!--
+...... subsection Extra voorbeeld ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">3&#x2003;</span>Extra voorbeeld</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ \frac {x^3-8x^2+5x+50}{x^3-x^2-4x+4}\le 0 \]
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <b>Nulwaarden bepalen van teller \(T\) en noemer \(N\)</b>
+</p>
+<div class="multicols">
+<p>
+<b>T:</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                        x3 − 8x2 + 5x + 50 = 0
+                                                                                     (x − 5)(x2 − 3x − 10) = 0
+                                                                                      (x − 5)(x − 5)(x + 2) = 0
+                                                                                           (x − 5)2 (x + 2) = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+x^3-8x^2+5x+50 &amp;= 0\\ (x-5)(x^2-3x-10) &amp;= 0\\ (x-5)(x-5)(x+2) &amp;= 0\\ (x-5)^2(x+2) &amp;= 0
+\end{align*}
+
+</p>
+<p>
+\[ \Rightarrow \text {nulw T:}\ 5, -2. \]
+</p>
+<p>
+<b>N:</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                          x3 − x2 − 4x + 4 = 0
+                                                                                      x2 (x − 1) − 4(x − 1) = 0
+                                                                                           (x − 1)(x2 − 4) = 0
+                                                                                     (x − 1)(x − 2)(x + 2) = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+x^3-x^2-4x+4 &amp;= 0\\ x^2(x-1)-4(x-1) &amp;= 0\\ (x-1)(x^2-4) &amp;= 0\\ (x-1)(x-2)(x+2) &amp;= 0
+\end{align*}
+
+</p>
+<p>
+\[ \Rightarrow \text {nulw N:}\ 1, 2, -2.   \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <b>Tekenverloop opstellen</b>
+</p>
+<p>
+Kritieke waarden (in volgorde):
+</p>
+<p>
+\[ -2,\ 1,\ 2,\ 5. \]
+</p>
+<p>
+\[\begin {array}{r@{\,}c|ccccccccc} &amp; x &amp; &amp; -2 &amp; &amp; 1 &amp; &amp; 2 &amp; &amp; 5 &amp; \\ \hline \ldelim \{{2}{*}[T] &amp; (x-5)^2 &amp; + &amp; + &amp; + &amp; + &amp; +
+&amp; + &amp; + &amp; 0 &amp; + \\ &amp; x+2 &amp; - &amp; 0 &amp; + &amp; + &amp; + &amp; + &amp; + &amp; + &amp; + \\ \hline \ldelim \{{3}{*}[N] &amp; x-1 &amp; - &amp; - &amp; - &amp; 0
+&amp; + &amp; + &amp; + &amp; + &amp; + \\ &amp; x-2 &amp; - &amp; - &amp; - &amp; - &amp; - &amp; 0 &amp; + &amp; + &amp; + \\ &amp; x+2 &amp; - &amp; 0 &amp; + &amp; + &amp; + &amp; + &amp;
++ &amp; + &amp; + \\ \hline &amp; f(x) &amp; + &amp; / &amp; + &amp; | &amp; - &amp; | &amp; + &amp; 0 &amp; + \\ &amp; &amp; &amp; &amp; &amp; \circ &amp; \rule [3pt]{24pt}{1pt} &amp; \circ
+&amp; &amp; \bullet &amp; \end {array}\]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> <b>Ongelijkheid toepassen en \(V\) noteren</b>
+</p>
+<p>
+We zoeken \(f(x)\le 0\): dus <b>negatief</b> of <b>nul</b>.<br />
+Negatief op \(\,]1,2[\). Nul bij \(x=5\).<br />
+Punten waar \(N=0\) (\(x=-2,1,2\)) horen niet bij de oplossing.
+</p>
+<p>
+\[ V=\,]1,2[\,\cup \,\{5\}. \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+p95 nr28
+</p>
+<!--
+...... section Rationale functies ......
+-->
+<h4 id="autosec-18"><span class="sectionnumber">III&#x2003;</span>Rationale functies</h4>
+<a id="mkpiweb-autopage-18"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+Een <b>rationale functie</b> \(f\) is het quotie&#x0308;nt van twee veeltermfuncties (waarbij de noemer niet de nulveelterm is).
+</p>
+<p>
+<b>Voorschrift:</b>&#x2003;\(f(x)=\dfrac {g(x)}{h(x)}\) &#x2003;&#x2003;waarbij \(g\) en \(h\) veeltermfuncties zijn en \(h(x)\neq 0\).
+</p>
+
+</div>
+
+<p>
+Voorbeeld: \(f(x)=\dfrac {2x^2+7x+4}{x-3}\)
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 1: konijnenpopulatie ......
+-->
+<h6 id="autosec-21">Voorbeeld 1: konijnenpopulatie</h6>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+De grootte van een konijnenpopulatie wordt beschreven door
+</p>
+
+<p>
+\[ f(t)=\frac {150t+90}{t+3}, \]
+</p>
+
+<p>
+met
+</p>
+
+<p>
+\[ t=\text {tijd in maanden},\qquad f(t)=\text {aantal konijnen}.         \]
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Schets de grafiek van \(f(t)\) (voor \(t\ge 0\)).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Hoeveel konijnen zijn er de 6de maand <b>bijgekomen</b>?
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Na hoeveel maanden zijn er \(135\) konijnen?
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Hoeveel konijnen telt deze populatie op lange termijn?
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> <b>Grafiek (kenmerken)</b><br />
+
+</p>
+<div class="center">
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+               200 y
+
+
+
+               100
+
+
+                                            x
+−6   −4   −2           2   4   6   8   10   12
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                             150t + 90   150(t + 3) − 360          360
+                                                                                   f (t) =             =                  = 150 −      .
+                                                                                               t+3             t+3                t+3
+
+-->
+
+<p>
+
+\begin{align*}
+f(t) &amp;= \frac {150t+90}{t+3} = \frac {150(t+3)-360}{t+3} = 150-\frac {360}{t+3}.
+\end{align*}
+Dus:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> verticale asymptoot: \(t=-3\),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> horizontale asymptoot: \(y=150\),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> voor \(t\ge 0\): \(f(t)\) stijgt en nadert \(150\) langs onder.
+</p>
+</li>
+</ul>
+<p>
+Handige punten:
+</p>
+<p>
+\[ f(0)=\frac {90}{3}=30,\qquad f(6)=\frac {990}{9}=110. \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> <b>Bijgekomen de 6de maand</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                         150 · 5 + 90   840
+                                                                                               f (5) =                =     = 105
+                                                                                                            5+3          8
+                                                                                               f (6) = 110
+                                                                                                 ∆ = 110 − 105 = 5.
+
+
+-->
+
+<p>
+
+\begin{align*}
+f(5) &amp;= \frac {150\cdot 5+90}{5+3} = \frac {840}{8} = 105\\ f(6) &amp;= 110\\ \Delta &amp;= 110-105=5.
+\end{align*}
+Er zijn \(5\) konijnen bijgekomen.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> <b>Wanneer \(135\) konijnen?</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                    150t + 90
+                                                                                                              = 135
+                                                                                                      t+3
+                                                                                                    150t + 90 = 135(t + 3)
+                                                                                                    150t + 90 = 135t + 405
+                                                                                                             15t = 315
+                                                                                                               t = 21.
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {150t+90}{t+3} &amp;= 135\\ 150t+90 &amp;= 135(t+3)\\ 150t+90 &amp;= 135t+405\\ 15t &amp;= 315\\ t &amp;= 21.
+\end{align*}
+Na \(21\) maanden zijn er \(135\) konijnen.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> <b>Op lange termijn</b>
+</p>
+<p>
+\[ \lim _{t\to +\infty } f(t)=150. \]
+</p>
+<p>
+Op lange termijn nadert de populatie naar \(150\) konijnen.
+</p>
+</li>
+</ul>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-25">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+<b>Opgave:</b> Bespreek \(f(x)=\dfrac {1}{x}\)
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+                6 y
+                    VA
+                4
+
+                2
+     HA                          x
+−6   −4   −2             2   4       6
+               −2
+
+               −4
+
+               −6
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <b>Domein</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                              x ̸= 0         ⇒   domf = R \ {0}.
+
+
+-->
+
+<p>
+
+\begin{align*}
+x\neq 0 \qquad \Rightarrow \qquad \dom f=\mathbb {R}\setminus \{0\}.
+\end{align*}
+
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <b>Bereik</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                               1
+                                                                                                 ̸= 0        ⇒   berf = R \ {0}.
+                                                                                               x
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {1}{x}\neq 0 \qquad \Rightarrow \qquad \ber f=\mathbb {R}\setminus \{0\}.
+\end{align*}
+
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> <b>Nulwaarden</b><br />
+Geen, want \(f(x)=0\) heeft geen oplossing.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> <b>Polen</b><br />
+Nulwaarde van de noemer: \(x=0\).
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> <b>Tekenverloop</b>
+</p>
+<p>
+\[ \renewcommand {\arraystretch }{1.15} \begin {array}{c|ccccccc} x &amp;&amp; &amp;&amp; 0 &amp;&amp; &amp;\\ \hline f(x)=\dfrac {1}{x} &amp;&amp; - &amp;&amp; | &amp;&amp; +&amp; \end {array}
+\]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> <b>Asymptoten</b><br />
+Een <b>asymptoot</b> van een functie is een rechte lijn waartoe de grafiek van de functie nadert wanneer de \(x\)- of \(y\)-coo&#x0308;rdinaat naar oneindig gaat.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Horizontale asymptoten <b>(HA):</b> \(y=0\) (de \(x\)-as)
+</p>
+<p>
+\[ \lim _{x\to +\infty }\frac {1}{x}=0, \qquad \lim _{x\to -\infty }\frac {1}{x}=0. \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Verticale asymptoten <b>(VA):</b> \(x=0\) (de \(y\)-as)
+</p>
+<p>
+\[ \lim _{x\to 0^+}\frac {1}{x}=+\infty , \qquad \lim _{x\to 0^-}\frac {1}{x}=-\infty .                 \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">7.</span> <b>Stijgen &amp; dalen</b>
+</p>
+<p>
+\[ \renewcommand {\arraystretch }{1.2} \begin {array}{c|c|c|c} x &amp; (-\infty ,0) &amp; 0 &amp; (0,+\infty ) \\ \hline f(x) &amp; \searrow &amp; \text {//} &amp; \searrow \end {array} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">8.</span> <b>Grafiek:</b> \(f(x)=\dfrac {1}{x}\) is een hyperbool
+</p>
+</li>
+</ul>
+<!--
+...... subsection Stijgen en dalen ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">3&#x2003;</span>Stijgen en dalen</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-30">Definitie</h6>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+Een functie \(f\) is <b>strikt stijgend</b> in \([a,b]\) als en slechts als
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> \(f\) is gedefinieerd in \([a,b]\),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> voor alle \(x_1,x_2\in [a,b]\) geldt:
+</p>
+<p>
+\[ x_1&lt;x_2 \ \Rightarrow \ f(x_1)&lt;f(x_2). \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+Een functie \(f\) is <b>strikt dalend</b> in \([a,b]\) als en slechts als
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> \(f\) is gedefinieerd in \([a,b]\),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> voor alle \(x_1,x_2\in [a,b]\) geldt:
+</p>
+<p>
+\[ x_1&lt;x_2 \ \Rightarrow \ f(x_1)&gt;f(x_2). \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-31">Eigenschap</h6>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+Voor alle \(a,b\in \mathbb {R}_0^+\) geldt:
+</p>
+
+<p>
+\[ a&lt;b \ \Leftrightarrow \ \frac {1}{a}&gt;\frac {1}{b}.   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Gevolg ......
+-->
+<h6 id="autosec-32">Gevolg</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p>
+De functie \(f:x\mapsto \dfrac {1}{x}\) is <b>strikt dalend</b> in \(\mathbb {R}_0^+\) en ook <b>strikt dalend</b> in \(\mathbb {R}_0^-\).
+</p>
+<!--
+...... section Homografische functies ......
+-->
+<h4 id="autosec-33"><span class="sectionnumber">IV&#x2003;</span>Homografische functies</h4>
+<a id="mkpiweb-autopage-33"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-34"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+Een <b>homografische functie</b> is een functie van de vorm
+</p>
+<p>
+\[ f(x)=\frac {ax+b}{cx+d} \]
+</p>
+<p>
+met \(c\neq 0\) en \(ad\neq bc\).
+</p>
+
+</div>
+<!--
+...... subsection Opmerkingen ......
+-->
+<h5 id="autosec-35"><span class="sectionnumber">2&#x2003;</span>Opmerkingen</h5>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Als \(c=0\), dan is
+</p>
+<p>
+\[ f(x)=\frac {ax+b}{d}=\frac {a}{d}\,x+\frac {b}{d}, \]
+</p>
+<p>
+dus een <b>eerstegraadsfunctie</b>.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Als \(ad=bc\), dan is \(f\) een <b>constante functie</b>. Inderdaad:
+</p>
+<p>
+\[ ad=bc \ \Rightarrow \ b=\frac {ad}{c} \ \Rightarrow \ ax+b=ax+\frac {ad}{c} =\frac {a}{c}(cx+d), \]
+</p>
+<p>
+zodat
+</p>
+<p>
+\[ f(x)=\frac {ax+b}{cx+d} =\frac {\frac {a}{c}(cx+d)}{cx+d} =\frac {a}{c}. \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Verband tussen een homografische functie en ......
+-->
+<h5 id="autosec-36"><span class="sectionnumber">3&#x2003;</span>Verband tussen een homografische functie en \(y=\dfrac {1}{x}\)</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                       ax + b
+                                                                                                f (x) =
+                                                                                                       cx + d
+                                                                                                            ad       ad
+                                                                                                       ax +      +b−
+                                                                                                     =        c       c
+                                                                                                             cx + d
+                                                                                                       a x + dc + b − ad
+                                                                                                                
+                                                                                                     =               c
+                                                                                                           c x + dc
+                                                                                                          a    b − ad
+                                                                                                                    c 
+                                                                                                     =      +
+                                                                                                          c   c x + dc
+                                                                                                          a bc − ad     1
+                                                                                                     =      +       ·        .
+                                                                                                          c    c2
+                                                                                                                      x + dc
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f(x) &amp;=\frac {ax+b}{cx+d}\\ &amp;=\frac {ax+\dfrac {ad}{c} + b - \dfrac {ad}{c}}{cx+d}\\ &amp;=\frac {a\left (x+\frac {d}{c}\right )+b-\frac {ad}{c}}{c\left (x+\frac {d}{c}\right )}\\
+&amp;=\frac {a}{c}+\frac {b-\frac {ad}{c}}{c\left (x+\frac {d}{c}\right )}\\ &amp;=\frac {a}{c}+\frac {bc-ad}{c^2}\cdot \frac {1}{x+\frac {d}{c}}.
+\end{align*}
+
+</p>
+
+<p>
+Stel nu
+</p>
+
+<p>
+\[ p=-\frac {d}{c},\qquad q=\frac {a}{c},\qquad k=\frac {bc-ad}{c^2}.           \]
+</p>
+
+<p>
+Dan wordt
+</p>
+
+<p>
+\[ f(x)=\frac {k}{x-p}+q.     \]
+</p>
+
+<p>
+Een homografische functie ontstaat dus uit \(y=\dfrac {1}{x}\) door:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>horizontaal verschuiven</b> over \(p\) eenheden (naar rechts als \(p&gt;0\), naar links als \(p&lt;0\));
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>schalen</b> in \(y\)-richting met factor \(k\) (als \(k&lt;0\): spiegeling t.o.v. de \(x\)-as);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>verticaal verschuiven</b> over \(q\) eenheden (omhoog als \(q&gt;0\), omlaag als \(q&lt;0\)).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Voorbeeld 1 ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 1</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+Bespreek:&#x2003;\(f(x)=\dfrac {2x+1}{x-1}\)
+</p>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <b>Herschrijven in de vorm \(\dfrac {k}{x-p}+q\)</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                     2x + 1   2(x − 1) + 3
+                                                                                           f (x) =          =
+                                                                                                      x−1        x−1
+                                                                                                                    3
+                                                                                                            =2+        .
+                                                                                                                  x−1
+
+-->
+
+<p>
+
+\begin{align*}
+f(x)=\frac {2x+1}{x-1} &amp;=\frac {2(x-1)+3}{x-1}\\ &amp;=2+\frac {3}{x-1}.
+\end{align*}
+Dus
+</p>
+<p>
+\[ f(x)=\frac {k}{x-p}+q \quad \text {met}\quad k=3,\ p=1,\ q=2. \]
+</p>
+<p>
+Vanuit \(y=\dfrac {1}{x}\):
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> verschuiven evenwijdig met de \(x\)-as: \(1\) naar rechts \(\Rightarrow y=\dfrac {1}{x-1}\),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> schalen evenwijdig met de \(y\)-as met factor \(3\) \(\Rightarrow y=\dfrac {3}{x-1}\),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> verschuiven evenwijdig met de \(y\)-as: \(2\) naar boven \(\Rightarrow y=\dfrac {3}{x-1}+2\).
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <b>Kenmerken</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>Domein:</b>&#x2003;
+</p>
+<p>
+\[ x-1\neq 0 \Leftrightarrow x\neq 1 \qquad \Rightarrow \qquad \dom f=\mathbb {R}\setminus \{1\}.             \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Bereik:</b>&#x2003;
+</p>
+<p>
+\[ f(x)=2+\frac {3}{x-1}\neq 2 \qquad \Rightarrow \qquad \ber f=\mathbb {R}\setminus \{2\}.            \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Nulwaarden:</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                              f (x) = 0 ⇔ 2x + 1 = 0
+                                                                                                                1
+                                                                                                            ⇔x=− .
+                                                                                                                2
+
+-->
+
+<p>
+
+\begin{align*}
+f(x)=0 &amp;\Leftrightarrow 2x+1=0\\ &amp;\Leftrightarrow x=-\frac {1}{2}.
+\end{align*}
+
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Polen:</b>&#x2003;\(x=1\).
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Asymptoten:</b>
+</p>
+<p>
+\[ \text {VA: } x=1, \qquad \text {HA: } y=2. \]
+</p>
+<p>
+\[ \lim _{x\to 1^-}f(x)=-\infty , \qquad \lim _{x\to 1^+}f(x)=+\infty , \qquad \lim _{x\to \pm \infty }f(x)=2.               \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Tekenverloop:</b>
+</p>
+<p>
+\[ \renewcommand {\arraystretch }{1.2} \begin {array}{c|c|c|c|c} x &amp; (-\infty ,-\tfrac 12) &amp; -\tfrac 12 &amp; (-\tfrac 12,1) &amp; 1 \ \ (1,+\infty )\\ \hline 2x+1 &amp; - &amp; 0 &amp;
++ &amp; \ \ +\\ x-1 &amp; - &amp; &amp; - &amp; 0 \ \ +\\ \hline f(x)=\dfrac {2x+1}{x-1} &amp; + &amp; 0 &amp; - &amp; \text {//} \ \ + \end {array} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Stijgen/dalen:</b>
+</p>
+<p>
+\[ \renewcommand {\arraystretch }{1.2} \begin {array}{c|c|c|c} x &amp; (-\infty ,1) &amp; 1 &amp; (1,+\infty )\\ \hline f(x) &amp; \searrow &amp; \text {//} &amp; \searrow \end {array} \]
+</p>
+<p>
+\(f\) is strikt dalend op \((-\infty ,1)\) en op \((1,+\infty )\).
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Voorbeeld 2 ......
+-->
+<h5 id="autosec-38"><span class="sectionnumber">5&#x2003;</span>Voorbeeld 2</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+Bepaal het voorschrift van de homografische functie \(f\) met:
+</p>
+
+<p>
+\[ \text {pool:    }x=-2,\qquad \text {nulpunt:       }x=4,\qquad \lim _{x\to +\infty } f(x)=3.     \]
+</p>
+
+<div class="oplossing">
+
+<p>
+Omdat \(\lim _{x\to +\infty } f(x)=3\), is de horizontale asymptoot \(y=3\).<br />
+Met pool \(x=-2\) schrijven we:
+</p>
+
+<p>
+\[ f(x)=\frac {k}{x+2}+3.      \]
+</p>
+
+<p>
+Het nulpunt is \(x=4\), dus \(f(4)=0\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                           k
+                                                                                                      0=      +3
+                                                                                                         4+2
+                                                                                                         k
+                                                                                                     0= +3
+                                                                                                         6
+                                                                                                     k
+                                                                                                       = −3
+                                                                                                     6
+                                                                                                     k = −18.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+0 &amp;= \frac {k}{4+2} + 3\\ 0 &amp;= \frac {k}{6} + 3\\ \frac {k}{6} &amp;= -3\\ k&amp;=-18.
+\end{align*}
+Dus
+</p>
+
+<p>
+\[ f(x)=\frac {-18}{x+2} + 3.       \]
+</p>
+
+<p>
+Schrijf als één breuk:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                           3(x + 2) − 18
+                                                                                                  f (x) =
+                                                                                                               x+2
+                                                                                                           3x + 6 − 18
+                                                                                                         =
+                                                                                                              x+2
+                                                                                                           3x − 12
+                                                                                                         =         .
+                                                                                                            x+2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f(x) &amp;=\frac {3(x+2)-18}{x+2}\\ &amp;=\frac {3x+6-18}{x+2}\\ &amp;=\frac {3x-12}{x+2}.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\,f(x)=\dfrac {3x-12}{x+2}\,} \]
+</p>
+
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-39"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+p91 nr10, 11, 12
+</p>
+<!--
+...... section Rationale functies benaderen door veeltermfuncties ......
+-->
+<h4 id="autosec-40"><span class="sectionnumber">V&#x2003;</span>Rationale functies benaderen door veeltermfuncties</h4>
+<a id="mkpiweb-autopage-40"></a>
+<!--
+...... subsection Idee ......
+-->
+<h5 id="autosec-41"><span class="sectionnumber">1&#x2003;</span>Idee</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+Voor <b>grote waarden van \(x\)</b> kan je een rationale functie benaderen door een veeltermfunctie via de <b>Euclidische deling</b> van veeltermen:
+</p>
+
+<p>
+\[ f(x)=\frac {P(x)}{Q(x)} = S(x) + \frac {R(x)}{Q(x)}, \]
+</p>
+
+<p>
+waarbij \(S(x)\) het quotie&#x0308;nt is en \(R(x)\) de rest. Omdat \(\deg R &lt; \deg Q\), geldt:
+</p>
+
+<p>
+\[ \frac {R(x)}{Q(x)} \to 0 \quad \text {als } x\to \pm \infty , \]
+</p>
+
+<p>
+dus voor grote \(|x|\) is \(f(x)\approx S(x)\).
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-42"><span class="sectionnumber">2&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+We benaderen
+</p>
+
+<p>
+\[ f(x)=\frac {x^4-2x^3+x^2-1}{x^2+1} \]
+</p>
+
+<p>
+door een veeltermfunctie voor grote \(|x|\).
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \begin {array}{ccccccc|l} &amp; &amp; x^4 &amp; - 2x^3 &amp; + x^2 &amp; + 0x &amp; - 1 &amp; x^2 + 1 \\ \cline {8-8} - &amp; &amp; x^4 &amp; &amp; + x^2 &amp; &amp; &amp; x^2 - 2x \\ \cline
+{3-7} &amp; &amp; &amp; - 2x^3 &amp; + 0x^2 &amp; + 0x &amp; - 1 \\ - &amp; &amp; &amp; - 2x^3 &amp; &amp; - 2x &amp; &amp; \\ \cline {4-7} &amp; &amp; &amp; &amp; &amp; 2x &amp; - 1 &amp;
+\end {array} \]
+</p>
+
+<p>
+\[ \Rightarrow \qquad x^4-2x^3+x^2-1 = (x^2+1)(x^2-2x) + (2x-1), \]
+</p>
+
+<p>
+dus
+</p>
+
+<p>
+\[ f(x)=x^2-2x+\frac {2x-1}{x^2+1}.        \]
+</p>
+
+</div>
+
+<p>
+Voor grote \(|x|\) is \(\dfrac {2x-1}{x^2+1}\) heel klein, dus
+</p>
+
+<p>
+\[ f(x)\approx x^2-2x \quad \text {voor grote } |x|.         \]
+</p>
+<!--
+...... subsection Grafisch controleren m.b.v. GRM ......
+-->
+<h5 id="autosec-43"><span class="sectionnumber">3&#x2003;</span>Grafisch controleren m.b.v. <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span></h5>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>y=</kbd></span></span><br />
+\(Y_1=\dfrac {X^4-2X^3+X^2-1}{X^2+1}\)<br />
+\(Y_2=X^2-2X\)
+</p>
+
+<p>
+Voor grote \(|X|\) liggen de grafieken van \(Y_1\) en \(Y_2\) bijna op elkaar.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-44"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p>
+p92 nr13 (Opgave: Benader volgende functies en controleer m.b.v. ICT.)
+</p>
+<!--
+...... section Asymptoten bij rationale functies ......
+-->
+<h4 id="autosec-45"><span class="sectionnumber">VI&#x2003;</span>Asymptoten bij rationale functies</h4>
+<a id="mkpiweb-autopage-45"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-46"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+Als de grafiek van een functie punten bevat die <b>oneindig ver</b> gelegen zijn en de afstand van die punten tot een <b>rechte</b> nadert daarbij tot \(0\), dan noemen we deze rechte een <b>asymptoot</b>.
+</p>
+
+</div>
+<!--
+...... subsection Grafisch voorbeeld ......
+-->
+<h5 id="autosec-47"><span class="sectionnumber">2&#x2003;</span>Grafisch voorbeeld</h5>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>y=</kbd></span></span><br />
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                               X 3 − 3X 2 + 2X + 5
+                                                        Y1 =
+                                                                 (X + 1)(X − 2)
+                                                        Y2 = X − 2                            (Schuine asymptoot)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+Y_1&amp;=\dfrac {X^3-3X^2+2X+5}{(X+1)(X-2)}\\ Y_2&amp;=X-2 &amp;\text {(Schuine asymptoot)}
+\end{align*}
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>prgm</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:110pt ; text-align:center ; "
+><kbd>4:Vertical</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:68pt ; text-align:center ; "
+><kbd>-1</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>enter</kbd></span></span><br />
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>prgm</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:110pt ; text-align:center ; "
+><kbd>4:Vertical</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:63pt ; text-align:center ; "
+><kbd>2</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>enter</kbd></span></span><br />
+  Voor grote \(|X|\) liggen de grafieken van \(Y_1\) en \(Y_2\) bijna op elkaar.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+                         y
+                     5
+                                           y = x − 2 is SA
+
+
+                                                          x
+−4   −3   −2   −1            1   2     3   4    5     6
+
+          x = −1 is VA       x = 2 is VA
+                    −5
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Verticale asymptoten (VA) ......
+-->
+<h5 id="autosec-51"><span class="sectionnumber">3&#x2003;</span>Verticale asymptoten (VA)</h5>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\(x=a\in \mathbb {R}\) is een <b>verticale asymptoot</b> (VA)
+</p>
+<p>
+\[ \Leftrightarrow \quad \lim _{x\to a} f(x)=\pm \infty . \]
+</p>
+
+</div>
+
+<p>
+<b>Tip:</b> Dit verkrijg je als de <b>noemer</b> naar \(0\) nadert en de <b>teller niet</b>.
+</p>
+
+<p>
+<b>Opmerking:</b> Bij een <b>verwijderbaar</b> punt (gat) wordt zowel teller als noemer \(0\). Dan heeft de grafiek <b>geen</b> verticale asymptoot op die \(x\)-waarde. Je kan dit herkennen door in \(T\) en \(N\) een
+<b>gemeenschappelijke factor</b> weg te delen.
+</p>
+<!--
+...... subsection Voorbeeld: verwijderbare discontinuıteit (geen VA) ......
+-->
+<h5 id="autosec-52"><span class="sectionnumber">4&#x2003;</span>Voorbeeld: verwijderbare discontinuı&#x0308;teit (geen VA)</h5>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+\[ f(x)=\frac {x^2+x-2}{x-1} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       x2 + x − 2 = (x − 1)(x + 2)
+                                                                                                       (x − 1)(x + 2)
+                                                                                        ⇒    f (x) =                  =x+2   (x ̸= 1)
+                                                                                                           x−1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2+x-2 &amp;= (x-1)(x+2)\\ \Rightarrow \quad f(x) &amp;= \frac {(x-1)(x+2)}{x-1}=x+2 \qquad (x\neq 1)
+\end{align*}
+
+</p>
+
+<p>
+<b>Domein:</b>&#x2003;\(D_f=\mathbb {R}\setminus \{1\}\).<br />
+De grafiek is de rechte \(y=x+2\), maar met een <b>gat</b> bij \(x=1\). Dus er is <b>geen</b> verticale asymptoot.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+            8 y
+
+            6
+
+            4
+
+            2
+                                      x
+−4 −3 −2 −1       1   2   3   4   5       6
+           −2
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Horizontale asymptoten (HA) ......
+-->
+<h5 id="autosec-56"><span class="sectionnumber">5&#x2003;</span>Horizontale asymptoten (HA)</h5>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\(y=b\) is een <b>horizontale asymptoot</b> (HA)
+</p>
+<p>
+\[ \Leftrightarrow \quad \lim _{x\to \pm \infty } f(x)=b\in \mathbb {R}.   \]
+</p>
+
+</div>
+<!--
+...... subsubsection Twee mogelijkheden (voor rationale functies ) ......
+-->
+<h6 id="autosec-57"><span class="sectionnumber">&#x2003;</span>Twee mogelijkheden (voor rationale functies \(f(x)=\dfrac {T(x)}{N(x)}\))</h6>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> \(\deg (T)&lt;\deg (N)\)<br />
+Dan is
+</p>
+<p>
+\[ \lim _{x\to \pm \infty }\frac {T(x)}{N(x)}=0 \]
+</p>
+<p>
+en dus is \(y=0\) een HA.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> \(\deg (T)=\deg (N)\)<br />
+Dan is de HA gelijk aan de <b>verhouding van de leidende coe&#x0308;fficie&#x0308;nten</b>:
+</p>
+<p>
+\[ \lim _{x\to \pm \infty }\frac {a_nx^n+\cdots }{b_nx^n+\cdots }=\frac {a_n}{b_n} \qquad \Rightarrow \qquad y=\frac {a_n}{b_n}\ \text {is HA.} \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+<b>Besluit:</b> Als \(\deg (T)&gt;\deg (N)\), dan heeft de functie <b>geen</b> horizontale asymptoot.
+</p>
+<!--
+...... subsection Schuine asymptoten (SA) ......
+-->
+<h5 id="autosec-58"><span class="sectionnumber">6&#x2003;</span>Schuine asymptoten (SA)</h5>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\(y=mx+q\) met \(m\neq 0\) en \(m,q\in \mathbb {R}\) is een <b>schuine asymptoot</b> (SA)
+</p>
+<p>
+\[ \Leftrightarrow \quad \lim _{x\to \pm \infty }\Bigl (f(x)-(mx+q)\Bigr )=0. \]
+</p>
+
+</div>
+
+<p>
+Dit is het geval als het quotie&#x0308;nt bij de Euclidische deling een <b>eerstegraadsfunctie</b> is, m.a.w.
+</p>
+
+<p>
+\[ \deg (T)=\deg (N)+1.     \]
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-59"><span class="sectionnumber">7&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<p>
+Bepaal de eventuele asymptoten van
+</p>
+
+<p>
+\[ f(x)=\frac {2x^2+3x-5}{x-2}.      \]
+</p>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <b>Verticale asymptoot (VA)</b><br />
+Nulwaarde van de noemer:
+</p>
+<p>
+\[ x-2=0 \Rightarrow x=2. \]
+</p>
+<p>
+Controleer of dit geen verwijderbaar punt is: bereken \(T(2)\):
+</p>
+<p>
+\[ T(2)=2\cdot 2^2+3\cdot 2-5=8+6-5=9\neq 0. \]
+</p>
+<p>
+Dus \(x=2\) is een <b>pool</b> en bijgevolg een <b>VA</b>.
+</p>
+<p>
+\[ \boxed {x=2\ \text {is VA}.} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <b>Horizontale asymptoot (HA)</b><br />
+
+</p>
+<p>
+\[ \deg (T)=2,\qquad \deg (N)=1 \quad \Rightarrow \quad \deg (T)=\deg (N)+1.     \]
+</p>
+<p>
+Dus: \(\boxed {\text {geen HA}}\) en we zoeken een <b>schuine asymptoot</b>.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> <b>Schuine asymptoot (SA) via Euclidische deling</b><br />
+<br />
+
+</p>
+<p>
+\[ \renewcommand {\arraystretch }{1.2} \setlength {\arraycolsep }{2pt} \begin {array}{rrr|l} 2x^2 &amp; +3x &amp; -5 &amp; x-2 \\ \cline {4-4} -2x^2 &amp; +4x &amp; &amp; 2x+7 \\ \cline {1-3}
+&amp; 7x &amp; -5 &amp; \\ &amp; -7x &amp; +14 &amp; \\ \cline {2-3} &amp; &amp; 9 &amp; \end {array} \]
+</p>
+<p>
+Dus
+</p>
+<p>
+\[ \frac {2x^2+3x-5}{x-2}=2x+7+\frac {9}{x-2}. \]
+</p>
+<p>
+Omdat \(\dfrac {9}{x-2}\to 0\) voor \(x\to \pm \infty \), volgt:
+</p>
+<p>
+\[ \boxed {y=2x+7\ \text {is SA}.} \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+<b>Besluit:</b>&#x2003;VA: \(x=2\), &#x2003;HA: geen, &#x2003;SA: \(y=2x+7\).
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-60"><span class="sectionnumber">8&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+p89 nr2 p92 nr13, p93 nr<b>17</b>, 18 p96 nr31, 32, 34
+</p>
+<!--
+...... section Toepassingen ......
+-->
+<h4 id="autosec-61"><span class="sectionnumber">VII&#x2003;</span>Toepassingen</h4>
+<a id="mkpiweb-autopage-61"></a>
+<!--
+...... subsection Voorbeeld: concentratie van een medicijn ......
+-->
+<h5 id="autosec-62"><span class="sectionnumber">1&#x2003;</span>Voorbeeld: concentratie van een medicijn</h5>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p>
+De concentratie van een medicijn wordt beschreven door
+</p>
+
+<p>
+\[ C(t)=\frac {12t}{t^2+2}, \]
+</p>
+
+<p>
+met \(C\) in \(\text {mg}/\ell \) en \(t\) in uren (met \(t\ge 0\)). Het medicijn is werkzaam bij een concentratie vanaf \(2 \text { mg}/\ell \).
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> <b>Wanneer moet de 2e injectie toegediend worden?</b>
+</p>
+<div class="oplossing">
+<p>
+We nemen aan dat het medicijn <b>werkt vanaf</b> \(C(t)\ge 2\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                            12t
+                                                                                             C(t) ≥ 2 ⇔           ≥2
+                                                                                                          t2 + 2
+                                                                                                          12t − 2(t2 + 2)
+                                                                                                        ⇔                 ≥0
+                                                                                                               t2 + 2
+                                                                                                          −2t2 + 12t − 4
+                                                                                                        ⇔                 ≥ 0.
+                                                                                                               t2 + 2
+
+-->
+
+<p>
+
+\begin{align*}
+C(t)\ge 2 &amp;\Leftrightarrow \frac {12t}{t^2+2}\ge 2\\ &amp;\Leftrightarrow \frac {12t-2(t^2+2)}{t^2+2}\ge 0\\ &amp;\Leftrightarrow \frac {-2t^2+12t-4}{t^2+2}\ge 0.
+\end{align*}
+
+</p>
+<p>
+Omdat \(t^2+2&gt;0\) voor alle \(t\), wordt dit:
+</p>
+<p>
+\[ -2t^2+12t-4\ge 0 \Leftrightarrow t^2-6t+2\le 0. \]
+</p>
+<p>
+Nulwaarden:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                             √           √
+                                                                                  2                     6±   36 − 8   6 ± 28      √
+                                                                                 t − 6t + 2 = 0 ⇒ t =               =        = 3 ± 7.
+                                                                                                             2           2
+
+-->
+
+<p>
+
+\begin{align*}
+t^2-6t+2=0 &amp;\Rightarrow t=\frac {6\pm \sqrt {36-8}}{2} =\frac {6\pm \sqrt {28}}{2} =3\pm \sqrt {7}.
+\end{align*}
+
+</p>
+<p>
+\[ t_1=3-\sqrt 7\approx 0.35, \qquad t_2=3+\sqrt 7\approx 5.64. \]
+</p>
+<p>
+\[ \renewcommand {\arraystretch }{1.2} \begin {array}{c|ccccc} t &amp; &amp; 0.35 &amp; &amp; 5.64 &amp; \\ \hline -2t^2+12t-4 &amp; - &amp; 0 &amp; + &amp; 0 &amp; -\\ t^2+2 &amp; + &amp; +
+&amp; + &amp; + &amp; +\\ \hline \dfrac {-2t^2+12t-4}{t^2+2} &amp; - &amp; 0 &amp; + &amp; 0 &amp; - \end {array} \]
+</p>
+<p>
+Dus \(C(t)\ge 2\) voor \(t\in [t_1,t_2]\).<br />
+In context (\(t\ge 0\)):
+</p>
+<p>
+\[ C(t)\ge 2 \quad \text {voor} \quad t\in [3-\sqrt 7,\,3+\sqrt 7]. \]
+</p>
+<p>
+Interpretatie (afgerond):
+</p>
+<p>
+\[ 3-\sqrt 7\approx 0.35\text { u } \approx 21\text { min }15\text { s}, \qquad 3+\sqrt 7\approx 5.64\text { u } \approx 5\text { u }38\text { min }45\text { s}. \]
+</p>
+<p>
+<b>Antwoordzin:</b> Na ongeveer \(5\text { u }38\text { min }45\text { s}\) daalt de concentratie terug onder \(2\), dus dan moet een <b>2e injectie</b> toegediend worden.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> <b>Concentratie op lange termijn</b>
+</p>
+<div class="oplossing">
+<p>
+\[ \lim _{t\to +\infty } \frac {12t}{t^2+2}=0. \]
+</p>
+<p>
+<b>Antwoordzin:</b> Op lange termijn verdwijnt de concentratie en nadert \(C(t)\) naar \(0\ \text {mg}/\ell \).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-63"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+p90 nr 3-9<br />
+probeer ook de extremumvraagstukken p94 nr20-22<br />
+extra uitdagingen p94 nr23-26
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

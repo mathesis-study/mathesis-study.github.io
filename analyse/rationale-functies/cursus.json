@@ -1,0 +1,28 @@
+{
+ "titel": "Rationale functies",
+ "hoofdstuk": 3,
+ "code": "A03",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/rationale-functies",
+ "secties": [
+  "Rationale vergelijkingen",
+  "Rationale ongelijkheden",
+  "Rationale functies",
+  "Homografische functies",
+  "Rationale functies benaderen door veeltermfuncties",
+  "Asymptoten bij rationale functies",
+  "Toepassingen"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.17",
+  "WD3_06.08.18",
+  "WD3_06.08.19",
+  "WD3_06.08.21",
+  "WD3_06.08.26"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

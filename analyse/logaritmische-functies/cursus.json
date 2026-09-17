@@ -1,0 +1,27 @@
+{
+ "titel": "Logaritmische functies",
+ "hoofdstuk": 8,
+ "code": "A08",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/logaritmische-functies",
+ "secties": [
+  "Logaritme van een strikt positief getal",
+  "Berekenen van logaritmen",
+  "Logaritmische functies",
+  "Gebruik van logaritmische functies",
+  "Logaritmische vergelijkingen",
+  "Logaritmische schaal",
+  "Logaritmisch papier"
+ ],
+ "leerplandoelen": [
+  "BV3_06.01",
+  "WD3_06.08.18",
+  "WD3_06.08.20",
+  "WD3_06.08.21"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

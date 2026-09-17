@@ -1,0 +1,23 @@
+{
+ "titel": "Irrationale functies",
+ "hoofdstuk": 4,
+ "code": "A04",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/irrationale-functies",
+ "secties": [
+  "Irrationale vergelijkingen",
+  "Bespreken van irrationale functies",
+  "Vraagstukken"
+ ],
+ "leerplandoelen": [
+  "BV3_06.20",
+  "BV3_06.21",
+  "WD3_06.08.18",
+  "WD3_06.08.21"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

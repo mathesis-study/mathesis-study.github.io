@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Discrete wiskunde: Binomium van Newton</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 3</p> <h1>Discrete wiskunde: Binomium van Newton</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                             n
+                                 
+                             k
+
+                             1
+
+                        1            1
+
+                   1         2            1
+
+               1        3            3         1
+
+           1       4         6            4        1
+
+       1       5        10           10        5       1
+
+   1       6       15        20           15       6       1
+
+
+                      n  
+                    n
+                     X   n n−k k
+           (a + b) =       a  b
+                     k=0
+                         k
+
+(a + b)5 = a5 + 5a4 b + 10a3 b2 + 10a2 b3 + 5ab4 + b5
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.33</b> (MD 06.08.34) De leerlingen lossen telproblemen op met en zonder herhaling en waarbij de volgorde al dan niet van belang is.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: binomium van Newton
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: driehoek van Pascal
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">duiventilprincipe van Dirichlet</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Extra uitleg:</b> binomiaalcoe&#x0308;fficie&#x0308;nten; eigenschappen van de binomiaalcoe&#x0308;fficie&#x0308;nten; benaderingen met het binomium van Newton; bepalen van een gevraagde term in een ontwikkeling
+</p>
+
+</div>
+<!--
+...... section Inleidende opmerking ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Inleidende opmerking</h4>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<p>
+Voor een tweeterm ("bi-"nomium") \((a+b)\) kennen we enkele merkwaardige producten:<br />
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                  (a + b)0 = 1
+                                                                                  (a + b)1 = 1 · a + 1 · b
+                                                                                  (a + b)2 = 1 · a2 + 2 · ab + 1 · b2
+                                                                                  (a + b)3 = 1 · a3 + 3 · a2 b + 3 · ab2 + 1 · b3
+                                                                                  (a + b)4 = 1 · a4 + 4 · a3 b + 6 · a2 b2 + 4 · ab3 + 1 · b4
+                                                                                            ..
+                                                                                             .
+                                                                                  (a + b)n =???       (n ∈ N)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+(a+b)^0 &amp;= 1\\ (a+b)^1 &amp;= 1 \cdot a + 1 \cdot b\\ (a+b)^2 &amp;= 1 \cdot a^2+2 \cdot ab+1 \cdot b^2\\ (a+b)^3 &amp;= 1 \cdot a^3+3 \cdot a^2b+3 \cdot ab^2+1 \cdot b^3\\ (a+b)^4 &amp;=
+1 \cdot a^4+4 \cdot a^3b+6 \cdot a^2b^2+4 \cdot ab^3+1 \cdot b^4\\ &amp;\;\;\vdots \\ (a+b)^n &amp;= ??? \qquad (n \in \mathbb {N})
+\end{align*}
+
+</p>
+
+<p>
+Hierin vallen een aantal zaken op:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Per term daalt de macht van \(a\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Per term stijgt de macht van \(b\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Wanneer we enkel de <i>binomiaalcoe&#x0308;fficie&#x0308;nten</i> opschrijven, vinden we nog een aantal bijzonderheden.<br />
+
+</p>
+</li>
+</ul>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\((x+a)^n\)</td>
+<td colspan="13" class="tdc">binomiaalcoe&#x0308;fficie&#x0308;nten</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:         1px solid black">\((a+b)^0\)</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">\((a+b)^1\)</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">\((a+b)^2\)</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc">2</td>
+<td class="tdc"></td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">\((a+b)^3\)</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc">3</td>
+<td class="tdc"></td>
+<td class="tdc">3</td>
+<td class="tdc"></td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">\((a+b)^4\)</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc">4</td>
+<td class="tdc"></td>
+<td class="tdc">6</td>
+<td class="tdc"></td>
+<td class="tdc">4</td>
+<td class="tdc"></td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\((a+b)^5\)</td>
+<td class="tdc"></td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:1cm">1</span></td>
+<td class="tdc"></td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:1cm">5</span></td>
+<td class="tdc"></td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:1cm">10</span></td>
+<td class="tdc"></td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:1cm">10</span></td>
+<td class="tdc"></td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:1cm">5</span></td>
+<td class="tdc"></td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:1cm">1</span></td>
+<td class="tdc"></td>
+</tr>
+
+</table>
+
+</div>
+
+<p>
+Er ontstaat een driehoek, de zogeheten <i>driehoek van Pascal</i>. De getallen die erin voorkomen, herkennen we als mogelijke aantallen van combinaties zonder herhaling:<br />
+
+</p>
+
+<p>
+<span style="width:85pt; display:inline-block"><!----></span>
+</p>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:290pt ; ">
+
+<a id="mkpiweb-autopage-9"></a>
+
+<p>
+\(C^0_0=1\)
+</p>
+
+<p>
+\(C^0_1=1\) &#x2003;\(C^1_1=1\)
+</p>
+
+<p>
+\(C^0_2=1\) &#x2003;\(C^1_2=2\) &#x2003;\(C^2_2=1\)
+</p>
+
+<p>
+\(C^0_3=1\) &#x2003;\(C^1_3=3\) &#x2003;\(C^2_3=3\) &#x2003;\(C^3_3=1\)
+</p>
+
+<p>
+\(C^0_4=1\) &#x2003;\(C^1_4=4\) &#x2003;\(C^2_4=6\) &#x2003;\(C^3_4=4\) &#x2003;\(C^4_4=1\)
+</p>
+
+</div>
+
+<p>
+We noemen deze getallen vanaf nu de binomiaalcoe&#x0308;fficie&#x0308;nten en we noteren
+</p>
+
+<p>
+\[{n \choose p} = \dfrac {n!}{p!       \cdot (n-p)!}\]
+</p>
+
+<p>
+We lezen \(n\) choose \(p\). Merk op dat de positie van \(n\) en \(p\) werd gewisseld ten opzichte van de notatie bij combinaties.
+</p>
+<!--
+...... section Binomium van Newton ......
+-->
+<h4 id="autosec-10"><span class="sectionnumber">II&#x2003;</span>Binomium van Newton</h4>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+Al deze patronen samenvattend kunnen we besluiten voor de \(n\)-de macht van een tweeterm:
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                              
+                                                                            n    n    n  0   n     n−1   1   n     n−2    2         n
+                                                                      (a + b) =     ·a ·b +     ·a     ·b +     ·a     · b + ... +     · an−n · bn
+                                                                                 0           1               2                      n
+
+                                                                                    n  
+                                                                                    X  n
+                                                                                =             · an−k · bk
+                                                                                          k
+                                                                                    k=0
+
+
+-->
+
+<p>
+
+\begin{align*}
+(a+b)^n &amp;= {n \choose 0} \cdot a^{n} \cdot b^{0} + {n \choose 1} \cdot a^{n-1} \cdot b^{1} + {n \choose 2} \cdot a^{n-2} \cdot b^{2} + \ldots + {n \choose n} \cdot a^{n-n} \cdot
+b^{n}\\[1em] &amp;=\sum _{k=0}^{n} {n \choose k} \cdot a^{n-k} \cdot b^{k}
+\end{align*}
+
+</p>
+
+</div>
+
+<p>
+Voor een bewijs door volledige inductie verwijzen we naar het handboek <i>VBTL Combinatoriek en Kansrekening</i> p. 62.
+</p>
+<!--
+...... section Driehoek van Pascal ......
+-->
+<h4 id="autosec-11"><span class="sectionnumber">III&#x2003;</span>Driehoek van Pascal</h4>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+Hiermee kunnen we een (oneindig doorlopende) tabel maken voor de binomiaalcoe&#x0308;fficie&#x0308;nten \(n \choose p\).<br />
+
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">&#x2003;&#x2003;&#x2003;\(p \rightarrow \)</td>
+<td class="tdc"><b>0</b></td>
+<td class="tdc"><b>1</b></td>
+<td class="tdc"><b>2</b></td>
+<td class="tdc"><b>3</b></td>
+<td class="tdc"><b>4</b></td>
+<td class="tdc"><b>5</b></td>
+<td class="tdc"><b>6</b></td>
+<td class="tdc"><b>7</b></td>
+<td class="tdc"><b>8</b></td>
+<td class="tdc"><b>9</b></td>
+<td class="tdc"><b>10</b></td>
+<td class="tdc"><b>11</b></td>
+<td class="tdc"><b>12</b></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\underset {\downarrow }{n}\)</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>0</b></td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>1</b></td>
+<td class="tdc">1</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>2</b></td>
+<td class="tdc">1</td>
+<td class="tdc">2</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>3</b></td>
+<td class="tdc">1</td>
+<td class="tdc">3</td>
+<td class="tdc">3</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>4</b></td>
+<td class="tdc">1</td>
+<td class="tdc">4</td>
+<td class="tdc">6</td>
+<td class="tdc">4</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>5</b></td>
+<td class="tdc">1</td>
+<td class="tdc">5</td>
+<td class="tdc">10</td>
+<td class="tdc">10</td>
+<td class="tdc">5</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>6</b></td>
+<td class="tdc">1</td>
+<td class="tdc">6</td>
+<td class="tdc">15</td>
+<td class="tdc">20</td>
+<td class="tdc">15</td>
+<td class="tdc">6</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>7</b></td>
+<td class="tdc">1</td>
+<td class="tdc">7</td>
+<td class="tdc">21</td>
+<td class="tdc">35</td>
+<td class="tdc">35</td>
+<td class="tdc">21</td>
+<td class="tdc">7</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>8</b></td>
+<td class="tdc">1</td>
+<td class="tdc">8</td>
+<td class="tdc">28</td>
+<td class="tdc">56</td>
+<td class="tdc">70</td>
+<td class="tdc">56</td>
+<td class="tdc">28</td>
+<td class="tdc">8</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>9</b></td>
+<td class="tdc">1</td>
+<td class="tdc">9</td>
+<td class="tdc">36</td>
+<td class="tdc">84</td>
+<td class="tdc">126</td>
+<td class="tdc">126</td>
+<td class="tdc">84</td>
+<td class="tdc">36</td>
+<td class="tdc">9</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>10</b></td>
+<td class="tdc">1</td>
+<td class="tdc">10</td>
+<td class="tdc">45</td>
+<td class="tdc">120</td>
+<td class="tdc">210</td>
+<td class="tdc">252</td>
+<td class="tdc">210</td>
+<td class="tdc">120</td>
+<td class="tdc">45</td>
+<td class="tdc">10</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>11</b></td>
+<td class="tdc">1</td>
+<td class="tdc">11</td>
+<td class="tdc">55</td>
+<td class="tdc">165</td>
+<td class="tdc">330</td>
+<td class="tdc">462</td>
+<td class="tdc">462</td>
+<td class="tdc">330</td>
+<td class="tdc">165</td>
+<td class="tdc">55</td>
+<td class="tdc">11</td>
+<td class="tdc">1</td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"><b>12</b></td>
+<td class="tdc">1</td>
+<td class="tdc">12</td>
+<td class="tdc">66</td>
+<td class="tdc">220</td>
+<td class="tdc">495</td>
+<td class="tdc">792</td>
+<td class="tdc">924</td>
+<td class="tdc">792</td>
+<td class="tdc">495</td>
+<td class="tdc">220</td>
+<td class="tdc">66</td>
+<td class="tdc">12</td>
+<td class="tdc">1</td>
+</tr>
+
+</table>
+
+</div>
+<!--
+...... section Eigenschappen van de binomiaalcoefficienten ......
+-->
+<h4 id="autosec-14"><span class="sectionnumber">IV&#x2003;</span>Eigenschappen van de binomiaalcoe&#x0308;fficie&#x0308;nten</h4>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+Concentreren we ons nog even op de driehoek van Pascal. Dan herkennen we ook daarin bepaalde patronen en symmetriee&#x0308;n. Duid deze in twee verschillende kleuren aan op de voorgaande pagina.
+</p>
+<!--
+...... subsection Eigenschap 1 ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">1&#x2003;</span>Eigenschap 1</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<div class="center">
+<p>
+\(\displaystyle {n \choose p} = { n \choose n-p}\)
+</p>
+</div>
+
+</div>
+
+<p>
+Bewijs:
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                        n!                 n!
+                                                                               ⇔               =                     
+                                                                                    p!(n − p)!   (n − p)! n − (n − p) !
+                                                                                        n!           n!
+                                                                               ⇔               =
+                                                                                    p!(n − p)!   (n − p)! p!
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Leftrightarrow \quad \frac {n!}{p!(n-p)!} &amp;= \frac {n!}{(n-p)!\bigl (n-(n-p)\bigr )!} \\ \Leftrightarrow \quad \frac {n!}{p!(n-p)!} &amp;= \frac {n!}{(n-p)!\,p!}
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Eigenschap 2 ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">2&#x2003;</span>Eigenschap 2</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<div class="center">
+<p>
+\(\displaystyle {n \choose p} = {n-1 \choose p-1} + {n-1 \choose p}\)
+</p>
+</div>
+
+</div>
+
+<p>
+Bewijs:
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                           (n − 1)!        (n − 1)!
+                                                                                RL =                   +
+                                                                                       (p − 1)!(n − p)! p!(n − 1 − p)!
+                                                                                       (n − 1)! p   (n − 1)! (n − p)
+                                                                                   =              +
+                                                                                       p!(n − p)!      p!(n − p)!
+                                                                                       (n − 1)! [ p + (n − p) ]
+                                                                                   =
+                                                                                             p!(n − p)!
+                                                                                       (n − 1)! n
+                                                                                   =
+                                                                                       p!(n − p)!
+                                                                                                      
+                                                                                         n!           n
+                                                                                   =            =        = LL.
+                                                                                     p!(n − p)!       p
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {RL} &amp;= \frac {(n-1)!}{(p-1)!(n-p)!} + \frac {(n-1)!}{p!(n-1-p)!} \\ &amp;= \frac {(n-1)!\,p}{p!(n-p)!} + \frac {(n-1)!\,(n-p)}{p!(n-p)!} \\ &amp;= \frac
+{(n-1)!\,[\,p+(n-p)\,]}{p!(n-p)!} \\ &amp;= \frac {(n-1)!\,n}{p!(n-p)!} \\ &amp;= \frac {n!}{p!(n-p)!} = {n \choose p} = \text {LL}.
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i><br />
+Nrs. 1, 2 en 3 p. 67
+</p>
+<!--
+...... section Toepassingen ......
+-->
+<h4 id="autosec-20"><span class="sectionnumber">V&#x2003;</span>Toepassingen</h4>
+<a id="mkpiweb-autopage-20"></a>
+<!--
+...... subsection Toepassing 1: Berekeningen in een aantal decimalen nauwkeurig ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">1&#x2003;</span>Toepassing 1: Berekeningen in een aantal decimalen nauwkeurig</h5>
+<a id="mkpiweb-autopage-21"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-22"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+Bereken (zonder ICT) \(1.02^{10}\) in vijf decimalen nauwkeurig.<br />
+
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                               1.0210 = (1 + 0.02)10
+                                                                     = (1 + 2 · 10−2 )10
+                                                                                                                                     
+                                                                         10                  10                 10                         10
+                                                                     =       (2 · 10−2 )0 +     (2 · 10−2 )1 +     (2 · 10−2 )2 + · · · +     (2 · 10−2 )10
+                                                                          0                  1                   2                         10
+                                                                     = 1 + 20 · 10−2 + 180 · 10−4 + 960 · 10−6 + 3360 · 10−8 + 8064 · 10−10 +           ···
+                                                                                                                                                       |{z}
+                                                                                                                                                geen invloed meer op
+                                                                                                                                                de eerste 5 decimalen
+
+                                                                     ≈1
+                                                                         0.2
+                                                                         0.018
+                                                                         0.00096
+                                                                         0.0000336
+                                                                         0.0000008064
+                                                                     ≈ 1.2189944064
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+1.02^{10} &amp;= (1+0.02)^{10} \\ &amp;= (1+2\cdot 10^{-2})^{10} \\ &amp;= {10 \choose 0}(2\cdot 10^{-2})^{0} + {10 \choose 1}(2\cdot 10^{-2})^{1} + {10 \choose 2}(2\cdot 10^{-2})^{2} + \cdots
++ {10 \choose 10}(2\cdot 10^{-2})^{10} \\ &amp;= 1 + 20\cdot 10^{-2} + 180\cdot 10^{-4} + 960\cdot 10^{-6} + 3360\cdot 10^{-8} + 8064\cdot 10^{-10} + \underbrace {\cdots }_{\substack {\text
+{geen invloed meer op} \\ \text {de eerste 5 decimalen}}} \\ &amp;\approx {\begin{aligned}[t] &amp; 1 \\ &amp; 0.2 \\ &amp; 0.018 \\ &amp; 0.00096 \\ &amp; 0.0000336 \\ &amp; \underline
+{0.0000008064} \end {aligned}}\\ &amp;\approx 1.2189944064
+\end{align*}
+In vijf decimalen nauwkeurig is \(1.02^{10} = 1.21899\).
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-23"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i> p. 65: \(1.05^6\) in vier decimalen nauwkeurig.
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-24"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i><br />
+Nr. 6 p. 68.
+</p>
+<!--
+...... subsection Toepassing 2: Bepaal de gevraagde term ......
+-->
+<h5 id="autosec-25"><span class="sectionnumber">2&#x2003;</span>Toepassing 2: Bepaal de gevraagde term</h5>
+<a id="mkpiweb-autopage-25"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-26"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+Bepaal de term in \(x\) in de ontwikkeling van \((\sqrt [3]{x}-\frac {3}{x})^{11}\)<br />
+
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                          k
+                                                                                                       √
+                                                                                                                 
+                                                                                                                     −3
+                                                                                    alg. term = C11
+                                                                                                 k
+                                                                                                    ( 3 x)11−k
+                                                                                                                     x
+                                                                                                              11−k
+                                                                                                 k
+                                                                                              = C11 (−3)k x     3     x−k
+                                                                                                              11−4k
+                                                                                                 k
+                                                                                                    (−3)k x
+                                                                                                                                                           
+                                                                                              = C11             3              k ∈ {0, 1, 2, . . . , 11}
+
+
+
+                                                                                                11 − 4k
+                                                                            term in x1 ⇔    1=
+                                                                                                   3
+                                                                                      ⇔     3 = 11 − 4k
+                                                                                      ⇔ 4k = 8
+                                                                                      ⇔     k=2
+
+
+
+                                                                            ⇒ gezochte term = C11
+                                                                                               2
+                                                                                                  (−3)2 x1
+                                                                                              = 55 · 9 · x
+                                                                                              = 495x
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {alg. term} &amp;= C_{11}^{k}\,(\sqrt [3]{x})^{11-k}\left (\frac {-3}{x}\right )^{k} \\ &amp;= C_{11}^{k}\,(-3)^{k}\,x^{\frac {11-k}{3}}\;x^{-k} \\ &amp;= C_{11}^{k}\,(-3)^{k}\,x^{\frac
+{11-4k}{3}} \qquad \bigl (k\in \{0,1,2,\dots ,11\}\bigr )\\[1cm] \text {term in }x^{1} \Leftrightarrow \quad 1&amp;=\frac {11-4k}{3} \\ \Leftrightarrow \quad 3&amp;=11-4k \\ \Leftrightarrow
+\;\; 4k&amp;=8 \\ \Leftrightarrow \quad k&amp;=2\\[1cm] \Rightarrow \ \text {gezochte term} &amp;= C_{11}^{2}\,(-3)^{2}\,x^{1} \\ &amp;= 55\cdot 9 \cdot x \\ &amp;= 495x
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-27"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i> p. 65: Bepaal de term in \(x^5\) in de ontwikkeling van \((\sqrt {x}-\frac {1}{x})^{8}\)<br />
+
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-28"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i> Nrs. 4, 5 en 9 p. 67 en volgende.
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

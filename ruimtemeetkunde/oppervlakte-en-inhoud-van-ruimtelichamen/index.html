@@ -1,0 +1,1795 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Oppervlakte en inhoud van ruimtelichamen</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 5</p> <h1>Oppervlakte en inhoud van ruimtelichamen</h1> </header>
+</p>
+<!--
+...... section Veelvlakken ......
+-->
+<h4 id="autosec-2"><span class="sectionnumber">I&#x2003;</span>Veelvlakken</h4>
+<a id="mkpiweb-autopage-2"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-3"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<p>
+Een <em>veelvlak</em> is <span class="opl opl-fill" >een ruimtefiguur die uitsluitend begrensd is door vlakke veelhoeken.</span>
+</p>
+
+<p>
+Een \(n\)-vlak heeft <span class="opl opl-fill" >\(n\) zijvlakken.</span>
+</p>
+
+<dl class="description" >
+
+<dt><span class="listmarker">zijvlakken</span></dt>
+<dd>
+<p>
+<span class="opl opl-fill" >de begrenzende veelhoeken.</span>
+</p>
+
+</dd>
+<dt><span class="listmarker">ribben</span></dt>
+<dd>
+<p>
+<span class="opl opl-fill" >de zijden van de zijvlakken.</span>
+</p>
+
+</dd>
+<dt><span class="listmarker">hoekpunten</span></dt>
+<dd>
+<p>
+<span class="opl opl-fill" >de hoekpunten van de zijvlakken.</span>
+</p>
+</dd>
+</dl>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe data-vast src="./veelvlak_onderdelen.html?v=402252ac5dfa" style="display:block; width:48vw; height:40vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Regelmatige veelvlakken ......
+-->
+<h5 id="autosec-5"><span class="sectionnumber">2&#x2003;</span>Regelmatige veelvlakken</h5>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+Een veelvlak is <em>regelmatig</em> wanneer alle zijvlakken congruente regelmatige veelhoeken zijn en in elk hoekpunt evenveel ribben samenkomen. Er zijn er precies vijf.
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe data-vast src="./regelmatige_veelvlakken.html?v=2ddef0adbdc5" style="display:block; width:86vw; height:30vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="tbrule">
+<td class="tdl">veelvlak</td>
+<td class="tdl">zijvlak</td>
+<td class="tdc">\(z\)</td>
+<td class="tdc">\(r\)</td>
+<td class="tdc">\(h\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdl">viervlak (tetrae&#x0308;der)</td>
+<td class="tdl">gelijkzijdige driehoek</td>
+<td class="tdc">4</td>
+<td class="tdc">6</td>
+<td class="tdc">4</td>
+</tr>
+
+<tr>
+<td class="tdl">kubus (hexae&#x0308;der)</td>
+<td class="tdl">vierkant</td>
+<td class="tdc">6</td>
+<td class="tdc">12</td>
+<td class="tdc">8</td>
+</tr>
+
+<tr>
+<td class="tdl">achtvlak (octae&#x0308;der)</td>
+<td class="tdl">gelijkzijdige driehoek</td>
+<td class="tdc">8</td>
+<td class="tdc">12</td>
+<td class="tdc">6</td>
+</tr>
+
+<tr>
+<td class="tdl">twaalfvlak (dodecae&#x0308;der)</td>
+<td class="tdl">regelmatige vijfhoek</td>
+<td class="tdc">12</td>
+<td class="tdc">30</td>
+<td class="tdc">20</td>
+</tr>
+
+<tr>
+<td class="tdl">twintigvlak (icosae&#x0308;der)</td>
+<td class="tdl">gelijkzijdige driehoek</td>
+<td class="tdc">20</td>
+<td class="tdc">30</td>
+<td class="tdc">12</td>
+</tr>
+
+<tr class="tbrule" aria-hidden="true">
+<td class="tdl"></td>
+<td class="tdl"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+</table>
+
+</div>
+
+<p>
+Hierin is \(z\) het aantal zijvlakken, \(r\) het aantal ribben en \(h\) het aantal hoekpunten. In elke rij geldt de formule van Euler:
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(h-r+z=2\)</span>
+</p>
+</div>
+<!--
+...... subsection Prisma ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">3&#x2003;</span>Prisma</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+Een <em>prisma</em> ontstaat door een veelhoek evenwijdig te verschuiven: het grond- en het bovenvlak zijn congruente veelhoeken, de zijvlakken zijn parallellogrammen. Bij een <em>recht</em> prisma staan de opstaande ribben
+loodrecht op het grondvlak en zijn de zijvlakken rechthoeken.
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe data-vast src="./prisma.html?v=8d53264a7954" style="display:block; width:42vw; height:38vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div>
+
+<p>
+Met \(G\) de oppervlakte van het grondvlak, \(p\) de omtrek van het grondvlak en \(h\) de hoogte:
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(M=p\cdot h\)</span>&#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(S=M+2G\)</span>&#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(I=G\cdot h\)</span>
+</p>
+</div>
+
+<p>
+Bijzondere gevallen zijn de balk met ribben \(l\), \(b\) en \(h\), en de kubus met ribbe \(z\):
+</p>
+<div class="center">
+
+<p>
+\(S_{\text {balk}}=2(lb+lh+bh)\),&#x2003;\(I_{\text {balk}}=l\cdot b\cdot h\),&#x2003;&#x2003;\(S_{\text {kubus}}=6z^2\),&#x2003;\(I_{\text {kubus}}=z^3\).
+</p>
+</div>
+<!--
+...... subsection Piramide ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">4&#x2003;</span>Piramide</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+Een <em>piramide</em> met top \(T\) ontstaat door elk punt van een veelhoek met \(T\) te verbinden. Bij een <em>regelmatige</em> piramide is het grondvlak een regelmatige veelhoek en valt de voetpunt \(M\) van de hoogte
+samen met het middelpunt ervan. De hoogte van een opstaand zijvlak heet het <em>apothema</em> \(a\) van de piramide.
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe data-vast src="./piramide.html?v=2356ae336528" style="display:block; width:42vw; height:38vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(M=\dfrac {p\cdot a}{2}\)</span>&#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(S=M+G\)</span>&#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(I=\dfrac {1}{3}\,G\cdot h\)</span>
+</p>
+</div>
+
+<p>
+De formule voor het manteloppervlak geldt enkel voor een regelmatige piramide; in het algemeen tel je de oppervlakten van de driehoekige zijvlakken op.
+</p>
+<!--
+...... section Omwentelingslichamen ......
+-->
+<h4 id="autosec-17"><span class="sectionnumber">II&#x2003;</span>Omwentelingslichamen</h4>
+<a id="mkpiweb-autopage-17"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-18"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Een <em>omwentelingslichaam</em> is een ruimtefiguur met <span class="opl opl-fill" >oneindig veel symmetrievlakken,</span>
+</p>
+
+<p>
+die alle gaan door <span class="opl opl-fill" >één rechte: de as van het ruimtelichaam.</span>
+</p>
+
+<p>
+Zo’n lichaam ontstaat door <span class="opl opl-fill" >een vlakke figuur om die as te wentelen.</span>
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe data-vast src="./omwentelingslichaam.html?v=606289a7515f" style="display:block; width:48vw; height:40vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Cilinder ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">2&#x2003;</span>Cilinder</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+Een <em>cilinder</em> ontstaat door een rechthoek om een van haar zijden te laten wentelen. Grond- en bovenvlak zijn congruente cirkels met straal \(r\); de afstand ertussen is de hoogte \(h\).
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe data-vast src="./cilinder.html?v=82da283d58a9" style="display:block; width:38vw; height:40vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(M=2\pi r h\)</span>&#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(S=2\pi r^2+2\pi r h\)</span>&#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(I=\pi r^2 h\)</span>
+</p>
+</div>
+
+<p>
+Het manteloppervlak vouw je open tot een rechthoek met afmetingen \(2\pi r\) en \(h\); daaruit volgt \(M=2\pi r h\).
+</p>
+<!--
+...... subsection Kegel ......
+-->
+<h5 id="autosec-23"><span class="sectionnumber">3&#x2003;</span>Kegel</h5>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+Een <em>kegel</em> ontstaat door een rechthoekige driehoek om een rechthoekszijde te laten wentelen. De schuine zijde beschrijft het manteloppervlak en heet de <em>beschrijvende</em> of het <em>apothema</em> \(a\).
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe data-vast src="./kegel.html?v=dbd6bfe52b76" style="display:block; width:38vw; height:40vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(M=\pi r a\)</span>&#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(S=\pi r^2+\pi r a\)</span>&#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(I=\dfrac {1}{3}\pi r^2 h\)</span>
+</p>
+</div>
+
+<p>
+Tussen \(r\), \(h\) en \(a\) geldt de stelling van Pythagoras: \(a^2=r^2+h^2\).
+</p>
+<!--
+...... subsection Kegelstomp ......
+-->
+<h5 id="autosec-26"><span class="sectionnumber">4&#x2003;</span>Kegelstomp</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+Snijd je een kegel door met een vlak evenwijdig met het grondvlak, dan blijft onderaan een <em>kegelstomp</em> over met stralen \(r_1\) en \(r_2\), hoogte \(h\) en apothema \(a\).
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe data-vast src="./kegelstomp.html?v=5fea3f3da97c" style="display:block; width:42vw; height:36vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(M=\pi (r_1+r_2)a\)</span>&#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(S=M+\pi r_1^2+\pi r_2^2\)</span>
+</p>
+</div>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(I=\dfrac {1}{3}\pi h\left (r_1^2+r_2^2+r_1r_2\right )\)</span>
+</p>
+</div>
+<!--
+...... subsection Bol ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">5&#x2003;</span>Bol</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+Een <em>boloppervlak</em> ontstaat door een cirkel om een middellijn te laten wentelen; de <em>bol</em> is het boloppervlak samen met het gebied binnenin.
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe data-vast src="./bol.html?v=5aa33ca8ea1c" style="display:block; width:38vw; height:38vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(S=4\pi r^2\)</span>&#x2003;&#x2003;<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(I=\dfrac {4}{3}\pi r^3\)</span>
+</p>
+</div>
+<!--
+...... subsection Overzicht ......
+-->
+<h5 id="autosec-33"><span class="sectionnumber">6&#x2003;</span>Overzicht</h5>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+Te kennen: de oppervlakte en de inhoud van kubus, balk, prisma en piramide, en van cilinder, kegel en bol.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="tbrule">
+<td class="tdl">lichaam</td>
+<td class="tdl">totale oppervlakte \(S\)</td>
+<td class="tdl">inhoud \(I\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdl">kubus</td>
+<td class="tdl">\(6z^2\)</td>
+<td class="tdl">\(z^3\)</td>
+</tr>
+
+<tr>
+<td class="tdl">balk</td>
+<td class="tdl">\(2(lb+lh+bh)\)</td>
+<td class="tdl">\(lbh\)</td>
+</tr>
+
+<tr>
+<td class="tdl">prisma</td>
+<td class="tdl">\(p\cdot h+2G\)</td>
+<td class="tdl">\(G\cdot h\)</td>
+</tr>
+
+<tr>
+<td class="tdl">piramide</td>
+<td class="tdl">\(\dfrac {p\cdot a}{2}+G\)</td>
+<td class="tdl">\(\dfrac {1}{3}G\cdot h\)</td>
+</tr>
+
+<tr>
+<td class="tdl">cilinder</td>
+<td class="tdl">\(2\pi r^2+2\pi r h\)</td>
+<td class="tdl">\(\pi r^2 h\)</td>
+</tr>
+
+<tr>
+<td class="tdl">kegel</td>
+<td class="tdl">\(\pi r^2+\pi r a\)</td>
+<td class="tdl">\(\dfrac {1}{3}\pi r^2 h\)</td>
+</tr>
+
+<tr>
+<td class="tdl">kegelstomp</td>
+<td class="tdl">\(\pi (r_1+r_2)a+\pi r_1^2+\pi r_2^2\)</td>
+<td class="tdl">\(\dfrac {1}{3}\pi h(r_1^2+r_2^2+r_1r_2)\)</td>
+</tr>
+
+<tr>
+<td class="tdl">bol</td>
+<td class="tdl">\(4\pi r^2\)</td>
+<td class="tdl">\(\dfrac {4}{3}\pi r^3\)</td>
+</tr>
+
+<tr class="tbrule" aria-hidden="true">
+<td class="tdl"></td>
+<td class="tdl"></td>
+<td class="tdl"></td>
+</tr>
+</table>
+
+</div>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-36"><span class="sectionnumber">III&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-36"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-37">Oefening 1</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+Op een kubus met ribbe \(6\) staat een regelmatige vierzijdige piramide. Elk opstaand zijvlak van de piramide maakt een hoek van \(45\degree \) met het bovenvlak van de kubus.
+</p>
+<div class="center">
+
+<p>
+<iframe data-vast src="./oef_piramide_op_kubus.html?v=4aef2a6d6651" style="display:block; width:42vw; height:40vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bereken de hoogte \(h\) van de piramide.
+</p>
+<div class="oplossing">
+<p>
+Noem \(M\) het middelpunt van het bovenvlak, \(N\) het midden van een ribbe van dat bovenvlak en \(T\) de top. Dan is \(\widehat {MNT}\) juist de hoek tussen een opstaand zijvlak en het bovenvlak, dus \(\widehat
+{MNT}=45\degree \).
+</p>
+<p>
+Driehoek \(MNT\) is rechthoekig in \(M\), dus is ook \(\widehat {NTM}=45\degree \): de driehoek is gelijkbenig. Bijgevolg is
+</p>
+<p>
+\[h=|MT|=|MN|=\frac {6}{2}=3.\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bereken de verhouding van de inhoud van de piramide tot de inhoud van de kubus.
+</p>
+<div class="oplossing">
+<p>
+\[\frac {I_p}{I_k}=\frac {\frac 13\cdot 6^2\cdot h}{6^3} =\frac {h}{18}=\frac {3}{18}=\frac 16\]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-39">Oefening 2</h5>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+Bereken de inhoud van de bol die ingeschreven is in een kubus met ribbe \(6\ \text {cm}\).
+</p>
+<div class="center">
+
+<p>
+<iframe data-vast src="./oef_bol_in_kubus.html?v=fe7860ad8c40" style="display:block; width:40vw; height:38vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<div class="oplossing">
+
+<p>
+De bol raakt de zes zijvlakken, dus is de middellijn gelijk aan de ribbe:
+</p>
+
+<p>
+\[2r=6\ \Rightarrow \ r=3.\]
+</p>
+
+<p>
+\[I_{\text {bol}}=\frac 43\pi r^3=\frac 43\pi \cdot 3^3=36\pi \ \text {cm}^3\]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-41">Oefening 3</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+<b>Stelling van Archimedes.</b> Een bol met straal \(r\) heeft een omgeschreven cilinder: de cilinder raakt de bol volgens de evenaar en volgens grond- en bovenvlak.
+</p>
+<div class="center">
+
+<p>
+<iframe data-vast src="./oef_archimedes.html?v=cf2de07a521f" style="display:block; width:40vw; height:42vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Bewijs dat de bol en de cilinder dezelfde verhouding vertonen voor hun oppervlakte en voor hun inhoud, namelijk \(\dfrac 23\).
+</p>
+<div class="oplossing">
+
+<p>
+Uit de raking volgt \(r_{\text {cil}}=r\) en \(h_{\text {cil}}=2r\).
+</p>
+
+<p>
+<em>Oppervlakte.</em>
+</p>
+
+<p>
+\[\frac {S_{\text {bol}}}{S_{\text {cil}}} =\frac {4\pi r^2}{2\pi r^2+2\pi r\cdot 2r} =\frac {4\pi r^2}{2\pi r^2+4\pi r^2} =\frac {4\pi r^2}{6\pi r^2}=\frac 23\]
+</p>
+
+<p>
+<em>Inhoud.</em>
+</p>
+
+<p>
+\[\frac {I_{\text {bol}}}{I_{\text {cil}}} =\frac {\frac 43\pi r^3}{\pi r^2\cdot 2r} =\frac {\frac 43\pi r^3}{2\pi r^3}=\frac {4}{3}\cdot \frac 12=\frac 23\]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-43">Oefening 4</h5>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+De middelpunten van de zes zijvlakken van een kubus met ribbe \(2\) zijn de hoekpunten van een regelmatig achtvlak.
+</p>
+<div class="center">
+
+<p>
+<iframe data-vast src="./oef_octaeder_in_kubus.html?v=7a1e1ac08bfb" style="display:block; width:42vw; height:40vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Toon aan dat vier van die middelpunten telkens een vierkant vormen, en geef de drie vierkanten.
+</p>
+<div class="oplossing">
+<p>
+Leg de oorsprong in het middelpunt van de kubus. De zes middelpunten zijn dan \((\pm 1,0,0)\), \((0,\pm 1,0)\) en \((0,0,\pm 1)\).
+</p>
+<p>
+De vier punten \((\pm 1,0,0)\) en \((0,0,\pm 1)\) liggen alle in het vlak \(y=0\). Ze liggen op afstand \(1\) van de oorsprong en hun verbindingslijnen \([(-1,0,0),(1,0,0)]\) en \([(0,0,-1),(0,0,1)]\) staan loodrecht op
+elkaar en snijden elkaar middendoor. Een vierhoek waarvan de diagonalen even lang zijn, loodrecht op elkaar staan en elkaar middendoor snijden, is een vierkant.
+</p>
+<p>
+Op dezelfde manier vind je drie vierkanten: dat van de middelpunten van de vier opstaande zijvlakken, dat van boven-, onder-, voor- en achtervlak, en dat van boven-, onder-, linker- en rechterzijvlak.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bereken de oppervlakte van het achtvlak.
+</p>
+<div class="oplossing">
+<p>
+Noem \(z\) de ribbe van het achtvlak. Neem twee naburige zijvlakken, bijvoorbeeld die met middelpunt \((1,0,0)\) en \((0,0,1)\). Het midden \((1,0,1)\) van hun gemeenschappelijke ribbe ligt op afstand \(1\) van elk van
+beide, en de twee verbindingen staan loodrecht op elkaar:
+</p>
+<p>
+\[z^2=1^2+1^2=2\ \Rightarrow \ z=\sqrt 2.\]
+</p>
+<p>
+Elk van de acht zijvlakken is een gelijkzijdige driehoek met zijde \(z\) en hoogte
+</p>
+<p>
+\[h_\Delta =\sqrt {z^2-\left (\frac z2\right )^2}=\frac {\sqrt 3}{2}z,\]
+</p>
+<p>
+zodat
+</p>
+<p>
+\[S=8\cdot \frac {z\cdot h_\Delta }{2}=4z\cdot \frac {\sqrt 3}{2}z =2\sqrt 3\,z^2=2\sqrt 3\cdot 2=4\sqrt 3.\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Bewijs dat \(\dfrac {I_a}{I_k}=\dfrac 16\).
+</p>
+<div class="oplossing">
+<p>
+Het achtvlak bestaat uit twee piramides met als grondvlak het vierkant van de vier opstaande middelpunten en als hoogte de halve ribbe van de kubus, dus \(h_{\text {pir}}=1\). Dat vierkant heeft zijde \(z=\sqrt 2\) en dus
+oppervlakte \(2\). Bijgevolg
+</p>
+<p>
+\[I_a=2\cdot \frac 13\cdot 2\cdot 1=\frac 43 \quad \text {en}\quad I_k=2^3=8,\]
+</p>
+<p>
+zodat
+</p>
+<p>
+\[\frac {I_a}{I_k}=\frac {4/3}{8}=\frac 16.\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Bewijs dat \(\dfrac {I_a}{I_{\text {bol}}}=\dfrac 1\pi \), waarbij de bol in de kubus ingeschreven is.
+</p>
+<div class="oplossing">
+<p>
+De ingeschreven bol heeft straal \(r=1\) (de halve ribbe), dus
+</p>
+<p>
+\[I_{\text {bol}}=\frac 43\pi \cdot 1^3=\frac 43\pi \]
+</p>
+<p>
+en met \(I_a=\dfrac 43\) uit (c):
+</p>
+<p>
+\[\frac {I_a}{I_{\text {bol}}}=\frac {4/3}{\frac 43\pi }=\frac 1\pi .\]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-45">Oefening 5</h5>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p>
+In een kegel met grondstraal \(r\), hoogte \(h\) en apothema \(a\) schrijven we een cilinder in: het grondvlak van de cilinder ligt in het grondvlak van de kegel en de bovenrand ligt op het manteloppervlak. Boven de cilinder blijft
+een kleinere kegel over, met straal \(r_1\), hoogte \(h_2\) en apothema \(a_1\).
+</p>
+<div class="center">
+
+<p>
+<iframe data-vast src="./oef_cilinder_in_kegel.html?v=082d0c867ada" style="display:block; width:52vw; height:40vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bepaal \(r_1\) zodat het manteloppervlak van de cilinder gelijk is aan dat van de bovenste kegel.
+</p>
+<div class="oplossing">
+<p>
+Uit de gelijkvormigheid van de bovenste kegel met de volledige kegel:
+</p>
+<p>
+\[\frac {a_1}{r_1}=\frac ar\ \Rightarrow \ a_1=a\cdot \frac {r_1}{r}, \qquad \frac {h_2}{r_1}=\frac hr\ \Rightarrow \ h_2=h\cdot \frac {r_1}{r},\]
+</p>
+<p>
+zodat de hoogte van de cilinder
+</p>
+<p>
+\[h_1=h-h_2=h-h\cdot \frac {r_1}{r}=h\cdot \frac {r-r_1}{r}\]
+</p>
+<p>
+is. Verder is \(h=\sqrt {a^2-r^2}\). De voorwaarde wordt
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                            2πr1 h1 = πr1 a1 ⇔ 2h1 = a1
+                                                                                                                   r − r1      r1
+                                                                                                             ⇔ 2h ·       =a·
+                                                                                                                     r          r
+                                                                                                             ⇔ 2hr − 2hr1 = ar1
+                                                                                                             ⇔ (a + 2h) r1 = 2hr
+
+
+-->
+
+<p>
+
+\begin{align*}
+2\pi r_1h_1=\pi r_1a_1 &amp;\Leftrightarrow 2h_1=a_1\\ &amp;\Leftrightarrow 2h\cdot \frac {r-r_1}{r}=a\cdot \frac {r_1}{r}\\ &amp;\Leftrightarrow 2hr-2hr_1=ar_1\\ &amp;\Leftrightarrow
+(a+2h)\,r_1=2hr
+\end{align*}
+
+</p>
+<p>
+\[\boxed {r_1=\frac {2hr}{a+2h}=\frac {2r\sqrt {a^2-r^2}}{a+2\sqrt {a^2-r^2}}}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bepaal \(r_1\) zodat de inhoud van de cilinder gelijk is aan die van de bovenste kegel.
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                     1 2            1
+                                                                                         πr12 h1 =    πr h2 ⇔ h1 = h2
+                                                                                                     3 1            3
+                                                                                                                 r − r1   1    r1
+                                                                                                            ⇔h·          = ·h·
+                                                                                                                    r     3    r
+                                                                                                                        1        4
+                                                                                                            ⇔ r − r1 = r1 ⇔ r = r1
+                                                                                                                        3        3
+
+-->
+
+<p>
+
+\begin{align*}
+\pi r_1^2h_1=\frac 13\pi r_1^2h_2 &amp;\Leftrightarrow h_1=\frac 13h_2\\ &amp;\Leftrightarrow h\cdot \frac {r-r_1}{r}=\frac 13\cdot h\cdot \frac {r_1}{r}\\ &amp;\Leftrightarrow r-r_1=\frac
+13r_1 \Leftrightarrow r=\frac 43r_1
+\end{align*}
+
+</p>
+<p>
+\[\boxed {r_1=\frac 34r}\]
+</p>
+<p>
+Deze waarde hangt niet af van de hoogte van de kegel.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 6 ......
+-->
+<h5 id="autosec-47">Oefening 6</h5>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+Van een kegelstomp \(K\) is de oppervlakte van het grondvlak vier keer de oppervlakte van het bovenvlak. In \(K\) is een bol \(B\) ingeschreven: hij raakt grond- en bovenvlak en het manteloppervlak.
+</p>
+<div class="center">
+
+<p>
+<iframe data-vast src="./oef_bol_in_kegelstomp.html?v=0f03f592f70e" style="display:block; width:44vw; height:34vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Bewijs dat \(\dfrac {V_B}{V_K}=\dfrac 47\).
+</p>
+<div class="oplossing">
+
+<p>
+Noem \(r_1\) de straal van het grondvlak, \(r_2\) die van het bovenvlak en \(r_B\) die van de bol. Uit het gegeven volgt
+</p>
+
+<p>
+\[\pi r_1^2=4\pi r_2^2\ \Leftrightarrow \ r_1^2=4r_2^2 \ \Leftrightarrow \ r_1=2r_2.\]
+</p>
+
+<p>
+Omdat de bol grond- en bovenvlak raakt, is
+</p>
+
+<p>
+\[h_K=2r_B.\]
+</p>
+
+<p>
+We werken in het asvlak. Daarin is de doorsnede van \(K\) een gelijkbenig trapezium met een ingeschreven cirkel. De raaklijnstukken uit eenzelfde punt zijn even lang, dus is het apothema \(a=r_1+r_2\). Met Pythagoras:
+</p>
+
+<p>
+\[a^2=h_K^2+(r_1-r_2)^2 \Leftrightarrow (r_1+r_2)^2=4r_B^2+(r_1-r_2)^2 \Leftrightarrow r_B^2=r_1r_2.\]
+</p>
+
+<p>
+Met \(r_1=2r_2\) geeft dat \(r_B=r_2\sqrt 2\) en \(h_K=2\sqrt 2\,r_2\).
+</p>
+
+<p>
+Nu volgt
+</p>
+
+<p>
+\[V_B=\frac 43\pi r_B^3=\frac 43\pi \left (r_2\sqrt 2\right )^3 =\frac {8\sqrt 2}{3}\pi r_2^3\]
+</p>
+
+<p>
+\[V_K=\frac 13\pi h_K\left (r_1^2+r_2^2+r_1r_2\right ) =\frac 13\pi \cdot 2\sqrt 2\,r_2\cdot \left (4r_2^2+r_2^2+2r_2^2\right ) =\frac {14\sqrt 2}{3}\pi r_2^3\]
+</p>
+
+<p>
+\[\frac {V_B}{V_K}=\frac {8\sqrt 2}{14\sqrt 2}=\frac 47\]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 7 ......
+-->
+<h5 id="autosec-49">Oefening 7</h5>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+De piramide van Cheops en de glazen piramide van het Louvre zijn beide regelmatige vierzijdige piramides. Voor Cheops is \(|AB|=230.4\ \text {m}\) en \(|TM|=146.3\ \text {m}\); voor het Louvre is \(|AB|=34\ \text
+{m}\) en \(|TM|=21\ \text {m}\).
+</p>
+<div class="center">
+
+<p>
+<iframe data-vast src="./oef_cheops.html?v=ca4937285f8b" style="display:block; width:50vw; height:38vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Hierin is \(M\) het middelpunt van het grondvlak en \(N\) het midden van de ribbe \([AB]\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bereken voor beide de hellingshoek \(\alpha \) van een zijvlak met het grondvlak.
+</p>
+<div class="oplossing">
+<p>
+In de gelijkbenige driehoek \(ATB\) is \([TN]\) zowel zwaartelijn als hoogtelijn, dus \(TN\bot AB\). Ook \(MN\bot AB\), zodat \(\alpha =\widehat {TNM}\).
+</p>
+<p>
+Driehoek \(TMN\) is rechthoekig in \(M\) en \(|MN|=\dfrac {|AB|}{2}\), dus
+</p>
+<p>
+\[\tan \alpha =\frac {|TM|}{|MN|}.\]
+</p>
+<p>
+Cheops: \(|MN|=115.2\) en \(\tan \alpha =\dfrac {146.3}{115.2}\), dus \(\alpha \approx 51\degree 46&apos;56&apos;&apos;\).
+</p>
+<p>
+Louvre: \(|MN|=17\) en \(\tan \alpha =\dfrac {21}{17}\), dus \(\alpha \approx 51\degree 0&apos;32&apos;&apos;\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bereken van beide de inhoud.
+</p>
+<div class="oplossing">
+<p>
+\[I=\frac 13\,|AB|^2\cdot |TM|\]
+</p>
+<p>
+Cheops: \(I=\frac 13\cdot 230.4^2\cdot 146.3\approx 2\,588\,737.5\ \text {m}^3\).
+</p>
+<p>
+Louvre: \(I=\frac 13\cdot 34^2\cdot 21=8092\ \text {m}^3\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Bereken van beide \(\dfrac {|TN|}{|NM|}\) en vergelijk met het gulden getal \(\varphi =\dfrac {1+\sqrt 5}{2}\approx 1.618\).
+</p>
+<div class="oplossing">
+<p>
+\[\frac {|TN|}{|NM|}=\frac {\sqrt {|NM|^2+|MT|^2}}{|NM|}\]
+</p>
+<p>
+Cheops: \(\dfrac {\sqrt {115.2^2+146.3^2}}{115.2}\approx 1.6164\).
+</p>
+<p>
+Louvre: \(\dfrac {\sqrt {17^2+21^2}}{17}\approx 1.5893\).
+</p>
+<p>
+Cheops benadert \(\varphi \) dus het best.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 8 ......
+-->
+<h5 id="autosec-51">Oefening 8</h5>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<p>
+Op de uitslag hieronder zijn \(A\) en \(B\) twee hoekpunten van een regelmatig twintigvlak met ribbe \(1\). Bereken de lengte van de kortste weg over het oppervlak van \(A\) naar \(B\).
+</p>
+<div class="center">
+
+<p>
+<iframe data-vast src="./oef_icosaeder_uitslag.html?v=bfddc98d06f5" style="display:block; width:64vw; height:28vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<div class="oplossing">
+
+<p>
+Snijd het twintigvlak open en vouw de zijvlakken tussen \(A\) en \(B\) in één vlak. Een weg over het oppervlak wordt daarbij een weg in het vlak, dus is de kortste weg het lijnstuk \([AB]\) van de uitslag.
+</p>
+
+<p>
+Dat lijnstuk snijdt de middelste rij in het punt \(C\). In driehoek \(ACD\) is \(|AD|=1\), \(|DC|=\dfrac 12\) en \(\widehat {ADC}=120\degree \) (twee hoeken van \(60\degree \) naast elkaar). Met de cosinusregel:
+</p>
+
+<p>
+\[|AC|^2=1^2+\left (\frac 12\right )^2-2\cdot 1\cdot \frac 12\cdot \cos 120\degree =\frac 54+\frac 12=\frac 74 \ \Rightarrow \ |AC|=\frac {\sqrt 7}{2}.\]
+</p>
+
+<p>
+Wegens de symmetrie is \(|CB|=|AC|\), zodat
+</p>
+
+<p>
+\[|AB|=2\cdot \frac {\sqrt 7}{2}=\sqrt 7\approx 2.65.\]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 9 ......
+-->
+<h5 id="autosec-53">Oefening 9</h5>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Een halfbolvormige kom met straal \(R\) en een cilindervormige beker zonder deksel, ook met straal \(R\) en met hoogte \(R\), worden zowel vanbinnen als vanbuiten geverfd. Hoeveel keer zoveel verf heeft de beker nodig als de kom?
+</p>
+<div class="oplossing">
+
+<p>
+Kom: het halve boloppervlak telt tweemaal mee,
+</p>
+
+<p>
+\[S_{\text {kom}}=2\cdot 2\pi R^2=4\pi R^2.\]
+</p>
+
+<p>
+Beker: mantel en bodem tellen elk tweemaal mee, een deksel is er niet,
+</p>
+
+<p>
+\[S_{\text {beker}}=2\left (2\pi R\cdot R+\pi R^2\right )=6\pi R^2.\]
+</p>
+
+<p>
+\[k=\frac {S_{\text {beker}}}{S_{\text {kom}}}=\frac {6\pi R^2}{4\pi R^2} =\frac 32=1.5\]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 10 ......
+-->
+<h5 id="autosec-54">Oefening 10</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+Gegeven een regelmatig viervlak met inhoud \(V_0\). De zwaartepunten van de vier zijvlakken zijn de hoekpunten van een kleiner viervlak met inhoud \(V_1\); de middens van de zes ribben zijn de hoekpunten van een achtvlak
+met inhoud \(V_2\).
+</p>
+<div class="center">
+
+<p>
+<iframe data-vast src="./oef_viervlak_achtvlak.html?v=10e25423a49b" style="display:block; width:48vw; height:40vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Bereken \(\dfrac {V_2}{V_1}\).
+</p>
+<div class="oplossing">
+
+<p>
+<em>Het kleine viervlak.</em> Noem de hoekpunten \(A\), \(B\), \(C\) en \(D\). De zwaartepunten van de zijvlakken \(BCD\) en \(ACD\) zijn \(\frac {B+C+D}{3}\) en \(\frac {A+C+D}{3}\); hun verschil is \(\frac {B-A}{3}\).
+Elke ribbe van het kleine viervlak is dus evenwijdig met een ribbe van het grote en drie keer korter: het kleine viervlak is gelijkvormig met het grote, met factor \(\frac 13\):
+</p>
+
+<p>
+\[V_1=\left (\frac 13\right )^3V_0=\frac {V_0}{27}.\]
+</p>
+
+<p>
+<em>Het achtvlak.</em> Snijd van het viervlak in elk hoekpunt het viervlak weg dat door de middens van de drie ribben in dat hoekpunt bepaald wordt. Elk van die vier stukken is gelijkvormig met het geheel, met factor \(\frac
+12\):
+</p>
+
+<p>
+\[V_2=V_0-4\cdot \left (\frac 12\right )^3V_0=V_0-\frac {V_0}{2}=\frac {V_0}{2}.\]
+</p>
+
+<p>
+\[\frac {V_2}{V_1}=\frac {V_0/2}{V_0/27}=\frac {27}{2}=13.5\]
+</p>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

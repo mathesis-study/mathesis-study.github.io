@@ -1,0 +1,21 @@
+{
+ "titel": "Vergelijkingen van rechten en vlakken",
+ "hoofdstuk": 3,
+ "code": "R03",
+ "vak": "Wiskunde",
+ "domein": "Ruimtemeetkunde",
+ "domeinnaam": "Ruimtemeetkunde",
+ "url": "ruimtemeetkunde/vergelijkingen-van-rechten-en-vlakken",
+ "secties": [
+  "Rechten",
+  "Vlakken",
+  "Rang van een matrix"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.08",
+  "WD3_06.08.09"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

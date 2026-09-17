@@ -1,0 +1,4408 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Goniometrische functies</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 9</p> <h1>Goniometrische functies</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                A
+sin θ
+            θ
+        cos θ
+
+
+                    P
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>BV3_06.02</b> (MD 06.02) De leerlingen brengen met behulp van de grafiek, kenmerken van een functie in verband met de betekenisvolle situatie die door de functie beschreven wordt.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>BV3_06.08</b> (MD 06.08) De leerlingen tekenen de grafiek van de functie \(f(x)=\sin x\) vanuit de goniometrische cirkel.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>BV3_06.09</b> (MD 06.09) De leerlingen gebruiken transformaties van de vorm \(f(x)+k\), \(f(x-k)\), \(f(x/k)\) en \(k\cdot f(x)\) om de grafiek van een algemene sinusfunctie
+\(f(x)=a\cdot \sin [b(x-c)]+d\) op te bouwen vanuit de grafiek van \(f(x)=\sin x\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>BV3_06.10</b> (MD 06.10) De leerlingen analyseren kenmerken van een algemene sinusfunctie aan de hand van de grafiek: <span class="leerplan-grijs">domein</span>, <span
+class="leerplan-grijs">bereik</span>, <span class="leerplan-grijs">nulwaarden</span>, <span class="leerplan-grijs">tekenverloop</span>, <span class="leerplan-grijs">stijgen/dalen</span>, <span
+class="leerplan-grijs">extrema</span>, <span class="leerplan-grijs">symmetrie</span>, periodiciteit en amplitude.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.18</b> (MD 06.08.13) De leerlingen lossen eenvoudige <span class="leerplan-grijs">veeltermvergelijkingen</span>, <span class="leerplan-grijs">rationale
+vergelijkingen</span>, <span class="leerplan-grijs">irrationale vergelijkingen</span>, <span class="leerplan-grijs">exponentie&#x0308;le vergelijkingen</span>, <span class="leerplan-grijs">logaritmische
+vergelijkingen</span> en goniometrische vergelijkingen algebraı&#x0308;sch op.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">deling van veeltermen</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">deling door \((x-a)\)</span>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.21</b> (MD 06.08.07) De leerlingen leggen het verband tussen de grafiek en het voorschrift van een functie en haar kenmerken.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">veeltermfuncties</span>, <span class="leerplan-grijs">rationale functies</span>, <span class="leerplan-grijs">(elementaire)
+irrationale functies</span>, <span class="leerplan-grijs">exponentie&#x0308;le functies</span>, <span class="leerplan-grijs">logaritmische functies \(f(x)=\log _a(x)\)</span>, goniometrische functies \(f(x)=\cos
+x\) en \(f(x)=\tan x\), <span class="leerplan-grijs">cyclometrische functies</span>, <span class="leerplan-grijs">absolute waardenfunctie</span>, <span class="leerplan-grijs">meervoudig
+functievoorschrift</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: domein, bereik, nulwaarden, tekenverloop, stijgen/dalen/constant, extrema, <span class="leerplan-grijs">constante/toenemende/afnemende stijging/daling</span>,
+symmetrie, periode, amplitude, asymptotisch gedrag, <span class="leerplan-grijs">gedrag op oneindig</span>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.23</b> De leerlingen tekenen de grafiek van de functies \(f(x)=\cos x\) en \(f(x)=\tan x\).
+</p>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> even en oneven functies
+</p>
+
+<p>
+<b>Extra uitleg:</b> periodieke functies, periode, amplitude, evenwichtsstand, fase of faseverschil, cotangensfunctie, hol/bol, buigpunten
+</p>
+
+</div>
+<!--
+...... section Periodieke functies ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Periodieke functies</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Inleiding ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Inleiding</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+In het dagelijkse leven zijn er heel wat processen die steeds volgens eenzelfde patroon terugkomen. Denk maar aan je hartslagritme, bloeddruk, de trilling van een stemvork, eb en vloed, draaien van een reuzenrad &#x2026;
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+Zie VBTL Analyse 1b: p154 (Hartslag)
+</p>
+
+<p>
+Als het hart normaal functioneert, dan spreken we van een sinusritme. Dit is vernoemd naar de sinusknoop in de rechterboezemwand, aangezien elke slag een gevolg is van een elektrische ontlading van deze sinusknoop.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+Normal heartbeat
+
+
+Irregular heartbeat
+             P
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+We zien dat een bepaald gedeelte van de grafiek zich steeds herhaalt bij een normale hartslag. Het interval waarbinnen dit gebeurt, noemen we de periode \(P\).
+</p>
+
+<p>
+Onder invloed van de hartslag verandert ook je bloeddruk. Vandaar dat een arts altijd een boven- en onderdruk meet. We kunnen dit in een vereenvoudigd model als volgt weergeven.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+      y
+130
+                             A = 20
+110                                           y = 110
+
+
+90
+              P =4                    t
+          2          4   6                8
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+We zien dat de functiewaarden schommelen rond de <em>evenwichtsstand</em>. De grootste uitwijking van de grafiek t.o.v. deze evenwichtsstand noemen we de <em>amplitude</em> \(A\).
+</p>
+
+<p>
+In bovenstaande grafiek vinden we een evenwichtsstand voor \(y=110\). De amplitude \(A=20\) en de periode \(P=4\).
+</p>
+<!--
+...... subsection Definities ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">3&#x2003;</span>Definities</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+Een ree&#x0308;le functie \(f\) waarvoor er een strikt positief ree&#x0308;el getal \(P\) bestaat, zodat
+</p>
+
+<p>
+\[ \forall x \in \dom f :      f(x+P)=f(x), \]
+</p>
+
+<p>
+noemen we een <em>periodieke functie</em>.
+</p>
+
+<p>
+Het kleinste strikt positieve ree&#x0308;le getal \(P\) dat hieraan voldoet, noemen we de <em>periode</em> van de functie.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+VBTL Analyse 1b : p 172 nr 1, p173 nr 6
+</p>
+<!--
+...... section Elementaire goniometrische functies ......
+-->
+<h4 id="autosec-17"><span class="sectionnumber">II&#x2003;</span>Elementaire goniometrische functies</h4>
+<a id="mkpiweb-autopage-17"></a>
+<!--
+...... subsection Sinusfunctie ......
+-->
+<h5 id="autosec-18"><span class="sectionnumber">1&#x2003;</span>Sinusfunctie</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Toon projectie sinus
+</p>
+
+<p>
+Brengen we de waarden van de sinus op de goniometrische cirkel over in een grafiek, dan ontstaat de sinusfunctie
+</p>
+
+<p>
+\[ x :   \R \to \R : x \mapsto \sin x.       \]
+</p>
+
+<p>
+Wanneer we dit doen voor hoeken groter dan \(360\degree \), zien we dat de sinusfunctie zich periodiek herhaalt. In wat volgt gaan wij werken met radialen en dan is het eenvoudiger om de \(x\)-as te ijken met breuken van
+\(\pi \). We noemen deze grafiek de <em>sinusoı&#x0308;de</em>.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+ 1
+                       f (x) = sin x
+     π   π   3π   2π
+     2        2
+−1
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Lees op deze grafiek volgende kenmerken van de sinusfunctie af.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+domein
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\R \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+bereik
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\([-1,1]\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+periode \(P\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(2\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+amplitude \(A\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(1\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+nulwaarden
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(x=k\pi \), met \(k\in \Z \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+symmetrie
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\sin (-x)=-\sin x\): oneven, dus puntsymmetrisch t.o.v. \(O(0,0)\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+tekenverloop
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\sin x&gt;0\) op \((0,\pi )+2k\pi \), \(\sin x=0\) voor \(x=k\pi \), \(\sin x&lt;0\) op \((\pi ,2\pi )+2k\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+stijgen/dalen
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+stijgend op \(\left (-\frac {\pi }{2},\frac {\pi }{2}\right )+2k\pi \), dalend op \(\left (\frac {\pi }{2},\frac {3\pi }{2}\right )+2k\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+extrema
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+maximum \(1\) voor \(x=\frac {\pi }{2}+2k\pi \), minimum \(-1\) voor \(x=\frac {3\pi }{2}+2k\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+hol/bol
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+hol op \((\pi ,2\pi )+2k\pi \), bol op \((0,\pi )+2k\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+buigpunten
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(x=k\pi \), met \(k\in \Z \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline" aria-hidden="true">
+<td class="tdp tdbfseries">
+
+</td>
+<td class="tdp">
+
+</td>
+</tr>
+</table>
+
+</div>
+<!--
+...... subsection Cosinusfunctie ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">2&#x2003;</span>Cosinusfunctie</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+De grafiek van de cosinusfunctie
+</p>
+
+<p>
+\[ x :   \R \to \R : x \mapsto \cos x \]
+</p>
+
+<p>
+noemen we de <em>cosinusoı&#x0308;de</em>. We zien dat deze grafiek ontstaat door de grafiek van de sinusfunctie over \(\frac {\pi }{2}\) eenheden naar links te verschuiven, evenwijdig met de \(x\)-as. Logisch, want
+</p>
+
+<p>
+\[ \sin \!\left (x+\frac {\pi }{2}\right )=\cos x.          \]
+</p>
+
+<p>
+Vul de belangrijkste kenmerken van de cosinusfunctie aan.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+ 1                  cos x
+
+
+     π   π   3π           2π
+     2        2
+                  sin x
+−1
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+domein
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\R \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+bereik
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\([-1,1]\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+periode \(P\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(2\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+amplitude \(A\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(1\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+nulwaarden
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(x=\frac {\pi }{2}+k\pi \), met \(k\in \Z \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+symmetrie
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\cos (-x)=\cos x\): even, dus assymmetrisch t.o.v. de \(y\)-as
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+tekenverloop
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\cos x&gt;0\) op \(\left (-\frac {\pi }{2},\frac {\pi }{2}\right )+2k\pi \), \(\cos x=0\) voor \(x=\frac {\pi }{2}+k\pi \), \(\cos x&lt;0\) op \(\left (\frac {\pi }{2},\frac {3\pi }{2}\right
+)+2k\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+stijgen/dalen
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+dalend op \((0,\pi )+2k\pi \), stijgend op \((\pi ,2\pi )+2k\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+extrema
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+maximum \(1\) voor \(x=2k\pi \), minimum \(-1\) voor \(x=\pi +2k\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+hol/bol
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+hol op \(\left (\frac {\pi }{2},\frac {3\pi }{2}\right )+2k\pi \), bol op \(\left (-\frac {\pi }{2},\frac {\pi }{2}\right )+2k\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:   1px solid black; border-right:   1px solid black">
+
+<p>
+buigpunten
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(x=\frac {\pi }{2}+k\pi \), met \(k\in \Z \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline" aria-hidden="true">
+<td class="tdp tdbfseries">
+
+</td>
+<td class="tdp">
+
+</td>
+</tr>
+</table>
+
+</div>
+<!--
+...... subsection Tangensfunctie ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">3&#x2003;</span>Tangensfunctie</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+De grafiek van de tangensfunctie
+</p>
+
+<p>
+\[ x :   \R \to \R : x \mapsto \tan x \]
+</p>
+
+<p>
+noemen we de <em>tangentoı&#x0308;de</em>. Hier vallen ons vooral de vele verticale asymptoten op.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+                    1
+− 3π   −π   − π2   −1   π    π   3π
+   2                    2         2
+
+
+
+VA          VA          VA       VA
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Vul de belangrijkste kenmerken van de tangensfunctie aan.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+domein
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\R \setminus \left \{\frac {\pi }{2}+k\pi \mid k\in \Z \right \}\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+bereik
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\R \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+periode \(P\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+amplitude \(A\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+niet van toepassing
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+nulwaarden
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(x=k\pi \), met \(k\in \Z \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+symmetrie
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\tan (-x)=-\tan x\): oneven, dus puntsymmetrisch t.o.v. \(O(0,0)\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+tekenverloop
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(\tan x&lt;0\) op \(\left (-\frac {\pi }{2},0\right )+k\pi \), \(\tan x=0\) voor \(x=k\pi \), \(\tan x&gt;0\) op \(\left (0,\frac {\pi }{2}\right )+k\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+verticale asymptoten
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(x=\frac {\pi }{2}+k\pi \), met \(k\in \Z \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+stijgen/dalen
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+strikt stijgend op elk interval \(\left (-\frac {\pi }{2}+k\pi ,\frac {\pi }{2}+k\pi \right )\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+extrema
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+geen
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+hol/bol
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+hol waar \(\tan x&lt;0\), bol waar \(\tan x&gt;0\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+buigpunten
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+\(x=k\pi \), met \(k\in \Z \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline" aria-hidden="true">
+<td class="tdp tdbfseries">
+
+</td>
+<td class="tdp">
+
+</td>
+</tr>
+</table>
+
+</div>
+<!--
+...... subsection Cotangensfunctie ......
+-->
+<h5 id="autosec-36"><span class="sectionnumber">4&#x2003;</span>Cotangensfunctie</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p>
+De grafiek van de cotangensfunctie
+</p>
+
+<p>
+\[ x :   \R \to \R : x \mapsto \cot x \]
+</p>
+
+<p>
+noemen we de <em>cotangentoı&#x0308;de</em>. Ook hier vallen ons vooral de vele verticale asymptoten op.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+ 1
+−1    π   π    3π   2π   5π   3π
+      2         2         2
+
+
+
+ VA       VA        VA        VA
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Vul de belangrijkste kenmerken van de cotangensfunctie aan.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+domein
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+\(\R \setminus \left \{k\pi \mid k\in \Z \right \}\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+bereik
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+\(\R \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+periode \(P\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+\(\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+amplitude \(A\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+niet van toepassing
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+nulwaarden
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+\(x=\frac {\pi }{2}+k\pi \), met \(k\in \Z \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+symmetrie
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+\(\cot (-x)=-\cot x\): oneven, dus puntsymmetrisch t.o.v. \(O(0,0)\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+tekenverloop
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+\(\cot x&gt;0\) op \((0,\frac {\pi }{2})+k\pi \), \(\cot x=0\) voor \(x=\frac {\pi }{2}+k\pi \), \(\cot x&lt;0\) op \((\frac {\pi }{2},\pi )+k\pi \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+verticale asymptoten
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+\(x=k\pi \), met \(k\in \Z \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+stijgen/dalen
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+strikt dalend op elk interval \((k\pi ,(k+1)\pi )\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+extrema
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+geen
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+hol/bol
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+bol waar \(\cot x&lt;0\), hol waar \(\cot x&gt;0\)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+buigpunten
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:    1px solid black">
+
+<p>
+\(x=\frac {\pi }{2}+k\pi \), met \(k\in \Z \)
+</p>
+</td>
+</tr>
+
+
+<tr class="hline" aria-hidden="true">
+<td class="tdp tdbfseries">
+
+</td>
+<td class="tdp">
+
+</td>
+</tr>
+</table>
+
+</div>
+<!--
+...... section De algemene sinusfunctie ......
+-->
+<h4 id="autosec-42"><span class="sectionnumber">III&#x2003;</span>De algemene sinusfunctie \(y=a\cdot \sin (b\cdot (x-c))+d\)</h4>
+<a id="mkpiweb-autopage-42"></a>
+<!--
+...... subsection Herhaling ......
+-->
+<h5 id="autosec-43"><span class="sectionnumber">1&#x2003;</span>Herhaling</h5>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+\(x\) en/of \(f(x)\) door parameters beı&#x0308;nvloeden:
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdcenter" style="border-left:             1px solid black; border-right:   1px solid black">
+
+<p>
+<b>transformatie</b>
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:          1px solid black">
+
+<p>
+<b>grafische betekenis</b>
+</p>
+</td>
+</tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdcenter" style="border-left:             1px solid black; border-right:   1px solid black">
+
+<p>
+\(y=a\cdot f(x)\) met \(a&gt;0\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:          1px solid black">
+
+<p>
+Grafiek ondergaat een verschaling evenwijdig met de \(y\)-as met factor \(a\).
+</p>
+
+<p>
+Voor \(0&lt;a&lt;1\): een inkrimping
+</p>
+
+<p>
+Voor \(a&gt;1\): een uitrekking
+</p>
+</td>
+</tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdcenter" style="border-left:             1px solid black; border-right:   1px solid black">
+
+<p>
+\(y=f(b\cdot x)\) met \(b&gt;0\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:          1px solid black">
+
+<p>
+Grafiek ondergaat een verschaling evenwijdig met de \(x\)-as met factor \(\frac {1}{b}\).
+</p>
+</td>
+</tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdcenter" style="border-left:             1px solid black; border-right:   1px solid black">
+
+<p>
+\(y=f(x-c)\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:          1px solid black">
+
+<p>
+Grafiek ondergaat een verschuiving evenwijdig met de \(x\)-as.
+</p>
+
+<p>
+Voor \(c&gt;0\): \(|c|\) eenheden naar rechts
+</p>
+
+<p>
+Voor \(c&lt;0\): \(|c|\) eenheden naar links
+</p>
+</td>
+</tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdcenter" style="border-left:             1px solid black; border-right:   1px solid black">
+
+<p>
+\(y=f(x)+d\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:          1px solid black">
+
+<p>
+Grafiek ondergaat een verschuiving evenwijdig met de \(y\)-as.
+</p>
+
+<p>
+Voor \(d&gt;0\): \(|d|\) eenheden naar boven
+</p>
+
+<p>
+Voor \(d&lt;0\): \(|d|\) eenheden naar beneden
+</p>
+</td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdp tdcenter">
+
+</td>
+<td class="tdp">
+
+</td>
+</tr>
+</table>
+
+</div>
+
+<p>
+Invloed toetstandsteken:
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdcenter" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+<b>De grafiek van</b>
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+<b>verkrijgen we door de grafiek van \(y=f(x)\) te</b>
+</p>
+</td>
+</tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdcenter" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+\(y=-f(x)\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+spiegelen t.o.v. de \(x\)-as
+</p>
+</td>
+</tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdcenter" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+\(y=f(-x)\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+spiegelen t.o.v. de \(y\)-as
+</p>
+</td>
+</tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdcenter" style="border-left:     1px solid black; border-right:   1px solid black">
+
+<p>
+\(y=-f(-x)\)
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:   1px solid black">
+
+<p>
+spiegelen t.o.v. de oorsprong \(O(0,0)\)
+</p>
+</td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdp tdcenter">
+
+</td>
+<td class="tdp">
+
+</td>
+</tr>
+</table>
+
+</div>
+<!--
+...... subsection De grafiek van met ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">2&#x2003;</span>De grafiek van \(y=a\sin x\) met \(a&gt;0\)</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+We onderzoeken grafisch wat er gebeurt als we in \(y=a\sin x\) de waarde \(a=3\) nemen.
+</p>
+
+<p>
+\[ y=\sin x \qquad \text {en} \qquad y=3\sin x \]
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:290pt ; ">
+
+<a id="mkpiweb-autopage-50"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+ 3 y                       y = sin x
+                          y = 3 sin x
+           A=3
+ 1
+                                    x
+       π         π   3π           2π
+−1     2              2
+
+
+−3
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:186pt ; ">
+
+<a id="mkpiweb-autopage-53"></a>
+
+<p>
+\[ \begin {array}{|c|c|c|c|} \hline &amp; P &amp; A &amp; \text {nulwaarden} \\ \hline y=\sin x &amp; 2\pi &amp; 1 &amp; x=k\pi \\ \hline y=3\sin x &amp; 2\pi &amp; 3 &amp; x=k\pi \\ \hline
+\end {array} \]
+</p>
+
+<p>
+\[ k\in \mathbb {Z} \]
+</p>
+
+</div>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-54">Besluit</h6>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+In de grafiek van \(y=a\sin x\) met \(a&gt;0\) verandert enkel de amplitude.
+</p>
+
+<p>
+\[ \boxed {A=a} \]
+</p>
+
+<p>
+De periode blijft \(2\pi \) en de nulwaarden blijven
+</p>
+
+<p>
+\[ x=k\pi \qquad \text {met } k\in \mathbb {Z}.          \]
+</p>
+
+<p>
+De grafiek van \(y=\sin x\) ondergaat een verschaling evenwijdig met de \(y\)-as met factor \(a\).
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Voor \(0&lt;a&lt;1\): de grafiek wordt ingekrompen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Voor \(a&gt;1\): de grafiek wordt uitgerekt.
+</p>
+</li>
+</ul>
+
+<p>
+In het voorbeeld \(y=3\sin x\) wordt de grafiek dus verticaal uitgerekt met factor \(3\).
+</p>
+<!--
+...... subsection De grafiek van met ......
+-->
+<h5 id="autosec-55"><span class="sectionnumber">3&#x2003;</span>De grafiek van \(y=\sin (bx)\) met \(b&gt;0\)</h5>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+We onderzoeken grafisch wat er gebeurt als we in \(y=\sin (bx)\) de waarde \(b=2\) nemen.
+</p>
+
+<p>
+\[ y=\sin x \qquad \text {en} \qquad y=\sin (2x) \]
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:290pt ; ">
+
+<a id="mkpiweb-autopage-57"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+     y                    y = sin x
+ 1                       y = sin(2x)
+
+                                   x
+          π     π   3π            2π
+          2          2
+−1
+         P =π
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:186pt ; ">
+
+<a id="mkpiweb-autopage-60"></a>
+
+<p>
+\[ \begin {array}{|c|c|c|c|} \hline &amp; P &amp; A &amp; \text {nulwaarden} \\ \hline y=\sin x &amp; 2\pi &amp; 1 &amp; x=k\pi \\ \hline y=\sin (2x) &amp; \pi &amp; 1 &amp; x=\frac {k\pi }{2}
+\\ \hline \end {array} \]
+</p>
+
+<p>
+\[ k\in \mathbb {Z} \]
+</p>
+
+</div>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-61">Besluit</h6>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<p>
+In de grafiek van \(y=\sin (bx)\) met \(b&gt;0\) verandert de periode.
+</p>
+
+<p>
+\[ \boxed {P=\frac {2\pi }{b}} \]
+</p>
+
+<p>
+De amplitude blijft \(1\). De nulwaarden worden
+</p>
+
+<p>
+\[ bx=k\pi \qquad \Leftrightarrow \qquad x=\frac {k\pi }{b} \qquad \text {met } k\in \mathbb {Z}.               \]
+</p>
+
+<p>
+De grafiek van \(y=\sin x\) ondergaat een verschaling evenwijdig met de \(x\)-as.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Voor \(0&lt;b&lt;1\): de grafiek wordt horizontaal uitgerekt.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Voor \(b&gt;1\): de grafiek wordt horizontaal ingekrompen.
+</p>
+</li>
+</ul>
+
+<p>
+In het voorbeeld \(y=\sin (2x)\) wordt de grafiek horizontaal ingekrompen met factor \(2\). De periode wordt dus \(\pi \).
+</p>
+<!--
+...... subsection De grafiek van ......
+-->
+<h5 id="autosec-62"><span class="sectionnumber">4&#x2003;</span>De grafiek van \(y=\sin (x-c)\)</h5>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p>
+We onderzoeken grafisch wat er gebeurt als we in \(y=\sin (x-c)\) de waarde \(c=\frac {\pi }{3}\) nemen.
+</p>
+
+<p>
+\[ y=\sin x \qquad \text {en} \qquad y=\sin \left (x-\frac {\pi }{3}\right ) \]
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:290pt ; ">
+
+<a id="mkpiweb-autopage-64"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+       π
+     y+ 3                       y = sin x
+ 1                           y = sin(x − π3 )
+
+                                            x
+            π   π   π   3π            2π
+            3   2        2
+−1
+--><img
+    src="mkpiweb-images/image-10.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:186pt ; ">
+
+<a id="mkpiweb-autopage-67"></a>
+
+<p>
+\[ \begin {array}{|c|c|c|c|} \hline &amp; P &amp; A &amp; \text {nulwaarden} \\ \hline y=\sin x &amp; 2\pi &amp; 1 &amp; x=k\pi \\ \hline y=\sin (x-\frac {\pi }{3}) &amp; 2\pi &amp; 1 &amp;
+x=\frac {\pi }{3}+k\pi \\ \hline \end {array} \]
+</p>
+
+<p>
+\[ k\in \mathbb {Z} \]
+</p>
+
+</div>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-68">Besluit</h6>
+<a id="mkpiweb-autopage-68"></a>
+
+
+<p>
+In de grafiek van \(y=\sin (x-c)\) verandert enkel de horizontale ligging van de grafiek.
+</p>
+
+<p>
+\[ \boxed {\text {verschuiving over } c \text { naar rechts}} \]
+</p>
+
+<p>
+De periode blijft \(2\pi \) en de amplitude blijft \(1\).
+</p>
+
+<p>
+De nulwaarden worden
+</p>
+
+<p>
+\[ x-c=k\pi \qquad \Leftrightarrow \qquad x=c+k\pi \qquad \text {met } k\in \mathbb {Z}.    \]
+</p>
+
+<p>
+In het voorbeeld
+</p>
+
+<p>
+\[ y=\sin \left (x-\frac {\pi }{3}\right ) \]
+</p>
+
+<p>
+wordt de grafiek van \(y=\sin x\) verschoven over \(\frac {\pi }{3}\) naar rechts.
+</p>
+<!--
+...... subsection De grafiek van ......
+-->
+<h5 id="autosec-69"><span class="sectionnumber">5&#x2003;</span>De grafiek van \(y=\sin x+d\)</h5>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+We onderzoeken grafisch wat er gebeurt als we in \(y=\sin x+d\) de waarde \(d=2\) nemen.
+</p>
+
+<p>
+\[ y=\sin x \qquad \text {en} \qquad y=\sin x+2 \]
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:290pt ; ">
+
+<a id="mkpiweb-autopage-71"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-11"
+    class="lateximagesource"
+><!--
+ 3 y                   y = sin x
+                     y = sin x + 2
+ 2         +2
+
+ 1
+                                 x
+       π        π   3π          2π
+       2             2
+−1
+--><img
+    src="mkpiweb-images/image-11.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:186pt ; ">
+
+<a id="mkpiweb-autopage-74"></a>
+
+<p>
+\[ \begin {array}{|c|c|c|c|} \hline &amp; P &amp; A &amp; \text {evenwichtslijn} \\ \hline y=\sin x &amp; 2\pi &amp; 1 &amp; y=0 \\ \hline y=\sin x+2 &amp; 2\pi &amp; 1 &amp; y=2 \\ \hline \end
+{array} \]
+</p>
+
+<p>
+\[ \text {bereik:   } [1,3] \]
+</p>
+
+</div>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-75">Besluit</h6>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+In de grafiek van \(y=\sin x+d\) verandert enkel de verticale ligging van de grafiek.
+</p>
+
+<p>
+\[ \boxed {\text {verschuiving over } d \text { volgens de } y\text {-as}} \]
+</p>
+
+<p>
+De periode blijft \(2\pi \) en de amplitude blijft \(1\).
+</p>
+
+<p>
+De evenwichtslijn wordt
+</p>
+
+<p>
+\[ \boxed {y=d} \]
+</p>
+
+<p>
+In het voorbeeld \(y=\sin x+2\) wordt de grafiek van \(y=\sin x\) verschoven over \(2\) naar boven. De evenwichtslijn wordt dus \(y=2\), en het bereik is
+</p>
+
+<p>
+\[ [1,3].   \]
+</p>
+<!--
+...... subsection Algemeen ......
+-->
+<h5 id="autosec-76"><span class="sectionnumber">6&#x2003;</span>Algemeen</h5>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<p>
+De grafiek van de functie
+</p>
+
+<p>
+\[ y=a\sin \!\bigl (b \cdot (x-c)\bigr )+d \]
+</p>
+
+<p>
+is een sinusoı&#x0308;de met volgende kenmerken:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Amplitude \(A=a\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Periode \(P=\dfrac {2\pi }{b}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Fase: \(c\), met een horizontale verschuiving
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Evenwichtsstand \(y=d\), met een verticale verschuiving
+</p>
+</li>
+</ul>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-12"
+    class="lateximagesource"
+><!--
+             y = a sin(b(x − c)) + d
+    a
+                                y=d
+c
+
+
+        2π
+         b
+--><img
+    src="mkpiweb-images/image-12.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-80"><span class="sectionnumber">7&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+VBTL Analyse 1b: p173 nr 5, 8-24
+</p>
+<!--
+...... section Goniometrische vergelijkingen ......
+-->
+<h4 id="autosec-81"><span class="sectionnumber">IV&#x2003;</span>Goniometrische vergelijkingen</h4>
+<a id="mkpiweb-autopage-81"></a>
+<!--
+...... subsection Ritje met het reuzenrad ......
+-->
+<h5 id="autosec-82"><span class="sectionnumber">1&#x2003;</span>Ritje met het reuzenrad</h5>
+<a id="mkpiweb-autopage-82"></a>
+
+
+<p>
+Een reiziger zit in een bakje van een reuzenrad. Het middelpunt van het reuzenrad bevindt zich \(12\) meter boven de grond en het reuzenrad heeft een straal van \(10\) meter. Eén volledige omwenteling duurt \(40\) seconden.
+</p>
+
+<p>
+Op tijdstip \(t=0\) zit de reiziger helemaal onderaan.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-13"
+    class="lateximagesource"
+><!--
+               10 m
+          M
+
+
+
+12 m
+
+
+
+       grond
+--><img
+    src="mkpiweb-images/image-13.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+De hoogte \(h\) van de reiziger boven de grond als functie van de tijd \(t\) kan gemodelleerd worden door:
+</p>
+
+<p>
+\[ h(t)=12-10\cos \left (\frac {\pi }{20}t\right ).          \]
+</p>
+
+<p>
+Wanneer bevindt de reiziger zich op \(17\) meter hoogte?
+</p>
+
+<p>
+Dan moeten we de vergelijking
+</p>
+
+<p>
+\[ 12-10\cos \left (\frac {\pi }{20}t\right )=17 \]
+</p>
+
+<p>
+oplossen.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Grafisch oplossen met de TI-84 ......
+-->
+<h6 id="autosec-86">Grafisch oplossen met de TI-84</h6>
+<a id="mkpiweb-autopage-86"></a>
+
+
+<p>
+We kunnen deze vergelijking grafisch oplossen.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Voer in bij <span
+     class="fbox"
+     style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+     class="makebox"
+     style="display:inline-block ; width:68pt ; text-align:center ; "
+><kbd>Y=</kbd></span></span>:
+</p>
+<p>
+\[ Y_1=12-10\cos \left (\frac {\pi }{20}X\right ) \qquad \text {en}\qquad Y_2=17 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Kies bijvoorbeeld als venster:
+</p>
+<p>
+\[ X_{\min }=0,\quad X_{\max }=40,\quad Y_{\min }=0,\quad Y_{\max }=25 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Teken de grafieken met <kbd>GRAPH</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Gebruik daarna <kbd>2nd</kbd> \(\rightarrow \) <kbd>CALC</kbd> \(\rightarrow \) <kbd>intersect</kbd>.
+</p>
+</li>
+</ul>
+
+<p>
+Zo vinden we twee snijpunten:
+</p>
+
+<p>
+\[ t\approx 13.33 \qquad \text {en}\qquad t\approx 26.67.           \]
+</p>
+
+<p>
+Dus de reiziger bevindt zich na ongeveer \(13.33\) s en \(26.67\) s op \(17\) meter hoogte.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Exact oplossen ......
+-->
+<h6 id="autosec-87">Exact oplossen</h6>
+<a id="mkpiweb-autopage-87"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                 π 
+                                                                                      12 − 10 cos    t = 17
+                                                                                                  20
+                                                                                                 π 
+                                                                                         −10 cos     t =5
+                                                                                                  20
+                                                                                                 π       1
+                                                                                             cos     t =−
+                                                                                                  20       2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+12-10\cos \left (\frac {\pi }{20}t\right )&amp;=17 \\ -10\cos \left (\frac {\pi }{20}t\right )&amp;=5 \\ \cos \left (\frac {\pi }{20}t\right )&amp;=-\frac 12
+\end{align*}
+
+</p>
+
+<p>
+We weten:
+</p>
+
+<p>
+\[ \cos \theta =-\frac 12 \quad \Leftrightarrow \quad \theta =\frac {2\pi }{3}+2k\pi \quad \text {of}\quad \theta =\frac {4\pi }{3}+2k\pi .   \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-14"
+    class="lateximagesource"
+><!--
+           y
+
+
+
+
+               2π
+− 21            3
+                        x
+       O            1
+       4π
+        3
+--><img
+    src="mkpiweb-images/image-14.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-15"
+    class="lateximagesource"
+><!--
+                  y
+             1                                y = cos x
+
+                                                    x
+−2π   −π              2π
+                       3
+                           π   4π
+                                3   2π   3π        4π
+           − 12
+                                              y = − 12
+           −1
+--><img
+    src="mkpiweb-images/image-15.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ \frac {\pi }{20}t=\frac {2\pi }{3}+2k\pi \quad \text {of}\quad \frac {\pi }{20}t=\frac {4\pi }{3}+2k\pi \]
+</p>
+
+<p>
+en dus:
+</p>
+
+<p>
+\[ t=\frac {40}{3}+40k \quad \text {of}\quad t=\frac {80}{3}+40k.   \]
+</p>
+
+<p>
+Op het interval \([0,40[\) geeft dit:
+</p>
+
+<p>
+\[ t=\frac {40}{3} \qquad \text {of}\qquad t=\frac {80}{3}.   \]
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-94"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-94"></a>
+
+
+<p>
+Een <em>goniometrische vergelijking</em> is een vergelijking waarin de onbekende voorkomt in één of meer goniometrische uitdrukkingen, zoals \(\sin x\), \(\cos x\), \(\tan x\) of \(\cot x\).
+</p>
+
+<p>
+Een goniometrische vergelijking oplossen betekent alle waarden van de onbekende bepalen waarvoor de vergelijking waar is.
+</p>
+
+<p>
+Vaak werken we in twee stappen:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> eerst zoeken we de oplossingen op een basisinterval, meestal \([0,2\pi [\),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> daarna schrijven we de algemene oplossingen op met behulp van de periodiciteit.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oplossen van basisvergelijkingen ......
+-->
+<h5 id="autosec-95"><span class="sectionnumber">3&#x2003;</span>Oplossen van basisvergelijkingen</h5>
+<a id="mkpiweb-autopage-95"></a>
+<!--
+...... subsubsection Vergelijkingen van de vorm ......
+-->
+<h6 id="autosec-96"><span class="sectionnumber">&#x2003;</span>Vergelijkingen van de vorm \(\sin x=a\)</h6>
+<a id="mkpiweb-autopage-96"></a>
+
+
+<p>
+Een vergelijking van de vorm
+</p>
+
+<p>
+\[ \sin x=a \]
+</p>
+
+<p>
+heeft enkel oplossingen als
+</p>
+
+<p>
+\[ -1\leq a\leq 1.      \]
+</p>
+
+<p>
+Als \(\alpha =\arcsin (a)\), dan geldt:
+</p>
+
+<p>
+\[ \sin x=a \quad \Leftrightarrow \quad x=\alpha +2k\pi \quad \text {of}\quad x=\pi -\alpha +2k\pi , \qquad k\in \Z . \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-97">Voorbeeld</h6>
+<a id="mkpiweb-autopage-97"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ \sin x=\frac 12.   \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-16"
+    class="lateximagesource"
+><!--
+   1
+ 0.5
+       π   π   5π   π
+       6        6
+                        3π   2π
+−0.5       2             2
+
+ −1
+--><img
+    src="mkpiweb-images/image-16.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Op \([0,2\pi [\) vinden we:
+</p>
+
+<p>
+\[ x=\frac {\pi }{6} \qquad \text {of}\qquad x=\frac {5\pi }{6}.   \]
+</p>
+
+<p>
+Algemeen:
+</p>
+
+<p>
+\[ x=\frac {\pi }{6}+2k\pi \qquad \text {of}\qquad x=\frac {5\pi }{6}+2k\pi , \qquad k\in \Z . \]
+</p>
+<!--
+...... subsubsection Vergelijkingen van de vorm ......
+-->
+<h6 id="autosec-101"><span class="sectionnumber">&#x2003;</span>Vergelijkingen van de vorm \(\cos x=a\)</h6>
+<a id="mkpiweb-autopage-101"></a>
+
+
+<p>
+Een vergelijking van de vorm
+</p>
+
+<p>
+\[ \cos x=a \]
+</p>
+
+<p>
+heeft enkel oplossingen als
+</p>
+
+<p>
+\[ -1\leq a\leq 1.      \]
+</p>
+
+<p>
+Als \(\alpha =\arccos (a)\), dan geldt:
+</p>
+
+<p>
+\[ \cos x=a \quad \Leftrightarrow \quad x=\alpha +2k\pi \quad \text {of}\quad x=-\alpha +2k\pi , \qquad k\in \Z . \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-102">Voorbeeld</h6>
+<a id="mkpiweb-autopage-102"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ \cos x=-\frac {\sqrt 2}{2}.   \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-17"
+    class="lateximagesource"
+><!--
+   1
+
+
+       π   3π   π   5π   3π   2π
+ √     2    4        4    2
+− 22
+ −1
+--><img
+    src="mkpiweb-images/image-17.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Op \([0,2\pi [\) vinden we:
+</p>
+
+<p>
+\[ x=\frac {3\pi }{4} \qquad \text {of}\qquad x=\frac {5\pi }{4}.   \]
+</p>
+
+<p>
+Algemeen:
+</p>
+
+<p>
+\[ x=\frac {3\pi }{4}+2k\pi \qquad \text {of}\qquad x=\frac {5\pi }{4}+2k\pi , \qquad k\in \Z . \]
+</p>
+<!--
+...... subsubsection Vergelijkingen van de vorm ......
+-->
+<h6 id="autosec-106"><span class="sectionnumber">&#x2003;</span>Vergelijkingen van de vorm \(\tan x=a\)</h6>
+<a id="mkpiweb-autopage-106"></a>
+
+
+<p>
+Voor elke ree&#x0308;le waarde \(a\) heeft de vergelijking
+</p>
+
+<p>
+\[ \tan x=a \]
+</p>
+
+<p>
+oplossingen.
+</p>
+
+<p>
+Als \(\alpha =\arctan (a)\), dan geldt:
+</p>
+
+<p>
+\[ \tan x=a \quad \Leftrightarrow \quad x=\alpha +k\pi , \qquad k\in \Z . \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-107">Voorbeeld</h6>
+<a id="mkpiweb-autopage-107"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ \tan x=1.   \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-18"
+    class="lateximagesource"
+><!--
+ 1
+     π   π   π   5π
+−1   4   2        4
+                      3π   2π
+                       2
+--><img
+    src="mkpiweb-images/image-18.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Op \([0,2\pi [\) vinden we:
+</p>
+
+<p>
+\[ x=\frac {\pi }{4} \qquad \text {of}\qquad x=\frac {5\pi }{4}.   \]
+</p>
+
+<p>
+Algemeen:
+</p>
+
+<p>
+\[ x=\frac {\pi }{4}+k\pi , \qquad k\in \Z . \]
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-111"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-111"></a>
+
+
+<p>
+VBTL - Analyse 1b: p191 nr1
+</p>
+<!--
+...... subsection Vergelijkingen herleidbaar naar basisvergelijkingen ......
+-->
+<h5 id="autosec-112"><span class="sectionnumber">4&#x2003;</span>Vergelijkingen herleidbaar naar basisvergelijkingen</h5>
+<a id="mkpiweb-autopage-112"></a>
+
+
+<p>
+Soms staat een vergelijking niet onmiddellijk in een basisvorm, maar kunnen we met behulp van goniometrische formules toch herleiden.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-113">Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-113"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ 2\sin x\cos x=\frac {\sqrt 3}{2}.     \]
+</p>
+
+<p>
+Gebruik hier de formule
+</p>
+
+<p>
+\[ \sin (2x)=2\sin x\cos x.    \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                              √
+                                                                                                            3
+                                                                                            2 sin x cos x =
+                                                                                                           2
+                                                                                                          √
+                                                                                                            3
+                                                                                            ⇔   sin(2x) =
+                                                                                                           2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+2\sin x\cos x&amp;=\frac {\sqrt 3}{2} \\ \Leftrightarrow \quad \sin (2x)&amp;=\frac {\sqrt 3}{2}
+\end{align*}
+
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ 2x=\frac {\pi }{3}+2k\pi \qquad \text {of}\qquad 2x=\frac {2\pi }{3}+2k\pi .        \]
+</p>
+
+<p>
+Daaruit volgt:
+</p>
+
+<p>
+\[ x=\frac {\pi }{6}+k\pi \qquad \text {of}\qquad x=\frac {\pi }{3}+k\pi , \qquad k\in \Z . \]
+</p>
+
+<p>
+Op \([0,2\pi [\) geeft dit:
+</p>
+
+<p>
+\[ x=\frac {\pi }{6},\ \frac {\pi }{3},\ \frac {7\pi }{6},\ \frac {4\pi }{3}.     \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-114">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-114"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ \cos ^2 x-\sin ^2 x=-\frac 12.     \]
+</p>
+
+<p>
+Gebruik hier de formule
+</p>
+
+<p>
+\[ \cos (2x)=\cos ^2 x-\sin ^2 x.     \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                               1
+                                                                                             cos2 x − sin2 x = −
+                                                                                                               2
+                                                                                                               1
+                                                                                              ⇔    cos(2x) = −
+                                                                                                               2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\cos ^2 x-\sin ^2 x&amp;=-\frac 12 \\ \Leftrightarrow \quad \cos (2x)&amp;=-\frac 12
+\end{align*}
+
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ 2x=\frac {2\pi }{3}+2k\pi \qquad \text {of}\qquad 2x=\frac {4\pi }{3}+2k\pi .        \]
+</p>
+
+<p>
+Daaruit volgt:
+</p>
+
+<p>
+\[ x=\frac {\pi }{3}+k\pi \qquad \text {of}\qquad x=\frac {2\pi }{3}+k\pi , \qquad k\in \Z . \]
+</p>
+
+<p>
+Op \([0,2\pi [\) geeft dit:
+</p>
+
+<p>
+\[ x=\frac {\pi }{3},\ \frac {2\pi }{3},\ \frac {4\pi }{3},\ \frac {5\pi }{3}.     \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Werkwijze ......
+-->
+<h6 id="autosec-115">Werkwijze</h6>
+<a id="mkpiweb-autopage-115"></a>
+
+
+<p>
+Bij dit soort vergelijkingen is het vaak nuttig om eerst te zoeken naar:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> dubbele-hoekformules,
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> formules zoals \(\sin ^2 x+\cos ^2 x=1\),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> productformules of somformules.
+</p>
+</li>
+</ul>
+
+<p>
+Zo proberen we de vergelijking te herleiden tot één van de basisvormen
+</p>
+
+<p>
+\[ \sin u=a,\qquad \cos u=a,\qquad \tan u=a.           \]
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-116"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-116"></a>
+
+
+<p>
+VBTL - Analyse 1b: p191 nr2
+</p>
+<!--
+...... subsection Vergelijkingen met eenvoudige substituties ......
+-->
+<h5 id="autosec-117"><span class="sectionnumber">5&#x2003;</span>Vergelijkingen met eenvoudige substituties</h5>
+<a id="mkpiweb-autopage-117"></a>
+
+
+<p>
+Soms bevat een vergelijking meerdere machten van dezelfde goniometrische functie. Dan kan een substitutie handig zijn.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-118">Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-118"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ 2\sin ^2 x-3\sin x+1=0.     \]
+</p>
+
+<p>
+We stellen:
+</p>
+
+<p>
+\[ u=\sin x.    \]
+</p>
+
+<p>
+Dan wordt de vergelijking:
+</p>
+
+<p>
+\[ 2u^2-3u+1=0.      \]
+</p>
+
+<p>
+We ontbinden:
+</p>
+
+<p>
+\[ 2u^2-3u+1=(2u-1)(u-1).     \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ u=\frac 12 \qquad \text {of}\qquad u=1.       \]
+</p>
+
+<p>
+Omdat \(u=\sin x\), krijgen we:
+</p>
+
+<p>
+\[ \sin x=\frac 12 \qquad \text {of}\qquad \sin x=1.   \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ x=\frac {\pi }{6}+2k\pi ,\quad \frac {5\pi }{6}+2k\pi ,\quad \frac {\pi }{2}+2k\pi , \qquad k\in \Z . \]
+</p>
+
+<p>
+Op \([0,2\pi [\) geeft dit:
+</p>
+
+<p>
+\[ x=\frac {\pi }{6},\ \frac {\pi }{2},\ \frac {5\pi }{6}.   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-119">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-119"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ \tan ^2 x-3\tan x+2=0.     \]
+</p>
+
+<p>
+We stellen:
+</p>
+
+<p>
+\[ u=\tan x.    \]
+</p>
+
+<p>
+Dan wordt de vergelijking:
+</p>
+
+<p>
+\[ u^2-3u+2=0.       \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ (u-1)(u-2)=0 \]
+</p>
+
+<p>
+en bijgevolg:
+</p>
+
+<p>
+\[ u=1 \qquad \text {of}\qquad u=2.     \]
+</p>
+
+<p>
+Omdat \(u=\tan x\), krijgen we:
+</p>
+
+<p>
+\[ \tan x=1 \qquad \text {of}\qquad \tan x=2.    \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ x=\frac {\pi }{4}+k\pi \qquad \text {of}\qquad x=\arctan (2)+k\pi , \qquad k\in \Z . \]
+</p>
+
+<p>
+Op \([0,2\pi [\) geeft dit:
+</p>
+
+<p>
+\[ x=\frac {\pi }{4},\ \frac {5\pi }{4},\ \arctan (2),\ \arctan (2)+\pi .   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opmerking ......
+-->
+<h6 id="autosec-120">Opmerking</h6>
+<a id="mkpiweb-autopage-120"></a>
+
+
+<p>
+Na een substitutie moeten we altijd terugkeren naar de oorspronkelijke goniometrische vergelijking.
+</p>
+
+<p>
+Bovendien moeten we rekening houden met de mogelijke waarden:
+</p>
+
+<p>
+\[ -1\leq \sin x\leq 1, \qquad -1\leq \cos x\leq 1.           \]
+</p>
+
+<p>
+Als we bijvoorbeeld na substitutie \(u=3\) vinden bij \(u=\sin x\), dan levert dit geen oplossing op.
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-121"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-121"></a>
+
+
+<p>
+VBTL - Analyse 1b: p191 nr3
+</p>
+<!--
+...... subsection Stappenplan ......
+-->
+<h5 id="autosec-122"><span class="sectionnumber">6&#x2003;</span>Stappenplan</h5>
+<a id="mkpiweb-autopage-122"></a>
+
+
+<p>
+Bij het oplossen van goniometrische vergelijkingen is volgende aanpak nuttig:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Herleid de vergelijking zo veel mogelijk.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Zoek of ze een basisvorm heeft:
+</p>
+<p>
+\[ \sin x=a,\qquad \cos x=a,\qquad \tan x=a. \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Gebruik eventueel goniometrische formules.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Gebruik eventueel een substitutie.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Bepaal eerst de oplossingen op een basisinterval, bijvoorbeeld \([0,2\pi [\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> Schrijf daarna de algemene oplossingen op met behulp van de periode.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-123"><span class="sectionnumber">7&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-123"></a>
+
+
+<p>
+VBTL - Analyse 1b: p191 nr1, 2, 3, 4, 6, 7, 8, 9
+</p>
+<!--
+...... section Goniometrische ongelijkheden ......
+-->
+<h4 id="autosec-124"><span class="sectionnumber">V&#x2003;</span>Goniometrische ongelijkheden</h4>
+<a id="mkpiweb-autopage-124"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-125"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-125"></a>
+
+
+<p>
+Een <em>goniometrische ongelijkheid</em> is een ongelijkheid waarin de onbekende voorkomt in een goniometrische uitdrukking, zoals \(\sin x\), \(\cos x\), \(\tan x\) of \(\cot x\).
+</p>
+
+<p>
+Voorbeelden zijn:
+</p>
+
+<p>
+\[ \sin x \leq \frac 12, \qquad \tan x &gt; 1, \qquad 2\sin \left (4\left (x-\frac {\pi }{3}\right )\right )+2&gt;3.                   \]
+</p>
+
+<p>
+Een goniometrische ongelijkheid oplossen betekent alle waarden van \(x\) zoeken waarvoor de ongelijkheid waar is.
+</p>
+<!--
+...... subsection Werkwijze ......
+-->
+<h5 id="autosec-126"><span class="sectionnumber">2&#x2003;</span>Werkwijze</h5>
+<a id="mkpiweb-autopage-126"></a>
+
+
+<p>
+Bij goniometrische ongelijkheden werken we meestal in drie stappen.
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Vervang de ongelijkheid eerst door een vergelijking.
+</p>
+<p>
+\[ \sin x \leq \frac 12 \qquad \longrightarrow \qquad \sin x = \frac 12 \]
+</p>
+<p>
+Zo vinden we de <em>grenspunten</em>.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Kijk op de goniometrische cirkel of op de grafiek aan welke kant van de grenspunten de ongelijkheid klopt.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Schrijf de oplossingen op en gebruik de periode.
+</p>
+</li>
+</ul>
+
+<p>
+Let goed op het verschil tussen strikte en niet-strikte ongelijkheden.
+</p>
+
+<p>
+\[ &lt; \text { en } &gt; \quad \Rightarrow \quad \text {grenspunten niet meenemen} \]
+</p>
+
+<p>
+\[ \leq \text { en } \geq \quad \Rightarrow \quad \text {grenspunten wel meenemen} \]
+</p>
+
+<p>
+Bij \(\tan x\) en \(\cot x\) worden verticale asymptoten nooit meegenomen.
+</p>
+<!--
+...... subsection Voorbeeld 1 ......
+-->
+<h5 id="autosec-127"><span class="sectionnumber">3&#x2003;</span>Voorbeeld 1</h5>
+<a id="mkpiweb-autopage-127"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ \sin x \leq \frac 12.    \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oplossing ......
+-->
+<h6 id="autosec-128">Oplossing</h6>
+<a id="mkpiweb-autopage-128"></a>
+
+
+<p>
+We zoeken eerst de grenspunten.
+</p>
+
+<p>
+\[ \sin x = \frac 12 \]
+</p>
+
+<p>
+We weten:
+</p>
+
+<p>
+\[ \sin x=\frac 12 \quad \Leftrightarrow \quad x=\frac {\pi }{6}+2k\pi \quad \text {of}\quad x=\frac {5\pi }{6}+2k\pi , \qquad k\in \Z . \]
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:238pt ; ">
+
+<a id="mkpiweb-autopage-130"></a>
+
+<p>
+Op het basisinterval \([0,2\pi [\) vinden we:
+</p>
+
+<p>
+\[ x=\frac {\pi }{6} \qquad \text {of}\qquad x=\frac {5\pi }{6}.        \]
+</p>
+
+<p>
+Nu kijken we waar de sinus kleiner dan of gelijk is aan \(\frac 12\).
+</p>
+
+<p>
+Op \([0,2\pi [\) is dat:
+</p>
+
+<p>
+\[ 0\leq x\leq \frac {\pi }{6} \quad \text {of}\quad \frac {5\pi }{6}\leq x&lt;2\pi .   \]
+</p>
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:212pt ; ">
+
+<a id="mkpiweb-autopage-131"></a>
+<div class="center">
+
+<p>
+<em>Voorstelling op de goniometrische cirkel:</em>
+</p>
+
+<p>
+<span
+    id="lateximage-mkpiweb-19"
+    class="lateximagesource"
+><!--
+         y
+
+5π            π
+ 6           16
+             2
+
+                  x
+     O
+--><img
+    src="mkpiweb-images/image-19.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+</div>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ V= \left \{ x\in \R \ \middle |\ -\frac {7\pi }{6}+2k\pi \leq x\leq \frac {\pi }{6}+2k\pi \text { met } k\in \Z \right \}.   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Grafische interpretatie ......
+-->
+<h6 id="autosec-135">Grafische interpretatie</h6>
+<a id="mkpiweb-autopage-135"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-20"
+    class="lateximagesource"
+><!--
+                           y
+                       1
+                                       y = 12
+                       1
+                       2
+                                                     x
+−2π −1.5π −π   − π2            π   π   1.5π     2π
+                               2
+
+
+                      −1                 y = sin x
+--><img
+    src="mkpiweb-images/image-20.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+De rode stukken liggen onder of op de rechte \(y=\frac 12\). Daarom horen ze bij de oplossing.
+</p>
+<!--
+...... subsection Voorbeeld 2 ......
+-->
+<h5 id="autosec-139"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 2</h5>
+<a id="mkpiweb-autopage-139"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ \tan x \leq \frac {\sqrt 3}{3}.     \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oplossing ......
+-->
+<h6 id="autosec-140">Oplossing</h6>
+<a id="mkpiweb-autopage-140"></a>
+
+
+<p>
+We zoeken eerst de grenspunten:
+</p>
+
+<p>
+\[ \tan x=\frac {\sqrt 3}{3} \quad \Leftrightarrow \quad x=\frac {\pi }{6}+k\pi , \qquad k\in \Z . \]
+</p>
+
+<p>
+De tangensfunctie is strikt stijgend op elk interval \(\left ]-\frac {\pi }{2}+k\pi ,\frac {\pi }{2}+k\pi \right [.   \)
+</p>
+
+<p>
+\[ \Rightarrow \qquad \tan x \leq \frac {\sqrt 3}{3} \quad \Leftrightarrow \quad -\frac {\pi }{2}+k\pi &lt; x \leq \frac {\pi }{6}+k\pi .   \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ V= \left \{ x\in \R \ \middle |\ -\frac {\pi }{2}+k\pi &lt; x \leq \frac {\pi }{6}+k\pi \text { met } k\in \Z \right \}.   \]
+</p>
+
+<p>
+Een verticale asymptoot wordt nooit meegenomen. Dus links een strikte ongelijkheid.
+</p>
+<div class="center">
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:212pt ; ">
+
+<a id="mkpiweb-autopage-142"></a>
+<div class="center">
+
+<p>
+<em>Voorstelling op de goniometrische cirkel:</em>
+</p>
+
+<p>
+<span
+    id="lateximage-mkpiweb-21"
+    class="lateximagesource"
+><!--
+          y
+     π
+     2
+
+              π √ 
+              6 1, 3
+                   3
+
+
+                 x
+     O
+
+7π
+ 6
+
+     3π
+      2
+--><img
+    src="mkpiweb-images/image-21.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-146"></a>
+
+<p>
+Op het interval \([0,2\pi [\) kunnen we dezelfde oplossing ook zo lezen:
+</p>
+
+<p>
+\[ 0\leq x\leq \frac {\pi }{6} \quad \text {of}\quad \frac {\pi }{2}&lt;x\leq \frac {7\pi }{6} \quad \text {of}\quad \frac {3\pi }{2}&lt;x&lt;2\pi .   \]
+</p>
+
+<p>
+Algemeen schrijven we dit korter als:
+</p>
+
+<p>
+\[ -\frac {\pi }{2}+k\pi &lt; x \leq \frac {\pi }{6}+k\pi .           \]
+</p>
+
+</div>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Grafische interpretatie ......
+-->
+<h6 id="autosec-147">Grafische interpretatie</h6>
+<a id="mkpiweb-autopage-147"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-22"
+    class="lateximagesource"
+><!--
+                         y
+                                            √
+                                             3
+                   √
+                     1                y=    3
+                     3
+                    3                               x
+−2π −1.5π −π   − π2 −1       π   π   1.5π   2π
+                             2
+
+
+
+                                        y = tan x
+--><img
+    src="mkpiweb-images/image-22.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Voorbeeld 3 ......
+-->
+<h5 id="autosec-151"><span class="sectionnumber">5&#x2003;</span>Voorbeeld 3</h5>
+<a id="mkpiweb-autopage-151"></a>
+
+
+<p>
+Los op:
+</p>
+
+<p>
+\[ 2\sin \left (4\left (x-\frac {\pi }{3}\right )\right )+2&gt;3.   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oplossing ......
+-->
+<h6 id="autosec-152">Oplossing</h6>
+<a id="mkpiweb-autopage-152"></a>
+
+
+<p>
+We herleiden eerst naar een eenvoudige ongelijkheid.
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                  π 
+                                                                                      2 sin 4 x −        +2>3
+                                                                                                    3
+                                                                                                      π 
+                                                                                           2 sin 4 x −       >1
+                                                                                                        3
+                                                                                                      π  1
+                                                                                             sin 4 x −       >
+                                                                                                        3      2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+2\sin \left (4\left (x-\frac {\pi }{3}\right )\right )+2&amp;&gt;3\\ 2\sin \left (4\left (x-\frac {\pi }{3}\right )\right )&amp;&gt;1\\ \sin \left (4\left (x-\frac {\pi }{3}\right )\right
+)&amp;&gt;\frac 12
+\end{align*}
+
+</p>
+
+<p>
+We stellen tijdelijk:
+</p>
+
+<p>
+\[ u=4\left (x-\frac {\pi }{3}\right ).        \]
+</p>
+
+<p>
+Dan moeten we oplossen:
+</p>
+
+<p>
+\[ \sin u&gt;\frac 12.     \]
+</p>
+
+<p>
+Op de goniometrische cirkel zien we:
+</p>
+
+<p>
+\[ \sin u&gt;\frac 12 \quad \Leftrightarrow \quad \frac {\pi }{6}+2k\pi &lt;u&lt;\frac {5\pi }{6}+2k\pi , \qquad k\in \Z . \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-23"
+    class="lateximagesource"
+><!--
+         y
+
+5π            π
+ 6           16
+             2
+
+                  x
+     O
+--><img
+    src="mkpiweb-images/image-23.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Nu keren we terug naar \(x\).
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                    π              π  5π
+                                                                                      + 2kπ < 4 x −    <   + 2kπ
+                                                                                    6               3    6
+                                                                                    π              4π   5π
+                                                                                      + 2kπ < 4x −    <    + 2kπ
+                                                                                    6               3    6
+                                                                                π 4π               5π 4π
+                                                                                  +   + 2kπ < 4x <    +   + 2kπ
+                                                                                6   3               6   3
+                                                                                    3π              13π
+                                                                                       + 2kπ < 4x <     + 2kπ
+                                                                                     2               6
+                                                                                    3π   π    13π   π
+                                                                                       +k <x<     +k .
+                                                                                     8   2     24   2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\frac {\pi }{6}+2k\pi &amp;&lt; 4\left (x-\frac {\pi }{3}\right ) &lt; \frac {5\pi }{6}+2k\pi \\[2mm] \frac {\pi }{6}+2k\pi &amp;&lt; 4x-\frac {4\pi }{3} &lt; \frac {5\pi }{6}+2k\pi \\[2mm]
+\frac {\pi }{6}+\frac {4\pi }{3}+2k\pi &amp;&lt; 4x &lt; \frac {5\pi }{6}+\frac {4\pi }{3}+2k\pi \\[2mm] \frac {3\pi }{2}+2k\pi &amp;&lt; 4x &lt; \frac {13\pi }{6}+2k\pi \\[2mm] \frac {3\pi
+}{8}+k\frac {\pi }{2} &amp;&lt; x &lt; \frac {13\pi }{24}+k\frac {\pi }{2}.
+\end{align*}
+
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ V= \left \{ x\in \R \ \middle |\ \frac {3\pi }{8}+k\frac {\pi }{2} &lt; x &lt; \frac {13\pi }{24}+k\frac {\pi }{2} \text { met } k\in \Z \right \}.   \]
+</p>
+
+<p>
+Bij benadering:
+</p>
+
+<p>
+\[ V= \left \{ x\in \R \ \middle |\ 1.1781+k\frac {\pi }{2} &lt; x &lt; 1.7017+k\frac {\pi }{2} \text { met } k\in \Z \right \}.   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Grafische interpretatie ......
+-->
+<h6 id="autosec-156">Grafische interpretatie</h6>
+<a id="mkpiweb-autopage-156"></a>
+
+
+<p>
+We tekenen de grafiek van
+</p>
+
+<p>
+\[ f(x)=2\sin \left (4\left (x-\frac {\pi }{3}\right )\right )+2 \]
+</p>
+
+<p>
+en de rechte \(y=3\).
+</p>
+
+<p>
+De oplossingen liggen waar de grafiek van \(f\) boven de rechte \(y=3\) ligt.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-24"
+    class="lateximagesource"
+><!--
+             f (x) = 2 sin 4 x − π3
+                                      
+                                           +2
+    y
+4
+                                                      y=3
+3
+
+2
+
+1
+                                                              x
+        3π                    1.5               13π         2.0
+         8                                       24
+--><img
+    src="mkpiweb-images/image-24.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Omdat de ongelijkheid strikt is, nemen we de snijpunten zelf niet mee.
+</p>
+<!--
+...... subsection Samenvatting ......
+-->
+<h5 id="autosec-160"><span class="sectionnumber">6&#x2003;</span>Samenvatting</h5>
+<a id="mkpiweb-autopage-160"></a>
+
+
+<p>
+Bij goniometrische ongelijkheden gebruiken we dezelfde kennis als bij goniometrische vergelijkingen.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:               1px solid black; border-right:   1px solid black">
+
+<p>
+Stap 1
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:           1px solid black">
+
+<p>
+Zoek de grenspunten door de bijhorende vergelijking op te lossen.
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:               1px solid black; border-right:   1px solid black">
+
+<p>
+Stap 2
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:           1px solid black">
+
+<p>
+Kijk op de cirkel of grafiek waar de ongelijkheid klopt.
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:               1px solid black; border-right:   1px solid black">
+
+<p>
+Stap 3
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:           1px solid black">
+
+<p>
+Let op open of gesloten grenzen.
+</p>
+</td>
+</tr>
+
+
+<tr class="hline">
+<td class="tdp tvertbarl tvertbarr tdbfseries" style="border-left:               1px solid black; border-right:   1px solid black">
+
+<p>
+Stap 4
+</p>
+</td>
+<td class="tdp tvertbarr" style="border-right:           1px solid black">
+
+<p>
+Gebruik de periode om alle oplossingen te noteren.
+</p>
+</td>
+</tr>
+
+
+<tr class="hline" aria-hidden="true">
+<td class="tdp tdbfseries">
+
+</td>
+<td class="tdp">
+
+</td>
+</tr>
+</table>
+
+</div>
+
+<p>
+Bij \(\sin x\) en \(\cos x\) is de periode \(2\pi \).
+</p>
+
+<p>
+Bij \(\tan x\) en \(\cot x\) is de periode \(\pi \).
+</p>
+
+<p>
+Bij een samengestelde hoek, zoals
+</p>
+
+<p>
+\[ \sin \left (4\left (x-\frac {\pi }{3}\right )\right ), \]
+</p>
+
+<p>
+los je best eerst op alsof de hele binnenkant één nieuwe onbekende is. Daarna keer je terug naar \(x\).
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-163"><span class="sectionnumber">7&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-163"></a>
+
+
+<p>
+VBTL - Analyse 1b: p192 nr 10
+</p>
+
+<p>
+Toetsen/Examens, enkel grafisch kunnen.
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

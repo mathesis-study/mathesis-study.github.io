@@ -1,0 +1,2142 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Discrete wiskunde: Algemene telregels</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 1</p> <h1>Discrete wiskunde: Algemene telregels</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
++
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.33</b> (MD 06.08.34) De leerlingen lossen telproblemen op met en zonder herhaling en waarbij de volgorde al dan niet van belang is.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">binomium van Newton</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">driehoek van Pascal</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">duiventilprincipe van Dirichlet</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Extra uitleg:</b> aantal elementen van een verzameling, kardinaalgetal, somregel, productregel, complementregel, faculteiten
+</p>
+
+</div>
+<!--
+...... section Tellen van de elementen in een verzameling ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Tellen van de elementen in een verzameling</h4>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<p>
+In dit nieuwe vak zullen we meer geı&#x0308;nteresseerd zijn in het aantal elementen van een verzameling, dan in deze elementen zelf.
+</p>
+<!--
+...... subsection Notatie ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Notatie</h5>
+<a id="mkpiweb-autopage-7"></a>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:312pt ; ">
+
+<a id="mkpiweb-autopage-8"></a>
+
+<p>
+Het aantal elementen van een verzameling \(A\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                     = het kardinaalgetal van A
+                                                                                     = #A
+                                                                                     = n(A)
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;= \text {het kardinaalgetal van }A\\ &amp;= \#A\\ &amp;= n(A)\\
+\end{align*}
+
+</p>
+
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:160pt ; ">
+
+<a id="mkpiweb-autopage-9"></a>
+
+<div class="oplossing">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+A
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> \(A\) = Verzameling van de geordende drietallen gevormd met de cijfers 0 en 1
+</p>
+<div class="oplossing">
+<p>
+\[ \begin {aligned} \Rightarrow \ &amp;A=\{000,001,010,100,011,101,110,111\},\\ \Rightarrow \ &amp;\#A = 8.        \end {aligned} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> \(B\) = Verzameling van alle mogelijke lotto-trekkingen
+</p>
+<div class="oplossing">
+<p>
+\[ \Rightarrow \ B=\{(2,3,11,23,35,42),\ldots \}. \]
+</p>
+<p>
+Omdat elk element van \(B\) bestaat uit \(6\) verschillende getallen gekozen uit
+</p>
+<p>
+\[\{1,2,\ldots ,42\},\]
+</p>
+<p>
+is
+</p>
+<p>
+\[ \Rightarrow \ \#B=\binom {42}{6} =\frac {42\cdot 41\cdot 40\cdot 39\cdot 38\cdot 37}{6\cdot 5\cdot 4\cdot 3\cdot 2\cdot 1} =5\,245\,786.   \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... section Somregel ......
+-->
+<h4 id="autosec-13"><span class="sectionnumber">II&#x2003;</span>Somregel</h4>
+<a id="mkpiweb-autopage-13"></a>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+Je wint een prijs op de kermis: je mag een aap kiezen uit een mand A ofwel een beer uit mand B. In mand A zitten 4 verschillende soorten apen en in mand B zitten 2 verschillende soorten beren. Hoeveel mogelijkheden heb je om
+een prijs te kiezen?
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \overset {\text {Aap}}{4} \ \overset {\text {OF}}{+}\ \overset {\text {Beer}}{2} \;=\; 6 \ \text {mogelijkheden}.                    \]
+</p>
+
+</div>
+<!--
+...... subsection Regel ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">2&#x2003;</span>Regel</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+Een beslissing bestaat eruit één enkele, van 2 elkaar uitsluitende deelbeslissingen te nemen. Als de 1ste deelbeslissing op \(n_1\) manieren mogelijk is en de 2de deelbeslissing op \(n_2\) manieren mogelijk is,dan is de
+oorspronkelijke beslissing mogelijk op \(n_1 + n_2\) manieren.
+</p>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[A\cap B = \emptyset \Rightarrow \#(A\cup B) = \#A + \#B\]
+</p>
+<p>
+OF betekent +
+</p>
+
+</div>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+A            B
+
+
+
+
+       OF
+    6=4+ 2
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Opmerking ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">3&#x2003;</span>Opmerking</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+Als \(A\cap B \neq \emptyset \Rightarrow \#(A\cup B) = \#A + \#B - \#(A\cap B)\). Hier komen we later nog op terug.
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+A             B
+
+
+
+
+    5=4+2−1
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... section Productregel ......
+-->
+<h4 id="autosec-23"><span class="sectionnumber">III&#x2003;</span>Productregel</h4>
+<a id="mkpiweb-autopage-23"></a>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+Je wint een prijs op de kermis: je mag een aap kiezen uit een mand A en een beer uit mand B. In mand A zitten 4 verschillende soorten apen en in mand B zitten 2 verschillende soorten beren. Hoeveel mogelijkheden heb je om een
+prijs te kiezen?
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ A=\{a_1,a_2,a_3,a_4\}\ \Rightarrow \ \#A=4 \]
+</p>
+
+<p>
+\[ B=\{b_1,b_2\}\ \Rightarrow \ \#B=2 \]
+</p>
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+     b1
+a1        {a1 , b1 } = {b1 , a1 }
+     b2   ̸= (a1 , b1 )
+     b1
+a2        volgorde doet er niet toe (verzameling)
+     b2   volgorde is belangrijk (geordend paar)
+     b1
+a3
+     b2
+     b1
+a4
+     b2
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Notatie:
+</p>
+<div class="oplossing">
+
+<p>
+\[ A\times B=\left \{\{a_1,b_1\},\{a_1,b_2\},\ldots ,\{a_4,b_1\},\{a_4,b_2\}\right \} \]
+</p>
+
+<p>
+\[ \Rightarrow \ \#(A\times B)=4\cdot 2=8.   \]
+</p>
+
+</div>
+<!--
+...... subsection Regel ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">2&#x2003;</span>Regel</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+Een beslissing bestaat eruit na elkaar en in willekeurige volgorde twee elkaar uitsluitende deelbeslissingen te nemen. Indien de eerste deelbeslissing op \(n_1\) manieren kan genomen worden en de tweede deelbeslissing op \(n_2\)
+manieren mogelijk is, dan is de oorspronkelijke beslissing mogelijk op \(n_1\cdot n_2\) manieren.
+</p>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[\#(A \times B) = \#A \cdot \#B\]
+</p>
+<p>
+EN betekent \(\cdot \)
+</p>
+
+</div>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-28"><span class="sectionnumber">IV&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-28"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-29">Oefening 1</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+Een club bestaat uit 30 mannelijke en 50 vrouwelijke leden.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Hoeveel mogelijkheden zijn er om hieruit één voorzitter te kiezen?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {M}{30}\ \overset {\text {OF}}{+}\ \overset {V}{50}\;=\;80 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Op hoeveel manieren kan men 1 man als secretaris en 1 vrouw als voorzitter kiezen?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {M}{30}\ \overset {\text {EN}}{\cdot }\ \overset {V}{50}\;=\;1500 \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-30">Oefening 2</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+In een bibliotheek zijn 50 wetenschappelijke verhandelingen, 100 detectiveverhalen en 180 romans beschikbaar.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Op hoeveel manieren kan men hieruit 1 boek kiezen?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {W}{50}\ \overset {\text {OF}}{+}\ \overset {D}{100}\ \overset {\text {OF}}{+}\ \overset {R}{180} =\;330 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Op hoeveel manieren kan iemand een lijstje opstellen met één boek van elke soort?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {W}{50}\ \overset {\text {EN}}{\cdot }\ \overset {D}{100}\ \overset {\text {EN}}{\cdot }\ \overset {R}{180} =\;900000 \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-31">Oefening 3</h5>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+We moeten de afloop van 10 voetbalwedstrijden voorspellen. Voor elke match zijn er 3 mogelijkheden: winnen, verliezen en gelijkspel.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Hoeveel lijstjes met voorspellingen zijn er mogelijk?
+</p>
+<div class="oplossing">
+<p>
+\[ \text {uitslag 1e wedstrijd}\ \overset {\text {EN}}{\cdot }\ \text {uitslag 2e wedstrijd}\ \overset {\text {EN}}{\cdot }\ \cdots \ \overset {\text {EN}}{\cdot }\ \text {uitslag 10e
+wedstrijd} \]
+</p>
+<p>
+\[ =\,3 \ \overset {\text {EN}}{\cdot }\ 3 \ \overset {\text {EN}}{\cdot }\ \cdots \ \overset {\text {EN}}{\cdot }\ 3 = 3^{10}\ \text {mogelijke lijstjes}. \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Hoe groot is het aantal als we zeker weten dat in de eerste wedstrijd de thuisploeg niet verliest?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {\text {niet verliest}}{2}\ \overset {\text {EN}}{\cdot }\ 3^{9} \;=\;2\cdot 3^{9} \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-32">Oefening 4</h5>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p>
+Voor de samenstelling van je lessenrooster moet je twee keuzevakken kiezen, elk uit een verschillend vakgebied. Er is keuze uit 3 talen, 4 wetenschappelijke vakken en 2 sporten. Hoeveel keuzemogelijkheden heb je?
+</p>
+<div class="oplossing">
+
+<p>
+\[ \#=\; (\overset {T}{3}\ \overset {\text {EN}}{\cdot }\ \overset {W}{4}) \ \overset {\text {OF}}{+}\ (\overset {T}{3}\ \overset {\text {EN}}{\cdot }\ \overset {S}{2}) \ \overset {\text
+{OF}}{+}\ (\overset {W}{4}\ \overset {\text {EN}}{\cdot }\ \overset {S}{2}) \]
+</p>
+
+<p>
+\[ =\;12\ \overset {\text {OF}}{+}\ 6\ \overset {\text {OF}}{+}\ 8 =\;26 \]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-33">Oefening 5</h5>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+We beschikken over alle letters van het alfabet (6 klinkers en 20 medeklinkers) om anagrammen te vormen.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Hoeveel anagrammen zijn er met 1 klinker, gevolgd door 1 medeklinker?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {K}{6}\ \overset {\text {EN}}{\cdot }\ \overset {M}{20}\;=\;120 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Hoeveel anagrammen bestaan er uit 1 klinker tussen 2 medeklinkers?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {M}{20}\ \overset {\text {EN}}{\cdot }\ \overset {K}{6}\ \overset {\text {EN}}{\cdot }\ \overset {M}{20} =\;2400 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Hoeveel anagrammen van 4 letters zijn er die beginnen met een klinker?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {K}{6}\ \overset {\text {EN}}{\cdot }\ \overset {\text {alfabet}}{26^3} =\;6\cdot 26^3 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Hoeveel anagrammen van 4 letters bevatten minstens 1 maal de letter a?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {\text {alle}}{26^4}\ \overset {\text {MIN}}{-}\ \overset {\text {zonder }a}{25^4} =\;26^4-25^4 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> Hoeveel anagrammen van 5 letters kan je vormen als de eerste en de laatste letter medeklinkers moeten zijn en de derde een klinker?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {M}{20}\ \overset {\text {EN}}{\cdot }\ \overset {\text {alfabet}}{26}\ \overset {\text {EN}}{\cdot }\ \overset {K}{6}\ \overset {\text {EN}}{\cdot }\ \overset {\text
+{alfabet}}{26}\ \overset {\text {EN}}{\cdot }\ \overset {M}{20} =\;20\cdot 26\cdot 6\cdot 26\cdot 20 \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 6 ......
+-->
+<h5 id="autosec-34">Oefening 6</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+Het letterslot van een kluis bestaat uit een eerste ring met 10 letters, een tweede ring met 8 letters en een derde ring met 6 letters. Om een kluis te openen moet elke ring zo geplaatst worden dat een bepaalde stand inneemt.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Hoeveel codes moet een inbreker ten hoogste proberen?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {R_1}{10}\ \overset {\text {EN}}{\cdot }\ \overset {R_2}{8}\ \overset {\text {EN}}{\cdot }\ \overset {R_3}{6} =\;480 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Hoeveel zijn er mogelijk als hij weet dat de letter van de eerste ring een E is?
+</p>
+<div class="oplossing">
+<p>
+\[ \#=\;\overset {R_1=\text {E}}{1}\ \overset {\text {EN}}{\cdot }\ \overset {R_2}{8}\ \overset {\text {EN}}{\cdot }\ \overset {R_3}{6} =\;48 \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 7 ......
+-->
+<h5 id="autosec-35">Oefening 7</h5>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p>
+Bij een schoolwedstrijd met 2 ploegen, die elk uit 6 deelnemers bestaan, moet elke deelnemer van de ene ploeg tegen elke deelnemer van de andere ploeg 2 partijen spelen. Hoeveel partijen zijn er in totaal?
+</p>
+<div class="oplossing">
+
+<p>
+\[ \#=\;\overset {P_1}{6}\ \overset {\text {EN}}{\cdot }\ \overset {P_2}{6}\ \overset {\text {EN}}{\cdot }\ \overset {\text {partijen per duel}}{2} =\;72 \]
+</p>
+
+</div>
+<!--
+...... section Complementregel ......
+-->
+<h4 id="autosec-36"><span class="sectionnumber">V&#x2003;</span>Complementregel</h4>
+<a id="mkpiweb-autopage-36"></a>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+Een klas bestaat uit 20 leerlingen. Hoeveel manieren zijn er om <b>minstens 1 leerling</b> te kiezen uit deze klas?
+</p>
+
+<div class="oplossing">
+
+<p>
+In plaats van het aantal manieren te berekenen waarop minstens 1 leerling wordt gekozen, is het eenvoudiger om te tellen hoeveel manieren er zijn waarbij <b>geen enkele leerling</b> wordt gekozen. Dit aantal kan dan worden
+afgetrokken van het totale aantal mogelijkheden.
+</p>
+
+<p>
+\[ \#=\;\overset {\text {alle keuzes}}{2^{20}}\ \overset {\text {MIN}}{-}\ \overset {\text {geen gekozen}}{1} =\;2^{20}-1 \]
+</p>
+
+</div>
+<!--
+...... subsection Regel ......
+-->
+<h5 id="autosec-38"><span class="sectionnumber">2&#x2003;</span>Regel</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+De Complementregel bij telproblemen stelt dat het aantal manieren om een complementaire gebeurtenis te tellen gelijk is aan het totaal aantal mogelijkheden minus het aantal manieren van de oorspronkelijke gebeurtenis.
+Symbolisch:
+</p>
+
+<p>
+\[ \#\bar {A} = \#U - \#A \]
+</p>
+
+<p>
+waarbij:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(\#U\) het totaal aantal mogelijkheden is,
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\#A\) het aantal manieren voor de specifieke gebeurtenis is,
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\#\bar {A}\) het aantal manieren is voor het complement van \(\#A\).
+</p>
+</li>
+</ul>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ \#(U) = \#(A) + \#(A^c) \quad \Rightarrow \quad \#(A^c) = \#(U) - \#(A) \]
+</p>
+
+</div>
+<!--
+...... subsection Grafisch ......
+-->
+<h5 id="autosec-39"><span class="sectionnumber">3&#x2003;</span>Grafisch</h5>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+U
+    A
+
+
+
+
+        Ac
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-43"><span class="sectionnumber">4&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+In een bibliotheek zijn 10 boeken. Je moet een selectie maken, waarbij je minstens 2 boeken kiest. Hoeveel manieren zijn er om dit te doen?
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                   #U = 210    (elke combinatie van boeken is mogelijk: gekozen of niet gekozen)
+                                                                   #Ā = 1 + 10   (het aantal manieren om géén enkel boek te kiezen of juist één boek te keizen)
+                                                                   #A = #U − #Ā = 210 − 11
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\#U &amp;= 2^{10} \quad (\text {elke combinatie van boeken is mogelijk: gekozen of niet gekozen}) \\ \#\bar {A} &amp;= 1 + 10 \quad (\text {het aantal manieren om gÃľÃľn enkel boek te kiezen
+of juist ÃľÃľn boek te keizen}) \\ \#A &amp;= \#U - \#\bar {A} = 2^{10} - 11
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-44"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-44"></a>
+<!--
+...... subsection Oefening 8 ......
+-->
+<h5 id="autosec-45">Oefening 8</h5>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p>
+Je wil naar de bioscoop gaan en je hebt 5 vrienden. Hoeveel manieren zijn er om minstens 1 vriend te kiezen die meegaat?
+</p>
+<div class="oplossing">
+
+<p>
+\[ \#=\;\overset {\text {alle keuzes}}{2^{5}}\ \overset {\text {MIN}}{-}\ \overset {\text {niemand}}{1} =\;2^{5}-1 =\;31 \]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 9 ......
+-->
+<h5 id="autosec-46">Oefening 9</h5>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+Bij een spel met 4 dobbelstenen wil je minstens 1 dobbelsteen hebben die een 6 toont. Hoeveel mogelijkheden zijn er in totaal?
+</p>
+<div class="oplossing">
+
+<p>
+\[ \#=\;\overset {\text {alle worpen}}{6^{4}}\ \overset {\text {MIN}}{-}\ \overset {\text {geen 6}}{5^{4}} =\;6^{4}-5^{4} =\;671 \]
+</p>
+
+</div>
+<!--
+...... section Faculteiten ......
+-->
+<h4 id="autosec-47"><span class="sectionnumber">VI&#x2003;</span>Faculteiten</h4>
+<a id="mkpiweb-autopage-47"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                            ∀n ∈ N\{0, 1} : n! = n · (n − 1) · (n − 2) · · · · · 3 · 2 · 1
+                                                                                              1! = 1
+                                                                                              0! = 1
+
+
+
+
+-->
+
+<p>
+
+\begin{align*}
+\forall n \in \mathbb {N}\backslash \{0,1\}:   n!&amp;=n\cdot (n-1)\cdot (n-2)\cdot \cdots \cdot 3\cdot 2\cdot 1\\ 1!&amp;=1\\ 0!&amp;=1\\
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-49"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(\;0!    = \opl {1}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\;1!    = \opl {1}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\;2!    = \opl {2\cdot 1 = 2}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\;3!    = \opl {3\cdot 2\cdot 1 = 6}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\;4!    = \opl {4\cdot 3\cdot 2\cdot 1 = 24}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\;5!    = \opl {5\cdot 4\cdot 3\cdot 2\cdot 1 = 5\cdot 24 = 120}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\;6!    = \opl {6\cdot 5!   = 6\cdot 120 = 720}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\;7!    = \opl {7\cdot 6!   = 7\cdot 720 = 5040}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\;8!    = \opl {8\cdot 7!   = 8\cdot 5040 = 40\,320}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\;9!    = \opl {9\cdot 8!   = 9\cdot 40\,320 = 362\,880}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(10!    = \opl {10\cdot 9!   = 10\cdot 362\,880}\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Berekenen m.b.v. ZRM of GRM ......
+-->
+<h5 id="autosec-50"><span class="sectionnumber">3&#x2003;</span>Berekenen m.b.v. <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>ZRM</kbd></span></span> of <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span></h5>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<div class="oplossing">
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:94pt ; text-align:center ; "
+><kbd>MATH</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>PROB</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>4:!</kbd></span></span>
+</p>
+</div>
+<!--
+...... subsection Eigenschap ......
+-->
+<h5 id="autosec-51"><span class="sectionnumber">4&#x2003;</span>Eigenschap</h5>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                  (n + 1)! = (n + 1) · n!
+                                                                                        n! = n · (n − 1)!
+
+
+
+
+-->
+
+<p>
+
+\begin{align*}
+(n+1)! &amp;= (n+1) \cdot n!\\ n!    &amp;= n \cdot (n-1)!\\
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-52"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-52"></a>
+<!--
+...... subsection Oefening 10 ......
+-->
+<h5 id="autosec-53">Oefening 10</h5>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Bereken zonder <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>ZRM</kbd></span></span>:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\dfrac {56!}{55!}\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                             56!   56 · 
+                                                                                                        55!
+                                                                                                         
+                                                                                                 =
+                                                                                             55!     55!
+                                                                                                       
+                                                                                                 = 56 .
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {56!}{55!} &amp;= \frac {56 \cdot \cancel {55!}}{\cancel {55!}}\\ &amp;= 56\,.
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\dfrac {14!}{12!}\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                           14!   14 · 13 · 
+                                                                                                           12!
+                                                                                                            
+                                                                                               =
+                                                                                           12!        12!
+                                                                                                      
+                                                                                               = 14 · 13
+                                                                                               = 182 .
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {14!}{12!} &amp;= \frac {14\cdot 13\cdot \cancel {12!}}{\cancel {12!}}\\ &amp;= 14\cdot 13\\ &amp;= 182\,.
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\dfrac {7!}{10!}\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                            7!          7!
+                                                                                               =
+                                                                                           10!   10 · 9 · 8 · 7!
+                                                                                                     1
+                                                                                               =
+                                                                                                 10 · 9 · 8
+                                                                                                  1
+                                                                                               =      .
+                                                                                                 720
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {7!}{10!}&amp;= \frac {\cancel {7!}}{10\cdot 9\cdot 8\cdot \cancel {7!}}\\ &amp;= \frac {1}{10\cdot 9\cdot 8}\\ &amp;= \frac {1}{720}\,.
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\dfrac {12!-10!}{9!}\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                 12! − 10!   12 · 11 · 10 · 9! − 10 · 9!
+                                                                                           =
+                                                                                     9!                   9!
+                                                                                           = 12 · 11 · 10 − 10
+                                                                                            = 10(12 · 11 − 1)
+                                                                                            = 10(132 − 1)
+                                                                                            = 1310 .
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {12!-10!}{9!} &amp;= \frac {12\cdot 11\cdot 10 \cdot \cancel {9!} - 10 \cdot \cancel {9!}}{\cancel {9!}}\\ &amp;= 12\cdot 11\cdot 10 - 10\\ &amp;= 10(12\cdot 11 - 1)\\ &amp;= 10(132-1)\\
+&amp;= 1310\,.
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 11 ......
+-->
+<h5 id="autosec-54">Oefening 11</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+Vereenvoudig:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\dfrac {(n+1)!}{n!}-\dfrac {n!}{(n-1)!}\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                 (n + 1)!      n!      (n + 1) · n
+                                                                                                                 !   n·  −
+                                                                                                                         (n 1)!
+                                                                                                                              
+                                                                                          −          =              −
+                                                                                    n!      (n − 1)!       !
+                                                                                                           n           (n
+                                                                                                                         −1)!
+                                                                                                                             
+
+                                                                                                     = (n + 1) − n
+                                                                                                     = 1.
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {(n+1)!}{n!}-\frac {n!}{(n-1)!} &amp;= \frac {(n+1)\cdot \cancel {n!}}{\cancel {n!}}-\frac {n\cdot \cancel {(n-1)!}}{\cancel {(n-1)!}}\\ &amp;= (n+1)-n\\ &amp;= 1\,.
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\dfrac {(n+1)!}{(n-1)!}-\dfrac {n!}{(n-2)!}\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                        (n + 1)!    n!      (n + 1) · n ·  −
+                                                                                                          (n   n · (n − 1) · (n
+                                                                                                              1)!               −2)!
+                                                                                                                                    
+                                                                                 −        =                       −
+                                                                        (n − 1)! (n − 2)!         (n
+                                                                                                     − 1)!
+                                                                                                                      (n
+                                                                                                                          − 2)!
+                                                                                                                              
+
+                                                                                            = n(n + 1) − n(n − 1)
+                                                                                                                  
+                                                                                            = n (n + 1) − (n − 1)
+                                                                                            = 2n .
+
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {(n+1)!}{(n-1)!}-\frac {n!}{(n-2)!} &amp;= \frac {(n+1)\cdot n\cdot \cancel {(n-1)!}}{\cancel {(n-1)!}} -\frac {n\cdot (n-1)\cdot \cancel {(n-2)!}}{\cancel {(n-2)!}}\\ &amp;=
+n(n+1)-n(n-1)\\ &amp;= n\big ((n+1)-(n-1)\big )\\ &amp;= 2n\,.
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\dfrac {((n+1)!)^2}{n!   \cdot (n+2)!}-\dfrac {(n!)^2}{(n-1)!          \cdot (n+1)!}\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                   ((n + 1)!)2        (n!)2           (n + 1)! · 
+                                                                                                                 (n+ 1)!
+                                                                                                                                     n! · n
+                                                                                                                                           !
+                                                                               −                   =                      − (n − 1)! (n + 1) · n
+                                                                   n! (n + 2)!   (n − 1)! (n + 1)!   n! (n + 2) · 
+                                                                                                                  (n+ 1)!                     !
+                                                                                                     (n + 1) · n
+                                                                                                               !        n·(n−1)!
+                                                                                                                                  
+                                                                                                   =               −
+                                                                                                     (n + 2) · n
+                                                                                                               !    (n + 1) · 
+                                                                                                                               (n− 1)!
+                                                                                                                                      
+                                                                                                     n+1         n
+                                                                                                   =        −
+                                                                                                     n+2 n+1
+                                                                                                     (n + 1)2 − n(n + 2)
+                                                                                                   =
+                                                                                                        (n + 1)(n + 2)
+                                                                                                            1
+                                                                                                   =                 .
+                                                                                                     (n + 1)(n + 2)
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {((n+1)!)^2}{n!\,(n+2)!}-\frac {(n!)^2}{(n-1)!\,(n+1)!} &amp;= \frac {(n+1)!\cdot \cancel {(n+1)!}}{n!\,(n+2)\cdot \cancel {(n+1)!}} -\frac {n!\cdot \cancel {n!}}{(n-1)!\,(n+1)\cdot
+\cancel {n!}}\\ &amp;= \frac {(n+1)\cdot \cancel {n!}}{(n+2)\cdot \cancel {n!}} -\frac {n\cdot \cancel {(n-1)!}}{(n+1)\cdot \cancel {(n-1)!}}\\ &amp;= \frac {n+1}{n+2}-\frac {n}{n+1}\\ &amp;=
+\frac {(n+1)^2-n(n+2)}{(n+1)(n+2)}\\ &amp;= \frac {1}{(n+1)(n+2)}\,.
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 12 ......
+-->
+<h5 id="autosec-55">Oefening 12</h5>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+Bewijs:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \((n+1)!-n!=n\cdot n!\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                         (n + 1)! − n! = (n + 1) n! − n!
+                                                                                                                      
+                                                                                                       = (n + 1) − 1 n!
+                                                                                                         = n · n! .
+
+
+-->
+
+<p>
+
+\begin{align*}
+(n+1)!-n! &amp;= (n+1)\,n!-n!\\ &amp;= \big ((n+1)-1\big )n!\\ &amp;= n\cdot n!\,.
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \((n+2)!-(n+2)\cdot n!    = n\cdot (n+2)\cdot n!\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                              (n + 2)! − (n + 2) n! = (n + 2)(n + 1)n! − (n + 2)n!
+                                                                                                                         
+                                                                                                    = (n + 2) (n + 1) − 1 n!
+                                                                                                      = n(n + 2)n! .
+
+
+-->
+
+<p>
+
+\begin{align*}
+(n+2)!-(n+2)\,n!   &amp;= (n+2)(n+1)n!-(n+2)n!\\ &amp;= (n+2)\big ((n+1)-1\big )n!\\ &amp;= n(n+2)n!\,.
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(1\cdot 3 \cdot 5 \cdot \ldots \cdot (2n-3)\cdot (2n-1)\cdot 2^n\cdot n!                  = (2n)!\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                             
+                                                                                (2n)! = (1 · 2)(3 · 4) · · · (2n − 1) · (2n)
+                                                                                                                                     
+                                                                                      = 1 · 3 · 5 · · · (2n − 1) 2 · 4 · 6 · · · (2n)
+                                                                                      = 1 · 3 · 5 · · · (2n − 1) 2n (1 · 2 · · · · · n)
+                                                                                                                                      
+
+                                                                                      = 1 · 3 · 5 · · · (2n − 1) 2n n! .
+                                                                                                                
+
+
+
+-->
+
+<p>
+
+\begin{align*}
+(2n)! &amp;= (1\cdot 2)(3\cdot 4)\cdots \big ((2n-1)\cdot (2n)\big )\\ &amp;= \big (1\cdot 3\cdot 5\cdots (2n-1)\big )\,\big (2\cdot 4\cdot 6\cdots (2n)\big )\\ &amp;= \big (1\cdot 3\cdot
+5\cdots (2n-1)\big )\,\big (2^n(1\cdot 2\cdot \cdots \cdot n)\big )\\ &amp;= \big (1\cdot 3\cdot 5\cdots (2n-1)\big )\,2^n\,n!\,.
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-56"><span class="sectionnumber">VII&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p>
+Zie VBTL - Combinatoriek &amp; Kansrekening, p21 e.v.
+</p>
+
+
+
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

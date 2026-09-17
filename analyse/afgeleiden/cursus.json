@@ -1,0 +1,28 @@
+{
+ "titel": "Afgeleiden",
+ "hoofdstuk": 16,
+ "code": "A16",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/afgeleiden",
+ "secties": [
+  "Inleiding",
+  "Definities",
+  "Meetkundige betekenis",
+  "Afleidbaarheid en continuïteit",
+  "De afgeleide functie",
+  "Rekenregels",
+  "Hogere afgeleiden",
+  "De regel van de l’Hospital"
+ ],
+ "leerplandoelen": [
+  "BV3_06.03",
+  "BV3_06.04",
+  "WD3_06.08.27",
+  "WD3_06.08.28"
+ ],
+ "interactief": true,
+ "python": true,
+ "oefeningen": true
+}

@@ -1,0 +1,24 @@
+{
+ "titel": "Continuïteit",
+ "hoofdstuk": 12,
+ "code": "A12",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/continuiteit",
+ "secties": [
+  "Continuïteit van functie in \\(\\R \\)",
+  "Links- en rechtscontinu",
+  "Continuïteit en bewerkingen met functies",
+  "Eigenschappen van functies die continu zijn in gesloten interval"
+ ],
+ "leerplandoelen": [
+  "BV3_06.19",
+  "WD3_06.08.25",
+  "WD3_06.08.26",
+  "WD3_06.08.42"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

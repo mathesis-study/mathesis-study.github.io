@@ -1,0 +1,18 @@
+{
+ "titel": "Oppervlakte en inhoud van ruimtelichamen",
+ "hoofdstuk": 5,
+ "code": "R05",
+ "vak": "Wiskunde",
+ "domein": "Ruimtemeetkunde",
+ "domeinnaam": "Ruimtemeetkunde",
+ "url": "ruimtemeetkunde/oppervlakte-en-inhoud-van-ruimtelichamen",
+ "secties": [
+  "Veelvlakken",
+  "Omwentelingslichamen",
+  "Oefeningen"
+ ],
+ "leerplandoelen": [],
+ "interactief": false,
+ "python": false,
+ "oefeningen": true
+}

@@ -1,0 +1,2683 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Integratiemethodes</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 19</p> <h1>Integratiemethodes</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+R
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.32</b> (MD 06.08.21) De leerlingen berekenen bepaalde en onbepaalde integralen van functies.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: integratiemethoden: onmiddellijke integratie, integratie door splitsing (lineariteit), integratie door substitutie, partie&#x0308;le integratie
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> onbepaalde integraal als verzameling van primitieve functies, basisintegralen, lineariteit van de integraal, integratie door splitsing, eenvoudige substitutie, partie&#x0308;le integratie, en
+toepassingen van deze integratiemethodes op algebraı&#x0308;sche, exponentie&#x0308;le, goniometrische en logaritmische functies.
+</p>
+
+</div>
+<!--
+...... section Onbepaalde integraal ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Onbepaalde integraal</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+Is \(F\) een primitieve functie van \(f\), dan wordt de verzameling van alle primitieve functies van \(f\),
+</p>
+
+<p>
+\[ \{\,F + C \mid C \in \mathbb {R}\,\}, \]
+</p>
+
+<p>
+de <em>onbepaalde integraal</em> van \(f\) genoemd.
+</p>
+
+<p>
+\[ \int f(x)\,dx \;=\; \{\,F + C \mid C \in \mathbb {R}\,\}.              \]
+</p>
+
+<p>
+Hierbij heet \(f(x)\) het <em>integrandum</em> en \(\int \) het <em>integraalteken</em>.
+</p>
+<!--
+...... subsection Eigenschappen ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Eigenschappen</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(\displaystyle d\!\left (\int f(x)\,dx\right ) = d(F(x)) = F&apos;(x)\,dx = f(x)\,dx.   \)<br />
+Dus: \(d\) na \(\int \) heffen elkaar op.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \int dF(x) = \int F&apos;(x)\,dx = \int f(x)\,dx = F(x) + C. \)<br />
+Dus: \(\int \) na \(d\) heffen elkaar op (op een constante term na).
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+\(\Rightarrow \) Integreren en differentie&#x0308;ren zijn inverse bewerkingen!
+</p>
+<!--
+...... subsection Rekenregels ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">3&#x2003;</span>Rekenregels</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                       Z                  Z    Z
+                                                                                           (f + g) dx = f dx +   g dx
+                                                                                       Z               Z
+                                                                                         k f (x) dx = k f (x) dx
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int (f+g)\,dx \;&amp;=\; \int f\,dx \;+\; \int g\,dx\\ \int k\,f(x)\,dx \;&amp;=\; k\int f(x)\,dx
+\end{align*}
+
+</p>
+
+<p>
+Meer algemeen, voor \(a,b\in \mathbb {R}\):
+</p>
+
+<p>
+\[ \int \bigl (a\,f(x)+b\,g(x)\bigr )\,dx \;=\; a\int f\,dx \;+\; b\int g\,dx.    \]
+</p>
+
+<p>
+Maar:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                       Z                 Z           Z          
+                                                                                           f · g dx ̸=        f dx          g dx
+                                                                                           Z         R
+                                                                                             f         f dx
+                                                                                               dx ̸= R      .
+                                                                                             g         g dx
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int f\cdot g\,dx \;&amp;\neq \; \left (\int f\,dx\right )\left (\int g\,dx\right )\\ \int \frac {f}{g}\,dx \;&amp;\neq \; \frac {\int f\,dx}{\int g\,dx}.
+\end{align*}
+zie later bij partie&#x0308;le integratie.
+</p>
+<!--
+...... section Basisintegralen ......
+-->
+<h4 id="autosec-10"><span class="sectionnumber">II&#x2003;</span>Basisintegralen</h4>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+<i>Zie ook HB Analyse 4 p. 71. Fundamentele integralen</i>
+</p>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #FF0000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+<b>Parate kennis!!</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                             Z
+                                                                                                  1 dx = x + C
+
+                                                                                                           xn+1
+                                                                                         Z
+                                                                                              xn dx =           +C    (n ∈ R \ {−1})
+                                                                                                           n+1
+                                                                                          Z
+                                                                                                 1
+                                                                                                   dx = ln |x| + C
+                                                                                                 x
+
+                                                                                                            ax
+                                                                                         Z
+                                                                                                 ax dx =        +C   (a > 0, a ̸= 1)
+                                                                                                           ln a
+                                                                                          Z
+                                                                                                 ex dx = ex + C
+
+                                                                                     Z
+                                                                                          sin x dx = − cos x + C
+
+                                                                                     Z
+                                                                                          cos x dx = sin x + C
+
+                                                                                 Z
+                                                                                           1
+                                                                                                dx = tan x + C
+                                                                                         cos2 x
+                                                                                 Z
+                                                                                            1
+                                                                                                dx = − cot x + C
+                                                                                         sin2 x
+                                                                             Z
+                                                                                       1
+                                                                                 √          dx = arcsin x + C = − arccos x + C
+                                                                                     1 − x2
+                                                                                 Z
+                                                                                        1
+                                                                                            dx = arctan x + C = − arccot x + C
+                                                                                     1 + x2
+                                                                            Z
+                                                                                    1                  p
+                                                                                 √         dx = ln x + x2 + k 2 + C               (k ̸= 0)
+                                                                                  x2 + k 2
+                                                                                 Z
+                                                                                    sinh x dx = cosh x + C
+
+                                                                                 Z
+                                                                                         cosh x dx = sinh x + C
+
+
+-->
+
+<p>
+
+\begin{align*}
+\int 1\,dx \;&amp;=\; x + C\\[2mm] \int x^{n}\,dx \;&amp;=\; \frac {x^{n+1}}{n+1} + C \qquad (n\in \mathbb {R}\setminus \{-1\})\\[2mm] \int \frac {1}{x}\,dx \;&amp;=\; \ln |x| + C\\[2mm] \int
+a^{x}\,dx \;&amp;=\; \frac {a^{x}}{\ln a} + C \qquad (a&gt;0,\ a\neq 1)\\[2mm] \int e^{x}\,dx \;&amp;=\; e^{x} + C\\[2mm] \int \sin x\,dx \;&amp;=\; -\cos x + C\\[2mm] \int \cos x\,dx
+\;&amp;=\; \sin x + C\\[2mm] \int \frac {1}{\cos ^{2}x}\,dx \;&amp;=\; \tan x + C\\[2mm] \int \frac {1}{\sin ^{2}x}\,dx \;&amp;=\; -\cot x + C\\[2mm] \int \frac {1}{\sqrt {1-x^{2}}}\,dx
+\;&amp;=\; \arcsin x + C \;=\; -\arccos x + C\\[2mm] \int \frac {1}{1+x^{2}}\,dx \;&amp;=\; \arctan x + C \;=\; -\operatorname {arccot} x + C\\[2mm] \int \frac {1}{\sqrt {x^{2}+k^{2}}}\,dx
+\;&amp;=\; \ln \!\left |x+\sqrt {x^{2}+k^{2}}\right | + C \qquad (k\neq 0)\\[2mm] \int \sinh x\,dx \;&amp;=\; \cosh x + C\\[2mm] \int \cosh x\,dx \;&amp;=\; \sinh x + C
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">1&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+p75 nr 1, 2, 4, e.v.
+</p>
+<!--
+...... section Substitutiemethode ......
+-->
+<h4 id="autosec-12"><span class="sectionnumber">III&#x2003;</span>Substitutiemethode</h4>
+<a id="mkpiweb-autopage-12"></a>
+<!--
+...... subsection Geval 1:     ......
+-->
+<h5 id="autosec-13"><span class="sectionnumber">1&#x2003;</span>Geval 1: \(t=ax+b\)</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+Neem
+</p>
+
+<p>
+\[ t=ax+b \quad \Rightarrow \quad dt=a\,dx \quad \Rightarrow \quad dx=\frac 1a\,dt.   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-14">Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                          Z                     Z
+                                                                              sin(x + 3) dx =       sin t dt   (t = x + 3, dt = dx)
+
+                                                                                           = − cos t + C
+                                                                                           = − cos(x + 3) + C.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int \sin (x+3)\,dx &amp;= \int \sin t\,dt \qquad (t=x+3,\ dt=dx)\\ &amp;= -\cos t + C\\ &amp;= -\cos (x+3)+C.
+\end{align*}
+
+</p>
+
+<p>
+<b>Praktisch:</b>
+</p>
+
+<p>
+\[ \int \sin (x+3)\,dx=\int \sin (x+3)\,d(x+3)=-\cos (x+3)+C. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-15">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                       Z                 Z      
+                                                                                              1
+                                                                           e−2x+1 dx =  et − dt       (t = −2x + 1, dt = −2 dx)
+                                                                                              2
+                                                                                         Z
+                                                                                       1
+                                                                                    =−     et dt
+                                                                                       2
+                                                                                       1
+                                                                                    = − et + C
+                                                                                       2
+                                                                                       1
+                                                                                    = − e−2x+1 + C.
+                                                                                       2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int e^{-2x+1}\,dx &amp;= \int e^{t}\left (-\frac 12\,dt\right ) \qquad (t=-2x+1,\ dt=-2\,dx)\\ &amp;= -\frac 12\int e^{t}\,dt\\ &amp;= -\frac 12 e^{t}+C\\ &amp;= -\frac 12 e^{-2x+1}+C.
+\end{align*}
+
+</p>
+
+<p>
+<b>Praktisch:</b>
+</p>
+
+<p>
+\[ \int e^{-2x+1}\,dx = -\frac 12\int e^{-2x+1}\,d(-2x+1) = -\frac 12 e^{-2x+1}+C. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 3 ......
+-->
+<h6 id="autosec-16">Voorbeeld 3</h6>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                   1 − cos 2x
+                                                                                 Z                 Z
+                                                                                     sin2 x dx =               dx
+                                                                                                        2
+                                                                                                  Z            Z
+                                                                                                1           1
+                                                                                              =      1 dx −       cos 2x dx
+                                                                                                2           2
+                                                                                                1     1 1
+                                                                                              = x − · sin 2x + C
+                                                                                                2     2 2
+                                                                                                1     1
+                                                                                              = x − sin 2x + C
+                                                                                                2     4
+                                                                                                1     1
+                                                                                              = x − (2 sin x cos x) + C
+                                                                                                2     4
+                                                                                                x − sin x cos x
+                                                                                              =                 + C.
+                                                                                                       2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int \sin ^2 x\,dx &amp;= \int \frac {1-\cos 2x}{2}\,dx\\ &amp;= \frac 12\int 1\,dx - \frac 12\int \cos 2x\,dx\\ &amp;= \frac 12 x - \frac 12\cdot \frac 12\sin 2x + C\\ &amp;= \frac 12 x -
+\frac 14\sin 2x + C\\ &amp;= \frac 12 x - \frac 14(2\sin x\cos x) + C\\ &amp;= \frac {x-\sin x\cos x}{2}+C.
+\end{align*}
+
+</p>
+
+<p>
+\[ \int \cos ^2 x\,dx=\frac {x+\sin x\cos x}{2}+C \qquad \text {(analoog).} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 4 ......
+-->
+<h6 id="autosec-17">Voorbeeld 4</h6>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                  Z                        Z
+                                                                                         1        1                 1
+                                                                                             dx = 2                        dx
+                                                                                       2
+                                                                                      a +x 2     a                      x 2
+                                                                                                               1+       a
+                                                                                                               Z
+                                                                                                     1                x1
+                                                                                                 =      ·a         2 d
+                                                                                                     a2   1 + xa       a
+                                                                                                                 
+
+                                                                                                  1        x 
+                                                                                                 = arctan       + C.
+                                                                                                  a         a
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int \frac {1}{a^{2}+x^{2}}\,dx &amp;= \frac {1}{a^{2}}\int \frac {1}{1+\left (\frac {x}{a}\right )^{2}}\,dx\\ &amp;= \frac {1}{a^{2}}\cdot a \int \frac {1}{1+\left (\frac {x}{a}\right
+)^{2}}\,d\!\left (\frac {x}{a}\right )\\ &amp;= \frac {1}{a}\,\arctan \!\left (\frac {x}{a}\right )+C.
+\end{align*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                              Z                        Z
+                                                                                        1          1        1
+                                                                                  √           dx =     q        2 dx
+                                                                                      a2 − x2      a
+                                                                                                         1 − xa
+                                                                                                       Z
+                                                                                                  1            1         x
+                                                                                                = ·a q                 d
+                                                                                                  a                  2    a
+                                                                                                            1 − xa
+                                                                                                                   
+                                                                                                        x
+                                                                                                = arcsin     +C        (a > 0).
+                                                                                                         a
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int \frac {1}{\sqrt {a^{2}-x^{2}}}\,dx &amp;= \frac {1}{a}\int \frac {1}{\sqrt {1-\left (\frac {x}{a}\right )^{2}}}\,dx\\ &amp;= \frac {1}{a}\cdot a \int \frac {1}{\sqrt {1-\left (\frac
+{x}{a}\right )^{2}}}\,d\!\left (\frac {x}{a}\right )\\ &amp;= \arcsin \!\left (\frac {x}{a}\right )+C \qquad (a&gt;0).
+\end{align*}
+
+</p>
+
+<p>
+\[ \int \frac {1}{a^{2}+x^{2}}\,dx=\frac {1}{a}\,\arctan \!\left (\frac {x}{a}\right )+C \]
+</p>
+
+<p>
+\[ \int \frac {1}{\sqrt {a^{2}-x^{2}}}\,dx=\arcsin \!\left (\frac {x}{a}\right )+C \qquad (a&gt;0).             \]
+</p>
+<!--
+...... subsection Geval 2:     ......
+-->
+<h5 id="autosec-18"><span class="sectionnumber">2&#x2003;</span>Geval 2: \(t=\text {noemer}\)</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Indien de integranda een breuk is, waarvan de teller de afgeleide is van de noemer:
+</p>
+
+<p>
+\[ \int \frac {f&apos;(x)}{f(x)}\,dx \qquad \text {met}\qquad t=f(x)\ \Rightarrow \ dt=f&apos;(x)\,dx, \]
+</p>
+
+<p>
+dan geldt
+</p>
+
+<p>
+\[ \int \frac {f&apos;(x)}{f(x)}\,dx =\int \frac {dt}{t} =\ln |t|+C =\ln |f(x)|+C. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-19">Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                  ex
+                                                                            Z                 Z
+                                                                                                  dt
+                                                                                       dx =             (t = ex + 5, dt = ex dx)
+                                                                                ex + 5             t
+                                                                                         = ln |t| + C
+                                                                                         = ln |ex + 5| + C.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int \frac {e^{x}}{e^{x}+5}\,dx &amp;= \int \frac {dt}{t} \qquad (t=e^{x}+5,\ dt=e^{x}\,dx)\\ &amp;= \ln |t|+C\\ &amp;= \ln |e^{x}+5|+C.
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-20">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                  3x2
+                                                                             Z                 Z
+                                                                         1                   1   dt
+                                                                                        dx =            (t = x3 + 5, dt = 3x2 dx)
+                                                                         3       x3 + 5      3    t
+                                                                                             1
+                                                                                           = ln |t| + C
+                                                                                             3
+                                                                                             1
+                                                                                           = ln |x3 + 5| + C.
+                                                                                             3
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\frac {1}{3}\int \frac {3x^{2}}{x^{3}+5}\,dx &amp;= \frac {1}{3}\int \frac {dt}{t} \qquad (t=x^{3}+5,\ dt=3x^{2}\,dx)\\ &amp;= \frac {1}{3}\ln |t|+C\\ &amp;= \frac {1}{3}\ln |x^{3}+5|+C.
+\end{align*}
+
+</p>
+<!--
+...... subsection Geval 3:     ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">3&#x2003;</span>Geval 3: \(\displaystyle \int f(x)^n\,f&apos;(x)\,dx \ \Rightarrow \ t=f(x)\)</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+Als de integraal de vorm heeft
+</p>
+
+<p>
+\[ \int f(x)^n\,f&apos;(x)\,dx, \qquad \text {neem dan } t=f(x)\ \Rightarrow \ dt=f&apos;(x)\,dx.   \]
+</p>
+
+<p>
+Dan wordt
+</p>
+
+<p>
+\[ \int f(x)^n\,f&apos;(x)\,dx=\int t^n\,dt=\frac {t^{n+1}}{n+1}+C =\frac {f(x)^{n+1}}{n+1}+C \qquad (n\neq -1).   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-22">Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                          Z                 Z
+                                                                              cos x
+                                                                                     dx =       sin−5 x · cos x dx
+                                                                              sin5 x
+                                                                                            Z
+                                                                                       =        t−5 dt     (t = sin x, dt = cos x dx)
+
+                                                                                        t−4
+                                                                                       =     +C
+                                                                                        −4
+                                                                                           1
+                                                                                       =− 4 +C
+                                                                                          4t
+                                                                                              1
+                                                                                       =−          + C.
+                                                                                          4 sin4 x
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int \frac {\cos x}{\sin ^{5}x}\,dx &amp;= \int \sin ^{-5}x\cdot \cos x\,dx\\ &amp;= \int t^{-5}\,dt \qquad (t=\sin x,\ dt=\cos x\,dx)\\ &amp;= \frac {t^{-4}}{-4}+C\\ &amp;= -\frac
+{1}{4t^{4}}+C\\ &amp;= -\frac {1}{4\sin ^{4}x}+C.
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-23">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                               Z                                   Z
+                                                                   (x3 − 2x + 1)4 (3x2 − 2) dx =       t4 dt   (t = x3 − 2x + 1, dt = (3x2 − 2) dx)
+
+                                                                                               1 5
+                                                                                              =  t +C
+                                                                                               5
+                                                                                               1
+                                                                                              = (x3 − 2x + 1)5 + C.
+                                                                                               5
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int (x^{3}-2x+1)^{4}\,(3x^{2}-2)\,dx &amp;= \int t^{4}\,dt \qquad (t=x^{3}-2x+1,\ dt=(3x^{2}-2)\,dx)\\ &amp;= \frac {1}{5}t^{5}+C\\ &amp;= \frac {1}{5}(x^{3}-2x+1)^{5}+C.
+\end{align*}
+
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+p85 nr 1, 2, 3, e.v.
+</p>
+<!--
+...... section Partiele integratie ......
+-->
+<h4 id="autosec-25"><span class="sectionnumber">IV&#x2003;</span>Partie&#x0308;le integratie</h4>
+<a id="mkpiweb-autopage-25"></a>
+<!--
+...... subsection Opstellen regel ......
+-->
+<h5 id="autosec-26"><span class="sectionnumber">1&#x2003;</span>Opstellen regel</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+Beschouw 2 afleidbare functies:
+</p>
+
+<p>
+\[ f:\mathbb {R}\to \mathbb {R}:     x\mapsto f(x), \qquad g:\mathbb {R}\to \mathbb {R}:   x\mapsto g(x).   \]
+</p>
+
+<p>
+Dan geldt (productregel):
+</p>
+
+<p>
+\[ d(f\cdot g)=df\cdot g + f\cdot dg.     \]
+</p>
+
+<p>
+Hieruit volgt:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                    f dg = d(f g) − g df
+                                                                                                                  Z        Z           Z
+                                                           ⇔                                                        f dg = d(f g) − g df
+                                                                                                                  Z              Z
+                                                           ⇔                                                        f dg = f g − g df.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp;f\,dg &amp;= d(fg) - g\,df\\ \Leftrightarrow &amp;&amp; \int f\,dg &amp;= \int d(fg) - \int g\,df\\ \Leftrightarrow &amp;&amp; \int f\,dg &amp;= fg - \int g\,df.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\int f\,dg = f\,g - \int g\,df} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opmerkingen ......
+-->
+<h6 id="autosec-27">Opmerkingen</h6>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Bijna integratie van een ’product’ !
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De bedoeling is een integraal te vinden die makkelijker te berekenen is dan de gegeven integraal.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Type en ......
+-->
+<h5 id="autosec-28"><span class="sectionnumber">2&#x2003;</span>Type \(\int x^n\ln x\,dx\) en \(\int x^n\arctan x\,dx\)</h5>
+<a id="mkpiweb-autopage-28"></a>
+<!--
+......   paragraph 1)     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-29">1) \(\displaystyle \int \ln x\,dx\)</span>
+<a id="mkpiweb-autopage-29"></a>
+
+</p>
+
+<p>
+Kies bij partie&#x0308;le integratie:
+</p>
+
+<p>
+\[ f=\ln x \qquad \text {en}\qquad dg=dx.        \]
+</p>
+
+<p>
+Dan:
+</p>
+
+<p>
+\[ df=\frac {1}{x}\,dx \qquad \text {en}\qquad g=\int dx=x.             \]
+</p>
+
+<p>
+Dus:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                     Z               Z
+                                                                                         ln x dx =   f dg
+                                                                                                         Z
+                                                                                                = f g − g df
+                                                                                                           Z
+                                                                                                              1
+                                                                                                = x ln x − x · dx
+                                                                                                              x
+                                                                                                           Z
+                                                                                                = x ln x − 1 dx
+
+                                                                                                = x ln x − x + C.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int \ln x\,dx &amp;= \int f\,dg\\ &amp;= f\,g - \int g\,df\\ &amp;= x\ln x - \int x\cdot \frac {1}{x}\,dx\\ &amp;= x\ln x - \int 1\,dx\\ &amp;= x\ln x - x + C.
+\end{align*}
+
+</p>
+
+<p>
+Opmerking: \(C\) wordt toegevoegd als er geen andere constanten zijn.
+</p>
+<!--
+......   paragraph 2)   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-30">2) \(\displaystyle \int x^{2}\ln x\,dx\)</span>
+<a id="mkpiweb-autopage-30"></a>
+
+</p>
+
+<p>
+Kies:
+</p>
+
+<p>
+\[ f=\ln x \qquad \text {en}\qquad dg=x^{2}\,dx.   \]
+</p>
+
+<p>
+Dan:
+</p>
+
+<p>
+\[ df=\frac {1}{x}\,dx \qquad \text {en}\qquad g=\int x^{2}\,dx=\frac {1}{3}x^{3}.    \]
+</p>
+
+<p>
+Dus:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                 Z                        Z
+                                                                                     x2 ln x dx = f g −  g df
+                                                                                                            Z
+                                                                                                1              1 3 1
+                                                                                               = x3 ln x −       x · dx
+                                                                                                3              3     x
+                                                                                                              Z
+                                                                                                1           1
+                                                                                               = x3 ln x −       x2 dx
+                                                                                                3           3
+                                                                                                1           1 1
+                                                                                               = x3 ln x − · x3 + C
+                                                                                                3           3 3
+                                                                                                1 3
+                                                                                               = x (3 ln x − 1) + C.
+                                                                                                9
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int x^{2}\ln x\,dx &amp;= f\,g-\int g\,df\\ &amp;= \frac {1}{3}x^{3}\ln x-\int \frac {1}{3}x^{3}\cdot \frac {1}{x}\,dx\\ &amp;= \frac {1}{3}x^{3}\ln x-\frac {1}{3}\int x^{2}\,dx\\ &amp;=
+\frac {1}{3}x^{3}\ln x-\frac {1}{3}\cdot \frac {1}{3}x^{3}+C\\ &amp;= \frac {1}{9}x^{3}\,(3\ln x-1)+C.
+\end{align*}
+
+</p>
+<!--
+......   paragraph 3)     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-31">3) \(\displaystyle \int \arctan (3x)\,dx\)</span>
+<a id="mkpiweb-autopage-31"></a>
+
+</p>
+
+<p>
+Kies bij partie&#x0308;le integratie:
+</p>
+
+<p>
+\[ f=\arctan (3x) \qquad \text {en}\qquad dg=dx.   \]
+</p>
+
+<p>
+Dan:
+</p>
+
+<p>
+\[ df=\frac {3}{1+9x^{2}}\,dx \qquad \text {en}\qquad g=\int dx=x.   \]
+</p>
+
+<p>
+Dus:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                              Z                           Z
+                                                                                  arctan(3x) dx = f g −       g df
+                                                                                                                     Z
+                                                                                                                             3
+                                                                                                  = x arctan(3x) −    x·         dx
+                                                                                                                         1 + 9x2
+                                                                                                                     Z
+                                                                                                                           x
+                                                                                                  = x arctan(3x) − 3           dx.
+                                                                                                                       1 + 9x2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int \arctan (3x)\,dx &amp;= f\,g-\int g\,df\\ &amp;= x\,\arctan (3x)-\int x\cdot \frac {3}{1+9x^{2}}\,dx\\ &amp;= x\,\arctan (3x)-3\int \frac {x}{1+9x^{2}}\,dx.
+\end{align*}
+
+</p>
+
+<p>
+Substitutie:
+</p>
+
+<p>
+\[ t=1+9x^{2}\quad \Rightarrow \quad dt=18x\,dx \quad \Rightarrow \quad x\,dx=\frac {1}{18}\,dt.              \]
+</p>
+
+<p>
+Dan:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                          Z                   Z
+                                                                                                 x              1 1
+                                                                                      3              2
+                                                                                                       dx = 3      ·   dt
+                                                                                              1 + 9x            t 18
+                                                                                                              Z
+                                                                                                            1   1
+                                                                                                          =         dt
+                                                                                                            6    t
+                                                                                                            1
+                                                                                                          = ln |t| + C
+                                                                                                            6
+                                                                                                            1
+                                                                                                          = ln(1 + 9x2 ) + C.
+                                                                                                            6
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+3\int \frac {x}{1+9x^{2}}\,dx &amp;= 3\int \frac {1}{t}\cdot \frac {1}{18}\,dt\\ &amp;= \frac {1}{6}\int \frac {1}{t}\,dt\\ &amp;= \frac {1}{6}\ln |t|+C\\ &amp;= \frac {1}{6}\ln (1+9x^{2})+C.
+\end{align*}
+
+</p>
+
+<p>
+Conclusie:
+</p>
+
+<p>
+\[ \int \arctan (3x)\,dx = x\,\arctan (3x)-\frac {1}{6}\ln (1+9x^{2})+C. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-32">Oefeningen</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p>
+p110 nr1
+</p>
+<!--
+...... subsection Type ......
+-->
+<h5 id="autosec-33"><span class="sectionnumber">3&#x2003;</span>Type \(\int x^n e^x\,dx\)</h5>
+<a id="mkpiweb-autopage-33"></a>
+<!--
+......   paragraph 1)   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-34">1) \(\displaystyle \int x\,e^x\,dx\)</span>
+<a id="mkpiweb-autopage-34"></a>
+
+</p>
+
+<p>
+Kies:
+</p>
+
+<p>
+\[ f=x \qquad \text {en}\qquad dg=e^x\,dx.   \]
+</p>
+
+<p>
+Dan:
+</p>
+
+<p>
+\[ df=dx \qquad \text {en}\qquad g=\int e^x\,dx=e^x.    \]
+</p>
+
+<p>
+Dus:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                      Z                     Z
+                                                                                          x ex dx = f g −       g df
+                                                                                                            Z
+                                                                                                 = x ex −        ex dx
+
+                                                                                                 = x e x − ex + C
+                                                                                                 = ex (x − 1) + C.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int x\,e^x\,dx &amp;= f\,g-\int g\,df\\ &amp;= x\,e^x-\int e^x\,dx\\ &amp;= x\,e^x-e^x+C\\ &amp;= e^x(x-1)+C.
+\end{align*}
+
+</p>
+<!--
+...... subsection Type en ......
+-->
+<h5 id="autosec-35"><span class="sectionnumber">4&#x2003;</span>Type \(\int x^n\cos x\,dx\) en \(\int x^n\sin x\,dx\)</h5>
+<a id="mkpiweb-autopage-35"></a>
+<!--
+......   paragraph 1)   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-36">1) \(\displaystyle \int x\cos x\,dx\)</span>
+<a id="mkpiweb-autopage-36"></a>
+
+</p>
+
+<p>
+Kies:
+</p>
+
+<p>
+\[ f=x \qquad \text {en}\qquad dg=\cos x\,dx.    \]
+</p>
+
+<p>
+Dan:
+</p>
+
+<p>
+\[ df=dx \qquad \text {en}\qquad g=\int \cos x\,dx=\sin x.   \]
+</p>
+
+<p>
+Dus:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                   Z                        Z
+                                                                                       x cos x dx = f g −   g df
+                                                                                                             Z
+                                                                                                 = x sin x − sin x dx
+
+                                                                                                 = x sin x + cos x + C.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\int x\cos x\,dx &amp;= f\,g-\int g\,df\\ &amp;= x\sin x-\int \sin x\,dx\\ &amp;= x\sin x+\cos x+C.
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Algemeen ......
+-->
+<h6 id="autosec-37">Algemeen</h6>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Bij de combinatie van een veeltermfunctie met een exponentie&#x0308;le functie, kies je de veelterm voor \(f\) en de exponentie&#x0308;le met \(dx\) voor \(dg\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Bij de combinatie van een veeltermfunctie met een goniometrische functie, kies je de veelterm voor \(f\) en de goniometrische met \(dx\) voor \(dg\).
+</p>
+</li>
+</ul>
+<!--
+......   paragraph 2)     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-38">2) \(\displaystyle \int x^{2}\sin x\,dx\)</span>
+<a id="mkpiweb-autopage-38"></a>
+
+</p>
+
+<p>
+Eerst partie&#x0308;le integratie:
+</p>
+
+<p>
+\[ f=x^{2} \qquad \text {en}\qquad dg=\sin x\,dx.      \]
+</p>
+
+<p>
+Dan:
+</p>
+
+<p>
+\[ df=2x\,dx \qquad \text {en}\qquad g=\int \sin x\,dx=-\cos x.    \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                  Z                          Z
+                                                                                        2
+                                                                             I=        x sin x dx = f g −        g df
+                                                                                                                        Z
+                                                                                                         2
+                                                                                                   = −x cos x −             (− cos x) 2x dx
+                                                                                                                        Z
+                                                                                                   = −x2 cos x +            2x cos x dx.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+I=\int x^{2}\sin x\,dx &amp;= f\,g-\int g\,df\\ &amp;= -x^{2}\cos x-\int (-\cos x)\,2x\,dx\\ &amp;= -x^{2}\cos x+\int 2x\cos x\,dx.
+\end{align*}
+
+</p>
+
+<p>
+Nogmaals partie&#x0308;le integratie op \(J=\int 2x\cos x\,dx\):
+</p>
+
+<p>
+\[ f=2x,\quad dg=\cos x\,dx \qquad \Rightarrow \qquad df=2\,dx,\quad g=\sin x.    \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                             Z
+                                                                                            J = 2x sin x −   sin x · 2 dx
+                                                                                                            Z
+                                                                                              = 2x sin x − 2 sin x dx
+
+                                                                                              = 2x sin x + 2 cos x + C.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+J &amp;= 2x\sin x-\int \sin x\cdot 2\,dx\\ &amp;= 2x\sin x-2\int \sin x\,dx\\ &amp;= 2x\sin x+2\cos x + C.
+\end{align*}
+
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ \int x^{2}\sin x\,dx = -x^{2}\cos x+2x\sin x+2\cos x + C. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-39">Oefeningen</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+p110 nr2
+</p>
+<!--
+...... subsection Type en ......
+-->
+<h5 id="autosec-40"><span class="sectionnumber">5&#x2003;</span>Type \(\displaystyle \int \sqrt {x^{2}+k}\,dx\) en \(\displaystyle \int \sqrt {k-x^{2}}\,dx\)</h5>
+<a id="mkpiweb-autopage-40"></a>
+<!--
+......   paragraph Voorbeeld 1 ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-41">Voorbeeld 1</span>
+<a id="mkpiweb-autopage-41"></a>
+Bereken
+</p>
+
+<p>
+\[ I=\int \sqrt {x^{2}+5}\,dx.   \]
+</p>
+<!--
+......    paragraph Oplossing ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-42">Oplossing</span>
+<a id="mkpiweb-autopage-42"></a>
+Partie&#x0308;le integratie met
+</p>
+
+<p>
+\[ f=\sqrt {x^{2}+5},\quad dg=dx \qquad \Rightarrow \qquad df=\frac {x}{\sqrt {x^{2}+5}}\,dx,\quad g=x.   \]
+</p>
+
+<p>
+Dan:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                 p         Z    p        
+                                                                            I=x   x2 + 5 − x d     x2 + 5
+                                                                                           Z
+                                                                                 p                 x
+                                                                              = x x2 + 5 − x · √         dx
+                                                                                                   2
+                                                                                                  x +5
+                                                                                                x2
+                                                                                 p         Z
+                                                                                   2
+                                                                              =x x +5−       √        dx
+                                                                                               x2 + 5
+                                                                                           Z 2
+                                                                                 p           x +5−5
+                                                                              = x x2 + 5 −    √         dx
+                                                                                                x2 + 5
+                                                                                              x2 + 5
+                                                                                           Z                 Z
+                                                                                 p                                1
+                                                                                   2
+                                                                              =x x +5−       √        dx + 5 √       dx
+                                                                                                2
+                                                                                               x +5              2
+                                                                                                                x +5
+                                                                                           Z p              Z
+                                                                                 p                               1
+                                                                              = x x2 + 5 −     x2 + 5 dx +5 √       dx.
+                                                                                                                2
+                                                                                                               x +5
+                                                                                           |    {z     }
+                                                                                                 =I
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+I &amp;= x\sqrt {x^{2}+5}-\int x\,d\!\left (\sqrt {x^{2}+5}\right )\\ &amp;= x\sqrt {x^{2}+5}-\int x\cdot \frac {x}{\sqrt {x^{2}+5}}\,dx\\ &amp;= x\sqrt {x^{2}+5}-\int \frac {x^{2}}{\sqrt
+{x^{2}+5}}\,dx\\ &amp;= x\sqrt {x^{2}+5}-\int \frac {x^{2}+5-5}{\sqrt {x^{2}+5}}\,dx\\ &amp;= x\sqrt {x^{2}+5}-\int \frac {x^{2}+5}{\sqrt {x^{2}+5}}\,dx +5\int \frac {1}{\sqrt {x^{2}+5}}\,dx\\
+&amp;= x\sqrt {x^{2}+5}-\underbrace {\int \sqrt {x^{2}+5}\,dx}_{=\,I} +5\int \frac {1}{\sqrt {x^{2}+5}}\,dx.
+\end{align*}
+
+</p>
+
+<p>
+In het rechterlid verschijnt opnieuw de te zoeken integraal.
+</p>
+
+<p>
+Voor de laatste integraal gebruiken we de basisintegraal:
+</p>
+
+<p>
+\[ \int \frac {1}{\sqrt {x^{2}+k^{2}}}\,dx = \ln \!\left |x+\sqrt {x^{2}+k^{2}}\right |+C. \]
+</p>
+
+<p>
+Hier is \(k^{2}=5\), dus:
+</p>
+
+<p>
+\[ \int \frac {1}{\sqrt {x^{2}+5}}\,dx = \ln \!\left |x+\sqrt {x^{2}+5}\right |+C. \]
+</p>
+
+<p>
+Bijgevolg:
+</p>
+
+<p>
+\[ 2I=x\sqrt {x^{2}+5}+5\ln \!\left |x+\sqrt {x^{2}+5}\right |+C \]
+</p>
+
+<p>
+en dus:
+</p>
+
+<p>
+\[ \boxed { I=\frac 12\,x\sqrt {x^{2}+5}+\frac 52\,\ln \!\left |x+\sqrt {x^{2}+5}\right |+C }.   \]
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-43"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+p110 nr3
+</p>
+<!--
+...... subsection Type en ......
+-->
+<h5 id="autosec-44"><span class="sectionnumber">6&#x2003;</span>Type \(\int e^x\sin x\,dx\) en \(\int e^x\cos x\,dx\)</h5>
+<a id="mkpiweb-autopage-44"></a>
+<!--
+......   paragraph 1)     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-45">1) \(\displaystyle \int e^x\cos x\,dx\)</span>
+<a id="mkpiweb-autopage-45"></a>
+
+</p>
+
+<p>
+Zet
+</p>
+
+<p>
+\[ I=\int e^x\cos x\,dx.      \]
+</p>
+
+<p>
+Eerste partie&#x0308;le integratie:
+</p>
+
+<p>
+\[ f=e^x,\quad dg=\cos x\,dx \qquad \Rightarrow \qquad df=e^x\,dx,\quad g=\sin x.     \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                            Z
+                                                                                                 x
+                                                                                            I = e sin x −       ex sin x dx.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+I &amp;= e^x\sin x-\int e^x\sin x\,dx.
+\end{align*}
+
+</p>
+
+<p>
+Noem
+</p>
+
+<p>
+\[ J=\int e^x\sin x\,dx.      \]
+</p>
+
+<p>
+Tweede partie&#x0308;le integratie:
+</p>
+
+<p>
+\[ f=e^x,\quad dg=\sin x\,dx \qquad \Rightarrow \qquad df=e^x\,dx,\quad g=-\cos x.     \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                            Z
+                                                                                        J = −ex cos x +         ex cos x dx
+                                                                                                            Z
+                                                                                            = −ex cos x +     ex cos x dx .
+                                                                                                            |    {z     }
+                                                                                                                   =I
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+J &amp;= -e^x\cos x+\int e^x\cos x\,dx\\ &amp;= -e^x\cos x+\underbrace {\int e^x\cos x\,dx}_{=\,I}.
+\end{align*}
+
+</p>
+
+<p>
+Invullen in de eerste vergelijking:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                I = ex sin x − J
+                                                                                                         Z            
+                                                                                  = ex sin x − −ex cos x + ex cos x dx
+                                                                                                          |   {z     }
+                                                                                                                         =I
+
+                                                                                    = ex sin x + ex cos x − I.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+I &amp;= e^x\sin x - J\\ &amp;= e^x\sin x -\Bigl (-e^x\cos x+\underbrace {\int e^x\cos x\,dx}_{=\,I}\Bigr )\\ &amp;= e^x\sin x + e^x\cos x - I.
+\end{align*}
+
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ 2I=e^x(\sin x+\cos x) \qquad \Rightarrow \qquad I=\frac 12 e^x(\sin x+\cos x)+C. \]
+</p>
+<!--
+......   paragraph Methode 2:         goniometrische als   en exponentiele met   als   (zelfde opgave) ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-46">Methode 2: goniometrische als \(f\) en exponentie&#x0308;le met \(dx\) als \(dg\) (zelfde opgave)</span>
+<a id="mkpiweb-autopage-46"></a>
+
+</p>
+
+<p>
+Neem opnieuw
+</p>
+
+<p>
+\[ I=\int e^x\cos x\,dx.      \]
+</p>
+
+<p>
+Eerste partie&#x0308;le integratie:
+</p>
+
+<p>
+\[ f=\cos x,\quad dg=e^x\,dx \qquad \Rightarrow \qquad df=-\sin x\,dx,\quad g=e^x.            \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                             Z
+                                                                                              I =fg−            g df
+                                                                                                                  Z
+                                                                                                      = e cos x − ex (− sin x) dx
+                                                                                                         x
+
+                                                                                                                  Z
+                                                                                                      = e cos x + ex sin x dx.
+                                                                                                         x
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+I &amp;= f\,g-\int g\,df\\ &amp;= e^x\cos x-\int e^x(-\sin x)\,dx\\ &amp;= e^x\cos x+\int e^x\sin x\,dx.
+\end{align*}
+
+</p>
+
+<p>
+Noem
+</p>
+
+<p>
+\[ J=\int e^x\sin x\,dx.      \]
+</p>
+
+<p>
+Tweede partie&#x0308;le integratie:
+</p>
+
+<p>
+\[ f=\sin x,\quad dg=e^x\,dx \qquad \Rightarrow \qquad df=\cos x\,dx,\quad g=e^x.            \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                      Z
+                                                                                                  J = ex sin x −          ex cos x dx
+                                                                                                                      Z
+                                                                                                       = ex sin x −     ex cos x dx .
+                                                                                                                      |    {z     }
+                                                                                                                            =I
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+J &amp;= e^x\sin x-\int e^x\cos x\,dx\\ &amp;= e^x\sin x-\underbrace {\int e^x\cos x\,dx}_{=\,I}.
+\end{align*}
+
+</p>
+
+<p>
+Invullen:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                          I = ex cos x + J
+                                                                                                                  Z            
+                                                                                            = ex cos x + ex sin x − ex cos x dx
+                                                                                                                   |   {z     }
+                                                                                                                                  =I
+                                                                                                  x
+                                                                                            = e (cos x + sin x) − I.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+I &amp;= e^x\cos x+J\\ &amp;= e^x\cos x+\Bigl (e^x\sin x-\underbrace {\int e^x\cos x\,dx}_{=\,I}\Bigr )\\ &amp;= e^x(\cos x+\sin x)-I.
+\end{align*}
+
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ 2I=e^x(\sin x+\cos x) \qquad \Rightarrow \qquad I=\frac 12 e^x(\sin x+\cos x)+C. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-47">Oefeningen</h6>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+p111 nr4
+</p>
+<!--
+...... subsection Recursieformules voor en ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">7&#x2003;</span>Recursieformules voor \(\int \sin ^n x\,dx\) en \(\int \cos ^n x\,dx\)</h5>
+<a id="mkpiweb-autopage-48"></a>
+<!--
+......   paragraph 1) Recursie voor     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-49">1) Recursie voor \(\displaystyle I_n=\int \sin ^n x\,dx\)</span>
+<a id="mkpiweb-autopage-49"></a>
+
+</p>
+
+<p>
+Zet
+</p>
+
+<p>
+\[ I_n=\int \sin ^n x\,dx=\int \sin ^{n-1}x\;\sin x\,dx.   \]
+</p>
+
+<p>
+Kies bij partie&#x0308;le integratie:
+</p>
+
+<p>
+\[ f=\sin ^{n-1}x,\quad dg=\sin x\,dx \qquad \Rightarrow \qquad df=(n-1)\sin ^{n-2}x\cos x\,dx,\quad g=-\cos x.             \]
+</p>
+
+<p>
+Dan:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                   Z
+                                                                      In = f g −       g df
+                                                                                                Z
+                                                                         = − sinn−1 x cos x +     cos x (n − 1) sinn−2 x cos x dx
+                                                                                                       Z
+                                                                                 n−1
+                                                                         = − sin     x cos x + (n − 1) sinn−2 x cos2 x dx
+                                                                                                       Z
+                                                                                 n−1
+                                                                         = − sin     x cos x + (n − 1) sinn−2 x(1 − sin2 x) dx
+                                                                                                       Z                         Z
+                                                                                 n−1                         n−2
+                                                                         = − sin     x cos x + (n − 1) sin        x dx −(n − 1) sinn x dx .
+                                                                                                       |     {z      }           | {z   }
+                                                                                                          = In−2                  = In
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+I_n &amp;= f\,g-\int g\,df\\ &amp;= -\sin ^{n-1}x\cos x+\int \cos x\,(n-1)\sin ^{n-2}x\cos x\,dx\\ &amp;= -\sin ^{n-1}x\cos x+(n-1)\int \sin ^{n-2}x\cos ^2x\,dx\\ &amp;= -\sin ^{n-1}x\cos
+x+(n-1)\int \sin ^{n-2}x(1-\sin ^2x)\,dx\\ &amp;= -\sin ^{n-1}x\cos x+(n-1)\underbrace {\int \sin ^{n-2}x\,dx}_{=\,I_{n-2}} -(n-1)\underbrace {\int \sin ^{n}x\,dx}_{=\,I_n}.
+\end{align*}
+
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ nI_n=-\sin ^{n-1}x\cos x+(n-1)I_{n-2} \]
+</p>
+
+<p>
+en de recursieformule wordt:
+</p>
+
+<p>
+\[ \boxed { I_n=-\frac {1}{n}\sin ^{n-1}x\cos x+\frac {n-1}{n}\,I_{n-2} } \qquad (n\ge 2).          \]
+</p>
+<!--
+......   paragraph 2) Recursie voor   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-50">2) Recursie voor \(\displaystyle J_n=\int \cos ^n x\,dx\)</span>
+<a id="mkpiweb-autopage-50"></a>
+
+</p>
+
+<p>
+Zet
+</p>
+
+<p>
+\[ J_n=\int \cos ^n x\,dx=\int \cos ^{\,n-1}x\;\cos x\,dx.   \]
+</p>
+
+<p>
+Kies:
+</p>
+
+<p>
+\[ f=\cos ^{\,n-1}x,\quad dg=\cos x\,dx \qquad \Rightarrow \qquad df=-(n-1)\cos ^{\,n-2}x\sin x\,dx,\quad g=\sin x.                   \]
+</p>
+
+<p>
+Dan:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                    Z
+                                                                       Jn = f g −        g df
+                                                                                                            Z
+                                                                         = cos n−1 x sin x + (n − 1)            cos n−2 x sin2 x dx
+                                                                                                            Z
+                                                                                 n−1
+                                                                         = cos                        cos n−2 x(1 − cos2 x) dx
+                                                                                        x sin x + (n − 1)
+                                                                                                    Z                        Z
+                                                                               n−1                        n−2
+                                                                         = cos     x sin x + (n − 1) cos      x dx −(n − 1) cos n x dx .
+                                                                                                    |     {z     }           | {z    }
+                                                                                                                 = Jn−2               = Jn
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+J_n &amp;= f\,g-\int g\,df\\ &amp;= \cos ^{\,n-1}x\sin x+(n-1)\int \cos ^{\,n-2}x\sin ^2x\,dx\\ &amp;= \cos ^{\,n-1}x\sin x+(n-1)\int \cos ^{\,n-2}x(1-\cos ^2x)\,dx\\ &amp;= \cos ^{\,n-1}x\sin
+x+(n-1)\underbrace {\int \cos ^{\,n-2}x\,dx}_{=\,J_{n-2}} -(n-1)\underbrace {\int \cos ^{\,n}x\,dx}_{=\,J_n}.
+\end{align*}
+
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ nJ_n=\cos ^{\,n-1}x\sin x+(n-1)J_{n-2} \]
+</p>
+
+<p>
+en:
+</p>
+
+<p>
+\[ \boxed { J_n=\frac {1}{n}\cos ^{\,n-1}x\sin x+\frac {n-1}{n}\,J_{n-2} } \qquad (n\ge 2).             \]
+</p>
+<!--
+......   paragraph Voorbeeld:      ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-51">Voorbeeld: \(\displaystyle I_3=\int \sin ^3 x\,dx\)</span>
+<a id="mkpiweb-autopage-51"></a>
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                         1              2
+                                                                                   I3 = − sin2 x cos x + I1
+                                                                                         3              3
+                                                                                                           Z
+                                                                                         1   2          2
+                                                                                      = − sin x cos x +      sin x dx
+                                                                                         3              3
+                                                                                         1              2
+                                                                                      = − sin2 x cos x − cos x + C
+                                                                                         3              3
+                                                                                         1
+                                                                                      = − sin2 x cos x + 2 cos x + C.
+                                                                                                                
+                                                                                         3
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+I_3 &amp;= -\frac {1}{3}\sin ^{2}x\cos x+\frac {2}{3}I_{1}\\ &amp;= -\frac {1}{3}\sin ^{2}x\cos x+\frac {2}{3}\int \sin x\,dx\\ &amp;= -\frac {1}{3}\sin ^{2}x\cos x-\frac {2}{3}\cos x + C\\
+&amp;= -\frac {1}{3}\bigl (\sin ^{2}x\cos x+2\cos x\bigr )+C.
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-52">Oefeningen</h6>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+p113 nr10
+</p>
+<!--
+...... section Herhalingsoefeningen ......
+-->
+<h4 id="autosec-53"><span class="sectionnumber">V&#x2003;</span>Herhalingsoefeningen</h4>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Belangrijkste van dit hoofdstuk:<br />
+p115 nr1-38
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

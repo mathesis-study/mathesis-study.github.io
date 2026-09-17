@@ -1,0 +1,23 @@
+{
+ "titel": "Basisformules",
+ "hoofdstuk": 2,
+ "code": "G02",
+ "vak": "Wiskunde",
+ "domein": "Goniometrie",
+ "domeinnaam": "Goniometrie",
+ "url": "goniometrie/basisformules",
+ "secties": [
+  "Goniometrische cirkel",
+  "Goniometrische getallen",
+  "Basisformules",
+  "Enkele bijzondere hoeken",
+  "Verwante hoeken",
+  "Oefeningen"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.22"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": true
+}

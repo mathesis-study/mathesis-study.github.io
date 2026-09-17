@@ -1,0 +1,18 @@
+{
+ "titel": "Hoekeenheden",
+ "hoofdstuk": 1,
+ "code": "G01",
+ "vak": "Wiskunde",
+ "domein": "Goniometrie",
+ "domeinnaam": "Goniometrie",
+ "url": "goniometrie/hoekeenheden",
+ "secties": [
+  "Zestigdelige graad",
+  "Radialen",
+  "Oefeningen"
+ ],
+ "leerplandoelen": [],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

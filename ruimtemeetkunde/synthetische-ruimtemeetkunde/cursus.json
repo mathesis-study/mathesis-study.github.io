@@ -1,0 +1,23 @@
+{
+ "titel": "Synthetische ruimtemeetkunde",
+ "hoofdstuk": 1,
+ "code": "R01",
+ "vak": "Wiskunde",
+ "domein": "Ruimtemeetkunde",
+ "domeinnaam": "Ruimtemeetkunde",
+ "url": "ruimtemeetkunde/synthetische-ruimtemeetkunde",
+ "secties": [
+  "Grondbegrippen en axioma’s",
+  "Onderlinge ligging van punten, rechten en vlakken",
+  "Eerste stellingen",
+  "Voorstelling van ruimtelijke figuren op een tekenvlak",
+  "Evenwijdigheid",
+  "Doorsnede van een vlak en een veelvlak construeren",
+  "Oefeningen",
+  "Axioma’s en Stellingen van de Ruimtemeetkunde"
+ ],
+ "leerplandoelen": [],
+ "interactief": false,
+ "python": false,
+ "oefeningen": true
+}

@@ -1,0 +1,2769 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Asymptoten</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=35a96e0f5581" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=35a96e0f5581" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=35a96e0f5581" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 15</p> <h1>Asymptoten</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+      y
+x=a
+          y = mx + q
+
+
+
+           y=b
+
+
+             x
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.21</b> (MD 06.08.07) De leerlingen leggen het verband tussen de grafiek en het voorschrift van een functie en haar kenmerken.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">veeltermfuncties</span>, rationale functies, (elementaire) irrationale functies, <span class="leerplan-grijs">exponentie&#x0308;le
+functies</span>, <span class="leerplan-grijs">logaritmische functies \(f(x)=\log _a(x)\)</span>, <span class="leerplan-grijs">goniometrische functies \(f(x)=\cos x\) en \(f(x)=\tan x\)</span>, <span
+class="leerplan-grijs">cyclometrische functies</span>, <span class="leerplan-grijs">absolute waardenfunctie</span>, <span class="leerplan-grijs">meervoudig functievoorschrift</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">domein</span>, <span class="leerplan-grijs">bereik</span>, <span class="leerplan-grijs">nulwaarden</span>, <span
+class="leerplan-grijs">tekenverloop</span>, <span class="leerplan-grijs">stijgen/dalen/constant</span>, <span class="leerplan-grijs">extrema</span>, <span
+class="leerplan-grijs">constante/toenemende/afnemende stijging/daling</span>, <span class="leerplan-grijs">symmetrie</span>, <span class="leerplan-grijs">periode</span>, <span
+class="leerplan-grijs">amplitude</span>, asymptotisch gedrag, gedrag op oneindig
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.26</b> (MD 06.08.16) De leerlingen bepalen grafisch en algebraı&#x0308;sch limieten van functies en analyseren het asymptotisch gedrag.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: continuı&#x0308;teit
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: horizontaal, verticaal en schuin asymptotisch gedrag
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> verticale, horizontale en schuine asymptoten; ligging van de grafiek ten opzichte van een asymptoot; rationale en irrationale functies.
+</p>
+
+</div>
+<!--
+...... section Wat is een asymptoot? ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Wat is een asymptoot?</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+Een rechte \(a\) is een <b>asymptoot</b> van de grafiek van \(y=f(x)\) als de grafiek steeds dichter tegen de rechte aankruipt wanneer we de grafiek onbegrensd ver volgen.
+</p>
+
+<p>
+<span class="hint">Formeel: de afstand tussen een punt \(P\) van de grafiek en de rechte \(a\) nadert naar \(0\) wanneer \(P\) zich onbegrensd ver van de oorsprong verwijdert langs de grafiek:<br />
+
+\[ \lim _{P\to \infty } d(P,a)=0 .       \]<br />
+
+De grafiek hoeft de asymptoot daarbij niet te bereiken.</span>
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="asymptoot-afstand" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+y
+                                               f
+                                                   a
+                                     P3
+
+                                          d3
+    P1
+                  P2
+
+                       d2
+         d1
+
+
+
+
+                                                       x
+
+              d1 > d2 > d3 > · · · → 0
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep punt \(P\) over de grafiek naar rechts en volg hoe de loodrechte afstand \(d(P,a)\) tot de asymptoot \(a\) naar
+\(0\) nadert.</figcaption> </figure>
+</p>
+<!--
+...... subsection Drie soorten ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">2&#x2003;</span>Drie soorten</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+Naargelang de richting van de rechte \(a\) onderscheiden we:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> een <b>verticale asymptoot</b> \(x=a\); <span class="hint">Hierbij vertrekt \(P\) naar \(\pm \infty \) in de \(y\)-richting terwijl \(x\) naar \(a\) nadert.</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> een <b>horizontale asymptoot</b> \(y=b\); <span class="hint">Hierbij vertrekt \(P\) naar \(\pm \infty \) in de \(x\)-richting en nadert \(f(x)\) naar \(b\).</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> een <b>schuine asymptoot</b> \(y=mx+q\) met \(m\ne 0\). <span class="hint">Hierbij vertrekt \(P\) naar \(\pm \infty \) in de \(x\)-richting en nadert het verschil met de rechte
+naar \(0\).</span>
+</p>
+</li>
+</ul>
+
+<p>
+<span class="hint">Alle drie de soorten staan samen op de figuur bij de titel van dit hoofdstuk.</span>
+</p>
+<!--
+...... section Verticale asymptoten ......
+-->
+<h4 id="autosec-12"><span class="sectionnumber">II&#x2003;</span>Verticale asymptoten</h4>
+<a id="mkpiweb-autopage-12"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-13"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+De rechte \(x=c\) is een <b>verticale asymptoot</b> (VA) van \(y=f(x)\) als
+</p>
+
+<p>
+\[ \lim _{x\underset {&gt;}{\to }c}f(x)\in \{-\infty ,+\infty \} \quad \text {of}\quad \lim _{x\underset {&lt;}{\to }c}f(x)\in \{-\infty ,+\infty \}.   \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+ y                    y                    y                    y
+
+
+
+                 x                    x                    x                    x
+       a                    a                    a                    a
+
+lim f (x) = +∞       lim f (x) = +∞       lim f (x) = −∞       lim f (x) = −∞
+x→a                  x→a                  x→a                  x→a
+ <                    >                    <                    >
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Opsporen van verticale asymptoten ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">2&#x2003;</span>Opsporen van verticale asymptoten</h5>
+<a id="mkpiweb-autopage-17"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-18"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+\[ f(x)=\frac {x^2-4x+5}{(x-2)^2}, \qquad \hint {\dom f=\R \setminus \{2\}}.   \]
+</p>
+
+<p>
+\(x=2\) is nulwaarde van de noemer, niet van de teller:
+</p>
+
+<p>
+\[ \lim _{x\to 2}f(x)=\frac {1}{0}=\underbrace {+\infty \text { of }-\infty }_{\text {juiste liggen m.b.v.   t.v.}} \quad \Longrightarrow \quad \boxed {x=2\text { is VA}.} \]
+</p>
+
+<p>
+\[ \begin {array}{c|ccc} x&amp; &amp;2&amp;\\ \hline T=x^2-4x+5&amp;+&amp;+&amp;+\\ N=(x-2)^2&amp;+&amp;0&amp;+\\ \hline f(x)&amp;+&amp;|&amp;+ \end {array} \qquad \raisebox {-0.35cm}{\smash
+{\begin {tikzpicture}[baseline=(current bounding box.center)] \begin {axis}[ width=5.2cm, height=3.6cm, axis lines=middle, xmin=-1, xmax=5, ymin=-1, ymax=20, ticks=none, clip=true, ] \addplot
+[gray,dashed] coordinates {(2,-1) (2,20)}; \addplot [gray,dashed] coordinates {(-1,1) (5,1)}; \addplot [thick,domain=-1:1.78,samples=100] {1+1/(x-2)^2}; \addplot
+[thick,domain=2.22:5,samples=100] {1+1/(x-2)^2}; \node [anchor=south west] at (axis cs:3.8,1.1) {$f$}; \end {axis} \end {tikzpicture}}} \]
+</p>
+
+<p>
+Dus \(f(x)\to +\infty \) langs beide zijden van \(x=2\).
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-19"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+Voor \(f(x)=\tan x\) geldt
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdr">met <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #808080; padding:3pt ; color:#808080"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span>:</td>
+<td class="tdat"> </td>
+<td class="tdl"><span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #808080; padding:3pt ; color:#808080"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>MODE</kbd></span></span></td>
+<td class="tdat">&#x2003;</td>
+<td class="tdl"><kbd>RADIAN</kbd></td>
+</tr>
+
+<tr>
+<td class="tdr"></td>
+<td class="tdat"> </td>
+<td class="tdl"><span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #808080; padding:3pt ; color:#808080"
+><span
+    class="makebox"
+    style="display:inline-block ; width:89pt ; text-align:center ; "
+><kbd>WINDOW</kbd></span></span></td>
+<td class="tdat">&#x2003;</td>
+<td class="tdl">\(-2\pi \leq x\leq 2\pi \), \(\texttt {Xscl}=\pi /2\)</td>
+</tr>
+
+<tr>
+<td class="tdr"></td>
+<td class="tdat"> </td>
+<td class="tdl"></td>
+<td class="tdat">&#x2003;</td>
+<td class="tdl">\(-10\leq y\leq 10\), \(\texttt {Yscl}=2\)</td>
+</tr>
+</table>
+
+</div>
+
+<p>
+\[ \lim _{x\underset {&lt;}{\to }\frac \pi 2}\tan x=+\infty , \qquad \lim _{x\underset {&gt;}{\to }\frac \pi 2}\tan x=-\infty .   \]
+</p>
+
+<p>
+Door de periode \(\pi \):
+</p>
+
+<p>
+\[ \boxed {x=\frac \pi 2+k\pi \text { is VA},\quad k\in \Z .} \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+                          4
+                          2
+
+−2π   − 3π   −π   − π2        π   π   3π   2π
+         2               −2   2        2
+                         −4
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-25"><span class="sectionnumber">&#x2003;</span>Besluit</h6>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een functie kan oneindig veel verticale asymptoten hebben.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Bij een rationale functie zijn de kandidaten de nulwaarden van de noemer.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Gemeenschappelijke factor van T en N is mogelijks een perforatie i.p.v. VA.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Onderzoek de ligging met een tekenverloop van \(f\) rond de kandidaat.
+</p>
+</li>
+</ul>
+<!--
+...... section Horizontale asymptoten ......
+-->
+<h4 id="autosec-26"><span class="sectionnumber">III&#x2003;</span>Horizontale asymptoten</h4>
+<a id="mkpiweb-autopage-26"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+De rechte \(y=b\) is een <b>horizontale asymptoot</b> (HA) van \(y=f(x)\) als
+</p>
+
+<p>
+\[ \lim _{x\to +\infty }f(x)=b\in \R \qquad \text {of}\qquad \lim _{x\to -\infty }f(x)=b\in \R . \]
+</p>
+<!--
+...... subsection Opsporen van horizontale asymptoten ......
+-->
+<h5 id="autosec-28"><span class="sectionnumber">2&#x2003;</span>Opsporen van horizontale asymptoten</h5>
+<a id="mkpiweb-autopage-28"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-29"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+\[ f(x)=\frac {x^2-4x+5}{(x-2)^2}.        \]
+</p>
+
+<p>
+\[ \lim _{x\to \pm \infty }f(x) =\lim _{x\to \pm \infty }\frac {x^2}{x^2}=1\in \R \quad \Longrightarrow \quad \boxed {y=1\text { is HA}.} \]
+</p>
+
+<p>
+Ligging ten opzichte van de HA: onderzoek het <b>verschil</b>
+</p>
+
+<p>
+\[ v(x)=f(x)-b, \]
+</p>
+
+<p>
+dat is de verticale afstand van de grafiek tot de HA, mét een teken. Hier is \(b=1\), dus
+</p>
+
+<p>
+\[ v(x)=f(x)-1 =\frac {x^2-4x+5}{(x-2)^2}-\frac {(x-2)^2}{(x-2)^2} =\frac {x^2-4x+5-x^2+4x-4}{(x-2)^2} =\frac 1{(x-2)^2}.         \]
+</p>
+
+<p>
+\[ \begin {array}{c|ccc} x&amp; &amp;2&amp;\\ \hline T=1&amp;+&amp;+&amp;+\\ N=(x-2)^2&amp;+&amp;0&amp;+\\ \hline v(x)&amp;+&amp;|&amp;+ \end {array} \qquad \begin {array}{r@{\;}c@{\;}l}
+v(x)&gt;0&amp;\Longrightarrow &amp;\text {grafiek boven de HA}\\ v(x)&lt;0&amp;\Longrightarrow &amp;\text {grafiek onder de HA}\\ v(x)=0&amp;\Longrightarrow &amp;\text {grafiek snijdt de HA}
+\end {array} \]
+</p>
+
+<p>
+Hier is \(v(x)&gt;0\) voor elke \(x\ne 2\):
+</p>
+
+<p>
+\[ \boxed {\text {de grafiek ligt overal boven de HA }y=1.} \]
+</p>
+
+<p>
+Bovendien is
+</p>
+
+<p>
+\[ \lim _{x\to \pm \infty }v(x)=\lim _{x\to \pm \infty }\frac 1{(x-2)^2}=0, \]
+</p>
+
+<p>
+en dat moet ook: de verticale afstand tot de HA krimpt naar \(0\).
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="ha-ligging" data-hoogte="27rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+            y
+        3
+
+
+        2
+                     v(1)         v(3)                f
+        1
+v(x) > 0: f ligt boven de HA                                   y=1
+                                                                        x
+ −1              1          x=2          3        4       5        6
+            v
+        2                                    de HA wordt de x-as
+
+        1
+                                                 v(x) = f (x) − 1 → 0
+                                                                        x
+ −1              1           2           3        4       5        6
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x\) over de \(x\)-as en volg het verschil \(v(x)=f(x)-b\): het teken zegt of de grafiek boven of onder de HA ligt,
+de lengte hoe ver. Kies ook een andere functie; bij sommige wisselt het teken en snijdt de grafiek haar eigen HA.</figcaption> </figure>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-33"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+\[ f(x)=\sqrt {x^2+6x}-x.     \]
+</p>
+
+<p>
+Voor \(x\to +\infty \):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                   x2 + 6x − x2
+                                                                                   lim f (x) = lim √
+                                                                                  x→+∞        x→+∞   x2 + 6x + x
+                                                                                                         6
+                                                                                             = lim p             = 3 ∈ R.
+                                                                                              x→+∞   1 + 6/x + 1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x\to +\infty }f(x) &amp;=\lim _{x\to +\infty } \frac {x^2+6x-x^2}{\sqrt {x^2+6x}+x}\\ &amp;=\lim _{x\to +\infty }\frac {6}{\sqrt {1+6/x}+1}=3\in \R .
+\end{align*}
+Dus \(\boxed {y=3\text { is HA voor }x\to +\infty }\).
+</p>
+
+<p>
+Voor \(x\to -\infty \) is \(f(x)\to +\infty \notin \R \): geen HA.
+</p>
+
+<p>
+Ligging ten opzichte van de HA voor \(x \to +\infty \):
+</p>
+
+<p>
+\[ v(x)=f(x)-3=\sqrt {x^2+6x}-x-3\underset {\text {onder HA}}{&lt;}0 \quad (x\to +\infty ) \qquad \raisebox {-0.55cm}{\smash {\begin {tikzpicture}[baseline=(current bounding box.center)] \begin
+{axis}[ width=4.5cm,height=3.1cm, axis lines=middle,xmin=-12,xmax=12,ymin=-1,ymax=16, ticks=none,clip=true, ] \addplot [gray,dashed] coordinates {(-12,3) (12,3)}; \addplot
+[thick,domain=-12:-6,samples=80] {sqrt(x^2+6*x)-x}; \addplot [thick,domain=0:12,samples=80] {sqrt(x^2+6*x)-x}; \node [anchor=north west] at (axis cs:8,2.9) {$f$}; \end {axis} \end
+{tikzpicture}}} \]
+</p>
+
+<p>
+Voor \(x \to +\infty \) is \(x+3&gt;0\), dus:
+</p>
+
+<p>
+\[ \sqrt {x^2+6x} &lt; \sqrt {x^2+6x+9} = \sqrt {(x+3)^2} = x+3.     \]
+</p>
+
+<p>
+Daarom:
+</p>
+
+<p>
+\[ \sqrt {x^2+6x}-x-3&lt;0.        \]
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-34"><span class="sectionnumber">&#x2003;</span>Besluit</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een functie heeft ten hoogste twee verschillende horizontale asymptoten.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Onderzoek beide limieten \(x\to +\infty \) en \(x\to -\infty \).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Voor de ligging bij \(y=b\): \(v(x)=f(x)-b\). Dan \(v&lt;0\): onder de HA; \(v&gt;0\): boven de HA.
+</p>
+</li>
+</ul>
+<!--
+...... section Schuine asymptoten ......
+-->
+<h4 id="autosec-35"><span class="sectionnumber">IV&#x2003;</span>Schuine asymptoten</h4>
+<a id="mkpiweb-autopage-35"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-36"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p>
+De rechte \(y=mx+q\), met \(m\ne 0\), is een <b>schuine asymptoot</b> (SA) van \(y=f(x)\) als
+</p>
+
+<p>
+\[ \lim _{x\to +\infty }\bigl (f(x)-mx-q\bigr )=0 \quad \text {of}\quad \lim _{x\to -\infty }\bigl (f(x)-mx-q\bigr )=0.   \]
+</p>
+
+<p>
+Voor \(m=0\) krijgen we een horizontale asymptoot.
+</p>
+<!--
+...... subsection Formules van Cauchy ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">2&#x2003;</span>Formules van Cauchy</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+Als \(y=mx+q\) een SA is, dan
+</p>
+
+<p>
+\[ \boxed {m=\lim _{x\to \pm \infty }\frac {f(x)}x}, \qquad \boxed {q=\lim _{x\to \pm \infty }\bigl (f(x)-mx\bigr )}.   \]
+</p>
+
+<p>
+Beide limieten moeten ree&#x0308;el zijn.
+</p>
+<!--
+...... subsection Berekening van en ......
+-->
+<h5 id="autosec-38"><span class="sectionnumber">3&#x2003;</span>Berekening van \(m\) en \(q\)</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+<span class="underline">\(m\):</span>&#x2003;\(y=mx+q\) is SA van \(y=f(x)\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                    
+                                                                        ⇐⇒ lim        f (x) − mx − q = 0
+                                                                               x→±∞
+                                                                                                                                        
+                                                                                                        1                       1
+                                                                        =⇒ lim      f (x) − mx − q · lim   =0               0·     =0·0=0
+                                                                               x→±∞                 x→±∞ x                       ∞
+                                                                               f (x) − mx − q
+                                                                        ⇐⇒ lim                 =0
+                                                                               x→±∞    x
+                                                                                               
+                                                                                 f (x)        q
+                                                                        ⇐⇒ lim         −m−        =0
+                                                                          x→±∞     x         x
+                                                                               f (x)               q
+                                                                        ⇐⇒ lim       − lim m − lim   =0
+                                                                                 x
+                                                                               x→±∞   x→±∞    x→±∞ x
+
+                                                                               f (x)
+                                                                        ⇐⇒ lim       −m−0=0
+                                                                          x→±∞ x
+
+                                                                                        f (x)
+                                                                        ⇐⇒ m = lim            .
+                                                                                    x→±∞ x
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Longleftrightarrow \lim _{x\to \pm \infty }\bigl (f(x)-mx-q\bigr )=0 \\ &amp;\Longrightarrow \lim _{x\to \pm \infty }\bigl (f(x)-mx-q\bigr )\cdot \lim _{x\to \pm \infty }\frac 1x=0
+\qquad \left (0\cdot \frac 1\infty =0\cdot 0=0\right ) \\ &amp;\Longleftrightarrow \lim _{x\to \pm \infty }\frac {f(x)-mx-q}{x}=0 \\ &amp;\Longleftrightarrow \lim _{x\to \pm \infty }\left
+(\frac {f(x)}x-m-\frac qx\right )=0 \\ &amp;\Longleftrightarrow \lim _{x\to \pm \infty }\frac {f(x)}x -\lim _{x\to \pm \infty }m -\lim _{x\to \pm \infty }\frac qx=0 \\ &amp;\Longleftrightarrow
+\lim _{x\to \pm \infty }\frac {f(x)}x-m-0=0 \\ &amp;\Longleftrightarrow \boxed {m=\lim _{x\to \pm \infty }\frac {f(x)}x}.
+\end{align*}
+
+</p>
+
+<p>
+<span class="underline">\(q\):</span>&#x2003;\(y=mx+q\) is SA van \(y=f(x)\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                            
+                                                                                       ⇐⇒ lim f (x) − mx − q = 0
+                                                                                            x→±∞
+                                                                                                        
+                                                                                       ⇐⇒ lim f (x) − mx − lim q = 0
+                                                                                         x→±∞               x→±∞
+                                                                                                        
+                                                                                       ⇐⇒ lim f (x) − mx − q = 0
+                                                                                            x→±∞
+                                                                                                                   
+                                                                                       ⇐⇒ q = lim        f (x) − mx .
+                                                                                                  x→±∞
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Longleftrightarrow \lim _{x\to \pm \infty }\bigl (f(x)-mx-q\bigr )=0 \\ &amp;\Longleftrightarrow \lim _{x\to \pm \infty }\bigl (f(x)-mx\bigr ) -\lim _{x\to \pm \infty }q=0 \\
+&amp;\Longleftrightarrow \lim _{x\to \pm \infty }\bigl (f(x)-mx\bigr )-q=0 \\ &amp;\Longleftrightarrow \boxed {q=\lim _{x\to \pm \infty }\bigl (f(x)-mx\bigr )}.
+\end{align*}
+
+</p>
+<!--
+...... subsection Opsporen van schuine asymptoten ......
+-->
+<h5 id="autosec-39"><span class="sectionnumber">4&#x2003;</span>Opsporen van schuine asymptoten</h5>
+<a id="mkpiweb-autopage-39"></a>
+<!--
+...... subsubsection Voorbeeld 1: rationale functie ......
+-->
+<h6 id="autosec-40"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1: rationale functie</h6>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+\[ f(x)=\frac {x^2+x-7}{x-2}.   \]
+</p>
+
+<p>
+Via Euclidische deling (H3):
+</p>
+
+<p>
+\[ x^2+x-7=(x-2)(x+3)-1 \quad \Longrightarrow \quad f(x)=x+3-\frac 1{x-2}.      \]
+</p>
+
+<p>
+Omdat \(\operatorname {gr}T=\operatorname {gr}N+1\), is het quotie&#x0308;nt de SA: \(y=x+3\).
+</p>
+
+<p>
+Met de algemene methode:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                            f (x)       x2 + x − 7   ∞
+                                                                                     m = lim      = lim            =“ ”
+                                                                                        x→±∞ x     x→±∞ x2 − 2x      ∞
+                                                                                             x2
+                                                                                      = lim     =1∈R     =⇒    OK!
+                                                                                        x→±∞ x2
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+m &amp;=\lim _{x\to \pm \infty }\frac {f(x)}x =\lim _{x\to \pm \infty }\frac {x^2+x-7}{x^2-2x} =\text {&grave;&grave;}\frac {\infty }{\infty }\text {&apos;&apos;} \\ &amp;=\lim _{x\to \pm
+\infty }\frac {x^2}{x^2}=1\in \R \quad \Longrightarrow \quad \text {OK!}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                          
+                                                                                        q = limf (x) − mx
+                                                                                          x→±∞
+                                                                                                2             
+                                                                                                 x +x−7
+                                                                                         = lim              −x
+                                                                                          x→±∞     x−2
+                                                                                               x2 + x − 7 − x2 + 2x
+                                                                                         = lim
+                                                                                          x→±∞        x−2
+                                                                                               3x − 7     ∞
+                                                                                         = lim        =“ ”
+                                                                                          x→±∞ x − 2      ∞
+                                                                                               3x
+                                                                                         = lim    = 3 ∈ R =⇒ OK!
+                                                                                          x→±∞ x
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+q &amp;=\lim _{x\to \pm \infty }\bigl (f(x)-mx\bigr ) \\ &amp;=\lim _{x\to \pm \infty } \left (\frac {x^2+x-7}{x-2}-x\right ) \\ &amp;=\lim _{x\to \pm \infty } \frac {x^2+x-7-x^2+2x}{x-2} \\
+&amp;=\lim _{x\to \pm \infty }\frac {3x-7}{x-2} =\text {&grave;&grave;}\frac {\infty }{\infty }\text {&apos;&apos;} \\ &amp;=\lim _{x\to \pm \infty }\frac {3x}{x}=3\in \R \quad \Longrightarrow
+\quad \text {OK!}
+\end{align*}
+Dus \(\boxed {y=x+3\text { is SA voor }x\to \pm \infty }\).
+</p>
+
+<p>
+Ligging t.o.v. de SA:
+</p>
+
+<p>
+\[ v(x)=f(x)-mx-q =\frac {x^2+x-7}{x-2}-x-3 =-\frac 1{x-2}.     \]
+</p>
+
+<p>
+\[ \begin {array}{c|ccc} x&amp;&amp;2&amp;\\ \hline -1&amp;-&amp;-&amp;-\\ x-2&amp;-&amp;0&amp;+\\ \hline v(x)&amp;\underset {\text {boven SA}}{+}&amp;|&amp;\underset {\text {onder SA}}{-} \end
+{array} \qquad \raisebox {-0.5cm}{\smash {\begin {tikzpicture}[baseline=(current bounding box.center)] \begin {axis}[ width=5cm,height=3.5cm, axis lines=middle,xmin=-5,xmax=7,ymin=-4,ymax=10,
+ticks=none,clip=true, ] \addplot [gray,dashed] coordinates {(2,-4) (2,10)}; \addplot [red!70!black,thick,dashed,domain=-5:7] {x+3}; \addplot [thick,domain=-5:1.8,samples=80] {(x^2+x-7)/(x-2)};
+\addplot [thick,domain=2.2:7,samples=80] {(x^2+x-7)/(x-2)}; \node [red!70!black,anchor=south east] at (axis cs:6.7,9.7) {$y=x+3$}; \end {axis} \end {tikzpicture}}} \]
+</p>
+<!--
+...... subsubsection Voorbeeld 2: irrationale functie ......
+-->
+<h6 id="autosec-41"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2: irrationale functie</h6>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+\[ f(x)=\sqrt {x^2-1}.    \]
+</p>
+
+<p>
+Irrationale functie: onderscheid \(x\to +\infty \) en \(x\to -\infty \).
+</p>
+
+<p>
+Voor \(x\to +\infty \) geldt \(\sqrt {x^2}=x\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                            √
+                                                                                               f (x)          x2 − 1   ∞
+                                                                                      m1 = lim       = lim           =“ ”
+                                                                                          x→+∞ x       x→+∞    x       ∞
+                                                                                                 p
+                                                                                               x 1 − 1/x2
+                                                                                         = lim             = 1 ∈ R =⇒ OK!
+                                                                                          x→+∞       x
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+m_1 &amp;=\lim _{x\to +\infty }\frac {f(x)}x =\lim _{x\to +\infty }\frac {\sqrt {x^2-1}}x =\text {&grave;&grave;}\frac \infty \infty \text {&apos;&apos;} \\ &amp;=\lim _{x\to +\infty } \frac
+{x\sqrt {1-1/x^2}}x=1\in \R \quad \Longrightarrow \quad \text {OK!}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                        p
+                                                                                                          x2 − 1 − x = “∞ − ∞”
+                                                                                                                   
+                                                                           q1 = limf (x) − m1 x = lim
+                                                                              x→+∞                 x→+∞
+                                                                                    √             √
+                                                                                   ( x2 − 1 − x)( x2 − 1 + x)
+                                                                             = lim         √
+                                                                              x→+∞           x2 − 1 + x
+                                                                                   x2 − 1 − x2            −1
+                                                                             = lim √           = lim √        =0∈R         =⇒    OK!
+                                                                              x→+∞    2
+                                                                                     x −1+x     x→+∞    2
+                                                                                                       x −1+x
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+q_1 &amp;=\lim _{x\to +\infty }\bigl (f(x)-m_1x\bigr ) =\lim _{x\to +\infty }\bigl (\sqrt {x^2-1}-x\bigr ) =\text {&grave;&grave;}\infty -\infty \text {&apos;&apos;} \\ &amp;=\lim _{x\to
++\infty } \frac {(\sqrt {x^2-1}-x)(\sqrt {x^2-1}+x)} {\sqrt {x^2-1}+x} \\ &amp;=\lim _{x\to +\infty }\frac {x^2-1-x^2}{\sqrt {x^2-1}+x} =\lim _{x\to +\infty }\frac {-1}{\sqrt {x^2-1}+x}=0\in
+\R \quad \Longrightarrow \quad \text {OK!}
+\end{align*}
+Dus \(\boxed {y=x\text { is SA voor }x\to +\infty }\).
+</p>
+
+<p>
+Voor \(x\to -\infty \) geldt \(\sqrt {x^2}=|x|=-x\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                         √
+                                                                                           f (x)           x2 − 1    ∞
+                                                                                  m2 = lim       = lim            =“    ”
+                                                                                      x→−∞ x        x→−∞    x        −∞
+                                                                                               p
+                                                                                           −x 1 − 1/x2
+                                                                                     = lim               = −1 ∈ R =⇒ OK!
+                                                                                      x→−∞        x
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+m_2 &amp;=\lim _{x\to -\infty }\frac {f(x)}x =\lim _{x\to -\infty }\frac {\sqrt {x^2-1}}x =\text {&grave;&grave;}\frac \infty {-\infty }\text {&apos;&apos;} \\ &amp;=\lim _{x\to -\infty }
+\frac {-x\sqrt {1-1/x^2}}x=-1\in \R \quad \Longrightarrow \quad \text {OK!}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                        p
+                                                                                                         x2 − 1 + x = “∞ − ∞”
+                                                                                                                  
+                                                                           q2 = limf (x) − m2 x = lim
+                                                                              x→−∞                 x→−∞
+                                                                                    √             √
+                                                                                   ( x − 1 + x)( x2 − 1 − x)
+                                                                                       2
+                                                                             = lim         √
+                                                                              x→−∞           x2 − 1 − x
+                                                                                   x2 − 1 − x2           −1
+                                                                             = lim √           = lim √        =0∈R         =⇒    OK!
+                                                                              x→−∞    2                2
+                                                                                     x − 1 − x x→−∞ x − 1 − x
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+q_2 &amp;=\lim _{x\to -\infty }\bigl (f(x)-m_2x\bigr ) =\lim _{x\to -\infty }\bigl (\sqrt {x^2-1}+x\bigr ) =\text {&grave;&grave;}\infty -\infty \text {&apos;&apos;} \\ &amp;=\lim _{x\to
+-\infty } \frac {(\sqrt {x^2-1}+x)(\sqrt {x^2-1}-x)} {\sqrt {x^2-1}-x} \\ &amp;=\lim _{x\to -\infty }\frac {x^2-1-x^2}{\sqrt {x^2-1}-x} =\lim _{x\to -\infty }\frac {-1}{\sqrt {x^2-1}-x}=0\in
+\R \quad \Longrightarrow \quad \text {OK!}
+\end{align*}
+Dus \(\boxed {y=-x\text { is SA voor }x\to -\infty }\).
+</p>
+
+<p>
+Ligging t.o.v. de SA:
+</p>
+
+<p>
+\[ v_1(x)=\sqrt {x^2-1}-x\underset {\text {onder SA}_1}{&lt;}0 \quad (x\to +\infty ), \qquad v_2(x)=\sqrt {x^2-1}+x\underset {\text {onder SA}_2}{&lt;}0 \quad (x\to -\infty ).   \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+y = −x   y=x
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-45"><span class="sectionnumber">&#x2003;</span>Besluit</h6>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een functie heeft ten hoogste twee verschillende asymptoten die horizontaal of schuin zijn.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Bereken \(m\) en \(q\) afzonderlijk voor \(x\to +\infty \) en \(x\to -\infty \).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Voor de ligging: \(v(x)=f(x)-mx-q\). Dan \(v&lt;0\): onder de SA; \(v&gt;0\): boven de SA.
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Tip ......
+-->
+<h6 id="autosec-46"><span class="sectionnumber">&#x2003;</span>Tip</h6>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+Start elke oefening met het bepalen van \(\dom f\). Dit geeft onmiddellijk de nulwaarden van de noemer (voor het opsporen van VA’s), maar kan ook veel werk besparen voor HA/SA als \(f\) niet bestaat voor \(x\to \pm \infty
+\).
+</p>
+<!--
+...... section Uitgewerkt voorbeeld ......
+-->
+<h4 id="autosec-47"><span class="sectionnumber">V&#x2003;</span>Uitgewerkt voorbeeld</h4>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+\[ f(x)=\frac {x^3}{x^2-1}.   \]
+</p>
+
+<p>
+Rationale functie:
+</p>
+
+<p>
+\[ \dom f=\R \setminus \{-1,1\}.   \]
+</p>
+
+<p>
+<b><span class="underline">VA:</span></b> Nulwaarden noemer: \(x=-1\) en \(x=1\); twee limieten onderzoeken.
+</p>
+
+<p>
+\[ \begin {array}{c|ccccccc} x&amp;&amp;-1&amp;&amp;0&amp;&amp;1&amp;\\ \hline T=x^3&amp;-&amp;-&amp;-&amp;0&amp;+&amp;+&amp;+\\ N=x^2-1&amp;+&amp;0&amp;-&amp;-&amp;-&amp;0&amp;+\\ \hline
+f(x)&amp;-&amp;|&amp;+&amp;0&amp;-&amp;|&amp;+ \end {array} \]
+</p>
+
+<p>
+\[ \lim _{x\underset {&lt;}{\to }-1}f(x)=-\infty , \quad \lim _{x\underset {&gt;}{\to }-1}f(x)=+\infty \quad \Longrightarrow \quad \boxed {x=-1\text { is VA}_1}, \]
+</p>
+
+<p>
+\[ \lim _{x\underset {&lt;}{\to }1}f(x)=-\infty , \quad \lim _{x\underset {&gt;}{\to }1}f(x)=+\infty \quad \Longrightarrow \quad \boxed {x=1\text { is VA}_2}.   \]
+</p>
+
+<p>
+<b><span class="underline">HA:</span></b>
+</p>
+
+<p>
+\[ \lim _{x\to \pm \infty }f(x) =\text {&grave;&grave;}\frac {\infty ^3}{\infty ^2}\text {&apos;&apos;} =\lim _{x\to \pm \infty }x=\pm \infty \notin \R \quad \Longrightarrow \quad \text {geen
+HA}. \]
+</p>
+
+<p>
+<b><span class="underline">SA:</span></b>
+</p>
+
+<p>
+\[ m=\lim _{x\to \pm \infty }\frac {x^3}{x(x^2-1)} =\lim _{x\to \pm \infty }\frac {x^3}{x^3}=1\in \R \quad \Longrightarrow \quad \text {OK!} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                      x3
+                                                                                                             
+                                                                                     q = lim         2
+                                                                                                         −x
+                                                                                         x→±∞       x −1
+                                                                                            x3 − x 3 + x
+                                                                                      = lim
+                                                                                       x→±∞    x2 − 1
+                                                                                              x
+                                                                                      = lim         =0∈R          =⇒   OK!
+                                                                                       x→±∞ x2 − 1
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+q &amp;=\lim _{x\to \pm \infty }\left (\frac {x^3}{x^2-1}-x\right ) \\ &amp;=\lim _{x\to \pm \infty }\frac {x^3-x^3+x}{x^2-1} \\ &amp;=\lim _{x\to \pm \infty }\frac {x}{x^2-1}=0\in \R \quad
+\Longrightarrow \quad \text {OK!}
+\end{align*}
+Dus \(\boxed {y=x\text { is SA voor }x\to \pm \infty }\).
+</p>
+
+<p>
+Ligging t.o.v. de SA:
+</p>
+
+<p>
+\[ v(x)=f(x)-x=\frac {x}{x^2-1}.   \]
+</p>
+
+<p>
+\[ \begin {array}{c|ccccccc} x&amp;&amp;-1&amp;&amp;0&amp;&amp;1&amp;\\ \hline x&amp;-&amp;-&amp;-&amp;0&amp;+&amp;+&amp;+\\ x^2-1&amp;+&amp;0&amp;-&amp;-&amp;-&amp;0&amp;+\\ \hline
+v(x)&amp;\underset {\text {onder SA}}{-}&amp;|&amp;+&amp;0&amp;-&amp;|&amp; \underset {\text {boven SA}}{+} \end {array} \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+y=x
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-51"><span class="sectionnumber">VI&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-51"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-52">Oefening 1</h5>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+Bepaal de asymptoten van de grafiek van de functies met onderstaande voorschriften, schets (met behulp van ICT) de grafiek van de functie en onderzoek de ligging van de grafiek t.o.v. de asymptoten.
+</p>
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(f(x)=\dfrac {1}{x^2-4}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=\R \setminus \{-2,2\}\). Uit het tekenverloop
+</p>
+<p>
+\[ \begin {array}{c|ccccc} x&amp;&amp;-2&amp;&amp;2&amp;\\ \hline
+T=1&amp;+&amp;+&amp;+&amp;+&amp;+\\ N=x^2-4&amp;+&amp;0&amp;-&amp;0&amp;+\\ \hline \dfrac
+TN&amp;+&amp;|&amp;-&amp;|&amp;+ \end {array} \]
+</p>
+<p>
+volgt \(\lim _{x\underset {&lt;}{\to }-2}f(x)=+\infty \) en \(\lim _{x\underset {&gt;}{\to
+}2}f(x)=+\infty \), dus \(x=-2\) en \(x=2\) zijn VA. Verder \(\lim _{x\to \pm \infty }f(x)=0\in \R \),
+dus \(y=0\) is HA (geen SA). Voor \(|x|&gt;2\) is \(f(x)&gt;0\): de grafiek ligt aan beide uiteinden boven de
+HA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(f(x)=\dfrac {x^3-8}{2x^2}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=\R \setminus \{0\}\). Omdat
+</p>
+<p>
+\[ \begin {array}{c|ccc} x&amp;&amp;0&amp;\\ \hline T=x^3-8&amp;-&amp;-&amp;-\\
+N=2x^2&amp;+&amp;0&amp;+\\ \hline \dfrac TN&amp;-&amp;|&amp;- \end {array} \]
+</p>
+<p>
+geldt \(\lim _{x\to 0}f(x)=-\infty \), dus \(x=0\) is VA. Bovendien \(\lim _{x\to \pm \infty }f(x)=\pm
+\infty \notin \R \): geen HA.
+</p>
+<p>
+\[ m=\lim _{x\to \pm \infty }\frac {f(x)}x=\frac 12, \qquad q=\lim _{x\to \pm \infty }\left
+(f(x)-\frac 12x\right )=0. \]
+</p>
+<p>
+Dus \(y=\frac 12x\) is SA. Omdat \(v(x)=-4/x^2&lt;0\), ligt de grafiek onder de SA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(f(x)=\dfrac {2x}{x^2+2}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=\R \): geen VA. \(\lim _{x\to \pm \infty }f(x)=0\in \R \), dus \(y=0\) is HA (geen SA). Omdat
+\(f(x)&gt;0\) voor \(x&gt;0\) en \(f(x)&lt;0\) voor \(x&lt;0\), ligt de grafiek boven de HA voor \(x\to
++\infty \) en eronder voor \(x\to -\infty \).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(f(x)=\dfrac {2-x-x^2}{x+1}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=\R \setminus \{-1\}\). De teller wordt \(2\) in \(x=-1\), dus \(x=-1\) is VA. \(\lim _{x\to \pm
+\infty }f(x)=\mp \infty \notin \R \): geen HA. Uit de deling
+</p>
+<p>
+\[ f(x)=-x+\frac {2}{x+1} \]
+</p>
+<p>
+volgt \(m=-1\) en \(q=0\): \(y=-x\) is SA. Met \(v(x)=2/(x+1)\) ligt de grafiek boven de SA voor \(x&gt;-1\)
+en eronder voor \(x&lt;-1\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(f(x)=\dfrac {x^2+x-2}{x^2+2x-3}\)
+</p>
+<div class="oplossing">
+<p>
+\[ f(x)=\frac {(x+2)(x-1)}{(x+3)(x-1)}=\frac {x+2}{x+3}\quad (x\ne 1). \]
+</p>
+<p>
+\(x=1\) is een perforatie, \(x=-3\) is VA. \(\lim _{x\to \pm \infty }f(x)=1\in \R \), dus \(y=1\) is HA
+(geen SA). Met \(v(x)=f(x)-1=-\frac {1}{x+3}\) ligt de grafiek onder de HA voor \(x\to +\infty \) en
+erboven voor \(x\to -\infty \).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(f(x)=\dfrac {x^3+4x-5}{x^2-1}\)
+</p>
+<div class="oplossing">
+<p>
+\[ x^3+4x-5=(x-1)(x^2+x+5),\qquad x^2-1=(x-1)(x+1). \]
+</p>
+<p>
+\(x=1\) is een perforatie; \(x=-1\) is VA. \(\lim _{x\to \pm \infty }f(x)=\pm \infty \notin \R \): geen
+HA.
+</p>
+<p>
+\[ f(x)=x+\frac {5x-5}{x^2-1}=x+\frac 5{x+1}\quad (x\ne 1). \]
+</p>
+<p>
+Dus \(y=x\) is SA en \(v(x)=5/(x+1)\): onder de SA voor \(x&lt;-1\), boven de SA voor \(x&gt;-1\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(f(x)=\sqrt {x^2+4}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=\R \): geen VA. \(\lim _{x\to \pm \infty }f(x)=+\infty \notin \R \): geen HA. Voor \(x\to
++\infty \): \(m=1\) en \(q=\lim (\sqrt {x^2+4}-x)=0\), dus \(y=x\) is SA. Voor \(x\to -\infty \):
+\(m=-1\) en \(q=\lim (\sqrt {x^2+4}+x)=0\), dus \(y=-x\) is SA. Omdat \(\sqrt {x^2+4}&gt;|x|\), ligt de
+grafiek aan beide uiteinden boven de SA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(f(x)=\sqrt {4-x^2}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=[-2,2]\). Dat domein is begrensd en \(f\) is er overal begrensd (\(0\le f(x)\le 2\)), dus de grafiek
+heeft <em>geen</em> asymptoten.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(i)</span> \(f(x)=\sqrt {x^2-4}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=]-\infty ,-2]\cup [2,+\infty [\); in \(x=\pm 2\) is \(f\) eindig, dus geen VA. \(\lim _{x\to \pm
+\infty }f(x)=+\infty \notin \R \): geen HA. Voor \(x\to +\infty \): \(m=1\), \(q=\lim (\sqrt
+{x^2-4}-x)=0\), dus \(y=x\) is SA; voor \(x\to -\infty \): \(m=-1\), \(q=0\), dus \(y=-x\) is SA. Omdat
+\(\sqrt {x^2-4}&lt;|x|\), ligt de grafiek aan beide uiteinden onder de SA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(j)</span> \(f(x)=\sqrt {x^2-4x}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=]-\infty ,0]\cup [4,+\infty [\); geen VA. \(\lim _{x\to \pm \infty }f(x)=+\infty \notin \R
+\): geen HA. Voor \(x\to +\infty \):
+</p>
+<p>
+\[ m_1=1,\qquad q_1=\lim (\sqrt {x^2-4x}-x)=-2, \]
+</p>
+<p>
+dus \(y=x-2\) is SA. Voor \(x\to -\infty \):
+</p>
+<p>
+\[ m_2=-1,\qquad q_2=\lim (\sqrt {x^2-4x}+x)=2, \]
+</p>
+<p>
+dus \(y=-x+2\) is SA. De grafiek ligt bij beide uiteinden onder de SA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(k)</span> \(f(x)=2\sqrt {x^2-4x+3}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=]-\infty ,1]\cup [3,+\infty [\); geen VA, geen HA. Voor \(x\to +\infty \): \(m=2\) en
+\(q=2\lim (\sqrt {x^2-4x+3}-x)=-4\), dus \(y=2x-4\) is SA. Voor \(x\to -\infty \): \(m=-2\) en \(q=2\lim
+(\sqrt {x^2-4x+3}+x)=4\), dus \(y=-2x+4\) is SA. Omdat \(x^2-4x+3&lt;(x-2)^2\), is \(\sqrt
+{x^2-4x+3}&lt;|x-2|\): de grafiek ligt aan beide uiteinden onder de SA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(l)</span> \(f(x)=\sqrt {x^2-4x+3}-1\)
+</p>
+<div class="oplossing">
+<p>
+Zelfde domein \(]-\infty ,1]\cup [3,+\infty [\) en zelfde grafiek als in (k), maar één eenheid lager en zonder
+de factor \(2\): geen VA, geen HA, \(y=x-3\) is SA voor \(x\to +\infty \) en \(y=-x+1\) is SA voor \(x\to
+-\infty \). De grafiek ligt aan beide uiteinden onder de SA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(m)</span> \(f(x)=\sqrt {x^2-4x+3}+x\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=]-\infty ,1]\cup [3,+\infty [\); geen VA.
+</p>
+<p>
+\[ \lim _{x\to -\infty }f(x)=2\in \R , \]
+</p>
+<p>
+dus \(y=2\) is HA voor \(x\to -\infty \); de grafiek ligt eronder. Voor \(x\to +\infty \):
+</p>
+<p>
+\[ m=2,\qquad q=\lim _{x\to +\infty }(\sqrt {x^2-4x+3}-x)=-2. \]
+</p>
+<p>
+Dus \(y=2x-2\) is SA voor \(x\to +\infty \); de grafiek ligt eronder.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(n)</span> \(f(x)=\dfrac {\sqrt {x^2-4x}}{x+4}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=]-\infty ,-4[\,\cup \,]-4,0]\cup [4,+\infty [\). In \(x=-4\) wordt de teller \(\sqrt {32}\ne
+0\) en de noemer \(0\):
+</p>
+<p>
+\[ \begin {array}{c|ccc} x&amp;&amp;-4&amp;\\ \hline T=\sqrt {x^2-4x}&amp;+&amp;+&amp;+\\
+N=x+4&amp;-&amp;0&amp;+\\ \hline \dfrac TN&amp;-&amp;|&amp;+ \end {array} \]
+</p>
+<p>
+Dus \(\lim _{x\underset {&lt;}{\to }-4}f(x)=-\infty \) en \(\lim _{x\underset {&gt;}{\to
+}-4}f(x)=+\infty \): \(x=-4\) is VA. Verder
+</p>
+<p>
+\[ \lim _{x\to +\infty }f(x)=1,\qquad \lim _{x\to -\infty }f(x)=-1, \]
+</p>
+<p>
+dus \(y=1\) is HA voor \(x\to +\infty \) en \(y=-1\) is HA voor \(x\to -\infty \); geen SA. De grafiek ligt
+in beide gevallen onder de HA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(o)</span> \(f(x)=\dfrac {-2}{\sqrt {2x^2+5x-3}}\)
+</p>
+<div class="oplossing">
+<p>
+\(2x^2+5x-3=(2x-1)(x+3)&gt;0\) geeft \(\dom f=]-\infty ,-3[\,\cup \,]\frac 12,+\infty [\). Buiten het
+domein is \(f\) niet gedefinieerd; op de randen geldt
+</p>
+<p>
+\[ \begin {array}{c|ccccc} x&amp;&amp;-3&amp;&amp;\frac 12&amp;\\ \hline
+T=-2&amp;-&amp;-&amp;&amp;-&amp;-\\ N=\sqrt {2x^2+5x-3}&amp;+&amp;0&amp;&amp;0&amp;+\\ \hline
+\dfrac TN&amp;-&amp;|&amp;&amp;|&amp;- \end {array} \]
+</p>
+<p>
+zodat \(\lim _{x\underset {&lt;}{\to }-3}f(x)=-\infty \) en \(\lim _{x\underset {&gt;}{\to }\frac
+12}f(x)=-\infty \): beide zijn VA. Verder \(\lim _{x\to \pm \infty }f(x)=0\in \R \), dus \(y=0\) is HA
+(geen SA). Omdat \(f(x)&lt;0\), ligt de grafiek onder de HA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(p)</span> \(f(x)=\dfrac {1}{x\cdot \sqrt {x-1}}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=]1,+\infty [\). Op de rand geldt
+</p>
+<p>
+\[ \begin {array}{c|cc} x&amp;1&amp;\\ \hline T=1&amp;&amp;+\\ N=x\sqrt {x-1}&amp;0&amp;+\\
+\hline \dfrac TN&amp;|&amp;+ \end {array} \]
+</p>
+<p>
+dus \(\lim _{x\underset {&gt;}{\to }1}f(x)=+\infty \) en \(x=1\) is VA. \(\lim _{x\to +\infty
+}f(x)=0\in \R \), dus \(y=0\) is HA; omdat \(f(x)&gt;0\), ligt de grafiek boven de HA. Geen SA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(q)</span> \(f(x)=\dfrac {1}{x\cdot \sqrt {x+1}}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=]-1,0[\,\cup \,]0,+\infty [\). Uit
+</p>
+<p>
+\[ \begin {array}{c|ccccc} x&amp;&amp;-1&amp;&amp;0&amp;\\ \hline
+T=1&amp;&amp;&amp;+&amp;+&amp;+\\ N=x\sqrt {x+1}&amp;&amp;0&amp;-&amp;0&amp;+\\ \hline \dfrac
+TN&amp;&amp;|&amp;-&amp;|&amp;+ \end {array} \]
+</p>
+<p>
+volgt \(\lim _{x\underset {&gt;}{\to }-1}f(x)=-\infty \), \(\lim _{x\underset {&lt;}{\to
+}0}f(x)=-\infty \) en \(\lim _{x\underset {&gt;}{\to }0}f(x)=+\infty \): \(x=-1\) en \(x=0\) zijn VA.
+Verder \(\lim _{x\to +\infty }f(x)=0\in \R \), dus \(y=0\) is HA en de grafiek ligt erboven. Geen SA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(r)</span> \(f(x)=\sqrt {\dfrac {x^2-x-6}{x^2-1}}\)
+</p>
+<div class="oplossing">
+<p>
+\[ \dom f=]-\infty ,-2]\cup ]-1,1[\cup [3,+\infty [. \]
+</p>
+<p>
+\(x=-1\) en \(x=1\) zijn VA. Verder
+</p>
+<p>
+\[ \lim _{x\to \pm \infty }f(x)=1\in \R , \]
+</p>
+<p>
+dus \(y=1\) is HA. De grafiek ligt onder de HA voor \(x\to +\infty \) en boven de HA voor \(x\to -\infty \).
+Geen SA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(s)</span> \(f(x)=\sqrt [3]{3x^2-x^3}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=\R \); geen VA. \(\lim _{x\to \pm \infty }f(x)=\mp \infty \notin \R \): geen HA.
+</p>
+<p>
+\[ m=\lim _{x\to \pm \infty }\frac {f(x)}x=-1, \qquad q=\lim _{x\to \pm \infty }(f(x)+x)=1. \]
+</p>
+<p>
+Dus \(y=-x+1\) is SA voor \(x\to \pm \infty \). De grafiek ligt boven de SA voor \(x\to +\infty \) en onder
+de SA voor \(x\to -\infty \).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(t)</span> \(f(x)=2\Bgtan x\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=\R \): geen VA. Omdat \(\lim _{x\to +\infty }f(x)=\pi \) en \(\lim _{x\to -\infty
+}f(x)=-\pi \), zijn \(y=\pi \) en \(y=-\pi \) HA (geen SA). Omdat \(-\frac \pi 2&lt;\Bgtan x&lt;\frac
+\pi 2\), ligt de grafiek onder \(y=\pi \) en boven \(y=-\pi \).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(u)</span> \(f(x)=\ln \left (x^2-1\right )\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=]-\infty ,-1[\,\cup \,]1,+\infty [\). Omdat \(\lim _{x\to \pm 1}f(x)=-\infty \), zijn
+\(x=-1\) en \(x=1\) VA. Verder \(\lim _{x\to \pm \infty }f(x)=+\infty \notin \R \): geen HA, en
+\(m=\lim _{x\to \pm \infty }\frac {\ln (x^2-1)}x=0\): ook geen SA.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(v)</span> \(f(x)=\dfrac {\cos x}{x}\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=\R _0\). Vlak bij \(0\) is \(\cos x&gt;0\), dus
+</p>
+<p>
+\[ \begin {array}{c|ccc} x&amp;&amp;0&amp;\\ \hline T=\cos x&amp;+&amp;+&amp;+\\
+N=x&amp;-&amp;0&amp;+\\ \hline \dfrac TN&amp;-&amp;|&amp;+ \end {array} \]
+</p>
+<p>
+en \(\lim _{x\underset {&lt;}{\to }0}f(x)=-\infty \), \(\lim _{x\underset {&gt;}{\to
+}0}f(x)=+\infty \): \(x=0\) is VA. Uit \(|f(x)|\le \frac 1{|x|}\) volgt \(\lim _{x\to \pm \infty
+}f(x)=0\), dus \(y=0\) is HA (geen SA). De grafiek snijdt de HA in elke nulwaarde \(x=\frac \pi 2+k\pi \) en
+ligt er dus afwisselend boven en onder.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(w)</span> \(f(x)=\cos \left (\dfrac {3\pi x}{1+x^2}\right )\)
+</p>
+<div class="oplossing">
+<p>
+\(\dom f=\R \): geen VA. Omdat \(\lim _{x\to \pm \infty }\frac {3\pi x}{1+x^2}=0\), is \(\lim _{x\to
+\pm \infty }f(x)=\cos 0=1\), dus \(y=1\) is HA (geen SA). Omdat \(\cos t\le 1\), ligt de grafiek onder de
+HA; ze raakt de HA in \(x=0\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-54">Oefening 2</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+De grafiek van de functie \(f\) met \(f(x)=\dfrac {x^2+ax+b}{cx^2+dx+e}\) heeft een horizontale asymptoot met vergelijking \(y=\frac 12\) voor \(x\to \pm \infty \) en twee verticale asymptoten met vergelijkingen
+\(x=-2\) en \(x=1\). Bovendien heeft \(f\) twee nulwaarden: \(-3\) en \(2\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bepaal de parameters \(a,b,c,d\) en \(e\) \((\in \R )\).
+</p>
+<div class="oplossing">
+<p>
+De nulwaarden \(-3\) en \(2\) geven
+</p>
+<p>
+\[ x^2+ax+b=(x+3)(x-2)=x^2+x-6 \quad \Longrightarrow \quad a=1,\ b=-6 . \]
+</p>
+<p>
+De VA \(x=-2\) en \(x=1\) geven \(cx^2+dx+e=c(x+2)(x-1)=c(x^2+x-2)\). De HA is dan \(y=\frac 1c=\frac 12\), dus \(c=2\) en bijgevolg \(d=2\), \(e=-4\):
+</p>
+<p>
+\[ f(x)=\frac {x^2+x-6}{2x^2+2x-4}. \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Schets de grafiek van de functie.
+</p>
+<div class="oplossing">
+<p>
+Twee VA in \(x=-2\) en \(x=1\), HA \(y=\frac 12\), nulwaarden \(-3\) en \(2\); \(f(0)=\frac {-6}{-4}=\frac 32\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-55">Oefening 3</h5>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bereken \(a\), \(b\) en \(c\) \((\in \R )\) als je weet dat de rechte met vergelijking \(y=2x+1\) een schuine asymptoot is van de kromme met vergelijking \(y=\dfrac
+{ax^2-4x+3}{bx^2-2x+c}\).
+</p>
+<div class="oplossing">
+<p>
+Een SA vereist dat de noemer graad \(1\) heeft, dus \(b=0\). Uit
+</p>
+<p>
+\[ 2=\lim _{x\to \pm \infty }\frac {f(x)}x =\lim _{x\to \pm \infty }\frac {ax^2}{x(-2x+c)}=-\frac a2 \]
+</p>
+<p>
+volgt \(a=-4\). Vervolgens geeft de deling
+</p>
+<p>
+\[ \frac {-4x^2-4x+3}{-2x+c}=2x+(2+c)+\frac {3-2c-c^2}{-2x+c}, \]
+</p>
+<p>
+zodat \(q=2+c=1\), dus \(c=-1\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Heeft die kromme nog andere asymptoten? Bereken ze en bepaal de ligging van de kromme t.o.v. alle gevonden asymptoten.
+</p>
+<div class="oplossing">
+<p>
+Met \(a=-4\), \(b=0\) en \(c=-1\) is
+</p>
+<p>
+\[ f(x)=\frac {-4x^2-4x+3}{-2x-1}=2x+1+\frac {4}{-2x-1}. \]
+</p>
+<p>
+De noemer is \(0\) in \(x=-\frac 12\) (teller \(\ne 0\)), dus \(x=-\frac 12\) is VA; er is geen HA. Met
+</p>
+<p>
+\[ v(x)=f(x)-(2x+1)=\frac {4}{-2x-1}=-\frac {4}{2x+1} \]
+</p>
+<p>
+ligt de kromme boven de SA als \(x&lt;-\frac 12\) en onder de SA als \(x&gt;-\frac 12\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Schets de kromme.
+</p>
+<div class="oplossing">
+<p>
+Eén tak links van de VA \(x=-\frac 12\) boven de rechte \(y=2x+1\), één tak rechts ervan eronder; nulwaarden uit \(-4x^2-4x+3=0\), dus \(x=\frac 12\) en \(x=-\frac 32\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-56">Oefening 4</h5>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p>
+De grafiek van de functie \(f\) met \(f(x)=\dfrac {x^3+ax^2+bx+c}{x^2+dx+e}\) heeft een schuine asymptoot met vergelijking \(y=x+1\) en twee verticale asymptoten \(x=1\) en \(x=-2\). Bovendien heeft \(f\) twee
+nulwaarden: \(-1\) en \(2\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bepaal de parameters \(a,b,c,d\) en \(e\) \((\in \R )\).
+</p>
+<div class="oplossing">
+<p>
+De VA geven \(x^2+dx+e=(x-1)(x+2)=x^2+x-2\), dus \(d=1\) en \(e=-2\). Uit de SA volgt
+</p>
+<p>
+\[ x^3+ax^2+bx+c=(x+1)(x^2+x-2)+px+q=x^3+2x^2+(p-1)x+(q-2), \]
+</p>
+<p>
+dus \(a=2\), \(b=p-1\) en \(c=q-2\). De nulwaarden \(-1\) en \(2\) geven \(q-p=0\) en \(12+2p+q=0\), dus \(p=q=-4\) en bijgevolg \(b=-5\), \(c=-6\):
+</p>
+<p>
+\[ f(x)=\frac {x^3+2x^2-5x-6}{x^2+x-2}=\frac {(x+1)(x-2)(x+3)}{(x-1)(x+2)} . \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Schets de grafiek van de functie.
+</p>
+<div class="oplossing">
+<p>
+Met
+</p>
+<p>
+\[ v(x)=f(x)-(x+1)=\frac {-4(x+1)}{(x-1)(x+2)} \]
+</p>
+<p>
+ligt de grafiek boven de SA voor \(x&lt;-2\) en voor \(-1&lt;x&lt;1\), en eronder voor \(-2&lt;x&lt;-1\) en voor \(x&gt;1\). Nulwaarden \(-3\), \(-1\) en \(2\); \(f(0)=3\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-57">Oefening 5</h5>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<p>
+Voor welke waarde(n) van de rationale parameter \(a\) \((\in \Q )\) vertoont de grafiek van de functie \(f\) gegeven door \(f(x)=\dfrac {x^a}{2-(x+1)^{\frac 13}}\) een horizontale asymptoot voor \(x\to +\infty \)?
+Bepaal telkens de vergelijking van die horizontale asymptoot.
+</p>
+
+<p>
+<span class="hint">Vraag uit de toenmalige toelatingsexamens burgerlijk ingenieur.</span>
+</p>
+<div class="oplossing">
+
+<p>
+Voor \(x\to +\infty \) is \(2-(x+1)^{\frac 13}\sim -(x+1)^{\frac 13}\), dus
+</p>
+
+<p>
+\[ \lim _{x\to +\infty }f(x) =-\lim _{x\to +\infty }\frac {x^a}{(x+1)^{\frac 13}} =-\lim _{x\to +\infty }x^{a-\frac 13}.               \]
+</p>
+
+<p>
+Die limiet is ree&#x0308;el zodra \(a\le \frac 13\):
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(a&lt;\frac 13\): de limiet is \(0\), dus \(y=0\) is HA;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(a=\frac 13\): de limiet is \(-1\), dus \(y=-1\) is HA.
+</p>
+</li>
+</ul>
+
+<p>
+Voor \(a&gt;\frac 13\) is de limiet \(-\infty \) en is er geen HA.
+</p>
+</div>
+<!--
+...... subsection Oefening 6 ......
+-->
+<h5 id="autosec-58">Oefening 6</h5>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<p>
+Beschouw de functie \(f\) gedefinieerd in \(]0,+\infty [\) door \(f(x)=\dfrac {x^a}{\sqrt {5+x^3}}\); hierbij is \(a\) een ree&#x0308;le parameter.
+</p>
+
+<p>
+<span class="hint">Vraag uit de toenmalige toelatingsexamens burgerlijk ingenieur.</span>
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Voor welke waarde(n) van de ree&#x0308;le parameter \(a\) bestaat \(\lim _{x\to 0}f(x)\) in \(\R \)? Bepaal de limietwaarde(n).
+</p>
+<div class="oplossing">
+<p>
+Omdat \(\sqrt {5+x^3}\to \sqrt 5\), gedraagt \(f\) zich als \(\frac {x^a}{\sqrt 5}\):
+</p>
+<p>
+\[ \lim _{x\underset {&gt;}{\to }0}f(x)= \begin {cases} 0 &amp; \text {als }a&gt;0,\\[2pt] \frac {\sqrt 5}{5} &amp; \text {als }a=0,\\[2pt] +\infty &amp; \text {als }a&lt;0.                \end {cases} \]
+</p>
+<p>
+De limiet bestaat dus in \(\R \) als en slechts als \(a\ge 0\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Voor welke waarde(n) van de ree&#x0308;le parameter \(a\) vertoont de grafiek van \(f\) noch een horizontale, noch een schuine asymptoot?
+</p>
+<div class="oplossing">
+<p>
+Voor \(x\to +\infty \) is \(\sqrt {5+x^3}\sim x^{\frac 32}\), dus \(f(x)\sim x^{a-\frac 32}\).
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> HA: \(\lim f(x)\in \R \) als \(a\le \frac 32\) (\(y=0\) als \(a&lt;\frac 32\), \(y=1\) als \(a=\frac 32\)).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> SA: \(m=\lim \frac {f(x)}x=\lim x^{a-\frac 52}\) is ree&#x0308;el en \(\ne 0\) enkel voor \(a=\frac 52\); dan is \(m=1\) en \(q=\lim (f(x)-x)=0\), dus \(y=x\) is SA.
+</p>
+</li>
+</ul>
+<p>
+Er is dus noch een HA, noch een SA als \(a&gt;\frac 32\) en \(a\ne \frac 52\).
+</p>
+</div>
+</li>
+</ul>
+<!--
+...... subsection Oefening 7 ......
+-->
+<h5 id="autosec-59">Oefening 7</h5>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<p>
+Verbind de juiste kaders met elkaar.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td colspan="3" class="tdl"><b>De grafiek van de functie \(f\)</b></td>
+<td colspan="2" class="tdl"><b>heeft als asymptoten</b></td>
+</tr>
+
+<tr>
+<td class="tdc">A</td>
+<td class="tdl">\(f(x)=\dfrac {-3x+4}{x+1}\)</td>
+<td class="tdat">&#x2003;&#x2003;&#x2003;&#x2003;</td>
+<td class="tdl">\(y=2\)</td>
+<td class="tdc">1</td>
+</tr>
+
+<tr>
+<td class="tdc">B</td>
+<td class="tdl">\(f(x)=\dfrac {2x-1}{x^2-4}\)</td>
+<td class="tdat">&#x2003;&#x2003;&#x2003;&#x2003;</td>
+<td class="tdl">\(y=2\) en \(x=-2\)</td>
+<td class="tdc">2</td>
+</tr>
+
+<tr>
+<td class="tdc">C</td>
+<td class="tdl">\(f(x)=\dfrac {2x^2+1}{(x+2)^2}\)</td>
+<td class="tdat">&#x2003;&#x2003;&#x2003;&#x2003;</td>
+<td class="tdl">\(y=-3\) en \(x=-1\)</td>
+<td class="tdc">3</td>
+</tr>
+
+<tr>
+<td class="tdc">D</td>
+<td class="tdl">\(f(x)=x+\dfrac {2}{x-2}\)</td>
+<td class="tdat">&#x2003;&#x2003;&#x2003;&#x2003;</td>
+<td class="tdl">\(y=x\) en \(y=-x\)</td>
+<td class="tdc">4</td>
+</tr>
+
+<tr>
+<td class="tdc">E</td>
+<td class="tdl">\(f(x)=3^{-x}+2\)</td>
+<td class="tdat">&#x2003;&#x2003;&#x2003;&#x2003;</td>
+<td class="tdl">\(x=2\) en \(x=-2\)</td>
+<td class="tdc">5</td>
+</tr>
+
+<tr>
+<td class="tdc">F</td>
+<td class="tdl">\(f(x)=\ln \left (x^2-4\right )\)</td>
+<td class="tdat">&#x2003;&#x2003;&#x2003;&#x2003;</td>
+<td class="tdl">\(y=-3\), \(y=1\) en \(x=-1\)</td>
+<td class="tdc">6</td>
+</tr>
+
+<tr>
+<td class="tdc">G</td>
+<td class="tdl">\(f(x)=\sqrt {x^2-1}\)</td>
+<td class="tdat">&#x2003;&#x2003;&#x2003;&#x2003;</td>
+<td class="tdl">\(x=2\), \(x=-2\) en \(y=0\)</td>
+<td class="tdc">7</td>
+</tr>
+
+<tr>
+<td class="tdc">H</td>
+<td class="tdl">\(f(x)=\dfrac {\sqrt {4x^2+x}-x}{x+1}\)</td>
+<td class="tdat">&#x2003;&#x2003;&#x2003;&#x2003;</td>
+<td class="tdl">\(y=x\) en \(x=2\)</td>
+<td class="tdc">8</td>
+</tr>
+</table>
+
+</div>
+
+<div class="oplossing">
+
+<p>
+\[ \begin {array}{c|cccccccc} &amp; A&amp;B&amp;C&amp;D&amp;E&amp;F&amp;G&amp;H\\ \hline &amp; 3&amp;7&amp;2&amp;8&amp;1&amp;5&amp;4&amp;6 \end {array} \]
+</p>
+
+<p>
+Kort: \(A\) heeft HA \(y=-3\) en VA \(x=-1\); \(B\) heeft HA \(y=0\) en VA \(x=\pm 2\); \(C\) heeft HA \(y=2\) en VA \(x=-2\); \(D\) heeft SA \(y=x\) en VA \(x=2\); \(E\) heeft enkel HA \(y=2\) (voor \(x\to +\infty
+\)); \(F\) heeft VA \(x=\pm 2\); \(G\) heeft SA \(y=x\) en \(y=-x\); \(H\) heeft HA \(y=1\) voor \(x\to +\infty \), HA \(y=-3\) voor \(x\to -\infty \) en VA \(x=-1\).
+</p>
+</div>
+<!--
+...... subsection Oefening 8 ......
+-->
+<h5 id="autosec-62">Oefening 8</h5>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p>
+Beschouw de functie met voorschrift \(f(x)=\dfrac {x^2+3}{x-1}\). De schuine asymptoot van die functie heeft als vergelijking
+</p>
+<div class="center">
+
+<p>
+(A) \(y=x+1\) &#x2003;&#x2003;(B) \(y=x-1\) &#x2003;&#x2003;(C) \(y=x\) &#x2003;&#x2003;(D) \(x=1\)
+</p>
+</div>
+
+<p>
+<span class="hint">IJkingstoets basiskennis wiskunde handelsingenieur 2020, vraag 18.</span>
+</p>
+<div class="oplossing">
+
+<p>
+Uit \(x^2+3=(x-1)(x+1)+4\) volgt
+</p>
+
+<p>
+\[ f(x)=x+1+\frac {4}{x-1}, \]
+</p>
+
+<p>
+en \(\lim _{x\to \pm \infty }\frac 4{x-1}=0\). De SA is dus \(y=x+1\): antwoord <b>(A)</b>.
+</p>
+</div>
+<!--
+...... subsection Oefening 9 ......
+-->
+<h5 id="autosec-64">Oefening 9</h5>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p>
+Beschouw een functie \(f:\R \setminus \{-2,2\}\to \R \) met voorschrift \(f(x)=\dfrac {ax^3+bx^2+cx}{x^2+d}\). Bepaal de parameters \(a,b,c\) en \(d\) zodat de functie een horizontale asymptoot heeft met
+vergelijking \(y=-1\) en juist één verticale asymptoot heeft met vergelijking \(x=2\). Waaraan is \(a+b+c+d\) gelijk?
+</p>
+<div class="center">
+
+<p>
+(A) \(-7\) &#x2003;&#x2003;(B) \(-5\) &#x2003;&#x2003;(C) \(-3\) &#x2003;&#x2003;(D) \(-1\)
+</p>
+</div>
+
+<p>
+<span class="hint">IJkingstoets burgerlijk ingenieur juli 2023, vraag 15.</span>
+</p>
+<div class="oplossing">
+
+<p>
+Uit \(\dom f=\R \setminus \{-2,2\}\) volgt \(x^2+d=x^2-4\), dus \(d=-4\). Een horizontale asymptoot vereist dat de teller hoogstens graad \(2\) heeft, dus \(a=0\), en dan is
+</p>
+
+<p>
+\[ \lim _{x\to \pm \infty }\frac {bx^2+cx}{x^2-4}=b=-1 .          \]
+</p>
+
+<p>
+Omdat \(x=-2\) géén VA mag zijn, moet \(x=-2\) een nulwaarde van de teller zijn: \(4b-2c=0\), dus \(c=-2\). Inderdaad
+</p>
+
+<p>
+\[ f(x)=\frac {-x^2-2x}{x^2-4}=\frac {-x(x+2)}{(x-2)(x+2)}=\frac {-x}{x-2}, \]
+</p>
+
+<p>
+met perforatie in \(x=-2\), VA \(x=2\) en HA \(y=-1\). Dus \(a+b+c+d=0-1-2-4=-7\): antwoord <b>(A)</b>.
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=35a96e0f5581"></script>
+<script src="vendor/jsxgraphcore.js?v=35a96e0f5581"></script>
+<script src="interactieve-grafieken.js?v=35a96e0f5581"></script>
+<script src="hoofdstuk.interactief.js?v=35a96e0f5581"></script>
+</body>
+</html>

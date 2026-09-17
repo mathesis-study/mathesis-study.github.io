@@ -1,0 +1,28 @@
+{
+ "titel": "Goniometrische functies",
+ "hoofdstuk": 9,
+ "code": "A09",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/goniometrische-functies",
+ "secties": [
+  "Periodieke functies",
+  "Elementaire goniometrische functies",
+  "De algemene sinusfunctie \\(y=a\\cdot \\sin (b\\cdot (x-c))+d\\)",
+  "Goniometrische vergelijkingen",
+  "Goniometrische ongelijkheden"
+ ],
+ "leerplandoelen": [
+  "BV3_06.02",
+  "BV3_06.08",
+  "BV3_06.09",
+  "BV3_06.10",
+  "WD3_06.08.18",
+  "WD3_06.08.21",
+  "WD3_06.08.23"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

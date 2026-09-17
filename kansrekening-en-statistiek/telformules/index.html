@@ -1,0 +1,2118 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Discrete wiskunde: Telformules</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 2</p> <h1>Discrete wiskunde: Telformules</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.33</b> (MD 06.08.34) De leerlingen lossen telproblemen op met en zonder herhaling en waarbij de volgorde al dan niet van belang is.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">binomium van Newton</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">driehoek van Pascal</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">duiventilprincipe van Dirichlet</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Extra uitleg:</b> variaties, permutaties, combinaties, herhalingsvariaties, herhalingspermutaties, herhalingscombinaties, telformules
+</p>
+
+</div>
+<!--
+...... section Inleidende opmerking ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Inleidende opmerking</h4>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<p>
+Bij het kiezen van enkele elementen uit een verzameling hebben we twee mogelijkheden:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> de keuze gebeurt zonder teruglegging van de reeds gekozen elementen. M.a.w. elk element kan ten hoogste één maal gekozen worden. We spreken van <b><i>keuzes zonder
+herhaling</i></b>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> de keuze gebeurt met teruglegging van het reeds gekozen element. M.a.w. elk element kan meerdere malen gekozen worden. We spreken van <b><i>keuzes met herhaling</i></b>.
+</p>
+</li>
+</ul>
+
+<p>
+Vervolgens kan ook de volgorde waarin de elementen gekozen worden een rol spelen:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Is de volgorde waarin de elementen gekozen worden belangrijk, dan spreekt men van een <b><i>variatie</i></b>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Is de volgorde waarin de elementen gekozen worden niet belangrijk, dan spreekt men van een <b><i>combinatie</i></b>.
+</p>
+</li>
+</ul>
+
+<p>
+Dit alles zorgt ervoor dat er vier types keuzes zijn om telproblemen aan te pakken.<br />
+
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">Geen herhaling</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">Herhaling toegestaan</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:    1px solid black">Volgorde belangrijk</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:    1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">Variatie</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">Herhalingsvariatie</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:    1px solid black">(= geordend)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:    1px solid black">Volgorde niet belangrijk</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">Combinatie</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">Herhalingscombinatie</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:    1px solid black">(= niet geordend)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+</table>
+
+</div>
+<!--
+...... subsection Uitgewerkt voorbeeld ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">1&#x2003;</span>Uitgewerkt voorbeeld</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i> p.16-17, bekijk de 4 situaties.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i> Nr. 11 p. 22
+</p>
+<!--
+...... section Keuzes zonder herhaling ......
+-->
+<h4 id="autosec-11"><span class="sectionnumber">II&#x2003;</span>Keuzes zonder herhaling</h4>
+<a id="mkpiweb-autopage-11"></a>
+<!--
+...... subsection Variaties ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">1&#x2003;</span>Variaties</h5>
+<a id="mkpiweb-autopage-12"></a>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-13"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+Een voetbaltornooi wordt gespeeld door vier ploegen: A, B, C en D. Elke ploeg moet tegen elke andere ploeg een uit- en een thuismatch spelen.<br />
+Stel een lijst op van alle mogelijke wedstrijden. Hoeveel wedstrijden zijn er?
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \begin {array}{cccc} AB &amp; BC &amp; CD &amp; DA\\ AC &amp; BD &amp; CB &amp; DB\\ AD &amp; BA &amp; CA &amp; DC \end {array} \]
+</p>
+
+<p>
+\[ AB \neq BA \;\Rightarrow \; \text {volgorde is belangrijk} \qquad \text {en}\qquad AA\ \text {mag niet} \;\Rightarrow \; \text {herhaling mag niet} \]
+</p>
+
+<p>
+\[ \#=\overset {\text {thuis}}{4}\ \overset {\text {EN}}{\cdot }\ \overset {\text {uit}\neq \text {thuis}}{3}=12 \]
+</p>
+
+<p>
+\[ \text {Dit zijn } \;V_4^{\,2}=12 \;\;(\text {2-variaties van 4 elementen}).              \]
+</p>
+
+</div>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-14"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+<i>Een <b>p-variatie van n elementen</b> is een geordend \(p\)-tal van verschillende elementen, gekozen onder de \(n\) gegeven elementen (\(p\leq n\)).</i>
+</p>
+
+</div>
+<!--
+...... subsubsection Notatie ......
+-->
+<h6 id="autosec-15"><span class="sectionnumber">&#x2003;</span>Notatie</h6>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+\[ V^p_n \]
+</p>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-16"><span class="sectionnumber">&#x2003;</span>Eigenschap</h6>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+Twee p-variaties van n elementen kunnen enkel van elkaar verschillen door
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> de gekozen elementen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> de volgorde van deze elementen
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Aantal ......
+-->
+<h6 id="autosec-17"><span class="sectionnumber">&#x2003;</span>Aantal</h6>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<div class="oplossing">
+
+<p>
+\[ \text {keuze 1e el.}\ \overset {\text {EN}}{\cdot }\ \text {keuze 2e el.}\ \overset {\text {EN}}{\cdot }\ \text {3e el.}\ \cdots \ \overset {\text {EN}}{\cdot }\ \text {\(p\)e el.} \]
+</p>
+
+<p>
+\[ \Rightarrow \quad V_n^{\,p} =\underbrace {n\cdot (n-1)\cdot (n-2)\cdots (n-p+1)}_{\text {\(p\) factoren}} \]
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-18"><span class="sectionnumber">&#x2003;</span>Voorbeelden</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(V_4^2=4.3=12\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(V_5^3=\opl {5 \cdot 4 \cdot 3 = 60}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(V_{10}^4=\opl {10 \cdot 9 \cdot 8 \cdot 7 = 5040}\)
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Tweede vorm voor het aantal p-variaties van n elementen ......
+-->
+<h6 id="autosec-19"><span class="sectionnumber">&#x2003;</span>Tweede vorm voor het aantal p-variaties van n elementen</h6>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+We herschrijven de gevonden formule m.b.v. faculteiten:
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                       Vnp = n · (n − 1) · (n − 2) · · · (n − p + 1)
+
+                                                                               n · (n − 1) · (n − 2) · · · (n − p + 1) · (n − p) · (n − p − 1) · · · 2 · 1
+                                                                           =
+                                                                                                 (n − p) · (n − p − 1) · · · · · 2 · 1
+                                                                                  n!
+                                                                           =            .
+                                                                               (n − p)!
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+V_n^{\,p} &amp;=n\cdot (n-1)\cdot (n-2)\cdots (n-p+1)\\[0.3cm] &amp;=\frac {n\cdot (n-1)\cdot (n-2)\cdots (n-p+1)\cdot (n-p)\cdot (n-p-1)\cdots 2\cdot 1}{(n-p)\cdot (n-p-1)\cdot \cdots \cdot
+2\cdot 1}\\ &amp;=\frac {n!}{(n-p)!}\,.
+\end{align*}
+
+</p>
+</div>
+
+<p>
+Besluit:
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\(V_n^p = \frac {n!}{(n-p)!}\)
+</p>
+
+</div>
+<!--
+...... subsubsection Met GRM ......
+-->
+<h6 id="autosec-20"><span class="sectionnumber">&#x2003;</span>Met <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span></h6>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<div class="oplossing">
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:94pt ; text-align:center ; "
+><kbd>math</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>PROB</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>2:nPr</kbd></span></span>
+</p>
+</div>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-21"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i><br />
+Nrs. 1, 2, 3, 4, 5, 6 p. 31 en volgende.
+</p>
+<!--
+...... subsection Permutaties ......
+-->
+<h5 id="autosec-22"><span class="sectionnumber">2&#x2003;</span>Permutaties</h5>
+<a id="mkpiweb-autopage-22"></a>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-23"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+In het voetbaltornooi met vier ploegen: A, B, C en D (uit het vorige onderdeel) noteren we alle mogelijke eindrangschikkingen.<br />
+We veronderstellen dat twee ploegen niet gelijk kunnen eindigen. Hoeveel eindrangschikkingen zijn er?
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \begin {array}{l@{\qquad }l@{\qquad }l@{\qquad }l} ABCD &amp; B\ldots &amp; C\ldots &amp; D\ldots \\ ABDC \\ ACBD \\ ADBC \\ ACDB \\ ADCB \end {array} \qquad \Rightarrow 24 \text
+{mogelijkheden} \]
+</p>
+
+<p>
+V, <span
+    class="sout"
+    style="text-decoration:line-through;text-decoration-color:#000000"
+>H</span>,alle elementen worden gekozen!
+</p>
+
+<p>
+\(\Rightarrow \) 4-variaties van 4 el. = permutaties van 4 el.
+</p>
+</div>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-24"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+<i>Een <b>permutatie van n elementen</b> is een geordend n-tal van n verschillende elementen.</i>
+</p>
+
+</div>
+<!--
+...... subsubsection Notatie ......
+-->
+<h6 id="autosec-25"><span class="sectionnumber">&#x2003;</span>Notatie</h6>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+\[P_n\]
+</p>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-26"><span class="sectionnumber">&#x2003;</span>Eigenschap</h6>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+Twee permutaties van n elementen kunnen enkel van elkaar verschillen door
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> de volgorde van de elementen
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Aantal ......
+-->
+<h6 id="autosec-27"><span class="sectionnumber">&#x2003;</span>Aantal</h6>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<div class="oplossing">
+
+<p>
+\[ \text {keuze 1e el.}\ \overset {\text {EN}}{\cdot }\ \text {keuze 2e el.}\ \overset {\text {EN}}{\cdot }\ \text {keuze 3e el.}\ \cdots \ \overset {\text {EN}}{\cdot }\ \text {keuze
+\((n-1)\)e el.}\ \overset {\text {EN}}{\cdot }\ \text {keuze \(n\)e el.} \]
+</p>
+
+<p>
+\[ P_n = n\cdot (n-1)\cdot (n-2)\cdots 2\cdot 1 = n!   \]
+</p>
+
+</div>
+
+<p>
+Besluit:
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\(P_n = n!\)
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-28"><span class="sectionnumber">&#x2003;</span>Voorbeelden</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+\(P_4=\opl {4!=4.3.2.1=24}\)
+</p>
+
+<p>
+Typische voorbeelden zijn anagrammen, bestaande uit allemaal verschillende letters. Geef hier zelf een voorbeeld met de naam van één van je medeleerlingen.
+</p>
+
+<div class="oplossing">
+
+<p>
+Kies een naam met allemaal verschillende letters!
+</p>
+</div>
+<!--
+...... subsubsection Opmerking ......
+-->
+<h6 id="autosec-29"><span class="sectionnumber">&#x2003;</span>Opmerking</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+Een permutatie van n elementen is eigenlijk niks anders dan een \(n\)-variatie van \(n\) elementen. Een variatie dus, waarbij <b>alle</b> elementen gekozen worden.
+</p>
+
+<p>
+\[ P_n=V_n^n \]
+</p>
+<!--
+...... subsubsection Met GRM ......
+-->
+<h6 id="autosec-30"><span class="sectionnumber">&#x2003;</span>Met <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span></h6>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<div class="oplossing">
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:94pt ; text-align:center ; "
+><kbd>math</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>PROB</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>4:!</kbd></span></span>
+</p>
+</div>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-31"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i><br />
+Nrs. 7, 8, 9, 10 p. 31<br />
+Nrs. 13, 14, 15 p. 32: gemengde oefeningen op permutaties en variaties
+</p>
+<!--
+...... subsection Combinaties ......
+-->
+<h5 id="autosec-32"><span class="sectionnumber">3&#x2003;</span>Combinaties</h5>
+<a id="mkpiweb-autopage-32"></a>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-33"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+In het voetbaltornooi met vier ploegen: A, B, C en D wordt overeen gekomen dat elke ploeg één match zal spelen tegen elke andere ploeg op een neutraal veld.<br />
+Geef een lijst van alle mogelijke wedstrijden. Hoeveel wedstrijden zijn er?
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \begin {array}{lll} AB &amp; BC &amp; CD\\ AC &amp; BD &amp; \\ AD &amp; &amp; \end {array} \qquad \Rightarrow \qquad 6\ \text {mogelijkheden} \]
+</p>
+
+<p>
+\[ AA\ \text {kan niet}\ \Rightarrow \ \text {herhaling niet mogelijk} \qquad \qquad AB=BA\ \Rightarrow \ \text {volgorde niet belangrijk} \]
+</p>
+
+<p>
+\[ \Rightarrow \ \text {2-combinaties van 4 elementen} \]
+</p>
+
+</div>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-34"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+<i>Een <b>p-combinatie van n elementen</b> is een deelverzameling van \(p\) verschillende elementen, gekozen onder de \(n\) gegeven elementen (\(p\leq n\)). De volgorde waarin deze elementen gekozen worden is niet
+belangrijk.</i>
+</p>
+
+</div>
+<!--
+...... subsubsection Notatie ......
+-->
+<h6 id="autosec-35"><span class="sectionnumber">&#x2003;</span>Notatie</h6>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<div class="oplossing">
+
+<p>
+\[ C^p_n :   \text {$p$-combinatie van $n$-elementen} \]
+</p>
+
+</div>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-36"><span class="sectionnumber">&#x2003;</span>Eigenschap</h6>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p>
+Twee \(p\)-combinaties van \(n\) elementen kunnen enkel van elkaar verschillen door
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> de gekozen elementen
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Aantal ......
+-->
+<h6 id="autosec-37"><span class="sectionnumber">&#x2003;</span>Aantal</h6>
+<a id="mkpiweb-autopage-37"></a>
+<!--
+......   paragraph Stelling ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-38">Stelling</span>
+<a id="mkpiweb-autopage-38"></a>
+
+</p>
+
+<p>
+\[ C_n^p \cdot P_p=V_n^p \]
+</p>
+
+<p>
+<span class="underline">Bewijs:</span>
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                          Vnp = # manieren om \(p\) elementen te kiezen uit \(n\), waarbij de volgorde waarin ze staan telt
+                                                             = # manieren om \(p\) elementen te kiezen uit \(n\) (zonder volgorde)
+                                                                  EN
+                                                                   · # manieren om deze \(p\) elementen te rangschikken
+                                                                     EN
+                                                             = Cnp     · Pp .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+V_n^{\,p} &amp;= \#\ \text {manieren om \(p\) elementen te kiezen uit \(n\), waarbij de volgorde waarin ze staan telt}\\ &amp;= \#\ \text {manieren om \(p\) elementen te kiezen uit \(n\)
+(zonder volgorde)}\\ &amp;\qquad \overset {\text {EN}}{\cdot }\ \#\ \text {manieren om deze \(p\) elementen te rangschikken}\\ &amp;= C_n^{\,p}\ \overset {\text {EN}}{\cdot }\ P_p.
+\end{align*}
+
+</p>
+</div>
+<!--
+......   paragraph Gevolg ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-39">Gevolg</span>
+<a id="mkpiweb-autopage-39"></a>
+
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[C_n^p = \frac {n!}{(n-p)! \cdot p!}\]
+</p>
+
+</div>
+
+<p>
+<span class="underline">Bewijs:</span>
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       Cnp · Pp = Vnp
+
+
+                                                                                                   Vnp
+                                                                                      ⇔    Cnp =
+                                                                                                   Pp
+
+                                                                                                    n!
+                                                                                                 (n − p)!
+                                                                                      ⇔    Cnp =
+                                                                                                    p!
+
+                                                                                                        n!
+                                                                                      ⇔    Cnp =               .
+                                                                                                   p! (n − p)!
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+C_n^{\,p}\cdot P_p &amp;= V_n^{\,p}\\[0.5cm] \Leftrightarrow \quad C_n^{\,p} &amp;= \frac {V_n^{\,p}}{P_p}\\[0.2cm] \Leftrightarrow \quad C_n^{\,p} &amp;= \frac {\dfrac
+{n!}{(n-p)!}}{p!}\\[0.3cm] \Leftrightarrow \quad C_n^{\,p} &amp;= \frac {n!}{p!\,(n-p)!}\,.
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-40"><span class="sectionnumber">&#x2003;</span>Voorbeelden</h6>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(C_4^2 = \opl {\frac {4!}{2!2!} = \frac {4 \cdot 3}{2 \cdot 1} = 6}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(C_{42}^6 = \opl {\frac {42!}{6!36!} = 5\,245\,786}\)
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Met GRM ......
+-->
+<h6 id="autosec-41"><span class="sectionnumber">&#x2003;</span>Met <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>GRM</kbd></span></span></h6>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<div class="oplossing">
+
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:94pt ; text-align:center ; "
+><kbd>math</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>PROB</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>3:nCr</kbd></span></span>
+</p>
+</div>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-42"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i><br />
+Nrs. 18, 19, 21, 22 p. 33
+</p>
+<!--
+...... subsection Gemengde oefeningen op groeperingen zonder herhaling ......
+-->
+<h5 id="autosec-43"><span class="sectionnumber">4&#x2003;</span>Gemengde oefeningen op groeperingen zonder herhaling</h5>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+Zie handboek <i>VBTL Combinatoriek en Kansrekening</i><br />
+Nrs. 26, 27, 30, 33, 37, 39, 40 p. 34 en volgende.
+</p>
+<!--
+...... section Keuzes (groeperingen) met herhaling ......
+-->
+<h4 id="autosec-44"><span class="sectionnumber">III&#x2003;</span>Keuzes (groeperingen) met herhaling</h4>
+<a id="mkpiweb-autopage-44"></a>
+<!--
+...... subsection Herhalingsvariaties ......
+-->
+<h5 id="autosec-45"><span class="sectionnumber">1&#x2003;</span>Herhalingsvariaties</h5>
+<a id="mkpiweb-autopage-45"></a>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-46"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+Hoeveel anagrammen kunnen we vormen met drie letters, gebruikmakend van de letters \(a\) en \(b\)? Stel een lijst op van alle mogelijkheden.
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \begin {array}{cccc} aaa &amp; aab &amp; aba &amp; baa\\ abb &amp; bab &amp; bba &amp; bbb \end {array} \qquad \Rightarrow \qquad 8\ \text {mogelijkheden} \]
+</p>
+
+<p>
+\[ H,\ V\ \Rightarrow \ \text {3-herhalingsvariatie van 2 elementen} \qquad \Rightarrow \qquad 2^3=8\ \ (\text {3 uit 2}).                     \]
+</p>
+
+</div>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-47"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+<i>Een <b>p-herhalingsvariatie van n elementen</b> is een geordend \(p\)-tal elementen, gekozen onder de \(n\) gegeven verschillende elementen (hierbij mag een element meerdere keren gekozen worden).</i>
+</p>
+
+</div>
+
+<p>
+Let op: \(p\) kan dus groter zijn dan \(n\).
+</p>
+<!--
+...... subsubsection Notatie ......
+-->
+<h6 id="autosec-48"><span class="sectionnumber">&#x2003;</span>Notatie</h6>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<div class="oplossing">
+
+<p>
+\[\bar {V}^p_n\]
+</p>
+
+</div>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-49"><span class="sectionnumber">&#x2003;</span>Eigenschap</h6>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+Twee \(p\)-herhalingsvariaties van \(n\) elementen kunnen enkel van elkaar verschillen door
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> de gekozen elementen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> de volgorde van deze elementen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> het aantal keer een gekozen element voorkomt
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Aantal ......
+-->
+<h6 id="autosec-50"><span class="sectionnumber">&#x2003;</span>Aantal \(=\overline {V}_n^p\)</h6>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\(\overline {V}_n^p = n^p\)
+</p>
+
+</div>
+
+<div class="oplossing">
+
+<p>
+\[ \text {keuzes 1e el.}\ \overset {\text {EN}}{\cdot }\ \text {2e el.}\ \cdots \ \overset {\text {EN}}{\cdot }\ \text { \(p\)e el.} \]
+</p>
+
+<p>
+\[ \#=\;\underbrace {n\ \overset {\text {EN}}{\cdot }\ n\ \overset {\text {EN}}{\cdot }\ \cdots \ \overset {\text {EN}}{\cdot }\ n}_{p\ \text {factoren}} =\;n^p \]
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-51"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<p>
+\(\overline {V}_2^3=\opl {2^3 = 8}\)
+</p>
+<!--
+...... subsection Herhalingspermutaties ......
+-->
+<h5 id="autosec-52"><span class="sectionnumber">2&#x2003;</span>Herhalingspermutaties</h5>
+<a id="mkpiweb-autopage-52"></a>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-53"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Hoeveel anagrammen kunnen we vormen met de letters \(a, b\) en \(c\), als de letter \(a\) driemaal, de letter \(b\) tweemaal en de letter \(c\) viermaal moet voorkomen?
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ aaabbcccc \qquad \qquad ababacccc \]
+</p>
+
+<p>
+\[ V,\ H\ \Rightarrow \ \text {herhalingspermutatie van \(9\) elementen, waarvan:} \]
+</p>
+
+<p>
+\[ \left . \begin {array}{l} \mathbf {3\ \text {v/d 1e soort}},\\ \mathbf {2\ \text {v/d 2e soort}},\\ \mathbf {4\ \text {v/d laatste soort}} \end {array} \right \} \qquad \Rightarrow \qquad
+\mathbf {\text {het \# herhalingen ligt op voorhand vast!}} \]
+</p>
+
+<p>
+<em>Berekening komt zo</em>
+</p>
+
+</div>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-54"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+<i>Een <b>herhalingspermutatie van n elementen</b>, met<br />
+\(p\) elementen van de eerste soort,<br />
+\(q\) elementen van de tweede soort,<br />
+... \(r\) elementen van de laatste soort,<br />
+is een geordend n-tal elementen, bestaande uit \(p\) elementen van de eerste soort, \(q\) elementen van de tweede soort... \(r\) elementen van de laatste soort, waarbij geldt \(p+q+...+r=n\).</i>
+</p>
+
+</div>
+<!--
+...... subsubsection Notatie ......
+-->
+<h6 id="autosec-55"><span class="sectionnumber">&#x2003;</span>Notatie</h6>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<div class="oplossing">
+
+<p>
+\[\overline {P}_n^{p,q,...,r}\]
+</p>
+
+</div>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-56"><span class="sectionnumber">&#x2003;</span>Eigenschap</h6>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p>
+Twee p-herhalingspermutaties van n elementen kunnen enkel van elkaar verschillen door
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> de volgorde van de niet-gelijke elementen
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Aantal ......
+-->
+<h6 id="autosec-57"><span class="sectionnumber">&#x2003;</span>Aantal \(=\overline {P}_n^{p,q,...,r}\)</h6>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\(\overline {P}_n^{p,q,...,r}=\frac {n!}{p!.q!...r!}\)
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-58"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<p>
+\(\overline {P}_9^{3,2,4}=\opl {\dfrac {9!}{3!2!4!} = \dfrac {9 \cdot 8 \cdot 7 \cdot 6 \cdot 5 \cdot \cancel {4!}}{3!   \cdot 2!   \cdot \cancel {4!}} = \dfrac {9 \cdot 8 \cdot 7 \cdot \cancel
+{6} \cdot 5}{\cancel {6} \cdot 2} = 1260}\)
+</p>
+<!--
+...... subsection Herhalingscombinaties ......
+-->
+<h5 id="autosec-59"><span class="sectionnumber">3&#x2003;</span>Herhalingscombinaties</h5>
+<a id="mkpiweb-autopage-59"></a>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-60"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+Op hoeveel manieren kunnen zes identieke ballen gekleurd worden met behulp van vier kleuren (rood(R), wit(W), blauw(B) en groen(G)), als meerdere ballen dezelfde kleur mogen hebben?
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \text {vb.   } RRWBGG\ \text { of } RRRWGG\ \cdots \]
+</p>
+
+<p>
+\[ 6\ \text {uit}\ 4 \]
+</p>
+
+<p>
+\[ V,\ H\ \Rightarrow \ \text {6-herhalingscombinatie van 4 elementen} \]
+</p>
+
+</div>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-61"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+<i>Een <b>p-herhalingscombinatie van n elementen</b> is een niet-geordend p-tal elementen, gekozen onder de n gegeven verschillende elementen, waarbij eenzelfde element meerdere keren mag gekozen worden).</i>
+</p>
+
+</div>
+
+<p>
+Let op: \(p\) kan dus groter zijn dan \(n\).
+</p>
+<!--
+...... subsubsection Notatie ......
+-->
+<h6 id="autosec-62"><span class="sectionnumber">&#x2003;</span>Notatie</h6>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<div class="oplossing">
+
+<p>
+\[\bar {C}^p_n\]
+</p>
+
+</div>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-63"><span class="sectionnumber">&#x2003;</span>Eigenschap</h6>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+Twee \(p\)-herhalingscombinaties van \(n\) elementen kunnen enkel van elkaar verschillen door
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> de gekozen elementen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> het aantal keer een gekozen element voorkomt
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Aantal ......
+-->
+<h6 id="autosec-64"><span class="sectionnumber">&#x2003;</span>Aantal \(=\overline {C}_n^p\)</h6>
+<a id="mkpiweb-autopage-64"></a>
+<!--
+......   paragraph Voor het voorbeeld ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-65">Voor het voorbeeld</span>
+<a id="mkpiweb-autopage-65"></a>
+We zoeken \(\overline {C}_4^6=?\)<br />
+We stellen een 6-herhalingscombinatie van 4 elementen voor door zes stippen te zetten voor de keuze van de kleuren en door drie (\(=4-1\)) strepen die als ’tussenschotten’ dienen tussen de verschillende kleuren:<br />
+
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc">R</td>
+<td class="tdc"></td>
+<td class="tdc">W</td>
+<td class="tdc"></td>
+<td class="tdc">B</td>
+<td class="tdc"></td>
+<td class="tdc">G</td>
+</tr>
+
+<tr>
+<td class="tdc">\(\bullet \bullet \)</td>
+<td class="tdc">|</td>
+<td class="tdc">\(\bullet \)</td>
+<td class="tdc">|</td>
+<td class="tdc">\(\bullet \)</td>
+<td class="tdc">|</td>
+<td class="tdc">\(\bullet \bullet \)</td>
+</tr>
+
+</table>
+
+</div>
+
+<p>
+Er zijn dus in totaal \(9=6+4-1\) plaatsen, waarvan we er \(6\) in een willekeurige volgorde mogen kiezen om een stip te plaatsen. Op de overige drie plaatsen komt dan automatisch een streep. Hiermee kunnen we het probleem
+herleiden tot een gewone combinatie (zonder herhaling):<br />
+\(\overline {C}_4^6 = C_{4+6-1}^p=C_9^6=84\).
+</p>
+<!--
+......   paragraph Algemeen ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-68">Algemeen</span>
+<a id="mkpiweb-autopage-68"></a>
+
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\(\overline {C}_n^p = C_{n+p-1}^p\)
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-69"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+\(\overline {C}_5^7=\opl {C_{5+7-1}^7 = C_{11}^7 = \frac {11!}{7!4!} = \frac {11 \cdot 10 \cdot 9 \cdot 8 \cdot \cancel {7!}}{\cancel {7!} \cdot 4 \cdot 3 \cdot 2 \cdot 1} = \frac {11 \cdot 10
+\cdot \overbracket {\cancel {9}}^3 \cdot \cancel {8}}{\cancel {4} \cdot \cancel {3} \cdot \cancel {2} \cdot 1} = 11 \cdot 10 \cdot 3 = 330}\)
+</p>
+<!--
+...... section Gemengde oefeningen op groeperingen met en zonder herhaling ......
+-->
+<h4 id="autosec-70"><span class="sectionnumber">IV&#x2003;</span>Gemengde oefeningen op groeperingen met en zonder herhaling</h4>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+Voor een schematisch stappenplan verwijzen we naar de laatste pagina van dit hoofdstuk. Door de vraagjes stelselmatig met ’ja’ of ’nee’ te beantwoorden, kom je tot de te gebruiken formule.<br />
+
+</p>
+
+<p>
+De 76 oefeningen hierop vind je terug vanaf p.45. Hier geldt zeker ’Hoe meer, hoe liever!’<br />
+
+</p>
+
+<p>
+Heb je onvoldoende tijd om alle oefeningen te maken, probeer dan zeker nrs.<br />
+5-6-10-13-14-15-16-17-18-20-22-24-25-26-28-30-37-43-51-54-59-63.<br />
+
+</p>
+
+<p>
+Zijn de eerste te makkelijk voor je, concentreer je dan meer op de tweede helft.<br />
+
+</p>
+<div class="center">
+
+<p>
+<span
+    style="
+    display: inline-block;
+     -ms-transform:rotate(-90deg);
+     -webkit-transform:rotate(-90deg);
+     transform:rotate(-90deg); "
+>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+                                                                                    n1 ,n2 ,...,nk              n!
+                                                                         JA       Pn                 =
+                                                                                                         n1 ! n2 ! · · · nk !
+                                                         Aantal
+                                                       herhalingen
+                                                         bepaald
+                                          JA
+                                                                                           p
+                                                                        NEEN           V n = np
+
+                             Herhaling
+                             mogelijk
+
+                       JA                                                  Pn = n!
+                                                                   JA
+                                         NEEN
+                                                     p=n
+         Volgorde
+Opgave                                                                             n!
+         belangrijk                                            NEEN     Vnp =
+                                                                                (n − p)!
+
+
+                                                 p     n+p−1
+                                                               
+                                          JA    Cn =     p
+                      NEEN
+
+                             Herhaling
+                             mogelijk
+
+                                                         n
+                                                           
+                                         NEEN    Cnp =   p
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span> </span>
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

@@ -1,0 +1,1823 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Voorwaardelijke kansen</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 5</p> <h1>Voorwaardelijke kansen</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                                        U
+
+            A2             A1
+
+   A3                              B
+
+
+
+
+                             An
+            ···
+
+
+
+
+                      P (Ai ∩ B)
+      P (B | Ai ) =
+                        P (Ai )
+
+            Pn
+  P (B) =    i=1 P (Ai ) P (B | Ai )
+
+
+               P (Ai ) P (B | Ai )
+P (Ai | B) = Pn
+              j=1 P (Aj ) P (B | Aj )
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>BV3_06.13</b> (MD 06.13) De leerlingen bepalen kansen met behulp van kruistabellen, boomdiagrammen en de wet van Laplace.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">verband tussen relatieve frequentie en kans</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.34</b> De leerlingen bepalen het afhankelijk zijn van gebeurtenissen.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: voorwaardelijke kans
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: wet van de totale kans, regel van Bayes
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Extra uitleg:</b> productwet; axioma’s en eigenschappen van voorwaardelijke kansen
+</p>
+
+</div>
+<!--
+...... section Inleidend voorbeeld ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Inleidend voorbeeld</h4>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<p>
+<i>Een medisch team heeft een onderzoek gedaan over het optreden van kleurenblindheid in een bepaalde bevolkingsgroep van 1000 mensen. Hierbij heeft men twee zaken geregistreerd: het geslacht en het al of niet kleurenblind zijn.
+</i><br />
+De resultaten van dit onderzoek kan je in onderstaande tabel aflezen.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Kleurenblind K</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Niet kleurenblind NK</td>
+<td class="tdc">Totaal</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Man M</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">32</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">368</td>
+<td class="tdc">400</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Vrouw V</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">6</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">594</td>
+<td class="tdc">600</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">Totaal</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">38</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">962</td>
+<td class="tdc">1000</td>
+</tr>
+
+</table>
+
+</div>
+
+<p>
+We kiezen nu willekeurig één proefpersoon uit deze groep en bepalen volgende kansen.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(V\): De gekozen persoon is een vrouw \(\Rightarrow P(V) = \opl {\dfrac {600}{1000}=\dfrac {3}{5}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(K\): De gekozen persoon is kleurenblind \(\Rightarrow P(K) = \opl {\dfrac {38}{1000}=\dfrac {19}{500}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(V\cap K\): De gekozen persoon is een vrouw en is kleurenblind<br />
+
+</p>
+<p>
+\[\Rightarrow P(V\cap K) = \opl {\dfrac {6}{1000}=\dfrac {3}{500}}\]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+<b>Opmerking</b> Bij deze <b>gewone</b> kansen zijn telkens <b>alle</b> uitkomsten betrokken!<br />
+
+</p>
+
+<p>
+Veronderstel nu dat we zeker weten dat de proefpersoon een vrouw is. We moeten dan enkel nog kijken naar de relevante data, dus enkel bij de rij van de vrouwen. Wat is dan de kans dat ze kleurenblind is? Hiervoor voeren we een
+nieuwe notatie in:
+</p>
+<div class="center">
+
+<p>
+\(K|V:\) De gekozen persoon is kleurenblind, op voorwaarde dat het een vrouw is
+</p>
+</div>
+
+<p>
+\[\Rightarrow P(K|V) = \opl {\dfrac {6}{600}} = \opl {\dfrac {1}{100}}\]
+</p>
+
+<p>
+<b>Opmerking</b> Bij een <b>voorwaardelijke</b> kans is slechts een <b>deel</b> van de uitkomsten betrokken!<br />
+
+</p>
+
+<p>
+Omschrijf met woorden en bepaal nu zelf de volgende kans. Ga na of er een gelijkaardig verband geldt met de gewone kansen zoals hierboven.
+</p>
+
+<p>
+\(M|NK :\) De gekozen persoon is een man, op voorwaarde dat hij niet kleurenblind is<br />
+\(\Rightarrow P(M|NK) = \opl {\dfrac {368}{962}}\)
+</p>
+<!--
+...... section Definitie ......
+-->
+<h4 id="autosec-10"><span class="sectionnumber">II&#x2003;</span>Definitie</h4>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+<i>In de uitkomstenverzameling U beschouwen we twee gebeurtenissen A en B, waarvan A niet onmogelijk is. De <b>voorwaardelijke kans</b> op B, vooropgesteld dat A zich voordoet, wordt gegeven door</i>
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ P(B|A) =\frac {P(A\cap B)}{P(A)} \qquad \text { met } P(A)\neq 0. \]
+</p>
+
+</div>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">1&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+Zeg telkens om welke kans het gaat en bereken de kans.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(P(M \cap K):\) Kans dat de persoon een man is én kleurenblind is.<span class="opl opl-vast" style="min-width:5cm"></span><br />
+\(P(M \cap K)=\opl {\dfrac {32}{1000}=\dfrac {4}{125}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(P(M|K):\) Kans dat de persoon een man is, op voorwaarde dat hij kleurenblind is.<span class="opl opl-vast" style="min-width:5cm"></span><br />
+\(P(M|K)=\opl {\dfrac {32}{38}=\dfrac {16}{19}}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(P(K|M):\) Kans dat de persoon kleurenblind is, op voorwaarde dat hij een man is.<span class="opl opl-vast" style="min-width:5cm"></span><br />
+\(P(K|M)=\opl {\dfrac {32}{400}=\dfrac {2}{25}}\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Gevolg: Productwet ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">2&#x2003;</span>Gevolg: Productwet</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ P(A\cap B) =P(A)\cdot P(B|A) \]
+</p>
+
+</div>
+
+<p>
+Deze productwet kan uitgebreid worden voor drie (of meer) gebeurtenissen.
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ P(A \cap B \cap C) =P(A)\cdot P(B|A)\cdot P(C|A \cap B) \]
+</p>
+
+</div>
+<!--
+...... section Axioma’s en eigenschappen ......
+-->
+<h4 id="autosec-13"><span class="sectionnumber">III&#x2003;</span>Axioma’s en eigenschappen</h4>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+Een voorwaardelijke kans is nog steeds een kans. Volgende axioma’s en eigenschappen van gewone kansen blijven dus gelden.
+</p>
+<!--
+...... subsection Axioma A1 ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">1&#x2003;</span>Axioma A1</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ P(B|A) \in \mathbb {R^+} \qquad \text { en }\qquad 0\leq P(B|A)\leq 1 \]
+</p>
+
+</div>
+<!--
+...... subsection Axioma A2 ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">2&#x2003;</span>Axioma A2</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+<i>\(U|A\) is de zekere gebeurtenis.</i>
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ P(U|A)=1 \]
+</p>
+
+</div>
+
+<p>
+<span class="underline">Bewijs</span>
+</p>
+<div class="oplossing">
+
+</div>
+<!--
+...... subsection Axioma A3: Somwet voor voorwaardelijke kansen ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">3&#x2003;</span>Axioma A3: Somwet voor voorwaardelijke kansen</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ B \cap C = \varnothing \Rightarrow P((B\cup C)|A)=P(B|A)+P(C|A) \]
+</p>
+
+</div>
+
+<p>
+<span class="underline">Bewijs</span>
+</p>
+<div class="oplossing">
+
+</div>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-17"><span class="sectionnumber">IV&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Combinatoriek en Kansrekening</i>: nrs. 3, 12 en 19 p.139.
+</p>
+<!--
+...... section Wet van de totale kans ......
+-->
+<h4 id="autosec-18"><span class="sectionnumber">V&#x2003;</span>Wet van de totale kans</h4>
+<a id="mkpiweb-autopage-18"></a>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+<i>In een bakje liggen vier witte, drie zwarte en vijf rode knikkers. We trekken hieruit één knikker en leggen hem niet terug. Daarna trekken we een tweede knikker.<br />
+Bepaal de kans dat de tweede knikker rood is.</i>
+</p>
+<div class="oplossing">
+
+<p>
+\(W_i, Z_i, R_i:\) \(i\)-de knikker is respectievelijk wit, zwart of rood
+</p>
+</div>
+
+<p>
+Om deze kans te berekenen, kunnen we op twee manieren te werk gaan.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> We maken een kansboom.
+</p>
+<div class="oplossing">
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+                                        1     W2
+                                  = 3/1
+                                )
+                           2|
+                              W1
+                      P (W
+                      P (Z2 |W1 ) = 3/11
+                 W1                           Z2
+                      P (R
+                         2 |W
+                             1) =
+        4/                             5/1         4 5    20
+           12                             1   R2     ·  =
+      =                                            12 11 132
+   1)
+P(                                            W2
+  W
+                                1
+                                                      +
+                             4/1
+
+P (Z1 ) = 3/12                2/11
+                 Z1                           Z2
+
+                             5/1
+                                 1
+                                                   3 5    15
+P(                                            R2     ·  =
+    )=                                             12 11 132
+  R1
+                                              W2
+        5/
+          12
+                                1
+                                                      +
+                             4/1
+
+                              3/11
+                 R1                           Z2
+
+                             4/1
+                                   1
+                                                   5 4    20
+                                              R2     ·  =
+                                                   12 11 132
+--><img
+     src="mkpiweb-images/image-2.svg"
+     alt="(-tikz-&nbsp;diagram)"
+     style=""
+     class="lateximage"
+></span>
+</p>
+<p>
+\[ \Rightarrow P(R_2)=\dfrac {20}{132}+\dfrac {15}{132}+\dfrac {20}{132}=\dfrac {55}{132}=\dfrac {5}{12} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> We passen een combinatie toe van de somwet en de productwet.<br />
+
+</p>
+<div class="oplossing">
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+                             somwet
+                   P (R2 )     =       P (W1 ∩ R2 ) + P (R1 ∩ R2 ) + P (Z1 ∩ R2 )
+U
+                             prod.w.
+                               = P (W1 ) · P (R2 |W1 )
+                                       + P (R1 ) · P (R2 |R1 )
+    W1        R1
+         R2                            + P (Z1 ) · P (R2 |Z1 )
+
+                                 4 5    5 4   3 5
+                             =     ·  +  ·  +  ·
+                                 12 11 12 11 12 11
+         Z1
+                                 55     5
+                             =       =    .
+                                 132   12
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+</li>
+</ul>
+<!--
+...... subsection Wet van de totale kans ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">2&#x2003;</span>Wet van de totale kans</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+<i>We gaan uit van een eindig aantal gebeurtenissen \(A_1, A_2, ..., A_n\)<br />
+      <span class="listmarker">•</span> die elkaar twee aan twee uitsluiten: \(i\neq j \Rightarrow A_i\cap A_j =\varnothing \) <span class="opl opl-vast" style="min-width:1cm">(1)</span> <br />
+      <span class="listmarker">•</span> waarvan de unie de uitkomstenverzameling \(U\) is: \(A_1\cup A_2\cup ...    \cup A_n = U\) <span class="opl opl-vast" style="min-width:1cm">(2)</span> <br />
+      <span class="listmarker">•</span> die elk een kans verschillend van nul hebben: \(P(A_i)\neq 0\) <span class="opl opl-vast" style="min-width:1cm">(3)</span><br />
+ Dan geldt voor een willekeurige gebeurtenis \(B\)</i>
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\(P(B)=P(A_1)\cdot P(B|A_1)+ P(A_2)\cdot P(B|A_2)+...+P(A_n)\cdot P(B|A_n)\)
+</p>
+
+</div>
+
+<p>
+<span class="underline">Bewijs</span>
+</p>
+<div class="oplossing">
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:312pt ; ">
+
+<a id="mkpiweb-autopage-25"></a>
+
+<p>
+\(\begin {aligned} B &amp;= U \cap B \\ &amp;\overset {\text {(2)}}{=} (A_1 \cup A_2 \cup \dots \cup A_n) \cap B \\[2ex] &amp;= (A_1 \cap B) \cup (A_2 \cap B) \cup \dots \cup (A_n \cap B)
+\\[0.5cm] \Rightarrow P(B) &amp;\overset {(1)}{=} P(A_1 \cap B) + P(A_2 \cap B) + \dots + P(A_n \cap B) \\[2ex] &amp;\overset {\text {\color {myred}prod.wet}}{=} P(A_1) \cdot P(B|A_1) + P(A_2)
+\cdot P(B|A_2) + \dots + P(A_n) \cdot P(B|A_n) . \end {aligned}\)
+</p>
+
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:160pt ; ">
+
+<a id="mkpiweb-autopage-26"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+               U
+    An
+         A1
+B
+              A2
+         ..
+         .
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+
+</div>
+
+<p>
+Opmerking: (3) wordt impliciet gebruikt in de product wet.
+</p>
+</div>
+<!--
+...... section Wet van Bayes ......
+-->
+<h4 id="autosec-29"><span class="sectionnumber">VI&#x2003;</span>Wet van Bayes</h4>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+We werken onder dezelfde voorwaarden als bij de wet van de totale kans.<br />
+Indien de voorwaardelijke kans \(P(B|A_i)\) gekend is en \(P(A_i|B)\) is gevraagd, kunnen we als volgt te werk gaan.<br />
+
+</p>
+
+<p>
+<span class="opl opl-vast" style="min-width:5cm">Definitie voorwaardelijke kans</span> \(P(A_i|B)=\frac {P(A_i\cap B)}{P(B)}\)<br />
+
+</p>
+
+<p>
+<span class="opl opl-vast" style="min-width:5cm">Productwet</span>
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ \Rightarrow P(A_i|B)=\frac {P(A_i)\cdot P(B|A_i)}{P(B)} \]
+</p>
+
+</div>
+
+<p>
+<span class="opl opl-vast" style="min-width:5cm">Wet van de totale kans</span>
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ \Rightarrow P(A_i|B)=\frac {P(A_i)\cdot P(B|A_i)}{P(A_1)\cdot P(B|A_1)+ P(A_2)\cdot P(B|A_2)+...+P(A_n)\cdot P(B|A_n)} \]
+</p>
+
+</div>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+<i>ELISA-tests worden gebruikt om donorbloed te onderzoeken op de aanwezigheid van het AIDS-virus. De test detecteert in feite antilichamen, stoffen die door het lichaam worden geproduceerd wanneer het virus aanwezig is.</i>
+</p>
+
+<p>
+<i>Als er antilichamen zijn, is ELISA positief met kans 0.997 en negatief met kans 0.003.</i>
+</p>
+<div class="oplossing">
+
+<p>
+\(A:\) “er zijn antilichamen”<br />
+\(N:\) “ELISA is negatief”<br />
+\(\overline {N}:\) “ELISA is positief”
+</p>
+
+<p>
+\[ \Rightarrow \qquad P(\overline {N}\mid A)=0.997 \qquad \text {en}\qquad P(N\mid A)=0.003.                      \]
+</p>
+
+</div>
+
+<p>
+<i>Indien het onderzochte bloed niet met AIDS-antilichamen is besmet, is de kans dat ELISA een positief resultaat geeft gelijk aan 0.015 en de kans op een negatief resultaat 0.985.</i><br />
+
+</p>
+<div class="oplossing">
+
+<p>
+\[ P(\overline {N}\mid \overline {A})=0.015 \qquad \text {en}\qquad P(N\mid \overline {A})=0.985.                        \]
+</p>
+
+</div>
+
+<p>
+<i>(Omdat ELISA tot doel heeft het AIDS-virus buiten de bloedbanken te houden, is de betrekkelijk grote kans (0.015) op een foutief positief antwoord acceptabel t.o.v. de geringe kans (0.003) op het niet herkennen van besmet bloed.
+Deze kansen zijn afhankelijk van de deskundigheid van het laboratorium dat de tests uitvoert.)</i><br />
+
+</p>
+
+<p>
+<i>Veronderstel dat \(1\%\) van een grote populatie de AIDS-antilichamen in het bloed heeft.</i>
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> <i>Bereken de kans dat ELISA voor een willekeurig gekozen persoon uit deze populatie een positief resultaat laat zien.</i>
+</p>
+<div class="oplossing">
+<p>
+\[ P(A)=\frac {1}{100}=0.01 \qquad \Rightarrow \qquad P(\overline {A})=0.99 \]
+</p>
+<p>
+\[ P(\overline {N}\mid A)=0.997,\qquad P(\overline {N}\mid \overline {A})=0.015 \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                       P (N ) = P (N ∩ A) + P (N ∩ A)
+                                                                                             = P (A) P (N | A) + P (A) P (N | A)   (totale kans)
+                                                                                             = 0.01 · 0.997 + 0.99 · 0.015
+                                                                                             = 0.00997 + 0.01485
+                                                                                             = 0.02482.
+
+
+-->
+
+<p>
+
+\begin{align*}
+P(\overline {N}) &amp;=P(\overline {N}\cap A)+P(\overline {N}\cap \overline {A})\\ &amp;=P(A)\,P(\overline {N}\mid A)+P(\overline {A})\,P(\overline {N}\mid \overline {A}) \quad \text {(totale
+kans)}\\ &amp;=0.01\cdot 0.997 + 0.99\cdot 0.015\\ &amp;=0.00997+0.01485\\ &amp;=0.02482.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {P(\overline {N})=0.02482 \approx 2.48\%} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> <i>Bereken de kans dat iemand antilichamen heeft, gegeven dat ELISA positief was.</i>
+</p>
+<div class="oplossing">
+<p>
+We zoeken \(P(A\mid \overline {N})\) met Bayes, waarbij \(\overline {N}\) = ELISA positief.
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                            P (A ∩ N )
+                                                                                             P (A | N ) =                (Bayes)
+                                                                                                              P (N )
+                                                                                                         P (A) P (N | A)
+                                                                                                       =                    (productregel)
+                                                                                                              P (N )
+                                                                                                         0.01 · 0.997
+                                                                                                       =
+                                                                                                           0.02482
+                                                                                                         0.00997
+                                                                                                       =           ≈ 0.4017.
+                                                                                                         0.02482
+
+-->
+
+<p>
+
+\begin{align*}
+P(A\mid \overline {N}) &amp;=\frac {P(A\cap \overline {N})}{P(\overline {N})} \quad \text {(Bayes)}\\ &amp;=\frac {P(A)\,P(\overline {N}\mid A)}{P(\overline {N})} \quad \text
+{(productregel)}\\ &amp;=\frac {0.01\cdot 0.997}{0.02482}\\ &amp;=\frac {0.00997}{0.02482}\approx 0.4017.
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {P(A\mid \overline {N})\approx 0.4017 \approx 40.17\%} \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-31"><span class="sectionnumber">VII&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Combinatoriek en Kansrekening</i>: nrs. 30, 37, 40, 48, 51 p.139 en volgende.
+</p>
+<!--
+...... section Statistisch (on)afhankelijke gebeurtenissen ......
+-->
+<h4 id="autosec-32"><span class="sectionnumber">VIII&#x2003;</span>Statistisch (on)afhankelijke gebeurtenissen</h4>
+<a id="mkpiweb-autopage-32"></a>
+<!--
+...... subsection Voorbeeld 1 ......
+-->
+<h5 id="autosec-33"><span class="sectionnumber">1&#x2003;</span>Voorbeeld 1</h5>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+<i>Een medisch team onderzoekt het al of niet geı&#x0308;nfecteerd zijn door een bepaald virus in een bevolkingsgroep van 1000 mensen, waarvan 400 mannen en 600 vrouwen.</i><br />
+De resultaten van dit onderzoek kan je in onderstaande tabel aflezen.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">Geı&#x0308;nfecteerd \(G\)</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">Niet Geı&#x0308;nfecteerd \(\overline {G}\)</td>
+<td class="tdc">Totaal</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">Man \(M\)</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">100</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">300</td>
+<td class="tdc">400</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">Vrouw \(V\)</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">150</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">450</td>
+<td class="tdc">600</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">Totaal</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">250</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">750</td>
+<td class="tdc">1000</td>
+</tr>
+
+</table>
+
+</div>
+
+<p>
+We vinden:
+</p>
+
+<p>
+\[P(G)= \opl {\dfrac {250}{1000}=\dfrac {1}{4} \qquad \mathbf {=}} \qquad P(G|M)=\opl {\dfrac {100}{400}=\dfrac {1}{4}}\]
+</p>
+
+<p>
+\[P(M)= \opl {\dfrac {400}{1000}=\dfrac {2}{5} \qquad \mathbf {=}} \qquad P(M|G)=\opl {\dfrac {100}{250}=\dfrac {2}{5}}\]
+</p>
+
+<p>
+De twee kansen zijn telkens gelijk aan elkaar. Blijkbaar heeft het geslacht <b>geen invloed</b> op het al of niet geı&#x0308;nfecteerd zijn en omgekeerd. We zeggen daarom dat \(G\) en \(M\) <b>onafhankelijke</b>
+gebeurtenissen zijn.<br />
+
+</p>
+
+<p>
+Merk op \(P(G\cap M)=\opl [4cm]{\dfrac {100}{1000} = \dfrac {1}{10}} = \opl [4cm]{P(G) \cdot P(M) = \dfrac {1}{4} \cdot \dfrac {2}{5} = \dfrac {1}{10}}\)
+</p>
+<!--
+...... subsection Voorbeeld 2 ......
+-->
+<h5 id="autosec-36"><span class="sectionnumber">2&#x2003;</span>Voorbeeld 2</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p>
+We hernemen het voorbeeld van het medisch team dat kleurenblindheid onderzocht bij 400 mannen en 600 vrouwen.<br />
+We vinden:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(P(K)=\opl {\dfrac {38}{1000}=\dfrac {19}{500}}\)<br />
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(P(K|M)=\opl {\dfrac {32}{400}=\dfrac {2}{25}}\)<br />
+
+</p>
+</li>
+</ul>
+
+<p>
+De twee kansen zijn verschillend van elkaar. Blijkbaar heeft het geslacht <b>invloed</b> op het al of niet kleurenblind zijn. We zeggen daarom dat \(K\) en \(M\) <b>afhankelijke</b> gebeurtenissen zijn.<br />
+Merk op \(P(K\cap M)=\opl {\dfrac {32}{1000}=\dfrac {4}{125}} \neq \opl {\dfrac {38}{1000}\cdot \dfrac {400}{1000}=\dfrac {152}{10000}=\dfrac {19}{1250}}\)
+</p>
+<!--
+...... subsection Definitie (on)afhankelijke gebeurtenissen ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">3&#x2003;</span>Definitie (on)afhankelijke gebeurtenissen</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<div class="center">
+<p>
+<i>A en B zijn <b>onafhankelijk</b> als</i> \(P(A)=P(A|B)\) of \(P(B)=P(B|A)\)
+</p>
+<p>
+<i>In dat geval geldt de verkorte productwet: </i>\(P(A\cap B)=P(A).P(B)\)
+</p>
+</div>
+
+</div>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<div class="center">
+<p>
+<i>A en B zijn <b>afhankelijk</b> als</i> \(P(A)\neq P(A|B)\) of \(P(B)\neq P(B|A)\)
+</p>
+<p>
+<i>In dat geval geldt de verkorte productwet niet: </i>\(P(A\cap B)\neq P(A).P(B)\)
+</p>
+</div>
+
+</div>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-40"><span class="sectionnumber">IX&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-40"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-41">Oefening 1</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+We kiezen willekeurig een getal van \(1\) tot \(12\). Daarbij beschouwen we de volgende gebeurtenissen: \(A\), het getal is even en \(B\), het getal is een drievoud. Onderzoek de (on)afhankelijkheid van \(A\) en \(B\).
+</p>
+
+<div class="oplossing">
+
+<p>
+We nemen als uitkomstenruimte
+</p>
+
+<p>
+\[ \Omega =\{1,2,3,4,5,6,7,8,9,10,11,12\}, \qquad \#\Omega =12.             \]
+</p>
+
+<p>
+\[ A=\{\text {even}\}=\{2,4,6,8,10,12\}\quad \Rightarrow \quad \#A=6 \]
+</p>
+
+<p>
+\[ B=\{\text {drievoud}\}=\{3,6,9,12\}\quad \Rightarrow \quad \#B=4 \]
+</p>
+
+<p>
+\[ A\cap B=\{\text {even Ãľn drievoud}\}=\{6,12\}\quad \Rightarrow \quad \#(A\cap B)=2 \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                             #A     6   1
+                                                                                                     P (A) =     =    = ,
+                                                                                                             12    12   2
+                                                                                                             #B     4   1
+                                                                                                     P (B) =     =    = ,
+                                                                                                             12    12   3
+                                                                                                             #(A ∩ B)    2  1
+                                                                                                 P (A ∩ B) =          =    = .
+                                                                                                                12      12  6
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(A) &amp;= \frac {\#A}{12}=\frac {6}{12}=\frac 12,\\ P(B) &amp;= \frac {\#B}{12}=\frac {4}{12}=\frac 13,\\ P(A\cap B) &amp;= \frac {\#(A\cap B)}{12}=\frac {2}{12}=\frac 16.
+\end{align*}
+
+</p>
+
+<p>
+Controle:
+</p>
+
+<p>
+\[ P(A)\cdot P(B)=\frac 12\cdot \frac 13=\frac 16=P(A\cap B). \]
+</p>
+
+<p>
+Dus \(A\) en \(B\) zijn <b>onafhankelijk</b>.
+</p>
+</div>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-42">Oefening 2</h5>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+We kiezen willekeurig een getal van \(1\) tot \(11\). Daarbij beschouwen we de volgende gebeurtenissen: \(A\), het getal is even en \(B\), het getal is een drievoud. Onderzoek de (on)afhankelijkheid van \(A\) en \(B\).
+</p>
+<div class="oplossing">
+
+<p>
+We kiezen uniform uit \(\Omega =\{1,2,\dots ,11\}\), dus \(\#\Omega =11\).
+</p>
+
+<p>
+\[ A=\{\text {even}\}=\{2,4,6,8,10\}\ \Rightarrow \ \#A=5 \qquad \Rightarrow \qquad P(A)=\frac {5}{11} \]
+</p>
+
+<p>
+\[ B=\{\text {drievoud}\}=\{3,6,9\}\ \Rightarrow \ \#B=3 \qquad \Rightarrow \qquad P(B)=\frac {3}{11} \]
+</p>
+
+<p>
+\[ A\cap B=\{\text {even Ãľn drievoud}\}=\{6\}\ \Rightarrow \ \#(A\cap B)=1 \qquad \Rightarrow \qquad P(A\cap B)=\frac {1}{11} \]
+</p>
+
+<p>
+Controle op onafhankelijkheid:
+</p>
+
+<p>
+\[ P(A)\cdot P(B)=\frac {5}{11}\cdot \frac {3}{11}=\frac {15}{121}\neq \frac {1}{11}=\frac {11}{121}=P(A\cap B). \]
+</p>
+
+<p>
+Dus \(A\) en \(B\) zijn <b>afhankelijk</b>.
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

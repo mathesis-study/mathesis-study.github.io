@@ -1,0 +1,4453 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Determinanten</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 2</p> <h1>Determinanten</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+      y                                      y
+
+
+                                     
+                       A = ⃗v1 ⃗v2
+                              A
+
+                                                 ⃗v2        | det A|
+                    lineaire transformatie
+                                                       oriëntatie
+⃗e2
+                x                                           ⃗v1        x
+          ⃗e1
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.08</b> (MD 06.08.30) De leerlingen stellen vectorie&#x0308;le, parametrische en cartesische vergelijkingen van rechten en vlakken in de ruimte op.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.10</b> (MD 06.08.33) De leerlingen berekenen afstanden en hoeken in de ruimte.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.12</b> (MD 06.08.01) De leerlingen voeren bewerkingen uit met matrices: optelling, scalaire vermenigvuldiging, matrixvermenigvuldiging, machtsverheffing en transpositie.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: rekenregels en eigenschappen
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.14</b> (MD 06.08.03) De leerlingen berekenen de rang van matrices, de inverse matrix van inverteerbare matrices en de determinant van vierkante matrices.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: ontwikkeling naar rij of kolom
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: eigenschappen van determinanten
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> determinanten van orde \(2\), \(3\) en \(n\), minoren en cofactoren, ontwikkeling volgens Laplace, regel van Sarrus, eigenschappen van determinanten, determinant van een product, inverse
+matrix, adjunctmatrix, stelsel van Cramer, rang van een matrix, en meetkundige toepassingen van determinanten zoals vergelijking van een rechte, collineariteit en oppervlakte van een driehoek.
+</p>
+
+</div>
+<!--
+...... section Determinant van een -matrix ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Determinant van een \(n\times n\)-matrix</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Determinant van een -matrix (= orde) ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Determinant van een \(2\times 2\)-matrix (=\(2^\text {e}\) orde)</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-8">Definitie</h6>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+Voor
+</p>
+
+<p>
+\[ A=\begin {pmatrix}a_{11}&amp;a_{12}\\[2pt] a_{21}&amp;a_{22}\end {pmatrix} \]
+</p>
+
+<p>
+is de <b>determinant</b> het ree&#x0308;el getal \(a_{11}a_{22}-a_{12}a_{21}\).
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Notatie ......
+-->
+<h6 id="autosec-9">Notatie</h6>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p>
+\[ \det A=|A|=\begin {vmatrix}a_{11}&amp;a_{12}\\[2pt] a_{21}&amp;a_{22}\end {vmatrix}=a_{11}a_{22}-a_{21}a_{12}.   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-10">Voorbeelden</h6>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+2     3
+        =2·5−3·4
+4     5
+        = 10 − 12
+        = −2.
+
+
+-->
+
+<p>
+
+\begin{flalign*}
+\begin{vmatrix} 2 &amp; 3\\ 4 &amp; 5 \end {vmatrix} &amp;= 2\cdot 5-3\cdot 4 &amp;&amp;\\ &amp;= 10-12 &amp;&amp;\\ &amp;= -2.   &amp;&amp;
+\end{flalign*}
+
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+1     0
+        =1·1−0·0
+0     1
+        =1−0
+        = 1.
+
+
+-->
+
+<p>
+
+\begin{flalign*}
+\begin{vmatrix} 1 &amp; 0\\ 0 &amp; 1 \end {vmatrix} &amp;= 1\cdot 1-0\cdot 0 &amp;&amp;\\ &amp;= 1-0 &amp;&amp;\\ &amp;= 1.   &amp;&amp;
+\end{flalign*}
+
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+ cos α    sin α
+                = cos α · cos α − sin α · (− sin α)
+− sin α   cos α
+                = cos2 α + sin2 α
+                = 1.
+
+
+-->
+
+<p>
+
+\begin{flalign*}
+\begin{vmatrix} \cos \alpha &amp; \sin \alpha \\ -\sin \alpha &amp; \cos \alpha \end {vmatrix} &amp;= \cos \alpha \cdot \cos \alpha - \sin \alpha \cdot (-\sin \alpha ) &amp;&amp;\\ &amp;= \cos
+^{2}\alpha + \sin ^{2}\alpha &amp;&amp;\\ &amp;= 1. &amp;&amp;
+\end{flalign*}
+
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Meetkundige betekenis ......
+-->
+<h6 id="autosec-11">Meetkundige betekenis</h6>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+De absolute waarde van de determinant van een \(2\times 2\)-matrix is de <b>oppervlakte</b> van het parallellogram opgespannen door de kolomvectoren (of rijvectoren).
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+y
+
+          ( 23 )
+
+
+    ⃗v2
+                    ( 41 )
+              ⃗v1
+                             x
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Voor de matrix \(A=(\,\vec {v}_1\ \vec {v}_2\,)=\begin {psmallmatrix}4&amp;2\\1&amp;3\end {psmallmatrix}\) is de determinant \(\det A=4\cdot 3-2\cdot 1=10\). De oppervlakte van het parallellogram is dus
+\(10\).
+</p>
+
+<p>
+Een negatieve determinant betekent dat de orie&#x0308;ntatie van \((\vec {v}_1, \vec {v}_2)\) omgekeerd is aan die van de standaardbasis (bv. \(\vec {v}_2\) ligt “links” van \(\vec {v}_1\) i.p.v. rechts).
+</p>
+
+<p>
+Analoog is de absolute waarde van de determinant van een \(3\times 3\)-matrix het <b>volume</b> van het parallellepipedum opgespannen door de drie kolomvectoren.
+</p>
+<!--
+...... subsection Determinant van orde (=-matrix) ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">2&#x2003;</span>Determinant van \(1^\text {e}\) orde (=\(1\times 1\)-matrix)</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+Voor \(A=(\,a\,)\) geldt eenvoudig:
+</p>
+
+<p>
+\[ \det A = |A| = a \qquad \text {(het element zelf).} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-16">Oefeningen</h6>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+p 129 nr 1, <b>2</b>
+</p>
+<!--
+...... subsection Determinant van orde (=-matrix) ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">3&#x2003;</span>Determinant van \(3^\text {e}\) orde (=\(3\times 3\)-matrix)</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie Minor en Cofactor van een element ......
+-->
+<h6 id="autosec-18">Definitie Minor en Cofactor van een element</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Beschouw
+</p>
+
+<p>
+\[ A= \begin {pNiceMatrix}[columns-width=1.2em] a_{11}&amp;a_{12}&amp;a_{13}\\ a_{21}&amp;a_{22}&amp;a_{23}\\ a_{31}&amp;a_{32}&amp;a_{33} \CodeAfter \markeercellen {lichtblauw}{3-1}{3-3}
+\markeercellen {lichtblauw}{1-1}{3-1} \end {pNiceMatrix} \]
+</p>
+<div class="center">
+
+<p>
+cofactor van \(a_{31} = A_{31} = + \begin {vmatrix}a_{12} &amp; a_{13} \\ a_{22} &amp; a_{23} \end {vmatrix}\).
+</p>
+
+<p>
+cofactor van \(a_{32} = A_{32} = - \begin {vmatrix}a_{11} &amp; a_{13} \\ a_{21} &amp; a_{23} \end {vmatrix}\).
+</p>
+</div>
+
+<p>
+Schrap de \(i^\text {e}\) rij en de \(j^\text {e}\) kolom van \(A\) en neem de determinant van de overblijvende \(2\times 2\)-matrix; dit is de <em>minor</em> \(M_{ij}\). De <em>cofactor</em> bij het element \(a_{ij}\)
+is
+</p>
+
+<p>
+\[ A_{ij}=(-1)^{i+j}M_{ij}.     \]
+</p>
+
+<p>
+Dus: <em>plusteken</em> als \(i+j\) even is, <em>minteken</em> als \(i+j\) oneven is. De tekens vormen het patroon
+</p>
+
+<p>
+\[ \begin {pmatrix} +&amp;-&amp;+\\[-2pt] -&amp;+&amp;-\\[-2pt] +&amp;-&amp;+ \end {pmatrix}.              \]
+</p>
+<!--
+......   paragraph Voorbeeld ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-20">Voorbeeld</span>
+<a id="mkpiweb-autopage-20"></a>
+Voor \(A=\begin {pmatrix} 1&amp;2&amp;3\\ 4&amp;5&amp;6\\ 7&amp;8&amp;9 \end {pmatrix} \) vinden we o.a.:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                        5   6
+                                                                            A11 = (+)         = 5 · 9 − 6 · 8 = 45 − 48 = −3,
+                                                                                        8   9
+
+                                                                                        4   6
+                                                                            A12 = (−)         = −(4 · 9 − 6 · 7) = −(36 − 42) = +6,
+                                                                                        7   9
+
+                                                                                        1   3
+                                                                            A22 = (+)         = 1 · 9 − 3 · 7 = 9 − 21 = −12.
+                                                                                        7   9
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A_{11}&amp;=(+)\,\begin{vmatrix}5&amp;6\\ 8&amp;9\end {vmatrix}=5\cdot 9-6\cdot 8=45-48=-3,\\[4pt] A_{12}&amp;=(-)\,\begin{vmatrix}4&amp;6\\ 7&amp;9\end {vmatrix}=-(4\cdot 9-6\cdot
+7)=-(36-42)=+6,\\[4pt] A_{22}&amp;=(+)\,\begin{vmatrix}1&amp;3\\ 7&amp;9\end {vmatrix}=1\cdot 9-3\cdot 7=9-21=-12.
+\end{align*}
+(Analoge berekeningen geven \(A_{13}=-3\), \(A_{21}=+6\), \(A_{23}=+6\), \(A_{31}=-3\), \(A_{32}=+6\), \(A_{33}=-3\).)
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie methode van Laplace ......
+-->
+<h6 id="autosec-21">Definitie methode van Laplace</h6>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+Voor
+</p>
+
+<p>
+\[ A=\begin {pNiceMatrix}[columns-width=1.2em] a_{11}&amp;a_{12}&amp;a_{13}\\ a_{21}&amp;a_{22}&amp;a_{23}\\ a_{31}&amp;a_{32}&amp;a_{33} \CodeAfter \markeercellen {rowc}{1-1}{1-3} \end
+{pNiceMatrix} \]
+</p>
+
+<p>
+is de determinant gelijk aan de som van de producten van de elementen van een rij (of kolom) met hun overeenkomstige cofactoren:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                         det A = a11 A11 + a12 A12 + a13 A13         (volgens R1)
+                                                                                        a22   a23       a       a23       a        a22
+                                                                               = a11              − a12 21          + a13 21
+                                                                                        a32   a33       a31     a33       a31      a32
+
+                                                                               = a11 (a22 a33 − a23 a32 ) − a12 (a21 a33 − a23 a31 ) + a13 (a21 a32 − a22 a31 )
+                                                                               = a11 a22 a33 − a11 a23 a32 − a12 a21 a33 + a12 a23 a31 + a13 a21 a32 − a13 a22 a31 .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\det A &amp;= a_{11}A_{11}+a_{12}A_{12}+a_{13}A_{13}\qquad (\text {volgens R1})\\ &amp;= a_{11}\begin{vmatrix} a_{22} &amp; a_{23} \\ a_{32} &amp; a_{33} \end {vmatrix} - a_{12}\begin{vmatrix}
+a_{21} &amp; a_{23} \\ a_{31} &amp; a_{33} \end {vmatrix} + a_{13}\begin{vmatrix} a_{21} &amp; a_{22} \\ a_{31} &amp; a_{32} \end {vmatrix} \\[6pt] &amp;= a_{11}(a_{22}a_{33}-a_{23}a_{32}) -
+a_{12}(a_{21}a_{33}-a_{23}a_{31}) + a_{13}(a_{21}a_{32}-a_{22}a_{31})\\ &amp;= a_{11}a_{22}a_{33} - a_{11}a_{23}a_{32} - a_{12}a_{21}a_{33} + a_{12}a_{23}a_{31} + a_{13}a_{21}a_{32} -
+a_{13}a_{22}a_{31}.
+\end{align*}
+
+</p>
+
+<p>
+Ontwikkel ook eens volgens K2:
+</p>
+
+<p>
+\[ \begin {pNiceMatrix}[columns-width=1.2em] a_{11}&amp;a_{12}&amp;a_{13}\\ a_{21}&amp;a_{22}&amp;a_{23}\\ a_{31}&amp;a_{32}&amp;a_{33} \CodeAfter \markeercellen {colc}{1-2}{3-2} \end
+{pNiceMatrix} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       det A = a12 A12 + a22 A22 + a32 A32        (volgens K2)
+                                                                                                       a21   a23       a       a13       a        a13
+                                                                                              = −a12             + a22 11          − a32 11
+                                                                                                       a31   a33       a31     a33       a21      a23
+                                                                                              = ...
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\det A &amp;= a_{12}A_{12}+a_{22}A_{22}+a_{32}A_{32} \qquad (\text {volgens K2})\\ &amp;= -a_{12}\begin{vmatrix} a_{21} &amp; a_{23} \\ a_{31} &amp; a_{33} \end {vmatrix} +
+a_{22}\begin{vmatrix} a_{11} &amp; a_{13} \\ a_{31} &amp; a_{33} \end {vmatrix} - a_{32}\begin{vmatrix} a_{11} &amp; a_{13} \\ a_{21} &amp; a_{23} \end {vmatrix}\\ &amp;= \ldots
+\end{align*}
+
+</p>
+
+<p>
+Geeft zelfde resultaat!
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-22">Voorbeeld</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+\[ A= \begin {pmatrix} 1&amp;-3&amp;5\\ -2&amp;1&amp;-2\\ 1&amp;-5&amp;0 \end {pmatrix} \]
+</p>
+
+<p>
+Ontwikkel volgens rij&nbsp;1:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+               1   −2          −2   −2     −2     1
+det A = 1 ·           + (−3) ·         +5·
+              −5   0            1    0     1     −5
+       = 1 · (−10) − (−3) · 2 + 5 · 9
+       = −10 + 6 + 45 = 41.
+
+
+
+-->
+
+
+<p>
+
+\begin{flalign*}
+\det A &amp;= 1\cdot \begin{vmatrix}1&amp;-2\\ -5&amp;0\end {vmatrix} +(-3)\cdot \begin{vmatrix}-2&amp;-2\\ 1&amp;0\end {vmatrix} +5\cdot \begin{vmatrix}-2&amp;1\\ 1&amp;-5\end {vmatrix}
+&amp;&amp;\\[2pt] &amp;= 1\cdot (-10)\;-\;(-3)\cdot 2\;+\;5\cdot 9 &amp;&amp;\\ &amp;= -10+6+45=41. &amp;&amp;
+\end{flalign*}
+(Je kan dit ook volgens een andere rij of kolom uitwerken: het resultaat blijft \(41\).)
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-23">Besluit</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+Het resultaat van \(\det A\) hangt niet af van de gebruikte rij of kolom.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-24">Oefeningen</h6>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+p 129 n 3 (Laplace gebruiken)
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie regel van Sarrus ......
+-->
+<h6 id="autosec-25">Definitie regel van Sarrus</h6>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+\[ A=\begin {pmatrix} a_{11}&amp;a_{12}&amp;a_{13}\\ a_{21}&amp;a_{22}&amp;a_{23}\\ a_{31}&amp;a_{32}&amp;a_{33} \end {pmatrix} \]
+</p>
+
+<p>
+\[ \begin {pNiceMatrix}[columns-width=1.1em] a_{11}&amp;a_{12}&amp;a_{13}&amp;a_{11}&amp;a_{12}\\ a_{21}&amp;a_{22}&amp;a_{23}&amp;a_{21}&amp;a_{22}\\
+a_{31}&amp;a_{32}&amp;a_{33}&amp;a_{31}&amp;a_{32} \CodeAfter \celpijl {plusc}{1-1}{3-3} \celpijl {plusc}{1-2}{3-4} \celpijl {plusc}{1-3}{3-5} \end {pNiceMatrix} \qquad \begin
+{pNiceMatrix}[columns-width=1.1em] a_{11}&amp;a_{12}&amp;a_{13}&amp;a_{11}&amp;a_{12}\\ a_{21}&amp;a_{22}&amp;a_{23}&amp;a_{21}&amp;a_{22}\\ a_{31}&amp;a_{32}&amp;a_{33}&amp;a_{31}&amp;a_{32}
+\CodeAfter \celpijl {minusc}{3-1}{1-3} \celpijl {minusc}{3-2}{1-4} \celpijl {minusc}{3-3}{1-5} \end {pNiceMatrix} \]
+</p>
+
+<p>
+\[ \boxed {\; \det A = \bigl (a_{11}a_{22}a_{33}+a_{12}a_{23}a_{31}+a_{13}a_{21}a_{32}\bigr ) - \bigl (a_{13}a_{22}a_{31}+a_{11}a_{23}a_{32}+a_{12}a_{21}a_{33}\bigr ) \;} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-26">Oefeningen</h6>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+p 129 n 3 (Laplace gebruiken)
+</p>
+<!--
+...... subsection Determinant van hogere orde () ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">4&#x2003;</span>Determinant van hogere orde (\(n\times n\))</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Werkwijze ......
+-->
+<h6 id="autosec-28">Werkwijze</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+Ontwikkel volgens <b>Laplace</b> langs de <em>eenvoudigste</em> rij of kolom (met de meeste nullen) tot je orde \(3\) bereikt; werk dan verder met Laplace of Sarrus.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-29">Voorbeeld</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+ p    1 0 0
+ 1    q 0 0
+ 0    0 r 1
+ 0    0 1 s
+                q 0 0         1 0 0
+        R1
+        =     p 0 r 1 −1 0 r 1
+                0 1 s         0 1 s
+                                   
+        R1         r 1            r 1
+        =     p q          −1 1
+                   1 s            1 s
+                         
+        =     p q(rs − 1) − (rs − 1)
+        =     (pq − 1)(rs − 1).
+
+
+
+-->
+
+
+<p>
+
+\begin{flalign*}
+\MoveEqLeft \begin{vNiceMatrix}[columns-width=1.2em] p&amp;1&amp;0&amp;0\\ 1&amp;q&amp;0&amp;0\\ 0&amp;0&amp;r&amp;1\\ 0&amp;0&amp;1&amp;s \CodeAfter \markeercellen [.25]{rowc}{1-1}{1-4} \end
+{vNiceMatrix} \\ &amp;\weq [\text {R1}]{=} p\, \begin{vNiceMatrix}[columns-width=1.2em] q&amp;0&amp;0\\ 0&amp;r&amp;1\\ 0&amp;1&amp;s \CodeAfter \markeercellen [.25]{rowc}{1-1}{1-3} \end
+{vNiceMatrix} -1\, \begin{vNiceMatrix}[columns-width=1.2em] 1&amp;0&amp;0\\ 0&amp;r&amp;1\\ 0&amp;1&amp;s \CodeAfter \markeercellen [.25]{rowc}{1-1}{1-3} \end {vNiceMatrix} &amp;&amp;\\[4pt]
+&amp;\weq [\text {R1}]{=} p\left (q\begin{vmatrix}r&amp;1\\1&amp;s\end {vmatrix}\right ) - 1\left (1\begin{vmatrix}r&amp;1\\1&amp;s\end {vmatrix}\right ) &amp;&amp;\\[4pt] &amp;\weq {=} p\bigl
+(q(rs-1)\bigr ) - (rs-1) &amp;&amp;\\[2pt] &amp;\weq {=} (pq-1)(rs-1). &amp;&amp;
+\end{flalign*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-30">Oefeningen</h6>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+p 130 nr 4, n 5 <b> a, f</b>
+</p>
+<!--
+...... section Eigenschappen van determinanten ......
+-->
+<h4 id="autosec-31"><span class="sectionnumber">II&#x2003;</span>Eigenschappen van determinanten</h4>
+<a id="mkpiweb-autopage-31"></a>
+<!--
+...... subsection Hoofdeigenschap I ......
+-->
+<h5 id="autosec-32"><span class="sectionnumber">1&#x2003;</span>Hoofdeigenschap I</h5>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p>
+De determinant van een vierkante matrix is gelijk aan de determinant van zijn getransponeerde matrix:
+</p>
+
+<p>
+\[ \forall \,A\in \mathbb {R}^{n\times n}:\qquad \det A=\det A^{\mathsf T}.              \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-33">Bewijs.</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+Onmiddellijk gevolg v/d definitie (Laplace): ontwikkelen van \(\det A\) volgens de \(i^\text {e}\) rij geeft een analoge berekening als de ontw. van \(\det A^{\mathsf T}\) volgens de \(i^\text {e}\) kolom.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs (extra). ......
+-->
+<h6 id="autosec-34">Bewijs (extra).</h6>
+<a id="mkpiweb-autopage-34"></a>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:238pt ; ">
+
+<a id="mkpiweb-autopage-35"></a>
+
+<p>
+Ontwikkel \(\det A\) volgens de \(i^\text {e}\) rij:
+</p>
+
+<p>
+\[ \det A=\sum _{j=1}^n a_{ij}\,A_{ij}.       \]
+</p>
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:238pt ; ">
+
+<a id="mkpiweb-autopage-36"></a>
+
+<p>
+Ontwikkel \(\det A^{\mathsf T}\) volgens de \(i^\text {e}\) kolom:
+</p>
+
+<p>
+\[ \det A^{\mathsf T}=\sum _{j=1}^n a_{ij}\,A^{\mathsf T}_{ji}.        \]
+</p>
+
+</div>
+
+<p>
+De minor bij \(a_{ij}\) in \(A\) is het getransponeerde van de minor bij \(a_{ij}\) in \(A^{\mathsf T}\), en \(\det (M)=\det (M^{\mathsf T})\). Dus \(A_{ij}=A^{\mathsf T}_{ji}\) en term-per-term vallen de sommen
+samen: \(\det A=\det A^{\mathsf T}\).
+</p>
+<!--
+...... subsection Hoofdeigenschap II ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">2&#x2003;</span>Hoofdeigenschap II</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+Een determinant verandert van teken wanneer we twee rijen (of kolommen) verwisselen.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-38">Bewijs.</h6>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+<i>\(n=2\).</i>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                    a    b                                                         c   d
+                                                               D=                                                          D′ =
+                                                                    c    d                                                         a   b
+                                                                = ad − bc,                                                      = cb − ad
+                                                                                                                                = −(ad − bc)
+                                                                                                                                = −D.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+D &amp;= \begin{vmatrix}a&amp;b\\ c&amp;d\end {vmatrix} &amp; D&apos; &amp;= \begin{vmatrix}c&amp;d\\ a&amp;b\end {vmatrix}\\ &amp;= ad-bc, &amp; &amp;= cb-ad\\ &amp; &amp; &amp;= -(ad-bc)\\
+&amp; &amp; &amp;= -D.
+\end{align*}
+
+</p>
+
+<p>
+<i>\(n=3\).</i>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                          a1   a2   a3                                                            b1   b2   b3
+                                                 D   =    b1   b2   b3                                              D′    =       a1   a2   a3
+                                                          c1   c2   c3                                                            c1   c2   c3
+
+                                                     R3                                                                   R3
+                                                     =    c1 A31 + c2 A32 + c3 A33 ,                                      =      c1 A′31 + c2 A′32 + c3 A′33
+                                                                                                                          (∗)
+                                                                                                                          =      −c1 A31 − c2 A32 − c3 A33
+                                                                                                                          =      −(c1 A31 + c2 A32 + c3 A33 )
+                                                                                                                          =      −D
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+D &amp;\weq {=} \begin{vNiceMatrix} a_1&amp;a_2&amp;a_3\\ b_1&amp;b_2&amp;b_3\\ c_1&amp;c_2&amp;c_3 \CodeAfter \markeercellen {rowc}{3-1}{3-3} \end {vNiceMatrix} &amp; D&apos; &amp;\weq {=}
+\begin{vNiceMatrix} b_1&amp;b_2&amp;b_3\\ a_1&amp;a_2&amp;a_3\\ c_1&amp;c_2&amp;c_3 \CodeAfter \markeercellen {rowc}{3-1}{3-3} \end {vNiceMatrix} \\[8pt] &amp;\weq [\text {R3}]{=}
+c_1A_{31}+c_2A_{32}+c_3A_{33}, &amp; &amp;\weq [\text {R3}]{=} c_1A&apos;_{31}+c_2A&apos;_{32}+c_3A&apos;_{33}\\ &amp;&amp;&amp;\weq [(*)]=-c_1A_{31}-c_2A_{32}-c_3A_{33}\\ &amp;&amp;&amp;\weq
+{=}-(c_1A_{31}+c_2A_{32}+c_3A_{33})\\ &amp;&amp;&amp;\weq {=}-D
+\end{align*}
+(*) Door het verwisselen van rij \(1\) en \(2\) verandert elk minor in het cofactorteken: \(A&apos;_{3j}=-A_{3j}\) voor \(j=1,2,3\).
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs (extra). ......
+-->
+<h6 id="autosec-39">Bewijs (extra).</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+<i>\(n&gt;3\).</i> Kies een rij \(k\) die niet bij de twee verwisselde rijen hoort (die bestaat omdat \(n&gt;3\)) en ontwikkel volgens rij \(k\):
+</p>
+
+<p>
+\[ \det A=\sum _{j} a_{kj}A_{kj}.        \]
+</p>
+
+<p>
+Na het verwisselen van twee andere rijen blijven de elementen \(a_{kj}\) gelijk, maar in elk minor (een \((n-1)\times (n-1)\)-determinant) zijn die twee rijen ook verwisseld. Volgens de inductiehypothese verandert elke minor
+van teken, dus \(A&apos;_{kj}=-A_{kj}\) voor alle \(j\). Daarom
+</p>
+
+<p>
+\[ \det A&apos;=\sum _{j} a_{kj}A&apos;_{kj}=\sum _{j} a_{kj}(-A_{kj})=-(\det A). \]
+</p>
+
+<p>
+Het analoge resultaat geldt bij het verwisselen van twee kolommen.
+</p>
+<!--
+...... subsection Eigenschap 1 ......
+-->
+<h5 id="autosec-40"><span class="sectionnumber">3&#x2003;</span>Eigenschap 1</h5>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+Een determinant met gelijke rijen (of kolommen) is gelijk aan nul.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-41">Bewijs.</h6>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+\[ \left . \begin {aligned} &amp;\text {2 rijen verwisselen} &amp;&amp;\stackrel {(\text {H.E.\ II})}{\Rightarrow }&amp;&amp; D&apos;=-D \\ &amp;\text {2 gelijke rijen verwisselen}
+&amp;&amp;\stackrel {\phantom {(\text {H.E.\ II})}}{\Rightarrow }&amp;&amp; D&apos;=D \end {aligned} \right \} \;\Rightarrow \; D=-D \;\Rightarrow \; D=0. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-42">Voorbeeld</h6>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+\[ \begin {vmatrix} 4 &amp; 5 \\ 4 &amp; 5 \end {vmatrix} = 4\cdot 5 - 5\cdot 4 = 0 \qquad \text {(Rij 1 = Rij 2).} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Tegenvoorbeeld (omgekeerd niet geldig) ......
+-->
+<h6 id="autosec-43">Tegenvoorbeeld (omgekeerd niet geldig)</h6>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+<i>Let op, de omgekeerde eigenschap is niet geldig!</i><br />
+Een determinant kan nul zijn zonder dat de matrix gelijke rijen of kolommen heeft:
+</p>
+
+<p>
+\[ \begin {vmatrix} 1 &amp; 2 \\ 3 &amp; 6 \end {vmatrix} = 1\cdot 6 - 2\cdot 3 = 0.   \]
+</p>
+<!--
+...... subsection Hoofdeigenschap III ......
+-->
+<h5 id="autosec-44"><span class="sectionnumber">4&#x2003;</span>Hoofdeigenschap III</h5>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p>
+De som van de producten van de elementen van een <em>rij</em> (resp. kolom) met de <em>cofactoren van een andere rij</em> (resp. kolom) is nul.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-45">Bewijs.</h6>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p>
+Stel
+</p>
+
+<p>
+\[ A=\begin {pNiceMatrix} a_{11}&amp;a_{12}&amp;a_{13}\\ a_{21}&amp;a_{22}&amp;a_{23}\\ a_{31}&amp;a_{32}&amp;a_{33} \CodeAfter \markeercellen {lichtblauw}{1-1}{3-1} \markeercellen
+{lichtroze}{1-3}{3-3} \end {pNiceMatrix}. \]
+</p>
+
+<p>
+Neem (voorbeeld) <em>kolom 1</em> met de <em>cofactoren van kolom 3</em>:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                  a21    a22       a     a12       a     a12
+                                                                    a11 A13 + a21 A23 + a31 A33     =       a11              − a21 11        + a31 11
+                                                                                                                  a31    a32       a31   a32       a21   a22
+                                                                                                            a11    a12    a11
+                                                                                                   K3
+                                                                                                    =       a21    a22    a21
+                                                                                                            a31    a32    a31
+                                                                                                  (Eig.1)
+                                                                                                    =       0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+a_{11}A_{13}+a_{21}A_{23}+a_{31}A_{33} &amp;\weq {=} a_{11}\begin{vmatrix}a_{21}&amp;a_{22}\\ a_{31}&amp;a_{32}\end {vmatrix} - a_{21}\begin{vmatrix}a_{11}&amp;a_{12}\\ a_{31}&amp;a_{32}\end
+{vmatrix} + a_{31}\begin{vmatrix}a_{11}&amp;a_{12}\\ a_{21}&amp;a_{22}\end {vmatrix}\\[2pt] &amp;\weq [K3]{=}\begin{vNiceMatrix} a_{11}&amp;a_{12}&amp;a_{11}\\ a_{21}&amp;a_{22}&amp;a_{21}\\
+a_{31}&amp;a_{32}&amp;a_{31} \CodeAfter \markeercellen {lichtblauw}{1-1}{3-1} \markeercellen {lichtblauw}{1-3}{3-3} \end {vNiceMatrix}\\ &amp;\weq [(Eig. 1)]{=} 0
+\end{align*}
+
+</p>
+<!--
+......   paragraph Besluit ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-46">Besluit</span>
+<a id="mkpiweb-autopage-46"></a>
+
+</p>
+
+<p>
+\[ \boxed {\;\displaystyle \sum _{k=1}^n a_{ik}\,A_{jk}= \begin {cases} 0,&amp; i\neq j,\\[2pt] \det A,&amp; i=j.   \end {cases}\;} \]
+</p>
+
+<p>
+(Analoge uitspraken gelden voor kolommen.)
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs (extra). ......
+-->
+<h6 id="autosec-47">Bewijs (extra).</h6>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+Neem \(A=(a_{ij})\) en fixeers \(i\neq j\). Vervang in \(A\) de \(j^\text {e}\) rij door de \(i^\text {e}\) rij; noem de nieuwe matrix \(B\). Dan heeft \(B\) twee gelijke rijen, dus \(\det B=0\) (Eigenschap&nbsp;1).
+</p>
+
+<p>
+Ontwikkel \(\det B\) volgens de \(j^\text {e}\) rij: de elementen in die rij zijn \(a_{i1},\dots ,a_{in}\) en de bijhorende cofactoren zijn precies \(A_{j1},\dots ,A_{jn}\) van de oorspronkelijke matrix \(A\). Dus
+</p>
+
+<p>
+\[ 0=\det B=\sum _{k=1}^n a_{ik}\,A_{jk}\qquad (i\neq j).          \]
+</p>
+
+<p>
+Voor \(i=j\) is dezelfde som de Laplace-ontwikkeling van \(\det A\) langs rij \(i\), dus \(\sum _{k=1}^n a_{ik}A_{ik}=\det A\).
+</p>
+<!--
+...... subsection Hoofdeigenschap IV ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">5&#x2003;</span>Hoofdeigenschap IV</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+Als we de elementen van één rij (of kolom) van een matrix met een getal \(k\) vermenigvuldigen, dan wordt de determinant met \(k\) vermenigvuldigd.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-49">Bewijs.</h6>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+<span class="hint">Zij \(A&apos; \) verkregen uit \(A\) door rij \(i\) met \(k\) te vermenigvuldigen. Laplace-ontwikkeling volgens die rij \(i\) (hier als vb. R2):</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                         a11      a12    a13
+                                                                                          det A′   =     ka21    ka22   ka23
+                                                                                                         a31      a32    a33
+                                                                                                   R2
+                                                                                                   =     ka21 A21 + ka22 A22 + ka23 A23
+                                                                                                   =     k (a21 A21 + a22 A22 + a23 A23 )
+                                                                                                   =     k det A.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\det A&apos; &amp;\weq {=} \begin{vNiceMatrix} a_{11}&amp;a_{12}&amp;a_{13}\\ k a_{21}&amp;k a_{22}&amp;k a_{23}\\ a_{31}&amp;a_{32}&amp;a_{33} \CodeAfter \markeercellen {rowc}{2-1}{2-3} \end
+{vNiceMatrix} \\ &amp;\weq [\text {R2}]{=} k a_{21}A_{21}+k a_{22}A_{22}+k a_{23}A_{23} \\ &amp;\weq {=} k\,(a_{21}A_{21}+a_{22}A_{22}+a_{23}A_{23}) \\ &amp;\weq {=} k\,\det A.
+\end{align*}
+(Analoog voor een andere rij of een kolom.)
+</p>
+<!--
+...... subsection Eigenschap 2 ......
+-->
+<h5 id="autosec-50"><span class="sectionnumber">6&#x2003;</span>Eigenschap 2</h5>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p>
+We mogen een <em>gemeenschappelijke factor</em> uit één rij (of kolom) vóór de determinant zetten.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-51">Bewijs.</h6>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<p>
+Direct gevolg van Hoofdeigenschap&nbsp;IV met \(k\) als gemeenschappelijke factor.
+</p>
+<!--
+...... subsection Eigenschap 3 ......
+-->
+<h5 id="autosec-52"><span class="sectionnumber">7&#x2003;</span>Eigenschap 3</h5>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+Als we <em>alle</em> elementen van een determinant van \(n^\text {e}\) orde met een ree&#x0308;el getal \(k\) vermenigvuldigen, dan wordt de determinant met \(k^{\,n}\) vermenigvuldigd:
+</p>
+
+<p>
+\[ \det (kA)=k^{\,n}\det A. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-53">Bewijs.</h6>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Pas Hoofdeigenschap&nbsp;IV na elkaar toe op de \(n\) rijen (of \(n\) kolommen): elke stap levert een factor \(k\). Dus \(k^n\).
+</p>
+<!--
+...... subsection Eigenschap 4 ......
+-->
+<h5 id="autosec-54"><span class="sectionnumber">8&#x2003;</span>Eigenschap 4</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+Een determinant met twee <em>evenredige</em> rijen (of kolommen) is gelijk aan nul.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-55">Bewijs.</h6>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+Gevolg van Eigenschap&nbsp;1 en Eigenschap&nbsp;2.
+</p>
+<!--
+...... subsection Hoofdeigenschap V (optelregel) ......
+-->
+<h5 id="autosec-56"><span class="sectionnumber">9&#x2003;</span>Hoofdeigenschap V (optelregel)</h5>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p>
+Als in twee \(n\times n\)-determinanten \(n-1\) rijen (resp. kolommen) gelijk zijn, dan is de <em>som</em> van die determinanten gelijk aan de determinant waarin de overblijvende rij (resp. kolom) wordt <em>opgeteld</em>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-57">Bewijs.</h6>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<p>
+<span class="hint">We bewijzen de eigenschap voor kolommen (bv. de 3<sup>e</sup> kolom) door het linkerlid te ontwikkelen. We ontwikkelen beide determinanten naar de kolom die verschilt:</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                           a11   a12   a13   a11     a12   a′13
+                                                                           a21   a22   a23 + a21     a22   a′23
+                                                                           a31   a32   a33   a31     a32   a′33
+                                                                                  K3
+                                                                                         a13 A13 + a23 A23 + a33 A33 + a′13 A13 + a′23 A23 + a′33 A33
+                                                                                                                                                     
+                                                                                  =
+                                                                                  =     (a13 + a′13 )A13 + (a23 + a′23 )A23 + (a33 + a′33 )A33
+                                                                                         a11   a12   a13 + a′13
+                                                                                  K3
+                                                                                  =      a21   a22   a23 + a′23
+                                                                                         a31   a32   a33 + a′33
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\MoveEqLeft \begin{vNiceMatrix} a_{11}&amp;a_{12}&amp;a_{13}\\ a_{21}&amp;a_{22}&amp;a_{23}\\ a_{31}&amp;a_{32}&amp;a_{33} \CodeAfter \markeercellen {colc}{1-3}{3-3} \end {vNiceMatrix} +
+\begin{vNiceMatrix} a_{11}&amp;a_{12}&amp;a&apos;_{13}\\ a_{21}&amp;a_{22}&amp;a&apos;_{23}\\ a_{31}&amp;a_{32}&amp;a&apos;_{33} \CodeAfter \markeercellen {colc}{1-3}{3-3} \end {vNiceMatrix}
+\\ &amp;\weq [\text {K3}]{=} \bigl (a_{13}A_{13}+a_{23}A_{23}+a_{33}A_{33}\bigr ) + \bigl (a&apos;_{13}A_{13}+a&apos;_{23}A_{23}+a&apos;_{33}A_{33}\bigr ) \\ &amp;\weq {=}
+(a_{13}+a&apos;_{13})A_{13}+(a_{23}+a&apos;_{23})A_{23}+(a_{33}+a&apos;_{33})A_{33} \\ &amp;\weq [\text {K3}]{=} \begin{vNiceMatrix} a_{11}&amp;a_{12}&amp;a_{13}+a&apos;_{13}\\
+a_{21}&amp;a_{22}&amp;a_{23}+a&apos;_{23}\\ a_{31}&amp;a_{32}&amp;a_{33}+a&apos;_{33} \CodeAfter \markeercellen {colc}{1-3}{3-3} \end {vNiceMatrix}
+\end{align*}
+<span class="hint">De cofactoren \(A_{13},A_{23},A_{33}\) zijn in beide determinanten dezelfde, omdat de andere kolommen identiek zijn. De rij-versie is volstrekt analoog.</span>
+</p>
+<!--
+...... subsection Hoofdeigenschap VI ......
+-->
+<h5 id="autosec-58"><span class="sectionnumber">10&#x2003;</span>Hoofdeigenschap VI</h5>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<p>
+Als we bij één rij (of kolom) een veelvoud van een andere rij (of kolom) optellen, dan blijft de determinant gelijk.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-59">Bewijs.</h6>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<p>
+<span class="hint">Voor het kolom-geval (\(K_1 \leftarrow K_1+kK_2\); analoog voor rijen):</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                          a11 + ka12   a12   a13               a11      a12   a13   ka12      a12    a13
+                                                                                                   (H.E. V)
+                                                                          a21 + ka22   a22   a23      =        a21      a22   a23 + ka22      a22    a23
+                                                                          a31 + ka32   a32   a33               a31      a32   a33   ka32      a32    a33
+
+                                                                                                                a11     a12   a13       a12    a12      a13
+                                                                                                   (H.E. IV)
+                                                                                                      =         a21     a22   a23 + k · a22    a22      a23
+                                                                                                                a31     a32   a33       a32    a32      a33
+                                                                                                               |        {z       }     |       {z          }
+                                                                                                                      det A                   = 0 (*)
+
+                                                                                                      =        det A.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\begin{vmatrix} a_{11}+k a_{12} &amp; a_{12} &amp; a_{13}\\ a_{21}+k a_{22} &amp; a_{22} &amp; a_{23}\\ a_{31}+k a_{32} &amp; a_{32} &amp; a_{33} \end {vmatrix} &amp;\weq [\text {(H.E. V)}]{=}
+\begin{vmatrix} a_{11} &amp; a_{12} &amp; a_{13}\\ a_{21} &amp; a_{22} &amp; a_{23}\\ a_{31} &amp; a_{32} &amp; a_{33} \end {vmatrix} \;+\; \begin{vmatrix} k a_{12} &amp; a_{12} &amp; a_{13}\\
+k a_{22} &amp; a_{22} &amp; a_{23}\\ k a_{32} &amp; a_{32} &amp; a_{33} \end {vmatrix} \\[6pt] &amp;\weq [\text {(H.E. IV)}]{=} \underbrace { \begin{vmatrix} a_{11} &amp; a_{12} &amp; a_{13}\\
+a_{21} &amp; a_{22} &amp; a_{23}\\ a_{31} &amp; a_{32} &amp; a_{33} \end {vmatrix}}_{\det A} \;+\; k\cdot \underbrace { \begin{vmatrix} a_{12} &amp; a_{12} &amp; a_{13}\\ a_{22} &amp; a_{22}
+&amp; a_{23}\\ a_{32} &amp; a_{32} &amp; a_{33} \end {vmatrix}}_{=\,0\ \text {(*)}}\\ &amp;\weq {=} \det A.
+\end{align*}
+
+</p>
+
+<p>
+<span class="hint">(*) Twee gelijke kolommen</span>
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-60">Oefeningen</h6>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+p 142 nr 1
+</p>
+<!--
+...... subsection Toepassing 1: determinant berekenen door verlaging van de orde ......
+-->
+<h5 id="autosec-61"><span class="sectionnumber">11&#x2003;</span>Toepassing 1: determinant berekenen door verlaging van de orde</h5>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Algemeen ......
+-->
+<h6 id="autosec-62">Algemeen</h6>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                 a11   a12   a13              a11     a12     a13
+                                                                   R2 ←...
+                                                 a21   a22   a23      =        0      b22     b23                         (nullen maken in K1)
+                                                                   R3 ←...
+                                                 a31   a32   a33               0      b32     b33
+
+                                                                   ontw. K1         b22     b23
+                                                                      =       a11                                         (orde is verlaagd van 3 naar 2)
+                                                                                    b32     b33
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\begin{vmatrix} a_{11} &amp; a_{12} &amp; a_{13} \\ a_{21} &amp; a_{22} &amp; a_{23} \\ a_{31} &amp; a_{32} &amp; a_{33} \end {vmatrix} &amp; \weq [R_2 \leftarrow \dots ][R_3 \leftarrow \dots
+]{=} \begin{vmatrix} a_{11} &amp; a_{12} &amp; a_{13} \\ 0 &amp; b_{22} &amp; b_{23} \\ 0 &amp; b_{32} &amp; b_{33} \end {vmatrix} &amp;&amp; \text {(nullen maken in K1)} \\[3pt] &amp;\weq
+[\text {ontw. K1}]{=} a_{11} \begin{vmatrix} b_{22} &amp; b_{23} \\ b_{32} &amp; b_{33} \end {vmatrix} &amp;&amp; \text {(orde is verlaagd van 3 naar 2)}
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opmerking ......
+-->
+<h6 id="autosec-63">Opmerking</h6>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Werkt ook met orde \(&gt; 3\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Werkt ook met R1
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld: determinant van Vandermonde (orde 3) ......
+-->
+<h6 id="autosec-64">Voorbeeld: determinant van Vandermonde (orde 3)</h6>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                              1   a   a2
+                                                 V     =      1   b   b2
+                                                              1   c   c2
+                                                              1  a             a2
+                                                     R2 −R1
+                                                       =      0 b−a        b − a2
+                                                                            2
+                                                                                                                     (nullen maken m.b.v. zelfde rij/kolom)
+                                                     R3 −R1
+                                                              0 c−a        c 2 − a2
+
+                                                              b−a     b2 − a 2
+                                                       =                                                             (verlaging v/d orde)
+                                                              c−a     c 2 − a2
+
+                                                                                 1    b+a
+                                                       =      (b − a)(c − a)                                         (factoren voorop zetten)
+                                                                                 1    c+a
+
+                                                     R2 −R1                      1    b+a
+                                                       =      (b − a)(c − a)
+                                                                                 0    c−b
+
+                                                       =      (b − a)(c − a)(c − b)                                  (ontbinding in factoren).
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+V &amp; \weq {=} \begin{vmatrix} 1&amp;a&amp;a^{2}\\ 1&amp;b&amp;b^{2}\\ 1&amp;c&amp;c^{2} \end {vmatrix}&amp;&amp;\\ &amp; \weq [R_2-R_1][R_3-R_1]{=} \begin{vmatrix} 1 &amp; a &amp; a^{2}\\ 0
+&amp; b-a &amp; b^{2}-a^{2}\\ 0 &amp; c-a &amp; c^{2}-a^{2} \end {vmatrix} &amp;&amp; \text {(nullen maken m.b.v.\ zelfde rij/kolom)} \\[4pt] &amp;\weq {=} \begin{vmatrix} b-a &amp;
+b^{2}-a^{2}\\ c-a &amp; c^{2}-a^{2} \end {vmatrix} &amp;&amp; \text {(verlaging v/d orde)} \\[6pt] &amp;\weq {=} (b-a)(c-a)\; \begin{vmatrix} 1 &amp; b+a\\ 1 &amp; c+a \end {vmatrix}
+&amp;&amp; \text {(factoren voorop zetten)} \\[6pt] &amp;\weq [R_2-R_1]{=} (b-a)(c-a)\; \begin{vmatrix} 1 &amp; b+a\\ 0 &amp; c-b \end {vmatrix} &amp;&amp; \\[6pt] &amp;\weq {=}
+(b-a)(c-a)(c-b) &amp;&amp; \text {(ontbinding in factoren).}
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\;\displaystyle \begin {vmatrix} 1&amp;a&amp;a^{2}\\ 1&amp;b&amp;b^{2}\\ 1&amp;c&amp;c^{2} \end {vmatrix} =(b-a)(c-a)(c-b)\;} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-65">Oefeningen</h6>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<p>
+p 142 nr 2
+</p>
+<!--
+...... subsection Toepassing 2: Bewijzen dat een determinant gelijk is aan nul ......
+-->
+<h5 id="autosec-66">Toepassing 2: Bewijzen dat een determinant gelijk is aan nul</h5>
+<a id="mkpiweb-autopage-66"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Nuttige eigenschappen ......
+-->
+<h6 id="autosec-67">Nuttige eigenschappen</h6>
+<a id="mkpiweb-autopage-67"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> twee <em>evenredige</em> rijen/kolommen \(\Rightarrow \det =0\);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> een <em>nulrij</em>/nulkolom \(\Rightarrow \det =0\);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> met rij-operaties van de vorm \(R_i\leftarrow R_i+\lambda R_j\) kan je een rij evenredig maken met een andere (idem voor kolommen);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> lukt het niet rechtstreeks: gebruik de vorige eigenschappen na eenvoudige bewerkingen (factoren uittrekken, rijen optellen, &#x2026;).
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-68">Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-68"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                              b+c     a   1
+                                                 D     =      c+a     b   1
+                                                              a+b     c   1
+                                                              a+b+c       a 1
+                                                     K1 +K2
+                                                       =      a+b+c       b 1
+                                                              a+b+c       c 1
+
+                                                                          1   a 1
+                                                       =      (a + b + c) 1   b 1                                     (factor uit K1)
+                                                                          1   c 1
+
+                                                       =      0                                                       (twee gelijke kolommen: K1=K3)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+D &amp;\weq {=} \begin{vmatrix} b+c &amp; a &amp; 1\\ c+a &amp; b &amp; 1\\ a+b &amp; c &amp; 1 \end {vmatrix} \\ &amp;\weq [K_1 + K_2]{=} \begin{vmatrix} a+b+c &amp; a &amp; 1\\ a+b+c &amp; b
+&amp; 1\\ a+b+c &amp; c &amp; 1 \end {vmatrix} \\[6pt] &amp;\weq {=} (a+b+c) \begin{vmatrix} 1 &amp; a &amp; 1\\ 1 &amp; b &amp; 1\\ 1 &amp; c &amp; 1 \end {vmatrix} &amp;&amp; \text {(factor
+uit K1)} \\[6pt] &amp;\weq {=} 0 &amp;&amp; \text {(twee gelijke kolommen: K1=K3)}
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-69">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                           ca
+                                                                  0     −          1
+                                                                            b
+                                                              c+a          b
+                                                 D      =                          1
+                                                               3          3
+                                                              c+a      b2 + ca
+                                                                                   1
+                                                               2          2b
+
+                                                              1
+                                                                  0        −ca         1                                 (noemers vooraan)
+                                                        =        c+a        b2         3                                 1/3 uit R2, 1/2 uit R3, 1/b uit K2
+                                                              6b
+                                                                 c+a     b2 + ca       2
+
+                                                                  0      −ca 1
+                                                     R3 −R2   1
+                                                        =        c+a      b2  1
+                                                              6b
+                                                                  0       ca −1
+
+                                                                  0      −ca 1
+                                                      −R3     1
+                                                        =        c+a      b2 1
+                                                              6b
+                                                                  0      −ca 1
+
+                                                        =     0                                                          (twee gelijke rijen: R3=R1)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+D &amp;\weq {=} \begin{vmatrix} 0 &amp; -\dfrac {ca}{b} &amp; 1\\[6pt] \dfrac {c+a}{3} &amp; \dfrac {b}{3} &amp; 1\\[8pt] \dfrac {c+a}{2} &amp; \dfrac {\,b^2+ca\,}{2b} &amp; 1 \end {vmatrix}
+\\[6pt] &amp;\weq {=} \frac {1}{6b}\, \begin{vmatrix} 0 &amp; -ca &amp; 1\\ c+a &amp; b^{2} &amp; 3\\ c+a &amp; b^{2}+ca &amp; 2 \end {vmatrix} &amp;&amp; \shortstack [l]{\text {(noemers
+vooraan)} \\ \scriptsize \text {1/3 uit R2, 1/2 uit R3, 1/b uit K2}} \\[6pt] &amp;\weq [R_3-R_2]{=} \frac {1}{6b}\, \begin{vmatrix} 0 &amp; -ca &amp; 1\\ c+a &amp; b^{2} &amp; 1\\ 0 &amp; ca
+&amp; -1 \end {vmatrix} \\[6pt] &amp;\weq [-R_3]{=} \frac {1}{6b}\, \begin{vmatrix} 0 &amp; -ca &amp; 1\\ c+a &amp; b^{2} &amp; 1\\ 0 &amp; -ca &amp; 1 \end {vmatrix} \\[6pt] &amp;\weq {=} 0
+&amp;&amp; \text {(twee gelijke rijen: R3=R1)}
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-70">Oefeningen</h6>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+p 142 nr 3 <b>g, h</b>, 11
+</p>
+<!--
+...... subsection Determinant van het product van matrices ......
+-->
+<h5 id="autosec-71"><span class="sectionnumber">12&#x2003;</span>Determinant van het product van \(2\) matrices</h5>
+<a id="mkpiweb-autopage-71"></a>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-72">Voorbeeld</h5>
+<a id="mkpiweb-autopage-72"></a>
+
+
+<p>
+\[ A=\begin {pmatrix} 1&amp;0&amp;2\\ 3&amp;1&amp;0\\ 0&amp;1&amp;6 \end {pmatrix}, \quad B=\begin {pmatrix} 2&amp;-1&amp;3\\ 0&amp; 1&amp;0\\ 5&amp; 2&amp;1 \end {pmatrix} \]
+</p>
+
+<p>
+\[ \det A=12,\qquad \det B=-13 \]
+</p>
+
+<p>
+\[ \det A\cdot \det B=-156 \;=\; \det (A\,B)\quad (\text {GRM}).   \]
+</p>
+<!--
+...... subsection Stelling ......
+-->
+<h5 id="autosec-73">Stelling</h5>
+<a id="mkpiweb-autopage-73"></a>
+
+
+<p>
+Voor alle \(A,B\in \mathbb {R}^{n\times n}\): \(\;\det (A\,B)=\det A\cdot \det B\).
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-74">Bewijs.</h6>
+<a id="mkpiweb-autopage-74"></a>
+
+
+<p>
+[Voor \(n=2\); analoog voor grotere \(n\)]
+</p>
+
+<p>
+\[ A=\begin {pmatrix}a&amp;b\\ c&amp;d\end {pmatrix},\quad B=\begin {pmatrix}x&amp;y\\ u&amp;v\end {pmatrix},\quad A B=\begin {pmatrix}ax+bu&amp;ay+bv\\ cx+du&amp;cy+dv\end {pmatrix}.   \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                            ax + bu    ay + bv
+                                             det(AB) =
+                                                            cx + du    cy + dv
+                                                            ax   ay   bu       ay   ax   bv   bu   bv
+                                                        =           +             +         +
+                                                            cx   cy   du       cy   cx   dv   du   dv
+                                                                a a       b      a      a   b       b b
+                                                        = xy          +uy          + xv       + uv
+                                                                c c       d      c      c   d       d d
+                                                               | {z }                              | {z }
+                                                                 =0                                 =0
+
+                                                                 a    b      a    b                                                     kolommen van
+                                                        = − uy          + xv                                                            plaats wisselen
+                                                                 c    d      c    d
+
+                                                                       a   b
+                                                        = (xv − uy)
+                                                                       c   d
+                                                        = (ad − bc)(xv − yu)
+                                                        = det A · det B.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\det (AB) &amp;= \begin{vmatrix}ax+bu&amp;ay+bv\\ cx+du&amp;cy+dv\end {vmatrix}\\[2pt] &amp;=\begin{vmatrix}ax&amp;ay\\ cx&amp;cy\end {vmatrix} +\begin{vmatrix}bu&amp;ay\\ du&amp;cy\end
+{vmatrix} +\begin{vmatrix}ax&amp;bv\\ cx&amp;dv\end {vmatrix} +\begin{vmatrix}bu&amp;bv\\ du&amp;dv\end {vmatrix}\\[2pt] &amp;=xy\,\underbrace {\begin{vmatrix}a&amp;a\\ c&amp;c\end
+{vmatrix}}_{=\,0} +uy\,\begin{vmatrix}b&amp;a\\ d&amp;c\end {vmatrix} +xv\,\begin{vmatrix}a&amp;b\\ c&amp;d\end {vmatrix} +uv\,\underbrace {\begin{vmatrix}b&amp;b\\ d&amp;d\end
+{vmatrix}}_{=\,0}\\[2pt] &amp;= -\, uy\begin{vmatrix}a&amp;b\\ c&amp;d\end {vmatrix} + xv\,\begin{vmatrix}a&amp;b\\ c&amp;d\end {vmatrix} &amp;&amp; \shortstack [l]{\text {kolommen van}\\\text
+{plaats wisselen}}\\[2pt] &amp;= (xv-uy)\,\begin{vmatrix}a&amp;b\\ c&amp;d\end {vmatrix}\\[2pt] &amp;=(ad-bc)(xv-yu)\\[2pt] &amp;=\det A\cdot \det B.
+\end{align*}
+
+</p>
+<!--
+...... subsection Overzicht beweringen ......
+-->
+<h5 id="autosec-75">Overzicht beweringen</h5>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+\[ \forall A,B\in \mathbb {R}^{n\times n}:\qquad \begin {cases} \det (A+B)\neq \det A+\det B,\\[2pt] \det (kA)=k^{\,n}\det A,\\[2pt] \det (A\,B)=\det A\cdot \det B. \end {cases} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-76">Oefeningen</h6>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<p>
+p143 e.v. nr 7
+</p>
+
+<p>
+In het algemeen \(A\,B\neq B\,A\), maar
+</p>
+
+<p>
+\[ \det (A\,B)=\det A\,\det B=\det B\,\det A=\det (B\,A). \]
+</p>
+<!--
+...... section Omgekeerde van een -matrix ......
+-->
+<h4 id="autosec-77"><span class="sectionnumber">III&#x2003;</span>Omgekeerde van een \(n\times n\)-matrix</h4>
+<a id="mkpiweb-autopage-77"></a>
+<!--
+...... subsection Reguliere en singuliere matrices ......
+-->
+<h5 id="autosec-78"><span class="sectionnumber">1&#x2003;</span>Reguliere en singuliere matrices</h5>
+<a id="mkpiweb-autopage-78"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-79">Definitie</h6>
+<a id="mkpiweb-autopage-79"></a>
+
+
+<p>
+Voor alle \(A\in \mathbb {R}^{n\times n}\):
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(A^{-1}\) is de <b>omgekeerde matrix</b> van \(A\) \(\Leftrightarrow \) \(A\,A^{-1}=A^{-1}A=I_n\), met \(A,A^{-1},I_n\in \mathbb {R}^{n\times n}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(A\) is <b>regulier</b> (= <em>inverteerbaar</em>) \(\;\Leftrightarrow \;\) \(A^{-1}\) bestaat.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(A\) is <b>singulier</b> \(\;\Leftrightarrow \;\) \(A^{-1}\) niet bestaat.
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Eigenschap 1 ......
+-->
+<h6 id="autosec-80">Eigenschap 1</h6>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+\(A\) is regulier \(\Rightarrow \) \(\det A\neq 0\).
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-81">Bewijs.</h6>
+<a id="mkpiweb-autopage-81"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                    A regulier ⇒ A−1 bestaat
+                                                             ⇒ A A−1 = In
+                                                                                                                                    links en rechts
+                                                             ⇒ det(A A−1 ) = det In                                               determinant nemen
+
+
+                                                             ⇒ (det A) (det A−1 ) = 1
+                                                             ⇒ det A ̸= 0.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A \text { regulier} &amp;\;\Rightarrow \; A^{-1} \text { bestaat} \\ &amp;\;\Rightarrow \; A\,A^{-1}=I_n \\ &amp;\;\Rightarrow \; \det (A\,A^{-1}) = \det I_n &amp;&amp; \shortstack {\tiny
+\text {links en rechts}\\ \tiny \text {determinant nemen}} \\ &amp;\;\Rightarrow \; (\det A)\,(\det A^{-1}) = 1 \\ &amp;\;\Rightarrow \; \det A \neq 0.
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-82">Oefeningen</h6>
+<a id="mkpiweb-autopage-82"></a>
+
+
+<p>
+p 143 nr 8
+</p>
+<!--
+...... subsection Adjunctmatrix en ......
+-->
+<h5 id="autosec-83"><span class="sectionnumber">2&#x2003;</span>Adjunctmatrix en \(A^{-1}\)</h5>
+<a id="mkpiweb-autopage-83"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-84">Definitie</h6>
+<a id="mkpiweb-autopage-84"></a>
+
+
+<p>
+De adjunctmatrix \(\operatorname {adj}A\) van een gegeven \(n\times n\)-matrix \(A\) is de getransponeerde \(n\times n\)-matrix die we bekomen door elk element \(a_{ij}\) van \(A\) te vervangen door zijn cofactor
+\(A_{ij}\):
+</p>
+
+<p>
+\[ \operatorname {adj}A=[A_{ij}]^{\mathsf T}=[A_{ji}].        \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-85">Voorbeeld</h6>
+<a id="mkpiweb-autopage-85"></a>
+
+
+<p>
+\[ A=\begin {pmatrix} 1&amp;0&amp;2\\ 3&amp;-1&amp;5\\ 2&amp;6&amp;1 \end {pmatrix} \quad \Longrightarrow \quad \operatorname {adj}A= \begin {pmatrix} -31&amp;12&amp;2\\ 7&amp;-3&amp;1\\
+20&amp;-6&amp;-1 \end {pmatrix}. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Eigenschap 2 ......
+-->
+<h6 id="autosec-86">Eigenschap 2</h6>
+<a id="mkpiweb-autopage-86"></a>
+
+
+<p>
+\[ A\cdot (\operatorname {adj}A)=(\operatorname {adj}A)\cdot A=(\det A)\,I. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-87">Bewijs.</h6>
+<a id="mkpiweb-autopage-87"></a>
+
+
+<p>
+\[ A= \begin {pmatrix} a_{11}&amp;a_{12}&amp;a_{13}\\ a_{21}&amp;a_{22}&amp;a_{23}\\ a_{31}&amp;a_{32}&amp;a_{33} \end {pmatrix}, \qquad \operatorname {adj}A= \begin {pmatrix}
+A_{11}&amp;A_{21}&amp;A_{31}\\ A_{12}&amp;A_{22}&amp;A_{32}\\ A_{13}&amp;A_{23}&amp;A_{33} \end {pmatrix}. \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                               
+                                                                                 a11 a12 a13        A11 A21 A31
+                                                                 A · (adj A) = a21 a22 a23  A12 A22 A32 
+                                                                                 a31 a32 a33        A13 A23 A33
+                                                                                                                                              
+                                                                                 a11 A11 + a12 A12 + a13 A13            ...               ...
+                                                                             = a21 A11 + a22 A12 + a23 A13 a21 A21 + a22 A22 + a23 A23   . . . .
+                                                                                                                                              
+                                                                                 a31 A11 + a32 A12 + a33 A13            ...               ...
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A\cdot (\operatorname {adj}A) &amp;= \begin{pmatrix} a_{11}&amp;a_{12}&amp;a_{13}\\ a_{21}&amp;a_{22}&amp;a_{23}\\ a_{31}&amp;a_{32}&amp;a_{33} \end {pmatrix} \begin{pmatrix}
+A_{11}&amp;A_{21}&amp;A_{31}\\ A_{12}&amp;A_{22}&amp;A_{32}\\ A_{13}&amp;A_{23}&amp;A_{33} \end {pmatrix}\\[4pt] &amp;= \begin{pmatrix} a_{11}A_{11}+a_{12}A_{12}+a_{13}A_{13} &amp; \ldots
+&amp; \ldots \\[2pt] a_{21}A_{11}+a_{22}A_{12}+a_{23}A_{13} &amp; a_{21}A_{21}+a_{22}A_{22}+a_{23}A_{23} &amp; \ldots \\[2pt] a_{31}A_{11}+a_{32}A_{12}+a_{33}A_{13} &amp; \ldots &amp; \ldots
+\end {pmatrix}.
+\end{align*}
+Met Hoofdeigenschap&nbsp;III:
+</p>
+
+<p>
+\[ \sum _{k=1}^3 a_{ik}A_{jk}= \begin {cases} 0,&amp; i\neq j,\\ \det A,&amp; i=j, \end {cases} \]
+</p>
+
+<p>
+dus
+</p>
+
+<p>
+\[ A\cdot (\operatorname {adj}A)= \begin {pmatrix} \det A&amp;0&amp;0\\ 0&amp;\det A&amp;0\\ 0&amp;0&amp;\det A \end {pmatrix} =(\det A)\,I_3.       \]
+</p>
+
+<p>
+Analoog volgt \((\operatorname {adj}A)\cdot A=(\det A)\,I_3\).
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Eigenschap 3 ......
+-->
+<h6 id="autosec-88">Eigenschap 3</h6>
+<a id="mkpiweb-autopage-88"></a>
+
+
+<p>
+Als \(\det A\neq 0\), dan is \(A\) regulier met
+</p>
+
+<p>
+\[ A^{-1}=\frac {1}{\det A}\,\operatorname {adj}A. \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-89">Bewijs.</h6>
+<a id="mkpiweb-autopage-89"></a>
+
+
+<p>
+Uit eigenschap 2 weten we:
+</p>
+
+<p>
+\[ A\cdot (\operatorname {adj}A)=(\det A)\,I_3 \quad \text {en}\quad (\operatorname {adj}A)\cdot A=(\det A)\,I_3.   \]
+</p>
+
+<p>
+Deel beide gelijkheden door \(\det A\neq 0\):
+</p>
+
+<p>
+\[ \frac {1}{\det A}\,A\cdot (\operatorname {adj}A)=I_3, \qquad \frac {1}{\det A}\,(\operatorname {adj}A)\cdot A=I_3.    \]
+</p>
+
+<p>
+Dus \(\dfrac {1}{\det A}\,\operatorname {adj}A\) is links- én rechts-invers van \(A\); bijgevolg
+</p>
+
+<p>
+\[ \boxed {\,A^{-1}=\dfrac {1}{\det A}\,\operatorname {adj}A\,}.         \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-90">Besluit</h6>
+<a id="mkpiweb-autopage-90"></a>
+
+
+<p>
+\[ A \text { regulier }\Longleftrightarrow \ \det A\neq 0, \qquad A \text { singulier }\Longleftrightarrow \ \det A=0.   \]
+</p>
+<!--
+...... subsection De groep van reguliere -matrices ......
+-->
+<h5 id="autosec-91"><span class="sectionnumber">3&#x2003;</span>De groep van reguliere \(n\times n\)-matrices</h5>
+<a id="mkpiweb-autopage-91"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Notatie en stelling ......
+-->
+<h6 id="autosec-92">Notatie en stelling</h6>
+<a id="mkpiweb-autopage-92"></a>
+
+
+<p>
+De verzameling van alle reguliere \(n\times n\)-matrices:
+</p>
+
+<p>
+\[ GL_n(\mathbb {R})=\{A\in \mathbb {R}^{n\times n}\mid \det A\neq 0\}.    \]
+</p>
+
+<p>
+<span class="hint">GL: General Lineair Group</span>
+</p>
+
+<p>
+Groepseigenschappen:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                          I: (geslotenheid)   A, B ∈ GLn (R) ⇒ AB ∈ GLn (R),
+                                                                      A: (associativiteit)    (AB)C = A(BC),
+                                                                   N: (neutraal element)      In ∈ GLn (R) en In A = AIn = A,
+                                                                      S: (invers element)     Voor elke A ∈ GLn (R) bestaat A−1 ∈ GLn (R)
+                                                                                                met AA−1 = A−1 A = In .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {I: (geslotenheid)} &amp; \quad A,B\in GL_n(\mathbb {R}) \Rightarrow A B\in GL_n(\mathbb {R}), \\ \text {A: (associativiteit)} &amp; \quad (A B) C = A (B C), \\ \text {N: (neutraal
+element)} &amp; \quad I_n \in GL_n(\mathbb {R}) \text { en } I_n A = A I_n = A, \\ \text {S: (invers element)} &amp; \quad \text {Voor elke } A \in GL_n(\mathbb {R}) \text { bestaat }
+A^{-1}\in GL_n(\mathbb {R}) \\ &amp; \qquad \text { met } A A^{-1}=A^{-1}A=I_n.
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(GL_n(\mathbb {R}), \cdot \) is een groep.</span>
+</p>
+</div>
+<!--
+...... subsection Andere eigenschappen ......
+-->
+<h5 id="autosec-94"><span class="sectionnumber">4&#x2003;</span>Andere eigenschappen</h5>
+<a id="mkpiweb-autopage-94"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                        (1) In−1 = In ,
+                                                                                        (2) (A−1 )−1 = A,
+                                                                                        (3) (AB)−1 = B −1 A−1 .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {(1) } &amp; I_n^{-1}=I_n, \\ \text {(2) } &amp; (A^{-1})^{-1}=A, \\ \text {(3) } &amp; (A B)^{-1}=B^{-1}A^{-1}.
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs (extra). ......
+-->
+<h6 id="autosec-95">Bewijs (extra).</h6>
+<a id="mkpiweb-autopage-95"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(1)</span> \(I_n\cdot I_n=I_n \Rightarrow I_n^{-1}=I_n\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(2)</span> \(A^{-1}A=I_n \Rightarrow (A^{-1})^{-1}=A\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(3)</span> \((A B)(B^{-1}A^{-1}) = A(B B^{-1})A^{-1} = A I_n A^{-1} = A A^{-1} = I_n\).
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-96">Voorbeelden</h6>
+<a id="mkpiweb-autopage-96"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Bovendriehoeksmatrix:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                  −1                                            
+ 1       2       3         1   −2      5      1             −2    5
+                       1
+0       1       4 = 0        1      −4 = 0              1    −4 .
+                       1
+ 0       0       1         0    0       1     0              0     1
+
+-->
+
+<p>
+
+\begin{flalign*}
+\begin{pmatrix} 1&amp;2&amp;3\\ 0&amp;1&amp;4\\ 0&amp;0&amp;1 \end {pmatrix}^{-1} &amp;= \frac {1}{1} \begin{pmatrix} 1&amp;-2&amp;5\\ 0&amp; 1&amp;-4\\ 0&amp; 0&amp; 1 \end {pmatrix} =
+\begin{pmatrix} 1&amp;-2&amp;5\\ 0&amp; 1&amp;-4\\ 0&amp; 0&amp; 1 \end {pmatrix}.&amp;&amp;
+\end{flalign*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                  −1                                                     
+ 5       1       1         −6        4        1     6                 −4   −1
+                       1  −1
+5       0       1 =                1        0 = 1                 −1    0 .
+                       −1
+ 9       6       2          30      −21      −5    −30                21    5
+
+-->
+
+<p>
+
+\begin{flalign*}
+\begin{pmatrix} 5&amp;1&amp; 1\\ 5&amp;0&amp; 1\\ 9&amp;6&amp; 2 \end {pmatrix}^{-1} &amp;= \frac {1}{-1} \begin{pmatrix} -6&amp; 4&amp; 1\\ -1&amp; 1&amp; 0\\ 30&amp;-21&amp;-5 \end {pmatrix}
+= \begin{pmatrix} 6&amp;-4&amp;-1\\ 1&amp;-1&amp; 0\\ -30&amp; 21&amp; 5 \end {pmatrix}.&amp;&amp;
+\end{flalign*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+         −1                                    
+    5    6      1 3          −6      1         −2
+              =                  =                      .
+    2    3      3 −2          5     − 32       5
+                                               3
+
+
+-->
+
+<p>
+
+\begin{flalign*}
+\begin{pmatrix} 5&amp;6\\ 2&amp;3 \end {pmatrix}^{-1} &amp;= \frac {1}{3} \begin{pmatrix} 3&amp;-6\\ -2&amp;5 \end {pmatrix} = \begin{pmatrix} 1&amp;-2\\ -\tfrac {2}{3}&amp;\tfrac {5}{3} \end
+{pmatrix}.&amp;&amp;
+\end{flalign*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+          −1                                               
+    31   −4      1    −2           4          −0.2          0.4
+               =                           =                      .
+    18   −2      10   −18         31          −1.8          3.1
+
+-->
+
+<p>
+
+\begin{flalign*}
+\begin{pmatrix} 31&amp;-4\\ 18&amp;-2 \end {pmatrix}^{-1} &amp;= \frac {1}{10} \begin{pmatrix} -2&amp; 4\\ -18&amp;31 \end {pmatrix} = \begin{pmatrix} -0.2&amp; 0.4\\ -1.8&amp; 3.1 \end
+{pmatrix}.&amp;&amp;
+\end{flalign*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Diagonaalmatrix:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                     D−1 = diag 21 , 31 , 51 .
+                                                                                                                            
+D = diag(2, 3, 5),
+
+
+-->
+
+<p>
+
+\begin{flalign*}
+&amp;D=\operatorname {diag}(2,3,5), &amp;D^{-1}&amp;=\operatorname {diag}\!\left (\tfrac 12,\tfrac 13,\tfrac 15\right ).&amp;&amp;
+\end{flalign*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> Bovendriehoeksmatrix (met enen op de diagonaal):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                         
+     1            1   0                                                                                     1      −1    1
+U = 0            1   1 ,                                                                          U −1 = 0       1    −1 .
+     0            0   1                                                                                     0       0     1
+
+-->
+
+<p>
+
+\begin{flalign*}
+&amp;U= \begin{pmatrix} 1&amp;1&amp;0\\ 0&amp;1&amp;1\\ 0&amp;0&amp;1 \end {pmatrix}, &amp;U^{-1}&amp;= \begin{pmatrix} 1&amp;-1&amp;1\\ 0&amp; 1&amp;-1\\ 0&amp; 0&amp; 1 \end
+{pmatrix}.&amp;&amp;
+\end{flalign*}
+
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">7.</span> Eigenschap \((AB)^{-1}=B^{-1}A^{-1}\) narekenen voor \(2\times 2\)-matrices:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                    1       
+             1   2        2    0                                                                           −2  1                 0
+A=                  , B=           ,                                                               A−1 =        , B −1 =    2        ,
+             0   1        1    1                                                                            1  0          − 12 1
+                                                                                                          1      
+                                                                                                       −1      −1
+                                                                                                   (AB) = 12        = B −1 A−1 .
+                                                                                                           2    0
+
+-->
+
+<p>
+
+\begin{flalign*}
+&amp;A=\begin{pmatrix}1&amp;2\\0&amp;1\end {pmatrix},\; B=\begin{pmatrix}2&amp;0\\1&amp;1\end {pmatrix}, &amp;&amp; A^{-1}=\begin{pmatrix}1&amp;-2\\0&amp;1\end {pmatrix},\;
+B^{-1}=\begin{pmatrix} \tfrac 12&amp;0\\ -\tfrac 12&amp;1\end {pmatrix},&amp;\\ &amp;&amp;&amp; (A B)^{-1} = \begin{pmatrix}\tfrac 12&amp;-1\\ \tfrac 12&amp;0\end {pmatrix} =
+B^{-1}A^{-1}.&amp;&amp;
+\end{flalign*}
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Bijzonder geval:     ......
+-->
+<h5 id="autosec-97"><span class="sectionnumber">5&#x2003;</span>Bijzonder geval: \(n=2\)</h5>
+<a id="mkpiweb-autopage-97"></a>
+
+
+<p>
+Voor \(A=\begin {pmatrix}a&amp;b\\ c&amp;d\end {pmatrix}\) met \(\det A=ad-bc\neq 0\):
+</p>
+
+<p>
+\[ A^{-1}=\frac {1}{\det A} \begin {pmatrix} d &amp; -b\\ -c &amp; a \end {pmatrix}.     \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-98">Oefeningen</h6>
+<a id="mkpiweb-autopage-98"></a>
+
+
+<p>
+p 148 nr 1, 3, 4
+</p>
+<!--
+...... section Stelsel van Cramer ......
+-->
+<h4 id="autosec-99"><span class="sectionnumber">IV&#x2003;</span>Stelsel van Cramer</h4>
+<a id="mkpiweb-autopage-99"></a>
+<!--
+...... subsection Opstellen formules ......
+-->
+<h5 id="autosec-100"><span class="sectionnumber">1&#x2003;</span>Opstellen formules</h5>
+<a id="mkpiweb-autopage-100"></a>
+
+
+<p>
+Als we een stelsel met \(n\) onbekenden en \(n\) vergelijkingen hebben
+</p>
+
+<p>
+\[ \begin {cases} a_{11}x_1+a_{12}x_2+\cdots +a_{1n}x_n=b_1\\ \vdots \\ a_{n1}x_1+a_{n2}x_2+\cdots +a_{nn}x_n=b_n \end {cases} \]
+</p>
+
+<p>
+schrijven in matrixvorm
+</p>
+
+<p>
+\[\;A\cdot X=B\]
+</p>
+
+<p>
+waarbij we veronderstellen dat \(A\) regulier is.
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                            A·X =B
+                                                                                                      ⇒       X = A−1 B
+                                                                                                                      1
+                                                                                                      ⇒       X=         (adj A) B.
+                                                                                                                     |A|
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A\cdot X&amp;=B\\ \Rightarrow \qquad X&amp;=A^{-1}\,B\\ \Rightarrow \qquad X&amp;=\frac {1}{|A|}\,(\operatorname {adj}A)\,B .\\
+\end{align*}
+
+</p>
+
+<p>
+Uitgeschreven staat er dus
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                      
+                                                                                              x1         A11         A21     ···    An1     b1
+                                                                                             x2    1  A12         A22     ···    An2   b2 
+                                                                                             ..  =    .            ..     ..      ..   .. 
+                                                                                                                                      
+                                                                                             .  |A|  ..             .        .     .  . 
+                                                                                             xn               A1n    A2n     ···    Ann          bn
+                                                                                            
+                                                                                                                                   
+                                                                                         x1         b1 A11 + b2 A21 + · · · + bn An1
+                                                                                                   b1 A12 + b2 A22 + · · · + bn An2 
+                                                                                        x2   1                                    
+                                                                                     ⇔  . =                      .
+                                                                                        
+                                                                                        ..  |A|                 ..
+                                                                                                                                    
+                                                                                                                                     
+                                                                                             xn               b1 A1n + b2 A2n + · · · + bn Ann
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\phantom {\Leftrightarrow \;} \begin{pmatrix} x_1\\ x_2\\ \vdots \\ x_n \end {pmatrix} &amp; =\frac {1}{|A|} \begin{pmatrix} A_{11}&amp;A_{21}&amp;\cdots &amp;A_{n1}\\
+A_{12}&amp;A_{22}&amp;\cdots &amp;A_{n2}\\ \vdots &amp;\vdots &amp;\ddots &amp;\vdots \\ A_{1n}&amp;A_{2n}&amp;\cdots &amp;A_{nn} \end {pmatrix} \begin{pmatrix} b_1\\ b_2\\ \vdots \\ b_n \end
+{pmatrix} \\[6pt] \Leftrightarrow \; \begin{pmatrix} x_1\\ x_2\\ \vdots \\ x_n \end {pmatrix} &amp; =\frac {1}{|A|} \begin{pmatrix} b_1A_{11}+b_2A_{21}+\cdots +b_nA_{n1}\\
+b_1A_{12}+b_2A_{22}+\cdots +b_nA_{n2}\\ \vdots \\ b_1A_{1n}+b_2A_{2n}+\cdots +b_nA_{nn} \end {pmatrix}
+\end{align*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                   1
+                                                                         ⇒ x1 =       (b1 A11 + b2 A21 + · · · + bn An1 )
+                                                                                  |A|
+                                                                                       
+                                                                                        a22           a23    ···    a2n      a12         a13     · · · a1n
+                                                                                1      a32           a33    ···    a3n      a32         a33     · · · a3n
+                                                                             =      b1 ..             ..    ..      .. − b2 ..           ..     ..     ..
+                                                                                   
+                                                                               |A|       .             .       .     .       .            .         .   .
+                                                                                       an2            an3    ···    ann          an2     an3     · · · ann
+                                                                                                                                                                   
+                                                                                                                           a12          a13       ···        a1n
+                                                                                                                           a22          a23       ···        a2n   
+                                                                                                  + · · · + (−1)n+1 bn      ..           ..       ..          ..
+                                                                                                                                                                   
+                                                                                                                             .            .          .         .
+                                                                                                                                                                   
+                                                                                                                                                                   
+                                                                                                                          a(n−1)2      a(n−1)3    ···    a(n−1)n
+
+                                                                                   b1           a12   a13    · · · a1n
+                                                                                1 2b            a22   a23    · · · a2n
+                                                                             =      .            ..    ..    ..     ..
+                                                                               |A| ..             .     .        .   .
+                                                                                        bn      an2   an3    · · · ann
+
+                                                                                  |A1 |
+                                                                             =          ,
+                                                                                   |A|
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow \; x_1 &amp; =\frac {1}{|A|}\,(b_1A_{11}+b_2A_{21}+\cdots +b_nA_{n1})\\[6pt] &amp; =\frac {1}{|A|} \left ( \;b_1 \begin{vmatrix} a_{22}&amp;a_{23}&amp;\cdots &amp;a_{2n}\\
+a_{32}&amp;a_{33}&amp;\cdots &amp;a_{3n}\\ \vdots &amp;\vdots &amp;\ddots &amp;\vdots \\ a_{n2}&amp;a_{n3}&amp;\cdots &amp;a_{nn} \end {vmatrix} -\,b_2 \begin{vmatrix}
+a_{12}&amp;a_{13}&amp;\cdots &amp;a_{1n}\\ a_{32}&amp;a_{33}&amp;\cdots &amp;a_{3n}\\ \vdots &amp;\vdots &amp;\ddots &amp;\vdots \\ a_{n2}&amp;a_{n3}&amp;\cdots &amp;a_{nn} \end {vmatrix}
+\right . \\ &amp; \qquad \left . \qquad \qquad +\cdots +(-1)^{n+1}b_n \begin{vmatrix} a_{12}&amp;a_{13}&amp;\cdots &amp;a_{1n}\\ a_{22}&amp;a_{23}&amp;\cdots &amp;a_{2n}\\ \vdots &amp;\vdots
+&amp;\ddots &amp;\vdots \\ a_{(n-1)2}&amp;a_{(n-1)3}&amp;\cdots &amp;a_{(n-1)n} \end {vmatrix} \right ) \\[6pt] &amp; =\frac {1}{|A|} \begin{vmatrix} b_1 &amp; a_{12} &amp; a_{13} &amp; \cdots
+&amp; a_{1n}\\ b_2 &amp; a_{22} &amp; a_{23} &amp; \cdots &amp; a_{2n}\\ \vdots &amp; \vdots &amp; \vdots &amp; \ddots &amp; \vdots \\ b_n &amp; a_{n2} &amp; a_{n3} &amp; \cdots &amp; a_{nn}
+\end {vmatrix} \\[6pt] &amp; =\frac {|A_1|}{|A|},
+\end{align*}
+waarbij \(|A_1|\) de determinant is van \(A\) waarin de <em>eerste kolom</em> is vervangen door de termen \(b_1,\dots ,b_n\).
+</p>
+
+<p>
+Analoog
+</p>
+
+<p>
+\[ \underbrace {x_1=\frac {|A_1|}{|A|},\qquad x_2=\frac {|A_2|}{|A|},\qquad x_3=\frac {|A_3|}{|A|},\ \ldots ,\ x_n=\frac {|A_n|}{|A|}}_{\text {\large \bf Formules van Cramer}}.   \]
+</p>
+<!--
+...... subsection Gevolg ......
+-->
+<h5 id="autosec-101"><span class="sectionnumber">2&#x2003;</span>Gevolg</h5>
+<a id="mkpiweb-autopage-101"></a>
+
+
+<p>
+Een stelsel van Cramer (d.w.z. \(|A|\neq 0\)) heeft precies één oplossing.
+</p>
+<!--
+...... subsection Opmerking ......
+-->
+<h5 id="autosec-102"><span class="sectionnumber">3&#x2003;</span>Opmerking</h5>
+<a id="mkpiweb-autopage-102"></a>
+
+
+<p>
+De formules van Cramer kunnen we niet gebruiken als \(|A| = 0\).
+</p>
+<!--
+...... subsection Voorbeeld 1 ......
+-->
+<h5 id="autosec-103"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 1</h5>
+<a id="mkpiweb-autopage-103"></a>
+
+
+<p>
+Los op in \(\mathbb {R}^2\) via Cramer
+</p>
+
+<p>
+\[ \begin {cases} 2x-3y=1\\ 5x+y=11 \end {cases} \qquad A=\begin {pmatrix}2&amp;-3\\ 5&amp;1\end {pmatrix},\; \vec b=\begin {pmatrix}1\\11\end {pmatrix} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                2   −3
+                                                                       |A| =           = 2 · 1 − (−3) · 5 = 17,
+                                                                                5    1
+
+                                                                                1 −3                                |A1 |   34
+                                                                      |A1 | =        = 1 · 1 − (−3) · 11 = 34 ⇒ x =       =    = 2,
+                                                                                11 1                                 |A|    17
+
+                                                                                2    1                             |A2 |   17
+                                                                      |A2 | =          = 2 · 11 − 1 · 5 = 17 ⇒ y =       =    = 1.
+                                                                                5   11                              |A|    17
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+|A| &amp;=\begin{vmatrix}2&amp;-3\\ 5&amp;1\end {vmatrix} =2\cdot 1-(-3)\cdot 5 =17,\\[4pt] |A_1| &amp;=\begin{vmatrix}1&amp;-3\\ 11&amp;1\end {vmatrix} =1\cdot 1-(-3)\cdot 11 =34
+\;\Rightarrow \; x=\dfrac {|A_1|}{|A|}=\dfrac {34}{17}=2,\\[6pt] |A_2| &amp;=\begin{vmatrix}2&amp;1\\ 5&amp;11\end {vmatrix} =2\cdot 11-1\cdot 5 =17 \;\Rightarrow \; y=\dfrac
+{|A_2|}{|A|}=\dfrac {17}{17}=1.
+\end{align*}
+Hieruit volgt:
+</p>
+
+<p>
+\[ V=\{(2,1)\}.   \]
+</p>
+<!--
+...... subsection Voorbeeld 2 ......
+-->
+<h5 id="autosec-104"><span class="sectionnumber">5&#x2003;</span>Voorbeeld 2</h5>
+<a id="mkpiweb-autopage-104"></a>
+
+
+<p>
+Los op in \(\mathbb {R}^3\) via Cramer
+</p>
+
+<p>
+\[ \begin {cases} x+2y+z=4\\ \phantom {x}+y-z=3\\ 2x+y+3z=1 \end {cases} \qquad A=\begin {pmatrix} 1&amp;2&amp;1\\ 0&amp;1&amp;-1\\ 2&amp;1&amp;3 \end {pmatrix},\; \vec b=\begin
+{pmatrix}4\\3\\1\end {pmatrix} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                   1    2    1
+                                                                             |A| = 0    1   −1 = −2,
+                                                                                   2    1    3
+
+                                                                                    4   2    1
+                                                                                                          |A1 |   −2
+                                                                            |A1 | = 3   1   −1 = −2 ⇒ x =       =    = 1,
+                                                                                                           |A|    −2
+                                                                                    1   1    3
+
+                                                                                    1   4    1
+                                                                                                          |A2 |   −4
+                                                                            |A2 | = 0   3   −1 = −4 ⇒ y =       =    = 2,
+                                                                                                           |A|    −2
+                                                                                    2   1    3
+
+                                                                                    1   2   4
+                                                                                                      |A3 |   2
+                                                                            |A3 | = 0   1   3 =2 ⇒ z=       =    = −1.
+                                                                                                       |A|    −2
+                                                                                    2   1   1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+|A| &amp;=\begin{vmatrix} 1&amp;2&amp;1\\ 0&amp;1&amp;-1\\ 2&amp;1&amp;3 \end {vmatrix} =-2,\\[6pt] |A_1| &amp;=\begin{vmatrix} 4&amp;2&amp;1\\ 3&amp;1&amp;-1\\ 1&amp;1&amp;3 \end {vmatrix}
+=-2 \;\Rightarrow \; x=\dfrac {|A_1|}{|A|}=\dfrac {-2}{-2}=1,\\[8pt] |A_2| &amp;=\begin{vmatrix} 1&amp;4&amp;1\\ 0&amp;3&amp;-1\\ 2&amp;1&amp;3 \end {vmatrix} =-4 \;\Rightarrow \; y=\dfrac
+{|A_2|}{|A|}=\dfrac {-4}{-2}=2,\\[8pt] |A_3| &amp;=\begin{vmatrix} 1&amp;2&amp;4\\ 0&amp;1&amp;3\\ 2&amp;1&amp;1 \end {vmatrix} =2 \;\Rightarrow \; z=\dfrac {|A_3|}{|A|}=\dfrac {2}{-2}=-1.
+\end{align*}
+Hieruit volgt:
+</p>
+
+<p>
+\[ V=\{(1,2,-1)\}.   \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-105"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-105"></a>
+
+
+<p>
+p 155 nr 1, 3, 4<br />
+Geen oefeningen vanaf nr 5 (bespreken met parameter m)
+</p>
+<!--
+...... section Rang van een matrix ......
+-->
+<h4 id="autosec-106"><span class="sectionnumber">V&#x2003;</span>Rang van een matrix</h4>
+<a id="mkpiweb-autopage-106"></a>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-107"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-107"></a>
+
+
+<p>
+\[ A= \begin {pmatrix} 0&amp;2&amp;1&amp;-1\\ 1&amp;-1&amp;6&amp; 3\\ 1&amp;3&amp;8&amp; 1 \end {pmatrix} \]
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(A\notin \mathbb {R}^{n\times n}\;\Rightarrow \; \det A\) bestaat niet.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Schrap telkens één kolom \(\Rightarrow \) vier \(3\times 3\)-minoren.
+</p>
+<p>
+\[ \begin {alignedat}{3} &amp;\begin {vmatrix} 0&amp;2&amp;1\\ 1&amp;4&amp;6\\ 1&amp;3&amp;8 \end {vmatrix}=0 \qquad &amp;&amp; \begin {vmatrix} 0&amp;1&amp;-1\\ 1&amp;6&amp;3\\ 1&amp;8&amp;1
+\end {vmatrix}=0\\[8pt] &amp;\begin {vmatrix} 0&amp;2&amp;-1\\ 1&amp;-1&amp;3\\ 1&amp;3&amp;1 \end {vmatrix}=0 \qquad &amp;&amp; \begin {vmatrix} 2&amp;1&amp;1\\ -1&amp;6&amp;3\\ 3&amp;8&amp;1
+\end {vmatrix}=0 \end {alignedat} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Berekening (Laplace/Sarrus) geeft voor elk: \(\det (\text {minor})=0\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Schrap vervolgens \(1\) rij en \(1\) kolom \(\Rightarrow \) \(2\times 2\)-minoren.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Bv. \(\begin {vmatrix} 0&amp;2\\ 1&amp;4 \end {vmatrix} =0\cdot 4-2\cdot 1=-2\neq 0\).
+</p>
+</li>
+</ul>
+
+<p>
+\[ \text {Minstens ÃľÃľn }2\times 2\text {-minor }\neq 0 \ \Rightarrow \ \boxed {\ \operatorname {rang}(A)=2\ }.       \]
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-108"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-108"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> De <b>rang</b> van een matrix is de grootste orde van een minor die \(\neq 0\) is, waarbij de minors ontstaan door het schrappen van rijen en/of kolommen uit de oorspronkelijke matrix.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De rang van de nulmatrix is \(0\).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Notatie ......
+-->
+<h5 id="autosec-109"><span class="sectionnumber">3&#x2003;</span>Notatie</h5>
+<a id="mkpiweb-autopage-109"></a>
+
+
+<p>
+\[ \operatorname {rang}(A)=r(A). \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-110"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-110"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oef 1: rang in ......
+-->
+<h6 id="autosec-111">Oef 1: rang in \(\mathbb {R}^{2}\)</h6>
+<a id="mkpiweb-autopage-111"></a>
+
+
+<p>
+<b>Opgave.</b> Bepaal de rang van
+</p>
+
+<p>
+\[ A=\begin {pmatrix}2&amp;3\\[2pt]4&amp;6\end {pmatrix}.      \]
+</p>
+
+<p>
+<b>Uitwerking.</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                     2   3
+                                                                           det A =         = 2 · 6 − 3 · 4 = 12 − 12 = 0   ⇒   rang(A) < 2.
+                                                                                     4   6
+                                                                    Maar      2 = 2 ̸= 0     ⇒    rang(A) = 1.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\det A&amp;=\begin{vmatrix}2&amp;3\\4&amp;6\end {vmatrix}=2\cdot 6-3\cdot 4=12-12=0 \quad \Rightarrow \quad \operatorname {rang}(A)&lt;2.\\ \text {Maar}\quad \begin{vmatrix}2\end
+{vmatrix}&amp;=2\neq 0 \quad \Rightarrow \quad \operatorname {rang}(A)=1.
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oef 2: rang in ......
+-->
+<h6 id="autosec-112">Oef 2: rang in \(\mathbb {R}^{3}\)</h6>
+<a id="mkpiweb-autopage-112"></a>
+
+
+<p>
+<b>Opgave.</b> Bepaal de rang van
+</p>
+
+<p>
+\[ B=\begin {pmatrix} 3&amp;1&amp;1\\ 2&amp;4&amp;1\\ 1&amp;0&amp;2 \end {pmatrix}.    \]
+</p>
+
+<p>
+<b>Uitwerking.</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                            3   1   1
+                                                                    det B = 2   4   1 = 3(4 · 2 − 1 · 0) − 1(2 · 2 − 1 · 1) + 1(2 · 0 − 4 · 1)
+                                                                            1   0   2
+                                                                         = 3 · 8 − (4 − 1) − (0 − 4) = 24 − 3 + 4 = 25 ̸= 0.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\det B &amp;=\begin{vmatrix} 3&amp;1&amp;1\\ 2&amp;4&amp;1\\ 1&amp;0&amp;2 \end {vmatrix} =3(4\cdot 2-1\cdot 0)-1(2\cdot 2-1\cdot 1)+1(2\cdot 0-4\cdot 1)\\ &amp;=3\cdot
+8-(4-1)-(0-4)=24-3+4=25\neq 0.
+\end{align*}
+Dus \(\operatorname {rang}(B)=3\).
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oef 3: parameterwaarde(n) met rang ......
+-->
+<h6 id="autosec-113">Oef 3: parameterwaarde(n) met rang \(=2\)</h6>
+<a id="mkpiweb-autopage-113"></a>
+
+
+<p>
+<b>Opgave.</b> Voor
+</p>
+
+<p>
+\[ A(m)=\begin {pmatrix} 1&amp;0&amp;m\\ m+4&amp;1&amp;5\\ 0&amp;m-2&amp;m-2 \end {pmatrix} \]
+</p>
+
+<p>
+bepaal alle \(m\in \mathbb {R}\) waarvoor \(\operatorname {rang}(A(m))=2\).
+</p>
+
+<div class="oplossing">
+
+<p>
+<b>Uitwerking.</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                               1      0      m              1      0   m
+                                                  det A(m) = m + 4    1      5  = (m − 2) m + 4    1   5                                                (factor uit R3)
+                                                               0     m−2    m−2             0      1   1
+                                                          = (m − 2) (1(1 − 5) − (m + 4)(0 − m))                                                         (ontw. naar K1)
+
+                                                          = (m − 2)(−4 + m(m + 4))
+                                                          = (m − 2)(m2 + 4m − 4).
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\det A(m) &amp;=\begin{vmatrix} 1&amp;0&amp;m\\ m+4&amp;1&amp;5\\ 0&amp;m-2&amp;m-2 \end {vmatrix} = (m-2)\begin{vmatrix} 1&amp;0&amp;m\\ m+4&amp;1&amp;5\\ 0&amp;1&amp;1 \end {vmatrix}
+&amp;&amp; \text {\scriptsize (factor uit R3)} \\[2pt] &amp;=(m-2)\left ( 1(1-5) - (m+4)(0-m) \right ) &amp;&amp; \text {\scriptsize (ontw. naar K1)} \\[2pt] &amp;=(m-2)(-4 + m(m+4)) \\
+&amp;=(m-2)(m^2+4m-4).
+\end{align*}
+
+</p>
+
+<p>
+\[ \det A(m)=0 \iff m\in \left \{\,2,\,-2\pm 2\sqrt 2\,\right \}.          \]
+</p>
+
+<p>
+Controle op een \(2\times 2\)-minor (altijd niet-nul):
+</p>
+
+<p>
+\[ \begin {vmatrix}1&amp;0\\[2pt] m+4&amp;1\end {vmatrix}=1\neq 0 \quad \Rightarrow \quad \operatorname {rang}(A(m))\ge 2.              \]
+</p>
+
+<p>
+Dus voor alle bovenstaande \(m\) geldt \(\operatorname {rang}(A(m))=2\). Voor alle andere \(m\) is \(\det A(m)\neq 0\) en dus \(\operatorname {rang}(A(m))=3\).
+</p>
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oef 4: Rang bepalen voor alle parameters ......
+-->
+<h6 id="autosec-114">Oef 4: Rang bepalen voor alle parameters</h6>
+<a id="mkpiweb-autopage-114"></a>
+
+
+<p>
+Bepaal de rang van de matrix \(M\) voor alle parameters \(a, b, c \in \mathbb {R}\).
+</p>
+
+<p>
+\[ M = \begin {pmatrix} 1 &amp; 1 &amp; 1 \\ a &amp; b &amp; c \\ a+1 &amp; b+1 &amp; c+1 \end {pmatrix} \]
+</p>
+
+<div class="oplossing">
+
+<p>
+<b>Stap 1: Minoren van orde 3</b> We berekenen \(\det (M)\) en gebruiken rij-operaties:
+</p>
+
+<p>
+\[ \det (M) = \begin {vmatrix} 1 &amp; 1 &amp; 1 \\ a &amp; b &amp; c \\ a+1 &amp; b+1 &amp; c+1 \end {vmatrix} \xrightarrow {R_3 \leftarrow R_3 - R_1} \begin {vmatrix} 1 &amp; 1 &amp; 1 \\ a
+&amp; b &amp; c \\ a &amp; b &amp; c \end {vmatrix} \]
+</p>
+
+<p>
+\[ R_2 = R_3 \implies \det (M) = 0 \]
+</p>
+
+<p>
+Conclusie: \(\text {rang}(M) &lt; 3\).
+</p>
+
+<p>
+<b>Stap 2: Minoren van orde 2</b> Beschouw de minor linksboven:
+</p>
+
+<p>
+\[ \Delta _{2} = \begin {vmatrix} 1 &amp; 1 \\ a &amp; b \end {vmatrix} = b - a \]
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als \(a \neq b\) (of \(b \neq c\), etc.) \(\implies \Delta _2 \neq 0 \implies \text {rang}(M) = 2\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(a = b = c \implies \) alle \(2 \times 2\) minoren zijn \(0\).
+</p>
+</li>
+</ul>
+
+<p>
+<b>Stap 3: Minoren van orde 1</b> Als \(a = b = c\), is \(M \neq O\) (want \(m_{11} = 1 \neq 0\)).
+</p>
+
+<p>
+\[ \implies \text {rang}(M) = 1 \]
+</p>
+
+<p>
+<b>Eindconclusie:</b>
+</p>
+
+<p>
+\[ \text {rang}(M) = \begin {cases} 1 &amp; \text {als } a = b = c \\ 2 &amp; \text {anders} \end {cases} \]
+</p>
+
+</div>
+<!--
+...... section Meetkundige toepassingen ......
+-->
+<h4 id="autosec-115"><span class="sectionnumber">VI&#x2003;</span>Meetkundige toepassingen</h4>
+<a id="mkpiweb-autopage-115"></a>
+<!--
+...... subsection Vergelijking van een rechte door twee gegeven punten ......
+-->
+<h5 id="autosec-116"><span class="sectionnumber">1&#x2003;</span>Vergelijking van een rechte door twee gegeven punten</h5>
+<a id="mkpiweb-autopage-116"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opstelling formule ......
+-->
+<h6 id="autosec-117">Opstelling formule</h6>
+<a id="mkpiweb-autopage-117"></a>
+
+
+<p>
+Rechte door \(P_1(x_1,y_1)\) en \(P_2(x_2,y_2)\) met \(x_1\neq x_2\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                y2 − y 1
+                                                                                                                     y − y1 =            (x − x1 )
+                                                                                                                                x2 − x 1
+                                                                                                   ⇔     (y − y1 )(x2 − x1 ) = (y2 − y1 )(x − x1 )
+                                                                                           ⇔     y(x2 − x1 ) − y1 (x2 − x1 ) = x(y2 − y1 ) − x1 (y2 − y1 )
+                                                                         ⇔    x (y1 − y2 ) − y (x1 − x2 ) + (x1 y2 − x2 y1 ) = 0
+                                                                    ⇔    x (y1 − y2 ) − y (x1 − x2 ) + 1 (x1 y2 − x2 y1 ) = 0.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+y-y_1 &amp;= \frac {y_2-y_1}{x_2-x_1}\,(x-x_1)\\ \Leftrightarrow \quad (y-y_1)(x_2-x_1) &amp;= (y_2-y_1)(x-x_1)\\ \Leftrightarrow \quad y(x_2-x_1)-y_1(x_2-x_1) &amp;= x(y_2-y_1)-x_1(y_2-y_1)\\
+\Leftrightarrow \quad x\,(y_1-y_2)\;-\;y\,(x_1-x_2)\;+\;(x_1y_2-x_2y_1) &amp;= 0\\ \Leftrightarrow \quad \markeerterm {rowc!35}{x}\,(y_1-y_2)\;-\;\markeerterm
+{rowc!35}{y}\,(x_1-x_2)\;+\;\markeerterm {rowc!35}{1}(x_1y_2-x_2y_1) &amp;= 0.
+\end{align*}
+
+</p>
+
+<p>
+Equivalente determinanvorm:
+</p>
+
+<p>
+\[ \boxed {\qquad \begin {vNiceMatrix} x &amp; y &amp; 1\\ x_1 &amp; y_1 &amp; 1\\ x_2 &amp; y_2 &amp; 1 \CodeAfter \markeercellen {rowc}{1-1}{1-3} \end {vNiceMatrix}=0 \qquad } \]
+</p>
+
+<p>
+&#x2003;&#x2003;Cartesiche vgl v/d rechte door \(P_1(x_1,y_1)\) en \(P_2(x_2,y_2)\)
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-118">Voorbeeld</h6>
+<a id="mkpiweb-autopage-118"></a>
+
+
+<p>
+Geef de vergelijking van de rechte door \(P_1(2,3)\) en \(P_2(-4,7)\).
+</p>
+
+<p>
+\[ \begin {vmatrix} x &amp; y &amp; 1\\ 2 &amp; 3 &amp; 1\\ -4 &amp; 7 &amp; 1 \end {vmatrix}=0 \]
+</p>
+
+<p>
+Uitwerken (ontwikkeling naar de eerste rij):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                x (3 · 1 − 1 · 7) − y (2 · 1 − 1 · (−4)) + 1 (2 · 7 − 3 · (−4)) = 0
+                                                     ⇔                                                                                        −4x − 6y + 26 = 0
+                                                     ⇔                                                                                          2x + 3y − 13 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; x\,(3\cdot 1-1\cdot 7)\;-\;y\,(2\cdot 1-1\cdot (-4))\;+\;1\,(2\cdot 7-3\cdot (-4)) &amp;= 0\\ &amp;\Leftrightarrow \quad &amp; -4x-6y+26 &amp;= 0 \\ &amp;\Leftrightarrow \quad
+&amp; 2x+3y-13 &amp;= 0
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-119">Oefeningen</h6>
+<a id="mkpiweb-autopage-119"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-120">Oefening 1</h5>
+<a id="mkpiweb-autopage-120"></a>
+
+
+<p>
+Stel de cartesische vergelijking op van de rechte door \(P_1\) en \(P_2\)
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(P_1(1,-2) \qquad P_2(-4,0)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(P_1(0,2) \qquad P_2(-5,0)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(P_1(-2,1) \qquad P_2(-2,8)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(P_1(1,15) \qquad P_2(-2,-25)\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Collineariteit van drie punten ......
+-->
+<h5 id="autosec-121"><span class="sectionnumber">2&#x2003;</span>Collineariteit van drie punten</h5>
+<a id="mkpiweb-autopage-121"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Formule ......
+-->
+<h6 id="autosec-122">Formule</h6>
+<a id="mkpiweb-autopage-122"></a>
+
+
+<p>
+\[ P_1(x_1,y_1),\; P_2(x_2,y_2),\; P_3(x_3,y_3)\ \text {zijn collineair} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                ⇐⇒    P1 ∈ rechte door P2 P3
+                                                                                                     x     y    1
+                                                                                ⇐⇒    P1 voldoet aan x2    y2   1 =0
+                                                                                                     x3    y3   1
+                                                                                       x1   y1   1
+                                                                                ⇐⇒     x2   y2   1 = 0.
+                                                                                       x3   y3   1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Longleftrightarrow \quad P_1 \in \text {rechte door } P_2P_3\\ &amp;\Longleftrightarrow \quad P_1 \text { voldoet aan } \begin{vmatrix} x &amp; y &amp; 1\\ x_2 &amp; y_2 &amp; 1\\ x_3
+&amp; y_3 &amp; 1 \end {vmatrix}=0\\ &amp;\Longleftrightarrow \quad \begin{vmatrix} x_1 &amp; y_1 &amp; 1\\ x_2 &amp; y_2 &amp; 1\\ x_3 &amp; y_3 &amp; 1 \end {vmatrix}=0.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\; P_1,P_2,P_3 \text { zijn collineair } \iff \begin {vmatrix} x_1 &amp; y_1 &amp; 1\\ x_2 &amp; y_2 &amp; 1\\ x_3 &amp; y_3 &amp; 1 \end {vmatrix}=0\; } \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-123">Voorbeeld</h6>
+<a id="mkpiweb-autopage-123"></a>
+
+
+<p>
+<b>Ga na of</b> \(A(3,2)\), \(B(-2,-1)\) <b>en</b> \(C(8,5)\) <b>collineair zijn.</b>
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                                                            3      2    1
+                                                                                                                                                                              ?
+                                                                                                                                                            −2    −1    1     =   0
+                                                                                                                                                            8      5    1
+                                                                                                                                                                            ?
+                                                 ⇔                                      3 · (−1) · 1 + 2 · 1 · 8 + 1 · (−2) · 5 − 1 · (−1) · 8 + 3 · 1 · 5 + 2 · (−2) · 1     =   0
+                                                                                                                                                                            ?
+                                                 ⇔                                                                                    −3 + 16 − 10 − −8 + 15 − 4              =   0
+                                                                                                                                                                              ?
+                                                 ⇔                                                                                                                   3−3      =   0
+                                                 ⇔                                                                                                                       0    =   0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; \begin{vmatrix} 3&amp;2&amp;1\\ -2&amp;-1&amp;1\\ 8&amp;5&amp;1 \end {vmatrix} &amp;\weq [?]{=} 0 \\[6pt] &amp;\Leftrightarrow \quad &amp; \bigl (3\cdot (-1)\cdot 1+2\cdot 1\cdot
+8+1\cdot (-2)\cdot 5\bigr ) - \bigl (1\cdot (-1)\cdot 8+3\cdot 1\cdot 5+2\cdot (-2)\cdot 1\bigr ) &amp;\weq [?]{=} 0 \\ &amp;\Leftrightarrow \quad &amp; \bigl (-3+16-10\bigr ) - \bigl
+(-8+15-4\bigr ) &amp;\weq [?]{=} 0 \\ &amp;\Leftrightarrow \quad &amp; 3 - 3 &amp;\weq [?]{=} 0 \\ &amp;\Leftrightarrow \quad &amp; 0 &amp;\weq {=} 0
+\end{align*}
+
+</p>
+
+<p>
+<i>Besluit:</i> ja, de drie punten zijn collineair.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-124">Oefeningen</h6>
+<a id="mkpiweb-autopage-124"></a>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-125">Oefening 2</h5>
+<a id="mkpiweb-autopage-125"></a>
+
+
+<p>
+Ga na of de punten \(P_1\), \(P_2\) en \(P_3\) collineair zijn.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(P_1(1,-1) \qquad P_2(-2,0) \qquad P_3(3,1)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(P_1\left (\dfrac {13}{3},3\right ) \qquad P_2\left (\dfrac {19}{3},\dfrac {13}{3}\right ) \qquad P_3\left (\dfrac {21}{3},5\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(P_1(1,-6) \qquad P_2(3,6) \qquad P_3(0,12)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(P_1(1,1) \qquad P_2(14,-6) \qquad P_3(-12,8)\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-126">Oefening 3</h5>
+<a id="mkpiweb-autopage-126"></a>
+
+
+<p>
+Voor welke \(k \in \mathbb {R}\) zijn de punten \(P_1\), \(P_2\) en \(P_3\) collineair?
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(P_1(1,k) \qquad P_2(k,2) \qquad P_3(5,1)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(P_1\left (\dfrac {k}{3},3\right ) \qquad P_2\left (\dfrac {k+6}{3},\dfrac {k}{3}\right ) \qquad P_3\left (-12,\dfrac {5k}{3}\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(P_1(k+10,k) \qquad P_2(k^2-4,-12) \qquad P_3(k+7,k+4)\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-127">Oefening 4</h5>
+<a id="mkpiweb-autopage-127"></a>
+
+
+<p>
+<em>Stelling van Pappos-Pascal</em><br />
+Twee rechten \(d_1\) en \(d_2\) snijden elkaar. Op \(d_1\) liggen drie verschillende punten \(A_1\), \(A_3\) en \(A_5\), op \(d_2\) liggen drie verschillende punten \(A_2\), \(A_4\) en \(A_6\). De rechten \(A_1A_2\) en
+\(A_4A_5\) snijden elkaar in \(P\), de rechten \(A_2A_3\) en \(A_5A_6\) snijden elkaar in \(Q\) en de rechten \(A_3A_4\) en \(A_6A_1\) snijden elkaar in \(R\). Bewijs dat \(P\), \(Q\) en \(R\) collineair zijn.
+</p>
+<!--
+...... subsection Oppervlakte van een driehoek in een orthonormaal assenstelsel ......
+-->
+<h5 id="autosec-128"><span class="sectionnumber">3&#x2003;</span>Oppervlakte van een driehoek in een orthonormaal assenstelsel</h5>
+<a id="mkpiweb-autopage-128"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opstellen formule ......
+-->
+<h6 id="autosec-129">Opstellen formule</h6>
+<a id="mkpiweb-autopage-129"></a>
+<div class="minipage" style="vertical-align:top ; justify-content:flex-start ; width:234pt ; ">
+
+<a id="mkpiweb-autopage-130"></a>
+
+<p>
+Met \(A(x_1,y_1)\), \(B(x_2,y_2)\) en \(C(x_3,y_3)\) (in een orthonormaal stelsel) geldt:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                            Opp △ABC = 12 · basis · hoogte
+                                                                                                        = 12 |BC| · d(A, BC)
+                                                                                                        = 12 |BC| · |AA′ |.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\operatorname {Opp}\triangle ABC &amp;= \tfrac 12 \cdot \text {basis} \cdot \text {hoogte}\\ &amp;= \tfrac 12\,|BC| \cdot d(A,BC)\\ &amp;= \tfrac 12\,|BC| \cdot |AA&apos;|.
+\end{align*}
+
+</p>
+
+
+</div>
+<div class="minipage" style="vertical-align:top ; justify-content:flex-start ; width:234pt ; ">
+
+<a id="mkpiweb-autopage-131"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+y
+                   A(x1 , y1 )
+    B(x2 , y2 )
+
+
+          A′
+
+
+                  C(x3 , y3 )
+                                 x
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+
+</div>
+
+<p>
+Lengtes en lijnvergelijking:
+</p>
+
+<p>
+\[ |BC| = \sqrt {(x_3-x_2)^2+(y_3-y_2)^2} \]
+</p>
+
+<p>
+\[ BC \leftrightarrow u x + v y + w = 0 \qquad (u, v, w \in \mathbb {R}) \]
+</p>
+
+<p>
+Maar de lijn \(BC\) kan ook worden geschreven als
+</p>
+
+<p>
+\[BC \leftrightarrow \begin {vmatrix} x&amp;y&amp;1\\ x_2&amp;y_2&amp;1\\ x_3&amp;y_3&amp;1 \end {vmatrix}=0, \]
+</p>
+
+<p>
+en dus \(u=y_2-y_3,\quad v=-(x_2-x_3),\quad w=x_2y_3-x_3y_2\).
+</p>
+
+<p>
+dan
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                      |AA′ | = d(A, BC)
+                                                                                               |ux1 + vy1 + w|
+                                                                                           =      √            .
+                                                                                                    u2 + v 2
+
+
+-->
+
+
+<p>
+\begin{align*}
+|AA&apos;| &amp;= d(A,BC)\\ &amp;= \dfrac {|u x_1 + v y_1 + w|}{\sqrt {u^2+v^2}}.
+\end{align*}
+
+</p>
+
+<p>
+Besluit:<br />
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                |ux1 + vy1 + w|
+                                                                        Opp △ABC = 12 |BC| ·       √
+                                                                                                     u2 + v 2
+                                                                                    = 12 ux1 + vy1 + w
+
+                                                                                    = 12 x1 (y2 − y3 ) + x2 (y3 − y1 ) + x3 (y1 − y2 )
+
+                                                                                           x1   y1   1
+                                                                                    = 21 | x2   y2   1 |.
+                                                                                           x3   y3   1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\operatorname {Opp}\triangle ABC &amp;=\tfrac 12\,|BC|\cdot \frac {|u x_1 + v y_1 + w|}{\sqrt {u^2+v^2}}\\[2pt] &amp; =\tfrac 12\,\bigl |u x_1 + v y_1 + w\bigr |\\[2pt] &amp;=\tfrac 12\,\Bigl
+|x_1(y_2-y_3)+x_2(y_3-y_1)+x_3(y_1-y_2)\Bigr |\\[2pt] &amp; =\tfrac 12\,|\begin{vmatrix} x_1&amp;y_1&amp;1\\ x_2&amp;y_2&amp;1\\ x_3&amp;y_3&amp;1 \end {vmatrix}|.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\; \operatorname {Opp}\triangle ABC = \tfrac 12\,|\begin {vmatrix} x_1&amp;y_1&amp;1\\ x_2&amp;y_2&amp;1\\ x_3&amp;y_3&amp;1 \end {vmatrix}| \;} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-135">Voorbeeld</h6>
+<a id="mkpiweb-autopage-135"></a>
+
+
+<p>
+Gegeven \(A(1,0)\), \(B(7,2)\), \(C(4,2)\). Bepaal \(\operatorname {Opp}\triangle ABC\).
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                        1   0   1
+                                                                                    1
+                                                                     Opp △ABC =       | 7   2   1 |
+                                                                                    2
+                                                                                        4   2   1
+                                                                                  1
+                                                                                =   (1 · 2 · 1 + 0 · 1 · 4 + 1 · 7 · 2) − (1 · 2 · 4 + 1 · 1 · 1 + 0 · 7 · 1)
+                                                                                  2
+                                                                                  1
+                                                                                =   (2 + 14) − (8 + 0 + 2)
+                                                                                  2
+                                                                                  1
+                                                                                = |16 − 10|
+                                                                                  2
+                                                                                = 3.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\operatorname {Opp}\triangle ABC &amp;=\frac 12 | \begin{vmatrix} 1&amp;0&amp;1\\ 7&amp;2&amp;1\\ 4&amp;2&amp;1 \end {vmatrix} |\\ &amp;=\frac 12\,\bigl |\,(1\cdot 2\cdot 1+0\cdot 1\cdot
+4+1\cdot 7\cdot 2) -(1\cdot 2\cdot 4+1\cdot 1\cdot 1+0\cdot 7\cdot 1)\,\bigr |\\ &amp;=\frac 12\,\bigl |\,(2+14)-(8+0+2)\,\bigr |\\ &amp; =\frac 12\,|16-10|\\ &amp; =\boxed {3}.
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Gevolg ......
+-->
+<h6 id="autosec-136">Gevolg</h6>
+<a id="mkpiweb-autopage-136"></a>
+
+
+<p>
+De oppervlakte van parallellogram \(ABCD\) met aangrenzende hoekpunten \(A(x_1,y_1)\), \(B(x_2,y_2)\), \(C(x_3,y_3)\) is
+</p>
+
+<p>
+\[ \operatorname {Opp}(ABCD)=2\,\operatorname {Opp}\triangle ABC = |\begin {vmatrix} x_1&amp;y_1&amp;1\\ x_2&amp;y_2&amp;1\\ x_3&amp;y_3&amp;1 \end {vmatrix}|.   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-137">Oefeningen</h6>
+<a id="mkpiweb-autopage-137"></a>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-138">Oefening 5</h5>
+<a id="mkpiweb-autopage-138"></a>
+
+
+<p>
+Bereken de oppervlakte van de driehoek als de hoekpunten t.o.v. een georthonormeerd assenstelsel gegeven zijn.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(A(2,2) \qquad B(4,-4) \qquad C(-6,6)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(A(0,0) \qquad B(3,0) \qquad C(-5,1)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(A(\sqrt {2},1) \qquad B(\sqrt {3},2) \qquad C(\sqrt {2},\sqrt {3})\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 6 ......
+-->
+<h5 id="autosec-139">Oefening 6</h5>
+<a id="mkpiweb-autopage-139"></a>
+
+
+<p>
+Bereken de oppervlakte van het parallellogram als de hoekpunten t.o.v. een georthonormeerd assenstelsel gegeven zijn.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(A(1,1) \qquad B(4,2) \qquad C(5,5) \qquad D(2,4)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(A(-3,1) \qquad B(2,-1) \qquad C(7,2) \qquad D(2,4)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(A(1,4) \qquad B(-1,-1) \qquad C(-4,-2) \qquad D(-2,3)\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 7 ......
+-->
+<h5 id="autosec-140">Oefening 7</h5>
+<a id="mkpiweb-autopage-140"></a>
+
+
+<p>
+Bereken \(k\) als de oppervlakte van een driehoek \(\Delta ABC\) met \(A(2,0)\), \(B(5,0)\) en \(C(k,4)\)
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> gelijk is aan 6;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> gelijk is aan 8.
+</p>
+</li>
+</ul>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

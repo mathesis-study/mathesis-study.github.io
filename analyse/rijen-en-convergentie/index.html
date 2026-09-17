@@ -1,0 +1,3823 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Rijen en convergentie</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 11</p> <h1>Rijen en convergentie</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+un
+7
+
+6
+
+5
+
+4
+                                     RR: lineair (rekenkundig)
+3
+                                     MR: exponentieel (meetkundig)
+                                     harmonisch: un = n1 -type
+2
+
+1
+
+                                                 n
+     1   2   3   4   5   6   7   8     9   10
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>BV3_06.12</b> (MD 06.12) De leerlingen gebruiken rekenkundige en meetkundige rijen om patronen te beschrijven.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: recursief voorschrift, formule voor de algemene term
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: formule voor de som van de eerste n termen
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.24</b> (MD 06.08.15) De leerlingen bepalen limieten van rijen.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: convergentie
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: begrensde monotone rijen
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.25.02</b> (MD 06.08.14) De leerlingen definie&#x0308;ren het limietbegrip op een formele manier.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> definitie en notatie van rijen, RR en MR (algemene term, partie&#x0308;le som), harmonische rij, limietbegrip en standaardlimieten, convergentie, monotoniciteit, begrensdheid en het monotoon
+convergentiekenmerk.
+</p>
+
+</div>
+<div class="multicols">
+
+</div>
+<!--
+...... section Rijen ......
+-->
+<h4 id="autosec-7"><span class="sectionnumber">I&#x2003;</span>Rijen</h4>
+<a id="mkpiweb-autopage-7"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+Een <b>rij</b> (of <b>sequentie</b>) is een afbeelding van \(\N _0\) naar \(\R \)
+</p>
+
+<p>
+\[ u:\N _0 \to \R ,\qquad n \mapsto u_n=u(n).       \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+     u
+N0       R
+
+n        un
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Wij starten bij \(1\). Soms start men bij \(0\).
+</p>
+<!--
+...... subsection Notaties ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">2&#x2003;</span>Notaties</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+Veelgebruikte notaties:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \((u_n)\) of \((u_n)_{n\in \N }\) voor de volledige rij;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(u_1,u_2,u_3,\dots \) voor de eerste termen;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(u_i\) heet de \(i\)-de term van de rij;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(u_n\) voor de algemene term (als die bestaat).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-13"><span class="sectionnumber">3&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(u_n = 2n+1\) geeft: \(3,5,7,9,\dots \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(u_n = \dfrac {1}{n}\) geeft: \(1,\dfrac 12,\dfrac 13,\dfrac 14,\dots \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(u_n = (-1)^n\) geeft: \(-1,1,-1,1,\dots \)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Expliciet voorschrift ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">4&#x2003;</span>Expliciet voorschrift</h5>
+<a id="mkpiweb-autopage-14"></a>
+<!--
+......   paragraph Definitie ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-15">Definitie</span>
+<a id="mkpiweb-autopage-15"></a>
+Bij een <b>expliciet</b> voorschrift geef je \(u_n\) rechtstreeks als formule in \(n\).
+</p>
+
+<p>
+\(\Rightarrow \) elke term meteen te berekenen door \(n\) te vervangen
+</p>
+<!--
+......   paragraph Voorbeeld ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-16">Voorbeeld</span>
+<a id="mkpiweb-autopage-16"></a>
+Stel \(u_n = 3n-2\). Dan vinden we:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(u_1 = 3 \cdot 1 - 2 = 1\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(u_2 = 3 \cdot 2 - 2 = 4\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(u_{20} = 3 \cdot 20 - 2 = 58\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Recursief voorschrift ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">5&#x2003;</span>Recursief voorschrift</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+Bij een <b>recursief</b> voorschrift definieer je:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> een beginterm (of meerdere beginwaarden),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> een regel om van \(u_n\) naar \(u_{n+1}\) te gaan.
+</p>
+</li>
+</ul>
+<!--
+......   paragraph Voorbeeld ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-18">Voorbeeld</span>
+<a id="mkpiweb-autopage-18"></a>
+
+</p>
+
+<p>
+\[ u_1=10,\qquad u_{n+1}=u_n+3.     \]
+</p>
+
+<p>
+Dan: \(u_1=10\), \(u_2=13\), \(u_3=16\), \(\dots \)
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+     +3        +3
+u1        u2        u3   ···
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection GRM: TI-84 (mode SEQ) ......
+-->
+<h5 id="autosec-22"><span class="sectionnumber">6&#x2003;</span>GRM: TI-84 (mode <kbd>SEQ</kbd>)</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:79pt ; text-align:center ; "
+><kbd>MODE</kbd></span></span> <span
+    class="sout"
+    style="text-decoration:line-through;text-decoration-color:#000000"
+><kbd>FUNC</kbd></span> <kbd>SEQ</kbd>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:68pt ; text-align:center ; "
+><kbd>Y=</kbd></span></span>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> <kbd>nMin=1</kbd>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <kbd>u(n)=u(n-1)+3</kbd> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>alpha</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:68pt ; text-align:center ; "
+><kbd>f4</kbd></span></span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <kbd>u(1)=10</kbd>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:89pt ; text-align:center ; "
+><kbd>window</kbd></span></span>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> <kbd>nMin=0</kbd>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <kbd>nmax=20</kbd>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <kbd>Xmin=-1</kbd>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <kbd>Xmax=20</kbd>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <kbd>Ymin=-5</kbd>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <kbd>Ymax=80</kbd>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>graph</kbd></span></span> of <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:73pt ; text-align:center ; "
+><kbd>2nd</kbd></span></span> <span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+><span
+    class="makebox"
+    style="display:inline-block ; width:84pt ; text-align:center ; "
+><kbd>table</kbd></span></span>
+</p>
+</li>
+</ul>
+<!--
+...... section Rekenkundige rijen (RR) ......
+-->
+<h4 id="autosec-23"><span class="sectionnumber">II&#x2003;</span>Rekenkundige rijen (RR)</h4>
+<a id="mkpiweb-autopage-23"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+Een rij \((u_n)\) heet <b>rekenkundig</b> als het verschil tussen twee opeenvolgende termen constant is:
+</p>
+
+<p>
+\[ u_{n+1}-u_n = v \quad (\text {constant}).        \]
+</p>
+
+<p>
+Het getal \(v\) heet het <b>verschil</b>.
+</p>
+
+<p>
+\[ \boxed {u_n = u_{n-1} + v} \quad \rightarrow \text {recursief voorschrift} \]
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-25"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(4,7,10,13,\dots \) met \(v=3\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(12,9,6,3,\dots \) met \(v=-3\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(5,5,5,5,\dots \) met \(v=0\) (constante rij)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Algemene term ......
+-->
+<h5 id="autosec-26"><span class="sectionnumber">3&#x2003;</span>Algemene term</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+Als \(u_1\) en \(v\) gekend zijn:
+</p>
+
+<p>
+\[ \begin {aligned} u_2 &amp;= u_1 + v \\ u_3 &amp;= u_2 + v = u_1 + 2v \\ u_4 &amp;= u_3 + v = u_1 + 3v \\ &amp;\vdots \\ u_n &amp;= u_1 + (n-1)v \end {aligned} \]
+</p>
+
+<p>
+\[ \boxed {u_n = u_1 + (n-1)v.} \quad \rightarrow \text {expliciet voorschrift} \]
+</p>
+<!--
+......   paragraph Voorbeeld ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-27">Voorbeeld</span>
+<a id="mkpiweb-autopage-27"></a>
+\(u_1=4\) en \(v=3\):
+</p>
+
+<p>
+\[ u_n = 4+(n-1)\cdot 3 = 3n+1.   \]
+</p>
+<!--
+...... subsection Gedrag van rij ......
+-->
+<h5 id="autosec-28"><span class="sectionnumber">4&#x2003;</span>Gedrag van rij</h5>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als \(v&gt;0\), dan stijgt de rij.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(v&lt;0\), dan daalt de rij.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(v=0\), dan is de rij constant.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Grafische voorstelling ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">5&#x2003;</span>Grafische voorstelling</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+Je tekent de punten \((n,u_n)\).
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+un
+             punten liggen op een rechte
+
+
+
+
+                   n
+     1   7
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Eigenschap 1: Rekenkundig gemiddelde ......
+-->
+<h5 id="autosec-33"><span class="sectionnumber">6&#x2003;</span>Eigenschap 1: Rekenkundig gemiddelde</h5>
+<a id="mkpiweb-autopage-33"></a>
+<!--
+......   paragraph Eigenschap ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-34">Eigenschap</span>
+<a id="mkpiweb-autopage-34"></a>
+
+</p>
+
+<p>
+\[ \boxed { a,b,c \text { zijn drie opeenvolgende termen van RR} \iff b=\frac {a+c}{2} } \]
+</p>
+<!--
+......   paragraph Bewijs ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-35">Bewijs</span>
+<a id="mkpiweb-autopage-35"></a>
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                             a, b, c zijn drie opeenvolgende termen van RR
+                                                                                                   ⇕
+                                                                                        b = a + v en c = b + v
+                                                                                                   ⇕
+                                                                                        b − a = v en c − b = v
+                                                                                                   ⇕
+                                                                                             b−a=c−b
+                                                                                                   ⇕
+                                                                                              2b = a + c
+                                                                                                   ⇕
+                                                                                                   a+c
+                                                                                              b=
+                                                                                                    2
+
+
+-->
+
+
+<p>
+
+\begin{gather*}
+a, b, c \text { zijn drie opeenvolgende termen van RR} \\ \Updownarrow \\ b = a + v \text { en } c = b + v \\ \Updownarrow \\ b - a = v \text { en } c - b = v \\ \Updownarrow \\ b - a = c - b
+\\ \Updownarrow \\ 2b = a + c \\ \Updownarrow \\ b = \frac {a + c}{2}
+\end{gather*}
+
+</p>
+<!--
+......   paragraph Besluit ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-36">Besluit</span>
+<a id="mkpiweb-autopage-36"></a>
+In RR is elke term het <b>rekenkundig gemiddelde</b> van de twee termen die hem insluiten.
+</p>
+<!--
+...... subsection Eigenschap 2: Symmetrische sommen ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">7&#x2003;</span>Eigenschap 2: Symmetrische sommen</h5>
+<a id="mkpiweb-autopage-37"></a>
+<!--
+......   paragraph Eigenschap ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-38">Eigenschap</span>
+<a id="mkpiweb-autopage-38"></a>
+
+</p>
+
+<p>
+\[ \boxed {u_1+u_n=u_2+u_{n-1}=u_3+u_{n-2}=\dots } \]
+</p>
+<!--
+......    paragraph Bewijs ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-39">Bewijs</span>
+<a id="mkpiweb-autopage-39"></a>
+
+</p>
+
+<p>
+Schema:
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+       v          v                         v            v
+u1 ,       u2 ,       u3 ,   ···   un−2 ,       un−1 ,       un
+
+u1 + v                                               un − v
+     u1 + 2v                            un − 2v
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ \begin {aligned} u_2+u_{n-1} &amp;= (u_1+v)+(u_n-v)=u_1+u_n,\\ u_3+u_{n-2} &amp;= (u_1+2v)+(u_n-2v)=u_1+u_n,\\ &amp;\vdots \end {aligned} \]
+</p>
+
+<p>
+<b>Voorbeeld:</b><br />
+
+</p>
+
+<p>
+\[ \text {RR: } \begin {array}{ccccccc} u_1 &amp; u_2 &amp; u_3 &amp; u_4 &amp; u_5 &amp; u_6 &amp; u_7 \\ \downarrow &amp; \downarrow &amp; \downarrow &amp; \downarrow &amp; \downarrow &amp;
+\downarrow &amp; \downarrow \\ 7 &amp; 3 &amp; -1 &amp; -5 &amp; -9 &amp; -13 &amp; -17 \end {array} \quad (n = 7) \]
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdl">\(u_1 + u_7 = 7 - 17 = -10\) <span style="width:28pt; display:inline-block"><!----></span></td>
+<td class="tdl">\(u_3 + u_5 = -1 - 9 = -10\)</td>
+</tr>
+
+<tr>
+<td class="tdl">\(u_2 + u_6 = 3 - 13 = -10\)</td>
+<td class="tdl">\(u_4 + u_4 = -5 - 5 = -10\)</td>
+</tr>
+</table>
+
+</div>
+<!--
+......   paragraph Gevolg ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-45">Gevolg</span>
+<a id="mkpiweb-autopage-45"></a>
+In RR zijn alle symmetrische sommen zijn gelijk.
+</p>
+<!--
+...... subsection Partiele som ......
+-->
+<h5 id="autosec-46"><span class="sectionnumber">8&#x2003;</span>Partie&#x0308;le som \(s_n\)</h5>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                           sn =       u1     +       u2      +   ...   +      un
+
+                                                                       +   sn =      un      +      un−1     +   ...   +      u1
+
+                                                                        2 · sn =   (u1 + un ) + (u2 + un−1 ) +   ...   +   (un + u1 )
+                                                                                   | {z }       |    {z   }                | {z }
+                                                                                    u1 +un          u1 +un                   u1 +un
+
+
+-->
+
+<p>
+
+\begin{equation*}
+\renewcommand {\arraystretch }{2} \begin{array}{r@{\;}c@{\quad }c@{\quad }c@{\quad }c@{\quad }c@{\quad }c@{\quad }c@{\quad }c} s_n &amp; = &amp; u_1 &amp; + &amp; u_2 &amp; + &amp; \dots &amp;
++ &amp; u_n \\ +\quad s_n &amp; = &amp; u_n &amp; + &amp; u_{n-1} &amp; + &amp; \dots &amp; + &amp; u_1 \\ \hline 2 \cdot s_n &amp; = &amp; \underbrace {(u_1 + u_n)}_{u_1 + u_n} &amp; + &amp;
+\underbrace {(u_2 + u_{n-1})}_{u_1 + u_n} &amp; + &amp; \dots &amp; + &amp; \underbrace {(u_n + u_1)}_{u_1 + u_n} \end {array}
+\end{equation*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                           ⇔                                                                 2 · sn = n · (u1 + un )
+
+                                                                                                                                        n · (u1 + un )
+                                                           ⇔                                                                    sn =
+                                                                                                                                              2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Leftrightarrow &amp; 2 \cdot s_n &amp;= n \cdot (u_1 + u_n) \\ &amp;\Leftrightarrow &amp; \Aboxed {s_n &amp;= \frac {n \cdot (u_1 + u_n)}{2}}
+\end{align*}
+
+</p>
+<!--
+...... subsection Toepassingen ......
+-->
+<h5 id="autosec-47"><span class="sectionnumber">9&#x2003;</span>Toepassingen</h5>
+<a id="mkpiweb-autopage-47"></a>
+<!--
+...... subsubsection Voorbeeld 1: Lineaire groei ......
+-->
+<h6 id="autosec-48"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1: Lineaire groei</h6>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+Je spaart elke maand €\(50\) extra dan de maand ervoor. Maand 1: €\(100\), maand 2: €\(150\), maand 3: €\(200\), \(\dots \)
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Soort rij?
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                  Maand 1: 100, maand 2: 150, maand 3: 200, . . .
+                                                                                  Verschillen: 150 − 100 = 50,    200 − 150 = 50, . . .
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\text {Maand 1:     }100,\ \text {maand 2:     }150,\ \text {maand 3:   }200,\dots \\ &amp;\text {Verschillen:          }150-100=50,\quad 200-150=50,\ \dots
+\end{align*}
+
+</p>
+<p>
+\[\text {RR: } u_1=100 \qquad v=50\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Algemene term?
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                   u1 = 100,   v = 50
+                                                                                   un = u1 + (n − 1) v       (algemene term rek. rij)
+                                                                                   un = 100 + (n − 1) · 50
+                                                                                   un = 100 + 50n − 50
+                                                                                   un = 50n + 50
+
+
+-->
+
+<p>
+
+\begin{align*}
+u_1&amp;=100,\quad v=50\\ u_n&amp;=u_1+(n-1)\,v \qquad \text {(algemene term rek.          rij)}\\ u_n&amp;=100+(n-1)\cdot 50\\ u_n&amp;=100+50n-50\\ u_n&amp;=50n+50
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {u_n=100+50(n-1)=50n+50} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Bedrag na 2 jaar?
+</p>
+<div class="oplossing">
+<p>
+Na 2 jaar zijn er \(24\) maanden, dus we zoeken \(u_{24}\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                               u24 = 100 + (24 − 1) · 50
+                                                                                                   = 100 + 23 · 50
+                                                                                                   = 100 + 1150
+                                                                                                   = 1250
+
+
+-->
+
+<p>
+
+\begin{align*}
+u_{24}&amp;=100+(24-1)\cdot 50\\ &amp;=100+23\cdot 50\\ &amp;=100+1150\\ &amp;=1250
+\end{align*}
+
+</p>
+<p>
+\[ \boxed {u_{24}=1250} \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-49"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+Bepaal drie opeenvolgende termen van een rekenkundige rij als hun som \(s\) en hun product \(p\) respectievelijk 21 en 315 zijn.
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                             Neem drie opeenvolgende termen: (a − d), a, (a + d).
+                                                                             Som: (a − d) + a + (a + d) = 3a = 21 ⇒ a = 7.
+
+                                                                             Product: (a − d) a (a + d) = a(a2 − d2 ) = 315   (merkwaardig product)
+                                                                                2    2
+                                                                             7(7 − d ) = 315
+                                                                             7(49 − d2 ) = 315
+                                                                             49 − d2 = 45
+                                                                             d2 = 4 ⇒ d = ±2.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\text {Neem drie opeenvolgende termen: }(a-d),\ a,\ (a+d).\\ &amp;\text {Som: }(a-d)+a+(a+d)=3a=21 \;\Rightarrow \; a=7.\\[2mm] &amp;\text {Product:   }(a-d)\,a\,(a+d)=a(a^2-d^2)=315
+\qquad \text {(merkwaardig product)}\\ &amp;7(7^2-d^2)=315\\ &amp;7(49-d^2)=315\\ &amp;49-d^2=45\\ &amp;d^2=4 \Rightarrow d=\pm 2.
+\end{align*}
+
+</p>
+
+<p>
+\[ \Rightarrow \text { 2 oplossingen:        } 5,7,9 \text { en } 9,7,5 \]
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeeld 3 ......
+-->
+<h6 id="autosec-50"><span class="sectionnumber">&#x2003;</span>Voorbeeld 3</h6>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p>
+De som van de eerste \(n\) natuurlijke getallen verschillend van nul.
+</p>
+
+<div class="oplossing">
+
+<p>
+De rij \((u_n)\) met \(u_1=1\) en \(v=1\) is RR:
+</p>
+
+<p>
+\[u_n=u_1+(n-1)v=1+(n-1)\cdot 1=n\]
+</p>
+
+<p>
+Partie&#x0308;le somformule : \(s_n=\frac {n}{2}\bigl (u_1+u_n\bigr )\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                        n
+                                                                                  ⇒ sn =  (n + 1)
+                                                                                        2
+                                                                                        n(n + 1)
+                                                                                      =
+                                                                                            2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow s_n &amp; =\frac {n}{2}(n+1) \\ &amp; =\frac {n(n+1)}{2}
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {1+2+\cdots +n=\frac {n(n+1)}{2}} \]
+</p>
+
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-51"><span class="sectionnumber">10&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<p>
+VBTL Analyse 1b: p20 nr 1, 2, 3, ...
+</p>
+<!--
+...... section Meetkundige rijen (MR) ......
+-->
+<h4 id="autosec-52"><span class="sectionnumber">III&#x2003;</span>Meetkundige rijen (MR)</h4>
+<a id="mkpiweb-autopage-52"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-53"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Een rij \((u_n)\) heet <b>meetkundig</b> als elke term uit de vorige ontstaat door telkens met eenzelfde constant ree&#x0308;el getal \(q\) te vermenigvuldigen:
+</p>
+
+<p>
+\[ \boxed {u_{n+1}=u_n \cdot q} \quad \rightarrow \text {recursief voorschrift} \]
+</p>
+
+<p>
+Het getal \(q\) heet de <b>reden</b>.
+</p>
+
+<p>
+De definitie via \(u_{n+1}=q\,u_n\) werkt altijd. De vaak gebruikte vorm
+</p>
+
+<p>
+\[ \frac {u_{n+1}}{u_n}=q \]
+</p>
+
+<p>
+kan enkel als \(u_n\neq 0\). Als ergens \(u_k=0\), dan volgt uit \(u_{k+1}=q\,u_k\) dat alle volgende termen ook \(0\) zijn.
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-54"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-54"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-55"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+\[ u_1=4,\qquad u_{n+1}=2u_n.   \]
+</p>
+
+<p>
+Dan:
+</p>
+
+<p>
+\[ u_1=4,\; u_2=8,\; u_3=16,\; u_4=32,\;\dots \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+     ×q        ×q
+u1        u2        u3   ···
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsubsection Nog voorbeelden ......
+-->
+<h6 id="autosec-59"><span class="sectionnumber">&#x2003;</span>Nog voorbeelden</h6>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(3,6,12,24,\dots \) met \(q=2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(100,50,25,12.5,\dots \) met \(q=0.5\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(-2,4,-8,16,\dots \) met \(q=-2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(5,5,5,5,\dots \) met \(q=1\) (constante rij)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Algemene term ......
+-->
+<h5 id="autosec-60"><span class="sectionnumber">3&#x2003;</span>Algemene term</h5>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+Als \(u_1\) en \(q\) gekend zijn, dan kan je een expliciet voorschrift opbouwen:
+</p>
+
+<p>
+\[ \begin {aligned} u_2 &amp;= u_1\,q,\\ u_3 &amp;= u_2\,q = (u_1\,q)\,q=u_1\,q^2,\\ u_4 &amp;= u_3\,q = u_1\,q^3,\\ &amp;\vdots \\ u_n &amp;= u_1\,q^{n-1}.   \end {aligned} \]
+</p>
+
+<p>
+\[ \boxed {u_n=u_1\,q^{\,n-1}.} \quad \rightarrow \text {expliciet voorschrift} \]
+</p>
+<!--
+......   paragraph Voorbeeld ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-61">Voorbeeld</span>
+<a id="mkpiweb-autopage-61"></a>
+\(u_1=100\) en \(q=0.5\):
+</p>
+
+<p>
+\[ u_n = 100\cdot (0.5)^{n-1}.   \]
+</p>
+<!--
+...... subsection Gedrag van de rij ......
+-->
+<h5 id="autosec-62"><span class="sectionnumber">4&#x2003;</span>Gedrag van de rij</h5>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p>
+Het gedrag hangt vooral af van \(|q|\):
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als \(0&lt;q&lt;1\), dan daalt de rij en nadert ze naar \(0\) (bij \(u_1&gt;0\)).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(q&gt;1\), dan groeit de rij in absolute waarde (bij \(u_1&gt;0\) naar \(+\infty \)).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(-1&lt;q&lt;0\), dan wisselen de tekens af en gaan de termen naar \(0\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(q\le -1\), dan wisselen de tekens af en worden de termen in absolute waarde groter (behalve \(u_1=0\)).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(q=1\), dan is de rij constant: \(u_n=u_1\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(q=0\), dan: \(u_2=0\) en alle volgende termen ook \(0\).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Grafische voorstelling ......
+-->
+<h5 id="autosec-63"><span class="sectionnumber">5&#x2003;</span>Grafische voorstelling</h5>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+Je tekent de punten \((n,u_n)\).
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+un
+
+         0 < q < 1: punten zakken naar 0
+
+
+
+                             n
+     1                7
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Eigenschap 1: Meetkundig gemiddelde ......
+-->
+<h5 id="autosec-67"><span class="sectionnumber">6&#x2003;</span>Eigenschap 1: Meetkundig gemiddelde</h5>
+<a id="mkpiweb-autopage-67"></a>
+<!--
+......   paragraph Eigenschap ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-68">Eigenschap</span>
+<a id="mkpiweb-autopage-68"></a>
+
+</p>
+
+<p>
+\[ \boxed { a,b,c \text { zijn drie opeenvolgende termen van MR} \iff b^2=ac } \]
+</p>
+<!--
+......   paragraph Bewijs ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-69">Bewijs</span>
+<a id="mkpiweb-autopage-69"></a>
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                     a, b, c opeenvolgend in MR
+                                                                                                  ⇕
+                                                                                          b = aq en c = bq
+                                                                                                  ⇕
+                                                                                     b = aq en c = (aq)q = aq 2
+
+                                                                                   ⇒    b2 = a2 q 2 = a(aq 2 ) = ac.
+
+
+
+-->
+
+
+<p>
+
+\begin{gather*}
+a,b,c \text { opeenvolgend in MR} \\ \Updownarrow \\ b=aq \text { en } c=bq \\ \Updownarrow \\ b=aq \text { en } c=(aq)q=aq^2 \\[1em] \Rightarrow \quad b^2=a^2q^2=a(aq^2)=ac.
+\end{gather*}
+
+</p>
+<!--
+......   paragraph Gevolg ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-70">Gevolg</span>
+<a id="mkpiweb-autopage-70"></a>
+Als bovendien \(a&gt;0\) en \(c&gt;0\), dan mag je ook schrijven:
+</p>
+
+<p>
+\[ \boxed {b=\sqrt {ac}.} \]
+</p>
+<!--
+...... subsection Eigenschap 2: Symmetrische producten ......
+-->
+<h5 id="autosec-71"><span class="sectionnumber">7&#x2003;</span>Eigenschap 2: Symmetrische producten</h5>
+<a id="mkpiweb-autopage-71"></a>
+<!--
+......   paragraph Eigenschap ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-72">Eigenschap</span>
+<a id="mkpiweb-autopage-72"></a>
+
+</p>
+
+<p>
+\[ \boxed {u_1u_n=u_2u_{n-1}=u_3u_{n-2}=\dots } \]
+</p>
+<!--
+......   paragraph Bewijs ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-73">Bewijs</span>
+<a id="mkpiweb-autopage-73"></a>
+Gebruik \(u_k=u_1q^{k-1}\):
+</p>
+
+<p>
+\[ u_k\,u_{n+1-k}=\bigl (u_1q^{k-1}\bigr )\bigl (u_1q^{n-k}\bigr ) = u_1^2 q^{(k-1)+(n-k)}=u_1^2q^{n-1}, \]
+</p>
+
+<p>
+dus dit product is onafhankelijk van \(k\).
+</p>
+<!--
+......   paragraph Voorbeeld ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-74">Voorbeeld</span>
+<a id="mkpiweb-autopage-74"></a>
+
+</p>
+
+<p>
+\[ \text {MR: } 2,\ 6,\ 18,\ 54,\ 162 \quad (q=3,\ n=5) \]
+</p>
+
+<p>
+\[ u_1u_5=2\cdot 162=324,\qquad u_2u_4=6\cdot 54=324,\qquad u_3u_3=18\cdot 18=324.   \]
+</p>
+<!--
+...... subsection Partiele som MR ......
+-->
+<h5 id="autosec-75"><span class="sectionnumber">8&#x2003;</span>Partie&#x0308;le som \(s_n\) MR</h5>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+<b>Voorwaarde:</b> \(q \neq 1\)
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                    sn = u1 + u2 + · · · + un                                                                            (som eerste \(n\) termen)
+                                                 q · sn = q · u1 + q · u2 + · · · + q · un                                                               (×q)
+                                                        = u2 + u3 + · · · + un+1                                                                         (recursieve definitie)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+s_n &amp;= u_1 + u_2 + \dots + u_n &amp;&amp; \text {(som eerste $n$ termen)}\\ q \cdot s_n &amp;= q \cdot u_1 + q \cdot u_2 + \dots + q \cdot u_n &amp;&amp; (\times q)\\ &amp;= u_2 + u_3 +
+\dots + u_{n+1} &amp;&amp; \text {(recursieve definitie)}
+\end{align*}
+
+</p>
+
+<p>
+\(s_n - q \cdot s_n\):
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                               sn =     u1   +   u2     +      ...   +   un
+
+                                                                                       −     q · sn =            u2     +      ...   +   un   +   un+1
+
+                                                                                     (1 − q) · sn =     u1                                    −   un+1
+
+-->
+
+<p>
+
+\begin{equation*}
+\renewcommand {\arraystretch }{2} \begin{array}{r@{\;}c@{\quad }c@{\quad }c@{\quad }c@{\quad }c@{\quad }c@{\quad }c@{\quad }c@{\quad }c@{\quad }c} s_n &amp; = &amp; u_1 &amp; + &amp; u_2 &amp;
++ &amp; \dots &amp; + &amp; u_n &amp; \\ -\quad q \cdot s_n &amp; = &amp; &amp; &amp; u_2 &amp; + &amp; \dots &amp; + &amp; u_n &amp; + &amp; u_{n+1} \\ \hline (1 - q) \cdot s_n &amp; = &amp;
+u_1 &amp; &amp; &amp; &amp; &amp; &amp; &amp; - &amp; u_{n+1} \end {array}
+\end{equation*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                        ⇒                                                      (1 − q) · sn = u1 − un+1                                                       (un+1 = u1 · q n )
+                                        ⇔                                                      (1 − q) · sn = u1 − u1 · q n
+                                        ⇔                                                      (1 − q) · sn = u1 · (1 − q n )
+
+                                                                                                                      1 − qn
+                                        ⇔                                                                sn = u1 ·                                                            (q ̸= 1)
+                                                                                                                       1−q
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Rightarrow &amp; (1 - q) \cdot s_n &amp;= u_1 - u_{n+1} &amp;&amp; (u_{n+1}=u_1 \cdot q^n)\\ &amp;\Leftrightarrow &amp; (1 - q) \cdot s_n &amp;= u_1 - u_1 \cdot q^n\\
+&amp;\Leftrightarrow &amp; (1 - q) \cdot s_n &amp;= u_1 \cdot (1 - q^n)\\[1em] &amp;\Leftrightarrow &amp; \Aboxed {s_n &amp;= u_1 \cdot \frac {1 - q^n}{1 - q}} &amp;&amp; (q \neq 1)
+\end{align*}
+
+</p>
+<!--
+......   paragraph Voorwaarde:   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-76">Voorwaarde:</span>
+<a id="mkpiweb-autopage-76"></a>
+\(q = 1\)
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                   (un ) = u1 , u1 , u1 , . . . , u1 , . . .
+                                                                                      sn = u1 + u1 + · · · + u1
+                                                                                           |       {z         }
+                                                                                                      n termen
+
+                                                                                          = n · u1
+                                          ⇒                                           sn = n · u1                                                 (q = 1)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; (u_n) &amp; = u_1, u_1, u_1, \dots , u_1, \dots \\ &amp; &amp; s_n &amp; = \underbrace {u_1 + u_1 + \dots + u_1}_{n \text { termen}} \\ &amp; &amp; &amp; = n \cdot u_1 \\ &amp;
+\Rightarrow &amp; \Aboxed {s_n &amp; = n \cdot u_1} &amp; &amp; (q = 1)
+\end{align*}
+
+</p>
+<!--
+...... subsection Toepassingen ......
+-->
+<h5 id="autosec-77"><span class="sectionnumber">9&#x2003;</span>Toepassingen</h5>
+<a id="mkpiweb-autopage-77"></a>
+<!--
+...... subsubsection Voorbeeld 1: Samengestelde interest ......
+-->
+<h6 id="autosec-78"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1: Samengestelde interest</h6>
+<a id="mkpiweb-autopage-78"></a>
+
+
+<p>
+Je zet €\(1000\) op een rekening met \(2\%\) groei per jaar.
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Welke rij is dit?
+</p>
+<div class="oplossing">
+<p>
+Elke periode wordt het bedrag vermenigvuldigd met \(1.02\).
+</p>
+<p>
+\[ \text {MR met } u_1=1000,\quad q=1.02. \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Geef een formule voor \(u_n\).
+</p>
+<div class="oplossing">
+<p>
+\[ u_n=u_1q^{n-1}=1000\cdot 1.02^{n-1}. \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Hoeveel staat er na \(10\) jaar?
+</p>
+<div class="oplossing">
+<p>
+Na \(10\) jaar is dit \(u_{10}\):
+</p>
+<p>
+\[ u_{10}=1000\cdot 1.02^{9}. \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Voorbeeld 2: Afschrijving ......
+-->
+<h6 id="autosec-79"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2: Afschrijving</h6>
+<a id="mkpiweb-autopage-79"></a>
+
+
+<p>
+Een laptop verliest elk jaar \(20\%\) van zijn waarde. De startwaarde is €\(1200\).
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bepaal \(q\).
+</p>
+<div class="oplossing">
+<p>
+\(20\%\) verlies betekent vermenigvuldigen met \(0.80\).
+</p>
+<p>
+\[ q=0.80. \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Geef \(u_n\).
+</p>
+<div class="oplossing">
+<p>
+\[ u_n=1200\cdot 0.80^{n-1}. \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Voorbeeld 3 ......
+-->
+<h6 id="autosec-80"><span class="sectionnumber">&#x2003;</span>Voorbeeld 3</h6>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+Bepaal drie opeenvolgende termen van een meetkundige rij waarvan het product \(p\) gelijk is aan 1000 en de kleinste term 2 is.
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                         a
+                                                                           Neem drie opeenvolgende termen van een meetkundige rij:         , a, aq   (q ̸= 0).
+                                                                                                                                         q
+                                                                                                                    √
+                                                                                     
+                                                                                     a
+                                                                           Product:     · a · (aq) = a3 = 1000 ⇒ a = 1000 = 10.
+                                                                                                                    3
+
+                                                                                     q
+                                                                                                10
+                                                                           Dus de termen zijn      , 10, 10q.
+                                                                                                 q
+                                                                           De kleinste term is 2.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\text {Neem drie opeenvolgende termen van een meetkundige rij: }\frac {a}{q},\ a,\ aq \quad (q\neq 0).\\ &amp;\text {Product: }\left (\frac {a}{q}\right )\cdot a\cdot (aq)=a^3=1000
+\;\Rightarrow \; a=\sqrt [3]{1000}=10.\\ &amp;\text {Dus de termen zijn } \frac {10}{q},\ 10,\ 10q.\\ &amp;\text {De kleinste term is }2.
+\end{align*}
+Omdat bij drie opeenvolgende termen de middelste term \(10\) is, kan \(10\) niet de kleinste zijn. Dus moet de kleinste term een buitenste term zijn.
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                         10
+                                                                                                    (1)     = 2 ⇒ q = 5 ⇒ (2, 10, 50).
+                                                                                                          q
+                                                                                                                      1
+                                                                                                    (2) 10q = 2 ⇒ q = ⇒ (50, 10, 2).
+                                                                                                                      5
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {(1) }\frac {10}{q}=2 &amp;\Rightarrow q=5 \Rightarrow (2,10,50).\\ \text {(2) }10q=2 &amp;\Rightarrow q=\frac {1}{5} \Rightarrow (50,10,2).
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\text {drie opeenvolgende termen:         } 2,10,50 \text { of } 50,10,2} \]
+</p>
+
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-81"><span class="sectionnumber">10&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-81"></a>
+
+
+<p>
+VBTL Analyse 1b: p34 nr 1, 2, 3, &#x2026;
+</p>
+<!--
+...... section Harmonische rijen ......
+-->
+<h4 id="autosec-82"><span class="sectionnumber">IV&#x2003;</span>Harmonische rijen</h4>
+<a id="mkpiweb-autopage-82"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-83"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-83"></a>
+
+
+<p>
+De <b>harmonische rij</b> is:
+</p>
+
+<p>
+\[ \boxed {u_n=\frac {1}{n}\qquad (n\ge 1).} \]
+</p>
+
+<p>
+Algemener kom je ook rijen tegen van de vorm
+</p>
+
+<p>
+\[ u_n=\frac {a}{b+cn}\qquad (a,b,c\in \R ,\ c\neq 0).   \]
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-84"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-84"></a>
+
+
+<p>
+\[ 1,\ \frac 12,\ \frac 13,\ \frac 14,\ \frac 15,\ \dots \]
+</p>
+<!--
+...... subsection Grafische voorstelling ......
+-->
+<h5 id="autosec-85"><span class="sectionnumber">3&#x2003;</span>Grafische voorstelling</h5>
+<a id="mkpiweb-autopage-85"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+un
+
+     un = n1 daalt en nadert 0
+
+
+
+
+                         n
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Let op: <b>de harmonische rij</b> \((\frac 1n)\) gaat over de termen zelf. De <b>harmonische reeks</b> \(\sum _{n=1}^{\infty }\frac 1n\) is iets anders.
+</p>
+<!--
+...... section Limiet van een rij ......
+-->
+<h4 id="autosec-89"><span class="sectionnumber">V&#x2003;</span>Limiet van een rij</h4>
+<a id="mkpiweb-autopage-89"></a>
+<!--
+...... subsection Eindige limiet ......
+-->
+<h5 id="autosec-90"><span class="sectionnumber">1&#x2003;</span>Eindige limiet</h5>
+<a id="mkpiweb-autopage-90"></a>
+<!--
+...... subsubsection Inleiding ......
+-->
+<h6 id="autosec-91"><span class="sectionnumber">&#x2003;</span>Inleiding</h6>
+<a id="mkpiweb-autopage-91"></a>
+
+
+<p>
+Beschouw de rij
+</p>
+
+<p>
+\[ u_n = 2 + \frac {(-1)^n}{n}.   \]
+</p>
+
+<p>
+De eerste termen zijn:
+</p>
+
+<p>
+\[ u_1=1,\quad u_2=\frac 52,\quad u_3=\frac 53,\quad u_4=\frac 94,\quad u_5=\frac 95,\dots \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+un
+
+2                                             y=2
+
+1
+
+                                               n
+     1   2   3   4   5   6   7   8   9   10
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Punten liggen afwisselend boven en onder de rechte \(y=2\) liggen, maar wel steeds dichter!
+</p>
+
+<p>
+Afstand van \(u_n\) tot \(2\) is
+</p>
+
+<p>
+\[ |u_n-2|=\left |\frac {(-1)^n}{n}\right |=\frac {1}{n}.            \]
+</p>
+<!--
+......   paragraph Op minder dan    van   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-95">Op minder dan \(0.01\) van \(2\)</span>
+<a id="mkpiweb-autopage-95"></a>
+We willen:
+</p>
+
+<p>
+\[ |u_n-2|&lt;0.01.   \]
+</p>
+
+<p>
+Omdat \(|u_n-2|=\frac 1n\), moeten we dus hebben:
+</p>
+
+<p>
+\[ \frac 1n&lt;0.01 \quad \Longleftrightarrow \quad n&gt;100.   \]
+</p>
+
+<p>
+We mogen bijvoorbeeld \(n=101\) kiezen. Dan:
+</p>
+
+<p>
+\[ u_{101}=2+\frac {(-1)^{101}}{101}=2-\frac 1{101}, \]
+</p>
+
+<p>
+en dus
+</p>
+
+<p>
+\[ |u_{101}-2|=\frac 1{101}&lt;0.01.      \]
+</p>
+<!--
+......   paragraph Op minder dan    van   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-96">Op minder dan \(0.0005\) van \(2\)</span>
+<a id="mkpiweb-autopage-96"></a>
+Nu willen we:
+</p>
+
+<p>
+\[ |u_n-2|&lt;0.0005.   \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ \frac 1n&lt;0.0005 \quad \Longleftrightarrow \quad n&gt;2000.   \]
+</p>
+
+<p>
+We mogen bijvoorbeeld \(n=2001\) kiezen. Dan:
+</p>
+
+<p>
+\[ u_{2001}=2-\frac 1{2001}, \]
+</p>
+
+<p>
+en dus
+</p>
+
+<p>
+\[ |u_{2001}-2|=\frac 1{2001}&lt;0.0005.        \]
+</p>
+<!--
+......   paragraph Algemeen idee ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-97">Algemeen idee</span>
+<a id="mkpiweb-autopage-97"></a>
+Willen we dat de afstand tussen \(u_n\) en \(2\) kleiner is dan een willekeurig positief getal \(\varepsilon \), dan moeten we gewoon zorgen dat
+</p>
+
+<p>
+\[ \frac 1n&lt;\varepsilon .      \]
+</p>
+
+<p>
+Dat kan altijd door \(n\) groot genoeg te kiezen, bijvoorbeeld met
+</p>
+
+<p>
+\[ n&gt;\frac 1\varepsilon .      \]
+</p>
+
+<p>
+Met andere woorden: voor elke foutmarge \(\varepsilon &gt;0\) kunnen we een index \(N\) vinden zodat voor alle \(n\ge N\) geldt:
+</p>
+
+<p>
+\[ |u_n-2|&lt;\varepsilon .      \]
+</p>
+
+<p>
+Dit is precies het idee van
+</p>
+
+<p>
+\[ \lim _{n\to \infty } u_n = 2.       \]
+</p>
+<!--
+...... subsubsection Definitie (eindige limiet) ......
+-->
+<h6 id="autosec-98"><span class="sectionnumber">&#x2003;</span>Definitie (eindige limiet)</h6>
+<a id="mkpiweb-autopage-98"></a>
+
+
+<p>
+We zeggen dat \((u_n)\) een <b>limiet</b> \(L\in \R \) heeft als \(u_n\) willekeurig dicht bij \(L\) komt voor grote \(n\).
+</p>
+
+<p>
+Formeler:
+</p>
+
+<p>
+\[ \lim _{n\to \infty }u_n=L \]
+</p>
+
+<p>
+betekent:
+</p>
+<blockquote>
+
+<p>
+Voor elke foutmarge \(\varepsilon &gt;0\) bestaat er een \(N\) zodat voor alle \(n\ge N\) geldt:
+</p>
+
+<p>
+\[ |u_n-L|&lt;\varepsilon .     \]
+</p>
+
+</blockquote>
+<!--
+...... subsubsection Nog voorbeelden ......
+-->
+<h6 id="autosec-100"><span class="sectionnumber">&#x2003;</span>Nog voorbeelden</h6>
+<a id="mkpiweb-autopage-100"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }\frac {1}{n}=0\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }\frac {3n-1}{n+2} =\lim _{n\to \infty }\frac {3-\frac 1n}{1+\frac 2n}=3.\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(u_n=(-1)^n\) heeft <b>geen</b> limiet (blijft wisselen).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oneindige limiet ......
+-->
+<h5 id="autosec-101"><span class="sectionnumber">2&#x2003;</span>Oneindige limiet</h5>
+<a id="mkpiweb-autopage-101"></a>
+<!--
+...... subsubsection Inleiding ......
+-->
+<h6 id="autosec-102"><span class="sectionnumber">&#x2003;</span>Inleiding</h6>
+<a id="mkpiweb-autopage-102"></a>
+
+
+<p>
+Beschouw de rij
+</p>
+
+<p>
+\[ u_n = n-\frac {1}{n}.   \]
+</p>
+
+<p>
+De eerste termen zijn:
+</p>
+
+<p>
+\[ u_1=0,\quad u_2=\frac 32,\quad u_3=\frac 83,\quad u_4=\frac {15}{4},\quad u_5=\frac {24}{5},\dots \]
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+ un
+
+10
+                          stijgt steeds verder
+
+
+8
+
+
+
+6
+
+
+
+4
+
+
+
+2
+
+
+
+                                                  n
+      1   2   3   4   5   6    7    8    9   10
+--><img
+    src="mkpiweb-images/image-10.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+We zien in de grafiek dat de punten steeds hoger komen te liggen. De rij lijkt dus zonder bovengrens te groeien.
+</p>
+
+<p>
+Dat kunnen we ook algebrai&#x0308;sch aantonen:
+</p>
+
+<p>
+\[ u_n=n-\frac 1n.     \]
+</p>
+<!--
+......   paragraph Boven     komen ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-106">Boven \(10\) komen</span>
+<a id="mkpiweb-autopage-106"></a>
+We willen een index vinden zodat alle termen vanaf daar groter zijn dan \(10\).
+</p>
+
+<p>
+Nu geldt voor \(n\ge 1\):
+</p>
+
+<p>
+\[ u_n=n-\frac 1n &gt; n-1.      \]
+</p>
+
+<p>
+Dus het volstaat dat
+</p>
+
+<p>
+\[ n-1&gt;10.      \]
+</p>
+
+<p>
+Dat is waar zodra
+</p>
+
+<p>
+\[ n&gt;11.   \]
+</p>
+
+<p>
+We mogen dus bijvoorbeeld \(N=12\) nemen. Dan geldt voor alle \(n\ge 12\):
+</p>
+
+<p>
+\[ u_n=n-\frac 1n&gt;n-1\ge 11&gt;10.        \]
+</p>
+<!--
+......   paragraph Boven     komen ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-107">Boven \(1000\) komen</span>
+<a id="mkpiweb-autopage-107"></a>
+Op dezelfde manier willen we:
+</p>
+
+<p>
+\[ u_n&gt;1000.         \]
+</p>
+
+<p>
+Omdat opnieuw
+</p>
+
+<p>
+\[ u_n&gt;n-1, \]
+</p>
+
+<p>
+volstaat het dat
+</p>
+
+<p>
+\[ n-1&gt;1000.         \]
+</p>
+
+<p>
+Dat is waar zodra
+</p>
+
+<p>
+\[ n&gt;1001.      \]
+</p>
+
+<p>
+We mogen dus bijvoorbeeld \(N=1002\) nemen. Dan geldt voor alle \(n\ge 1002\):
+</p>
+
+<p>
+\[ u_n=n-\frac 1n&gt;n-1\ge 1001&gt;1000.      \]
+</p>
+<!--
+......   paragraph Algemeen idee ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-108">Algemeen idee</span>
+<a id="mkpiweb-autopage-108"></a>
+Willen we dat de termen uiteindelijk groter zijn dan een willekeurig ree&#x0308;el getal \(M\), dan moeten we gewoon zorgen dat
+</p>
+
+<p>
+\[ n-1&gt;M. \]
+</p>
+
+<p>
+Dat kan altijd door \(n\) groot genoeg te kiezen, bijvoorbeeld met
+</p>
+
+<p>
+\[ N&gt;M+1.    \]
+</p>
+
+<p>
+Dan geldt voor alle \(n\ge N\):
+</p>
+
+<p>
+\[ u_n=n-\frac 1n&gt;n-1\ge N-1&gt;M. \]
+</p>
+
+<p>
+Met andere woorden: voor elke grens \(M\) kunnen we een index \(N\) vinden zodat voor alle \(n\ge N\) geldt:
+</p>
+
+<p>
+\[ u_n&gt;M. \]
+</p>
+
+<p>
+Dit is precies het idee van
+</p>
+
+<p>
+\[ \lim _{n\to \infty } u_n=+\infty .        \]
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-109"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-109"></a>
+
+
+<p>
+\[ \lim _{n\to \infty }u_n=+\infty \]
+</p>
+
+<p>
+betekent:
+</p>
+<blockquote>
+
+<p>
+Voor elk getal \(M\) bestaat er een \(N\) zodat voor alle \(n\ge N\) geldt: \(u_n&gt;M\).
+</p>
+</blockquote>
+
+<p>
+Analoog definieer je \(\lim u_n=-\infty \).
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-111"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-111"></a>
+
+
+<p>
+VBTL Analyse 2: p30 nr 10,11,12
+</p>
+<!--
+...... subsection Standaard limieten ......
+-->
+<h5 id="autosec-112"><span class="sectionnumber">4&#x2003;</span>Standaard limieten</h5>
+<a id="mkpiweb-autopage-112"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }\frac {1}{n}=0\) <span class="cursus-subtitel-op-slide"></span>
+</p>
+
+</li>
+</ul>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-113">Bewijs.</h6>
+<a id="mkpiweb-autopage-113"></a>
+
+<p>
+Neem \(\varepsilon &gt;0\). Kies een natuurlijk getal \(N&gt;\frac {1}{\varepsilon }\). Dan geldt voor alle \(n\geq N\):
+</p>
+<p>
+\[ \left |\frac 1n-0\right |=\frac 1n\leq \frac 1N&lt;\varepsilon . \]
+</p>
+<p>
+Dus:
+</p>
+<p>
+\[ \lim _{n\to \infty }\frac 1n=0. \]
+</p>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }\frac {1}{n^2}=0\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }\frac {1}{n^3}=0\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Meer algemeen: voor elke natuurlijke macht \(p\geq 1\) geldt
+</p>
+<p>
+\[ \lim _{n\to \infty }\frac {1}{n^p}=0 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }n^2=+\infty \)
+</p>
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+
+</li>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-114">Bewijs.</h6>
+<a id="mkpiweb-autopage-114"></a>
+
+<p>
+Neem \(M\in \R \) willekeurig. Kies een natuurlijk getal \(N&gt;\sqrt {M}\). Dan geldt voor alle \(n\geq N\):
+</p>
+<p>
+\[ n&gt;\sqrt {M} \quad \Rightarrow \quad n^2&gt;M. \]
+</p>
+<p>
+Dus voor elke grens \(M\) bestaat er een \(N\) zodat voor alle \(n\geq N\) geldt \(n^2&gt;M\).
+</p>
+<p>
+Daarom:
+</p>
+<p>
+\[ \lim _{n\to \infty } n^2=+\infty . \]
+</p>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }n^3=+\infty \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Meer algemeen: voor elke natuurlijke macht \(p\geq 1\) geldt
+</p>
+<p>
+\[ \lim _{n\to \infty }n^p=+\infty \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }\sqrt {n}=+\infty \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }\sqrt [3]{n}=+\infty \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Meer algemeen: voor elke natuurlijke macht \(p\geq 1\) geldt
+</p>
+<p>
+\[ \lim _{n\to \infty }\sqrt [p]{n}=+\infty \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }\frac {1}{\sqrt {n}}=0\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }\frac {1}{\sqrt [3]{n}}=0\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Meer algemeen: voor elke natuurlijke macht \(p\geq 1\) geldt
+</p>
+<p>
+\[ \lim _{n\to \infty }\frac {1}{\sqrt [p]{n}}=0 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(|q|&lt;1\), dan
+</p>
+<p>
+\[ \lim _{n\to \infty }q^n=0 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(q&gt;1\), dan
+</p>
+<p>
+\[ \lim _{n\to \infty }q^n=+\infty \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(q=1\), dan
+</p>
+<p>
+\[ \lim _{n\to \infty }q^n=1 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(q=-1\), dan heeft \((q^n)\) geen limiet.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(q&lt;-1\), dan heeft \((q^n)\) geen limiet.
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Voor elke constante \(c\in \R \) geldt
+</p>
+<p>
+\[ \lim _{n\to \infty }c=c \]
+</p>
+<p>
+
+</p>
+</li>
+<!--
+...... subsection Rekenregels voor eindige limieten ......
+-->
+<h5 id="autosec-115"><span class="sectionnumber">5&#x2003;</span>Rekenregels voor eindige limieten</h5>
+<a id="mkpiweb-autopage-115"></a>
+
+
+<p>
+Als \(\lim \limits _{n\to \infty } u_n\) en \(\lim \limits _{n\to \infty } v_n\) bestaan, dan geldt:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }(u_n+v_n)=\lim _{n\to \infty }u_n+\lim _{n\to \infty }v_n\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }(u_n-v_n)=\lim _{n\to \infty }u_n-\lim _{n\to \infty }v_n\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }(u_n\cdot v_n)=\left (\lim _{n\to \infty }u_n\right )\cdot \left (\lim _{n\to \infty }v_n\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\displaystyle \lim _{n\to \infty }\left (\frac {u_n}{v_n}\right )=\frac {\lim _{n\to \infty }u_n}{\lim _{n\to \infty }v_n}\), als \(\displaystyle \lim _{n\to
+\infty }v_n\neq 0\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Rekenregels voor oneindige limieten ......
+-->
+<h5 id="autosec-116"><span class="sectionnumber">6&#x2003;</span>Rekenregels voor oneindige limieten</h5>
+<a id="mkpiweb-autopage-116"></a>
+<!--
+...... subsubsection Enkele rekenregels ......
+-->
+<h6 id="autosec-117"><span class="sectionnumber">&#x2003;</span>Enkele rekenregels</h6>
+<a id="mkpiweb-autopage-117"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als \(\lim _{n\to \infty } u_n=+\infty \quad \text {en} \quad (v_n) \text { begrensd is,} \) dan
+</p>
+<p>
+\[ \lim _{n\to \infty }(u_n+v_n)=+\infty . \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(\lim _{n\to \infty } u_n=+\infty \quad \text {en} \quad \lim _{n\to \infty } v_n=+\infty , \) dan
+</p>
+<p>
+\[ \lim _{n\to \infty }(u_n+v_n)=+\infty . \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Opgelet:</b> Vormen zoals \(\lim _{n\to \infty } u_n=+\infty \quad \text {en} \quad \lim _{n\to \infty } v_n=+\infty \) geven voor
+</p>
+<p>
+\[ \lim _{n\to \infty }(u_n-v_n) \]
+</p>
+<p>
+een <b>onbepaalde vorm</b>.
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Symbolisch ......
+-->
+<h6 id="autosec-118"><span class="sectionnumber">&#x2003;</span>Symbolisch</h6>
+<a id="mkpiweb-autopage-118"></a>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdp">
+
+<p>
+\[ \begin {aligned} (+\infty )+(+\infty )&amp;=+\infty \\ (-\infty )+(-\infty )&amp;=-\infty \\[0.5em] (+\infty )\cdot (+\infty )&amp;=+\infty \\ (+\infty )\cdot (-\infty )&amp;=-\infty \\
+(-\infty )\cdot (-\infty )&amp;=+\infty \\[0.5em] x+(+\infty )&amp;=+\infty \qquad (x\in \R )\\ x+(-\infty )&amp;=-\infty \qquad (x\in \R )\\[0.5em] x\cdot (+\infty )&amp;=+\infty \qquad
+(x&gt;0)\\ x\cdot (-\infty )&amp;=-\infty \qquad (x&gt;0) \end {aligned} \]
+</p>
+
+</td>
+<td class="tdp">
+
+<p>
+\[ \begin {aligned} x\cdot (+\infty )&amp;=-\infty \qquad (x&lt;0)\\ x\cdot (-\infty )&amp;=+\infty \qquad (x&lt;0)\\[0.5em] \frac {x}{+\infty }&amp;=0 \qquad (x\in \R )\\ \frac {x}{-\infty
+}&amp;=0 \qquad (x\in \R )\\[0.5em] \sqrt [p]{+\infty }&amp;=+\infty \qquad (p\in \N ,\ p\geq 1)\\ \sqrt [p]{-\infty }&amp;=-\infty \qquad (p \text { oneven})\\[0.5em] (+\infty
+)^p&amp;=+\infty \qquad (p\in \N ,\ p\geq 1)\\ (-\infty )^p&amp;=+\infty \qquad (p \text { even})\\ (-\infty )^p&amp;=-\infty \qquad (p \text { oneven}) \end {aligned} \]
+</p>
+
+</td>
+</tr>
+</table>
+
+</div>
+<!--
+...... subsubsection Voorlopig Onbepaalde Vormen (VOV) ......
+-->
+<h6 id="autosec-121"><span class="sectionnumber">&#x2003;</span>Voorlopig Onbepaalde Vormen (VOV)</h6>
+<a id="mkpiweb-autopage-121"></a>
+
+
+<p>
+\[ \frac {0}{0},\qquad \frac {\infty }{\infty },\qquad \infty -\infty ,\qquad 0\cdot \infty ,\qquad 1^\infty ,\qquad 0^0,\qquad \infty ^0 \]
+</p>
+
+<p>
+We onderzoeken vier limieten van het type \((+\infty )-(+\infty )\).
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span>
+</p>
+<p>
+\[ \lim _{n\to +\infty }(n-n)=0 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span>
+</p>
+<p>
+\[ \lim _{n\to +\infty }(n^3-n^2) =\lim _{n\to +\infty } n^3\left (1-\frac {1}{n}\right ) =\lim _{n\to +\infty } n^3 =+\infty \]
+</p>
+<p>
+(\(n^3\) holt veel sneller naar \(+\infty \) dan \(n^2\))
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span>
+</p>
+<p>
+\[ \lim _{n\to +\infty }(n^3-n^5) =\lim _{n\to +\infty } n^5\left (\frac {1}{n^2}-1\right ) =-\lim _{n\to +\infty } n^5 =-\infty \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span>
+</p>
+<p>
+\[ \lim _{n\to +\infty }\bigl [n^2-(1+n^2)\bigr ]=-1 \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-122"><span class="sectionnumber">7&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-122"></a>
+
+
+<p>
+VBTL Analyse 2: p30 nr14!
+</p>
+<!--
+...... section Convergentie van rijen ......
+-->
+<h4 id="autosec-123"><span class="sectionnumber">VI&#x2003;</span>Convergentie van rijen</h4>
+<a id="mkpiweb-autopage-123"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-124"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-124"></a>
+
+
+<p>
+Een rij heet <b>convergent</b> als ze een <b>eindige limiet</b> heeft. Anders heet ze <b>divergent</b>.
+</p>
+<!--
+...... subsection Uniciteit van de limiet ......
+-->
+<h5 id="autosec-125"><span class="sectionnumber">2&#x2003;</span>Uniciteit van de limiet</h5>
+<a id="mkpiweb-autopage-125"></a>
+
+
+<p>
+Een convergente rij heeft <b>hoogstens e&#x0301;e&#x0301;n</b> limiet.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-126">Bewijs.</h6>
+<a id="mkpiweb-autopage-126"></a>
+
+
+<p>
+Stel dat \(\lim u_n = L\) en ook \(\lim u_n = M\). Neem \(\varepsilon &gt;0\).
+</p>
+
+<p>
+Dan bestaat er \(N_1\) zodat voor \(n\ge N_1\) geldt \(|u_n-L|&lt;\varepsilon /2\), en er bestaat \(N_2\) zodat voor \(n\ge N_2\) geldt \(|u_n-M|&lt;\varepsilon /2\).
+</p>
+
+<p>
+Voor \(n\ge \max (N_1,N_2)\):
+</p>
+
+<p>
+\[ |L-M|\le |L-u_n|+|u_n-M|&lt;\frac {\varepsilon }{2}+\frac {\varepsilon }{2}=\varepsilon .           \]
+</p>
+
+<p>
+Omdat dit voor elke \(\varepsilon &gt;0\) kan, moet \(|L-M|=0\) en dus \(L=M\).
+</p>
+<!--
+...... subsection Ongelijkheid van Bernoulli ......
+-->
+<h5 id="autosec-127"><span class="sectionnumber">3&#x2003;</span>Ongelijkheid van Bernoulli</h5>
+<a id="mkpiweb-autopage-127"></a>
+
+
+<p>
+Voor elke \(x&gt;-1\) en elk \(n\in \N \) geldt:
+</p>
+
+<p>
+\[ \boxed {(1+x)^n \ge 1+nx.} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-128">Bewijs.</h6>
+<a id="mkpiweb-autopage-128"></a>
+
+
+<p>
+We bewijzen dit met inductie.
+</p>
+
+<p>
+<b>Start:</b> voor \(n=1\) is \((1+x)^1=1+x=1+1\cdot x\).
+</p>
+
+<p>
+<b>Stap:</b> stel dat \((1+x)^n\ge 1+nx\). Dan:
+</p>
+
+<p>
+\[ (1+x)^{n+1}=(1+x)^n(1+x)\ge (1+nx)(1+x)=1+(n+1)x+nx^2\ge 1+(n+1)x, \]
+</p>
+
+<p>
+want \(nx^2\ge 0\). Dus geldt de ongelijkheid ook voor \(n+1\).
+</p>
+<!--
+...... subsection Limiet van de rij ......
+-->
+<h5 id="autosec-129"><span class="sectionnumber">4&#x2003;</span>Limiet van de rij \(u_n=a^n\)</h5>
+<a id="mkpiweb-autopage-129"></a>
+
+
+<p>
+Beschouw \(u_n=a^n\).
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als \(|a|&lt;1\), dan \(a^n\to 0\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(a=1\), dan \(a^n\to 1\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(a=-1\), dan is er geen limiet.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(a&gt;1\), dan \(a^n\to +\infty \).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(a&lt;-1\), dan groeit \(|a|^n\to +\infty \) en de tekens wisselen, dus geen limiet.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Convergentie van rekenkundige rijen ......
+-->
+<h5 id="autosec-130"><span class="sectionnumber">5&#x2003;</span>Convergentie van rekenkundige rijen</h5>
+<a id="mkpiweb-autopage-130"></a>
+
+
+<p>
+Voor \(u_n=u_1+(n-1)v\):
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als \(v=0\), dan is de rij constant en dus convergent.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(v&gt;0\), dan \(u_n\to +\infty \).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(v&lt;0\), dan \(u_n\to -\infty \).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Convergentie van meetkundige rijen ......
+-->
+<h5 id="autosec-131"><span class="sectionnumber">6&#x2003;</span>Convergentie van meetkundige rijen</h5>
+<a id="mkpiweb-autopage-131"></a>
+
+
+<p>
+Voor \(u_n=u_1q^{n-1}\):
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als \(|q|&lt;1\), dan \(u_n\to 0\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(q=1\), dan is de rij constant: \(u_n=u_1\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(q=-1\), dan is er geen limiet (wisselende tekens).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(|q|&gt;1\), dan groeit \(|u_n|\to +\infty \) (dus divergent).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Convergentie van harmonische rijen ......
+-->
+<h5 id="autosec-132"><span class="sectionnumber">7&#x2003;</span>Convergentie van harmonische rijen</h5>
+<a id="mkpiweb-autopage-132"></a>
+
+
+<p>
+Voor \(u_n=\dfrac {1}{n}\):
+</p>
+
+<p>
+\[ \boxed {\lim _{n\to \infty }\frac {1}{n}=0,} \]
+</p>
+
+<p>
+dus de harmonische rij is convergent.
+</p>
+<!--
+...... subsection Monotone rijen ......
+-->
+<h5 id="autosec-133"><span class="sectionnumber">8&#x2003;</span>Monotone rijen</h5>
+<a id="mkpiweb-autopage-133"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \((u_n)\) is <b>stijgend</b> als \(u_{n+1}\ge u_n\) voor alle \(n\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \((u_n)\) is <b>dalend</b> als \(u_{n+1}\le u_n\) voor alle \(n\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Een rij heet <b>monotoon</b> als ze stijgend of dalend is.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Begrensde rijen ......
+-->
+<h5 id="autosec-134"><span class="sectionnumber">9&#x2003;</span>Begrensde rijen</h5>
+<a id="mkpiweb-autopage-134"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \((u_n)\) is <b>begrensd boven</b> als er een \(M\) bestaat met \(u_n\le M\) voor alle \(n\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \((u_n)\) is <b>begrensd onder</b> als er een \(m\) bestaat met \(u_n\ge m\) voor alle \(n\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \((u_n)\) is <b>begrensd</b> als ze begrensd boven en onder is.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Convergentiekenmerk voor monotone rijen ......
+-->
+<h5 id="autosec-135"><span class="sectionnumber">10&#x2003;</span>Convergentiekenmerk voor monotone rijen</h5>
+<a id="mkpiweb-autopage-135"></a>
+
+
+<p>
+<b>Stelling (monotoon convergentiekenmerk).</b>
+</p>
+<blockquote>
+
+<p>
+Elke monotone en begrensde rij is convergent.
+</p>
+</blockquote>
+
+<p>
+Intui&#x0308;tie: een stijgende rij die nooit boven een plafond komt, moet ergens “uitvlakken” en naar een grenswaarde gaan.
+</p>
+<!--
+...... subsection Voorbeeld met recursie (monotoon en begrensd) ......
+-->
+<h5 id="autosec-137"><span class="sectionnumber">11&#x2003;</span>Voorbeeld met recursie (monotoon en begrensd)</h5>
+<a id="mkpiweb-autopage-137"></a>
+
+
+<p>
+Gegeven:
+</p>
+
+<p>
+\[ u_1=0,\qquad u_{n+1}=\frac {u_n+2}{2}.        \]
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>Begrensd boven:</b> we tonen aan dat \(u_n\le 2\) voor alle \(n\). Als \(u_n\le 2\), dan
+</p>
+<p>
+\[ u_{n+1}=\frac {u_n+2}{2}\le \frac {2+2}{2}=2. \]
+</p>
+<p>
+En \(u_1=0\le 2\), dus inductie geeft \(u_n\le 2\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Stijgend:</b>
+</p>
+<p>
+\[ u_{n+1}-u_n=\frac {u_n+2}{2}-u_n=\frac {2-u_n}{2}\ge 0 \]
+</p>
+<p>
+omdat \(u_n\le 2\).
+</p>
+</li>
+</ul>
+
+<p>
+Dus \((u_n)\) is stijgend en begrensd, en daarom convergent.
+</p>
+
+<p>
+Als \(u_n\to L\), dan moet (door de rekenregels) ook \(u_{n+1}\to L\) en dus:
+</p>
+
+<p>
+\[ L=\frac {L+2}{2}\quad \Rightarrow \quad 2L=L+2\quad \Rightarrow \quad L=2.       \]
+</p>
+
+<p>
+Dus \(\lim u_n = 2\).
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-138"><span class="sectionnumber">12&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-138"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-139">Oefening 1</h5>
+<a id="mkpiweb-autopage-139"></a>
+
+
+<p>
+Bepaal (als die bestaat) de limiet:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> \(u_n=\dfrac {5n+1}{2n-3}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> \(u_n=0.8^{\,n}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> \(u_n=(-2)^n\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-140">Oefening 2</h5>
+<a id="mkpiweb-autopage-140"></a>
+
+
+<p>
+Onderzoek of de rij convergent is. Motiveer.
+</p>
+
+<p>
+\[ u_1=10,\qquad u_{n+1}=0.6\,u_n.        \]
+</p>
+
+<p>
+Geef ook de limiet.
+</p>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-141">Oefening 3</h5>
+<a id="mkpiweb-autopage-141"></a>
+
+
+<p>
+Toon aan dat de rij
+</p>
+
+<p>
+\[ u_n = 1-\frac {1}{n} \]
+</p>
+
+<p>
+monotoon is en begrensd. Besluit dat ze convergent is en bepaal de limiet.
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

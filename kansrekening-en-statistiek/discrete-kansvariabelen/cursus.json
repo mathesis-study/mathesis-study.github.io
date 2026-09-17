@@ -1,0 +1,32 @@
+{
+ "titel": "Discrete kansvariabelen",
+ "hoofdstuk": 6,
+ "code": "S06",
+ "vak": "Wiskunde",
+ "domein": "KansrekeningEnStatistiek",
+ "domeinnaam": "Kansrekening en statistiek",
+ "url": "kansrekening-en-statistiek/discrete-kansvariabelen",
+ "secties": [
+  "Kansvariabele",
+  "Kansdichtheidsfunctie van een discrete kansvariabele",
+  "Verdelingsfunctie van een discrete kansvariabele",
+  "Uitgewerkt voorbeeld",
+  "Oefeningen",
+  "Verwachtingswaarde van een discrete kansvariabele",
+  "Variantie en standaardafwijking van een discrete kansvariabele",
+  "Eigenschappen van de verwachtingswaarde en de variantie",
+  "\\(\\sqrt {n}\\)-wet",
+  "Oefeningen",
+  "Extra oefeningen"
+ ],
+ "leerplandoelen": [
+  "BV3_06.13",
+  "BV3_06.21",
+  "WD3_06.08.33",
+  "WD3_06.08.35",
+  "WD3_06.08.37"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

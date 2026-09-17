@@ -1,0 +1,24 @@
+{
+ "titel": "Cyclometrische functies",
+ "hoofdstuk": 10,
+ "code": "A10",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/cyclometrische-functies",
+ "secties": [
+  "Bgsin",
+  "Bgcos",
+  "Bgtan",
+  "Bgcot",
+  "Eigenschappen",
+  "Oefeningen"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.20",
+  "WD3_06.08.21"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

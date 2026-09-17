@@ -1,0 +1,352 @@
+:root,
+:root[data-thema="licht"] {
+  --kleur-tekst: #1c2530;
+  --kleur-zwak: #64748b;
+  --kleur-lijn: #dde3ea;
+  --kleur-vlak: #ffffff;
+  --kleur-vlak-zweef: rgba(255, 255, 255, .88);
+  --kleur-achtergrond: #eef1f5;
+  --kleur-accent: #1d5fa8;
+  --kleur-accent-zacht: #e8f0fa;
+  --kleur-op-accent: #ffffff;
+  --kleur-oplossing: #fafcfa;
+  --kleur-oplossing-rand: #d6e4d6;
+  --kleur-oplossing-streep: #f7faf7;
+  --kleur-oplossing-tekst: #3d6b3d;
+  --kleur-figuur: rgba(255, 255, 255, .4);
+  --kleur-figuur-rand: #e9edf2;
+  --kleur-sluier: rgba(20, 28, 38, .45);
+  --schaduw: rgba(0, 0, 0, .18);
+  --figuur-filter: none;
+  --figuur-mengmodus: multiply;
+  --grm-donker: #2e3238;
+  --grm-donker-rand: #2e3238;
+  --grm-donker-tekst: #ffffff;
+  --grm-licht: #ecedef;
+  --grm-licht-rand: #9aa0a6;
+  --grm-licht-tekst: #1b1d20;
+  --grm-bovenrij: #d3d6da;
+  --grm-tweede: #3c9ad6;
+  --grm-tweede-label: #1c78b8;
+  --grm-alfa: #57ae45;
+  --grm-alfa-label: #3a8a2c;
+  --grm-scherm: #ffffff;
+  --grm-scherm-rand: #3a3f45;
+  --grm-scherm-tekst: #1b1d20;
+  --grm-scherm-lijn: #8a9097;
+  --grm-status: #e4e6e9;
+  --grm-status-tekst: #5a6068;
+  --grm-selectie: #2b2f35;
+  --grm-selectie-tekst: #ffffff;
+  --balk: 3.25rem;
+  --zijbalk: 20rem;
+  --straal: 10px;
+}
+
+/* Nachtstand. De accentkleur gaat lichter dan overdag, want ze staat nu op
+ * een donker vlak; het groen van de oplossingen blijft herkenbaar maar
+ * gedempt, zodat een open oplossing niet oplicht in een donkere klas.
+ *
+ * Enkel voor het scherm: wie de slides afdrukt, wil geen zwarte bladen, dus
+ * valt de printbeurt vanzelf op de lijst hierboven terug. */
+@media screen {
+  :root[data-thema="donker"] {
+    --kleur-tekst: #dde5ee;
+    --kleur-zwak: #93a3b6;
+    --kleur-lijn: #2b3745;
+    --kleur-vlak: #182029;
+    --kleur-vlak-zweef: rgba(24, 32, 41, .9);
+    --kleur-achtergrond: #0e141a;
+    --kleur-accent: #7ab4f0;
+    --kleur-accent-zacht: #1d2c3c;
+    --kleur-op-accent: #0e141a;
+    --kleur-oplossing: #1a2822;
+    --kleur-oplossing-rand: #30483a;
+    --kleur-oplossing-streep: #1d2c23;
+    --kleur-oplossing-tekst: #9ccba6;
+    --kleur-figuur: rgba(255, 255, 255, .02);
+    --kleur-figuur-rand: #26313d;
+    --kleur-sluier: rgba(4, 8, 12, .6);
+    --schaduw: rgba(0, 0, 0, .55);
+    --figuur-filter: invert(1) hue-rotate(180deg);
+    --figuur-mengmodus: screen;
+    /* De toetsen houden hun kleur; enkel de donkere krijgen een rand, anders
+     * verdwijnen ze in het vlak. Het scherm van het toestel is gedempt wit. */
+    --grm-donker-rand: #5b636d;
+    --grm-licht: #d9dcdf;
+    --grm-bovenrij: #c3c7cc;
+    --grm-tweede-label: #6db8ea;
+    --grm-alfa-label: #86cf73;
+    --grm-scherm: #dfe3e7;
+    --grm-scherm-rand: #56606b;
+    --grm-status: #c9ced3;
+    --grm-status-tekst: #4a5058;
+  }
+}
+
+/* De browser mag zijn eigen onderdelen mee omkleuren: schuifbalken, het
+ * kruisje in het zoekveld, de rand rond een focus. */
+:root[data-thema="licht"] { color-scheme: light; }
+:root[data-thema="donker"] { color-scheme: dark; }
+
+/* Hoofdpagina van Mathesis.
+ *
+ * mkpi --hoofdpagina zet hier de kleurvariabelen van presentatie.css voor,
+ * letterlijk overgenomen, zodat de hoofdpagina dezelfde dag- en nachtstand
+ * heeft als de hoofdstukken. Schrijf hieronder dus geen vaste kleur, enkel
+ * die namen. */
+
+html {
+  box-sizing: border-box;
+  font-size: 17px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  background: var(--kleur-achtergrond);
+  color: var(--kleur-tekst);
+  font-family: "Source Sans Pro", "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.55;
+}
+
+/* --- Kopbalk ----------------------------------------------------------- */
+
+.kop {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  height: 3.25rem;
+  padding: 0 1rem;
+  background: var(--kleur-vlak);
+  border-bottom: 1px solid var(--kleur-lijn);
+}
+
+.merk {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--kleur-accent);
+  text-decoration: none;
+}
+
+.rek {
+  flex: 1 1 auto;
+}
+
+.thema {
+  font: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  padding: 0;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: 10px;
+  background: var(--kleur-vlak);
+  color: var(--kleur-tekst);
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+
+.thema:hover {
+  background: var(--kleur-accent-zacht);
+  border-color: var(--kleur-accent);
+  color: var(--kleur-accent);
+}
+
+.thema svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+/* --- Inhoud ------------------------------------------------------------ */
+
+main {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 2rem 1rem 3rem;
+}
+
+.inleiding {
+  max-width: 40rem;
+  margin-bottom: 2.5rem;
+}
+
+.inleiding h1 {
+  font-size: clamp(1.7rem, 6vw, 2.4rem);
+  line-height: 1.2;
+  margin: 0 0 .8rem;
+  color: var(--kleur-accent);
+}
+
+.inleiding p,
+.materiaal p,
+.uitleg p {
+  margin: 0 0 .7rem;
+}
+
+.herkomst {
+  font-size: 1.05rem;
+}
+
+.materiaal {
+  max-width: 40rem;
+  margin-bottom: 2rem;
+}
+
+.materiaal h2,
+.uitleg h2 {
+  font-size: 1.4rem;
+  margin: 0 0 .6rem;
+}
+
+/* Gebruik en Geschiedenis staan onder de hoofdstukken, naast elkaar zodra
+ * er plaats is. */
+.uitleg {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 44rem) {
+  .uitleg {
+    grid-template-columns: 3fr 2fr;
+    align-items: start;
+  }
+}
+
+.uitleg section {
+  padding: 1rem 1.1rem .6rem;
+  background: var(--kleur-vlak);
+  border: 1px solid var(--kleur-lijn);
+  border-radius: 10px;
+}
+
+.uitleg ul {
+  margin: 0 0 .7rem;
+  padding-left: 1.1rem;
+}
+
+.uitleg li {
+  margin-bottom: .35rem;
+}
+
+kbd {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .85em;
+  padding: .05rem .35rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: 4px;
+  background: var(--kleur-achtergrond);
+}
+
+.vak h2 {
+  font-size: 1.4rem;
+  margin: 0 0 1rem;
+  padding-bottom: .4rem;
+  border-bottom: 1px solid var(--kleur-lijn);
+}
+
+/* De domeinen staan in kolommen zodra het scherm breed genoeg is; op een
+ * telefoon gewoon onder elkaar. */
+.vak {
+  margin-bottom: 2.5rem;
+}
+
+.vak > .domein {
+  break-inside: avoid;
+}
+
+@media (min-width: 44rem) {
+  .vak {
+    column-count: 2;
+    column-gap: 1.25rem;
+  }
+
+  .vak h2 {
+    column-span: all;
+  }
+}
+
+.domein {
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 1.25rem;
+  padding: 1rem 1.1rem .6rem;
+  background: var(--kleur-vlak);
+  border: 1px solid var(--kleur-lijn);
+  border-radius: 10px;
+}
+
+.domein h3 {
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--kleur-zwak);
+  margin: 0 0 .5rem;
+}
+
+.hoofdstukken {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.hoofdstukken a {
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+  margin: 0 -.5rem;
+  padding: .35rem .5rem;
+  border-radius: 6px;
+  color: var(--kleur-tekst);
+  text-decoration: none;
+}
+
+.hoofdstukken a:hover,
+.hoofdstukken a:focus-visible {
+  background: var(--kleur-accent-zacht);
+  color: var(--kleur-accent);
+}
+
+.hoofdstukken .nummer {
+  flex: 0 0 auto;
+  min-width: 2.2rem;
+  font-size: .85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--kleur-zwak);
+}
+
+/* Het woord "Hoofdstuk" staat er voor schermlezers; op het scherm volstaat
+ * het getal. */
+.verborgen {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.voet {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 0 1rem 2rem;
+  font-size: .85rem;
+  color: var(--kleur-zwak);
+}
+
+:focus-visible {
+  outline: 2px solid var(--kleur-accent);
+  outline-offset: 2px;
+}

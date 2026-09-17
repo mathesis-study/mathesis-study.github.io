@@ -1,0 +1,1830 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Verloop van exponentiële en logaritmische functies</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 18</p> <h1>Verloop van exponentie&#x0308;le en logaritmische functies</h1> </header>
+</p>
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-2">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.26</b> (MD 06.08.16) De leerlingen bepalen <span class="leerplan-grijs">grafisch</span> en algebraı&#x0308;sch limieten van functies en analyseren het
+asymptotisch gedrag.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">continuı&#x0308;teit</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: horizontaal, verticaal en <span class="leerplan-grijs">schuin</span> asymptotisch gedrag
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.28</b> De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit <span class="leerplan-grijs">veeltermfuncties</span>, <span
+class="leerplan-grijs">rationale functies</span>, <span class="leerplan-grijs">irrationale functies</span>, exponentie&#x0308;le functies, logaritmische functies, <span class="leerplan-grijs">goniometrische
+functies</span> en <span class="leerplan-grijs">cyclometrische functies</span>.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">afleidbaarheid</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: rekenregels: afgeleide van een som, product, quotie&#x0308;nt van functies en afgeleide van een samengestelde functie (kettingregel)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">regel van de l’Ho&#x0302;pital</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <b>WD3_06.08.28.01</b> (MD 06.08.17) De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit veeltermfuncties, rationale functies, irrationale functies,
+exponentie&#x0308;le functies, logaritmische functies en goniometrische functies.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <span class="leerplan-grijs"><b>WD3_06.08.28.02</b> De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit cyclometrische functies.</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Limieten ......
+-->
+<h4 id="autosec-3"><span class="sectionnumber">I&#x2003;</span>Limieten</h4>
+<a id="mkpiweb-autopage-3"></a>
+<!--
+...... subsection Het getal ......
+-->
+<h5 id="autosec-4"><span class="sectionnumber">1&#x2003;</span>Het getal \(e\)</h5>
+<a id="mkpiweb-autopage-4"></a>
+
+
+<p>
+\[ e = \lim _{x\to +\infty } \left (1+\frac {1}{x}\right )^x = \lim _{x\to 0} (1+x)^{\frac {1}{x}} \]
+</p>
+
+<p>
+VOV “\(1^\infty \)”.
+</p>
+<!--
+...... subsection Eigenschap ......
+-->
+<h5 id="autosec-5"><span class="sectionnumber">2&#x2003;</span>Eigenschap</h5>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+Voor alle \(a\in \mathbb {R}_0^+\setminus \{1\}\) geldt:
+</p>
+
+<p>
+\[ \lim _{x\to 0} \frac {\log _a(1+x)}{x} = \frac {1}{\ln a} \]
+</p>
+
+<p>
+VOV “\(\dfrac {0}{0}\)”.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-6">Bewijs.</h6>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<p>
+\[ \begin {aligned} \lim _{x\to 0} \frac {\log _a(1+x)}{x} &amp;= \lim _{x\to 0} \left (\frac {1}{x}\,\log _a(1+x)\right ) \\ &amp;= \lim _{x\to 0} \bigl (\log _a(1+x)^{1/x}\bigr ) \\ &amp;=
+\log _a\!\left (\lim _{x\to 0} (1+x)^{1/x}\right ) \\ &amp;= \log _a e \\ &amp;= \frac {\log _a e}{\log _e a} = \frac {1}{\ln a} \end {aligned} \]
+</p>
+<!--
+...... subsection Bijzonder geval ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">3&#x2003;</span>Bijzonder geval</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+\[ \lim _{x\to 0} \frac {\ln (1+x)}{x} = 1 \]
+</p>
+
+<p>
+VOV “\(\dfrac {0}{0}\)”.
+</p>
+<!--
+...... subsection Standaardlimieten ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">4&#x2003;</span>Standaardlimieten</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+\[ \begin {array}{c|c} a&gt;1 &amp; 0&lt;a&lt;1 \\ \hline \displaystyle \lim _{x\to +\infty } a^x = +\infty &amp; \displaystyle \lim _{x\to +\infty } a^x = 0 \\[0.8em] \displaystyle \lim _{x\to
+-\infty } a^x = 0 &amp; \displaystyle \lim _{x\to -\infty } a^x = +\infty \\[0.8em] \displaystyle \lim _{x\to 0} \log _a x = -\infty &amp; \displaystyle \lim _{x\to 0} \log _a x = +\infty
+\\[0.8em] \displaystyle \lim _{x\to +\infty } \log _a x = +\infty &amp; \displaystyle \lim _{x\to +\infty } \log _a x = -\infty \end {array} \]
+</p>
+<!--
+...... subsection Regel van de l’Hospital ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">5&#x2003;</span>Regel van de l’Hospital</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p>
+VOV “\(\dfrac {0}{0}\)” of “\(\dfrac {\infty }{\infty }\)”.
+</p>
+
+<p>
+\[ \lim _{x\to a} \frac {f(x)}{g(x)} = \lim _{x\to a} \frac {f&apos;(x)}{g&apos;(x)} \quad \text {met } a\in \overline {\mathbb {R}}=[-\infty ,+\infty ].   \]
+</p>
+
+<p>
+Om deze regel te kunnen gebruiken hebben we echter eerst formules voor afgeleiden van exp- en logaritmische functies nodig.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+p. 60 nr. 3
+</p>
+<!--
+...... section Afgeleide van logaritmische functies ......
+-->
+<h4 id="autosec-11"><span class="sectionnumber">II&#x2003;</span>Afgeleide van logaritmische functies</h4>
+<a id="mkpiweb-autopage-11"></a>
+<!--
+...... subsection Herhaling: definitie afgeleid getal ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">1&#x2003;</span>Herhaling: definitie afgeleid getal</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+\[ f&apos;(a) = \lim _{x\to a} \frac {f(x)-f(a)}{x-a}.          \]
+</p>
+
+<p>
+De letter \(a\) gebruiken wij echter voor het grondtal, dus zullen we \(f&apos;(b)\) nemen:
+</p>
+
+<p>
+\[ f&apos;(b) = \lim _{x\to b} \frac {f(x)-f(b)}{x-b}.          \]
+</p>
+<!--
+...... subsection Voor logaritmische functies ......
+-->
+<h5 id="autosec-13"><span class="sectionnumber">2&#x2003;</span>Voor logaritmische functies</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+Neem
+</p>
+
+<p>
+\[ f(x) = \log _a x.    \]
+</p>
+
+<p>
+Dan is
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                            loga x − loga b
+                                                f ′ (b) = lim
+                                                        x→b      x−b
+                                                                                  
+                                                                1        x−b+b
+                                                      = lim         loga
+                                                        x→b x − b             b
+                                                                                   
+                                                                1           b x−b
+                                                      = lim         loga      +
+                                                        x→b x − b           b    b
+                                                                                   
+                                                                1               x−b
+                                                      = lim         loga 1 +
+                                                        x→b x − b                b
+
+                                                                        Stel nu \(y = \frac {x-b}{b}\). Als \(x\to b\), dan \(y\to 0\) en dus
+                                                                              
+                                                              1
+                                                      = lim     · loga (1 + y)
+                                                        y→0 by
+
+                                                          1     loga (1 + y)
+                                                      =     lim
+                                                          b y→0       y
+                                                                                                                                                                       
+                                                       1 1                                                                                        loga (1 + x)    1
+                                                      = ·                                                                                     lim              =
+                                                       b ln a                                                                                 x→0       x        ln a
+                                                             1
+                                                      =          ,
+                                                          b ln a
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f&apos;(b) &amp;= \lim _{x\to b} \frac {\log _a x - \log _a b}{x-b} \\[0.3em] &amp;= \lim _{x\to b} \left (\frac {1}{x-b}\,\log _a\frac {x-b+b}{b}\right ) \\[0.3em] &amp;= \lim _{x\to b} \left
+(\frac {1}{x-b}\,\log _a\left (\frac {b}{b}+\frac {x-b}{b}\right )\right ) \\[0.3em] &amp;= \lim _{x\to b} \left (\frac {1}{x-b}\,\log _a\left (1+\frac {x-b}{b}\right )\right ) &amp;\intertext
+{\centering Stel nu $y = \frac {x-b}{b}$. Als $x\to b$, dan $y\to 0$ en dus} &amp;= \lim _{y\to 0} \left (\frac {1}{b y} \cdot \log _a(1+y)\right ) \\[0.3em] &amp;= \frac {1}{b} \lim _{y\to
+0} \frac {\log _a(1+y)}{y} \\[0.3em] &amp;= \frac {1}{b}\cdot \frac {1}{\ln a} &amp;&amp; \left (\lim _{x\to 0} \frac {\log _a(1+x)}{x} = \frac {1}{\ln a}\right )\\ &amp; = \frac {1}{b\ln a},
+\end{align*}
+
+</p>
+
+<p>
+Daaruit volgt de algemene formule
+</p>
+
+<p>
+\[ \boxed {(\log _a x)&apos; = \frac {1}{x\,\ln a}} \]
+</p>
+<!--
+...... subsection Bijzonder geval: ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">3&#x2003;</span>Bijzonder geval:</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+\[ (\ln x)&apos; = \frac {1}{x\ln e} = \frac {1}{x} \qquad \Rightarrow \qquad \boxed {(\ln x)&apos; = \frac {1}{x}} \]
+</p>
+<!--
+...... subsection Samengestelde functies: ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">4&#x2003;</span>Samengestelde functies:</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+\[ \boxed {(\log _a f(x))&apos; = \frac {f&apos;(x)}{f(x)\,\ln a}} \qquad \text {en}\qquad \boxed {(\ln f(x))&apos; = \frac {f&apos;(x)}{f(x)}}.   \]
+</p>
+<!--
+...... subsection Opmerking ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">5&#x2003;</span>Opmerking</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+Het afgeleide getal van \(\log _a x\) in \(b\) is de rico van de raaklijn aan de grafiek in het punt \((b,\log _a b)\).
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">6&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \((\log _4 x)&apos; = \dfrac {1}{x\ln 4}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\bigl (\ln (x^2-1)\bigr )&apos; = \dfrac {2x}{x^2-1}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\bigl (\ln \sqrt {x}\bigr )&apos; = \bigl (\tfrac 12\ln x\bigr )&apos; = \dfrac {1}{2x}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\bigl (x\ln x - x\bigr )&apos; = \ln x + x\cdot \dfrac {1}{x} - 1 = \ln x\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\bigl (x^3\ln x\bigr )&apos; = 3x^2\ln x + x^3\cdot \dfrac {1}{x} = x^2\bigl (3\ln x + 1\bigr )\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\left (\dfrac {\ln x}{x}\right )&apos; = \dfrac {(1/x)\,x - \ln x\cdot 1}{x^2} = \dfrac {1-\ln x}{x^2}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(\bigl (\log _2(1+x)\bigr )&apos; = \dfrac {1}{(1+x)\,\ln 2}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(\bigl (\log _{10}(10x+1)\bigr )&apos; = \dfrac {10}{(10x+1)\,\ln 10}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(i)</span> \(\bigl (\ln (\sin x)\bigr )&apos; = \dfrac {\cos x}{\sin x} = \cot x\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(j)</span> \(\bigl (\ln (\cos x)\bigr )&apos; = \dfrac {-\sin x}{\cos x} = -\tan x\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(k)</span> \(\bigl (\log _{10}(\tan x)\bigr )&apos; = \dfrac {\frac {1}{\cos ^2 x}}{\tan x\,\ln 10} = \dfrac {1}{\sin x\cos x\,\ln 10}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(l)</span> \(\left (\dfrac {x}{\ln x}\right )&apos; = \dfrac {1\cdot \ln x - x\cdot \dfrac {1}{x}}{(\ln x)^2} = \dfrac {\ln x - 1}{(\ln x)^2}\).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-18"><span class="sectionnumber">7&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+p81 nr10
+</p>
+<!--
+...... section Afgeleide van exponentiele functies ......
+-->
+<h4 id="autosec-19"><span class="sectionnumber">III&#x2003;</span>Afgeleide van exponentie&#x0308;le functies</h4>
+<a id="mkpiweb-autopage-19"></a>
+<!--
+...... subsection Opstelling formules ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">1&#x2003;</span>Opstelling formules</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+Neem \(f(x)=a^x\). We zoeken \(f&apos;(x)\).
+</p>
+
+<p>
+\[ y = a^x \quad \Longleftrightarrow \quad \log _a y = x.   \]
+</p>
+
+<p>
+Differentieer naar \(x\):
+</p>
+
+<p>
+\[ (\log _a y)&apos; = (x)&apos; \quad \Longrightarrow \quad \frac {1}{y\ln a}\,y&apos; = 1 \quad \Longrightarrow \quad y&apos; = y\ln a.   \]
+</p>
+
+<p>
+Dus
+</p>
+
+<p>
+\[ (a^x)&apos; = a^x\ln a.   \]
+</p>
+
+<p>
+Samengevat:
+</p>
+
+<p>
+\[ \boxed {(a^x)&apos; = a^x\ln a},\qquad \boxed {(e^x)&apos; = e^x}, \]
+</p>
+
+<p>
+\[ \boxed {(a^{f(x)})&apos; = a^{f(x)}\ln a\,f&apos;(x)},\qquad \boxed {(e^{f(x)})&apos; = e^{f(x)}f&apos;(x)}.   \]
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \((10^x)&apos; = 10^x\ln 10\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\bigl (2\cdot 5^{x+1}\bigr )&apos; = 2\cdot 5^{x+1}\ln 5\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\bigl (e^{\ln x}\bigr )&apos; = e^{\ln x}(\ln x)&apos; = x\cdot \frac {1}{x} = 1.\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\bigl (10^{\log _{10}(x+1)}\bigr )&apos; = 10^{\log _{10}(x+1)}\ln 10\,\bigl (\log _{10}(x+1)\bigr )&apos; \\ \hphantom {\bigl (10^{\log _{10}(x+1)}\bigr
+)&apos;} = 10^{\log _{10}(x+1)}\ln 10\cdot \frac {1}{(x+1)\ln 10} = \frac {10^{\log _{10}(x+1)}}{x+1} = (x+1)&apos; = 1.\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\bigl (e^{\sin x}\bigr )&apos; = e^{\sin x}\cos x.\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\bigl (e^{3\cos x}\bigr )&apos; = e^{3\cos x}\cdot (-3\sin x) = -3e^{3\cos x}\sin x.\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(\bigl (5^{\cos x}\bigr )&apos; = 5^{\cos x}\ln 5\cdot (-\sin x) = -5^{\cos x}\ln 5\,\sin x.\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(\bigl (e^{\tan x}\bigr )&apos; = e^{\tan x}\cdot \frac {1}{\cos ^2 x}.\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-22"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+p80 nr4
+</p>
+
+<p>
+p82 nr21 nr22
+</p>
+
+<p>
+p83 nr23 (een paar, gebruik veel ICT)
+</p>
+<!--
+...... section Toepassingen ......
+-->
+<h4 id="autosec-23"><span class="sectionnumber">IV&#x2003;</span>Toepassingen</h4>
+<a id="mkpiweb-autopage-23"></a>
+<!--
+...... subsection ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">1&#x2003;</span>\((\ln |x|)&apos;\)</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+Aangezien een logaritme enkel gedefinieerd is voor \(\mathbb {R}_0^+\), zullen we vaak \(\ln |x|\) tegenkomen: zeker positief!
+</p>
+
+<p>
+\[ |x|= \begin {cases} x &amp; \text {als } x\in \mathbb {R}_0^+,\\ -x &amp; \text {als } x\in \mathbb {R}_0^-.                  \end {cases} \]
+</p>
+
+<p>
+Voor \(x\in \mathbb {R}_0^+\):
+</p>
+
+<p>
+\[ (\ln |x|)&apos; = (\ln x)&apos; = \dfrac {1}{x}.         \]
+</p>
+
+<p>
+Voor \(x\in \mathbb {R}_0^-\):
+</p>
+
+<p>
+\[ (\ln |x|)&apos; = (\ln (-x))&apos; = \dfrac {1}{-x}\cdot (-1) = \dfrac {1}{x}.              \]
+</p>
+
+<p>
+Dus
+</p>
+
+<p>
+\[ \boxed {(\ln |x|)&apos; = \dfrac {1}{x}}\qquad (x\neq 0) \qquad \Rightarrow \qquad \boxed {(\ln |x|)&apos; = (\ln x)&apos;} \]
+</p>
+<!--
+...... subsection ......
+-->
+<h5 id="autosec-25"><span class="sectionnumber">2&#x2003;</span>\(\bigl (\ln |x+\sqrt {x^2+k^2}|\bigr )&apos;\)</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+\[ \begin {aligned} \bigl (\ln |x+\sqrt {x^2+k^2}|\bigr )&apos; &amp;= \left (\ln \bigl (x+\sqrt {x^2+k^2}\bigr )\right )&apos; \\ &amp;= \frac {\bigl (x+\sqrt {x^2+k^2}\bigr )&apos;}{x+\sqrt
+{x^2+k^2}} \\ &amp;= \frac {1 + \dfrac {1}{2\sqrt {x^2+k^2}}\cdot 2x}{x+\sqrt {x^2+k^2}} \\ &amp;= \frac {1 + \dfrac {x}{\sqrt {x^2+k^2}}}{x+\sqrt {x^2+k^2}} \\ &amp;= \frac {\dfrac {\sqrt
+{x^2+k^2}+x}{\sqrt {x^2+k^2}}}{x+\sqrt {x^2+k^2}} \\ &amp;= \frac {1}{\sqrt {x^2+k^2}}. \end {aligned} \]
+</p>
+
+<p>
+\[ \boxed {\bigl (\ln |x+\sqrt {x^2+k^2}|\bigr )&apos; = \dfrac {1}{\sqrt {x^2+k^2}}} \qquad \text { en } \qquad \boxed {\bigl (\ln |f(x)+\sqrt {f(x)^2+k^2}|\bigr )&apos; = \dfrac
+{f&apos;(x)}{\sqrt {f(x)^2+k^2}}}. \]
+</p>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-26"><span class="sectionnumber">V&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection p80 nr7 ......
+-->
+<h6 id="autosec-27">p80 nr7</h6>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+De functie \(y = x^{\tfrac 14}\,e^{-2\sqrt {x}}\) voldoet aan de vergelijking
+</p>
+
+<p>
+\[ x^2\,y&apos;&apos; + \frac {3}{16}y = x^q\,e^{-2\sqrt {x}} \]
+</p>
+
+<p>
+met \(q\) een rationaal getal. Bereken \(q\).
+</p>
+
+<div class="oplossing">
+
+<p>
+Afgeleiden bepalen:
+</p>
+
+<p>
+\[ \begin {aligned} y &amp;= x^{\tfrac 14} e^{-2\sqrt {x}}. \\[0.3em] y&apos; &amp;= \left (x^{\tfrac 14}\right )&apos; e^{-2\sqrt {x}} + x^{\tfrac 14} \left (e^{-2\sqrt {x}}\right )&apos;
+\\[0.3em] &amp;= \frac 14 x^{-\tfrac 34} e^{-2\sqrt {x}} + x^{\tfrac 14} e^{-2\sqrt {x}}(-2\sqrt {x})&apos; \\[0.3em] &amp;= \frac 14 x^{-\tfrac 34} e^{-2\sqrt {x}} - x^{\tfrac 14} e^{-2\sqrt
+{x}}\frac {1}{\sqrt {x}} \\[0.3em] &amp;= \frac {1/4-\sqrt {x}}{x^{3/4}}\,e^{-2\sqrt {x}}.\\[0.3em] y&apos;&apos; &amp;= \left (\frac {1/4-\sqrt {x}}{x^{3/4}}\,e^{-2\sqrt {x}}\right )&apos;
+\\[0.3em] &amp;= \frac {x-\tfrac {3}{16}}{x^{7/4}}\,e^{-2\sqrt {x}}. \end {aligned} \]
+</p>
+
+<p>
+Nu vullen we dit in, in de linkerkant van de gegeven vergelijking:
+</p>
+
+<p>
+\[ \begin {aligned} x^2 y&apos;&apos; + \frac {3}{16}y &amp;= x^2 \cdot \frac {x-\tfrac {3}{16}}{x^{7/4}}\,e^{-2\sqrt {x}} + \frac {3}{16} x^{\tfrac 14} e^{-2\sqrt {x}} \\[0.3em] &amp;=
+x^{\tfrac 14}(x-\tfrac {3}{16})e^{-2\sqrt {x}} + \frac {3}{16} x^{\tfrac 14} e^{-2\sqrt {x}} \\[0.3em] &amp;= x^{\tfrac 14} e^{-2\sqrt {x}} \left (x-\tfrac {3}{16}+\tfrac {3}{16}\right )
+\\[0.3em] &amp;= x^{\tfrac 54} e^{-2\sqrt {x}}. \end {aligned} \]
+</p>
+
+<p>
+We zien dus dat
+</p>
+
+<p>
+\[ x^2 y&apos;&apos; + \frac {3}{16}y = x^{\tfrac 54} e^{-2\sqrt {x}}.          \]
+</p>
+
+<p>
+Vergelijken met de vorm \(x^q e^{-2\sqrt {x}}\) geeft meteen
+</p>
+
+<p>
+\[ q = \frac 54.      \]
+</p>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection p81 nr13 ......
+-->
+<h6 id="autosec-28">p81 nr13</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+Zoek de vergelijking van de raaklijn aan de grafiek van \(f\) met
+</p>
+
+<p>
+\[ f(x)=x\ln x \]
+</p>
+
+<p>
+in het snijpunt met de \(x\)-as.
+</p>
+
+<div class="oplossing">
+
+<p>
+Eerst bepalen we het snijpunt van de grafiek met de \(x\)-as:
+</p>
+
+<p>
+\[ x\ln x = 0.     \]
+</p>
+
+<p>
+Omdat het domein \(x&gt;0\) is, krijgen we
+</p>
+
+<p>
+\[ \ln x = 0 \;\Longrightarrow \; x=1.           \]
+</p>
+
+<p>
+Het snijpunt met de \(x\)-as is dus \((1,0)\).
+</p>
+
+<p>
+De afgeleide van \(f\) is
+</p>
+
+<p>
+\[ f&apos;(x) = (\;x\ln x\;)&apos; = \ln x + 1.           \]
+</p>
+
+<p>
+In \(x=1\) is de rico van de raaklijn
+</p>
+
+<p>
+\[ f&apos;(1) = \ln 1 + 1 = 0 + 1 = 1.           \]
+</p>
+
+<p>
+De vergelijking van de raaklijn door \((1,0)\) met rico \(1\) is
+</p>
+
+<p>
+\[ y - 0 = 1(x-1) \quad \Longrightarrow \quad y = x - 1.            \]
+</p>
+
+</div>
+
+<p>
+OPMERKING: Geen vraagstukken met in de opgave een differentiaalvergelijking. (integralen nodig)
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection p85 nr31 ......
+-->
+<h6 id="autosec-29">p85 nr31</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+Onder bepaalde omstandigheden verloopt de afname van de luchtdruk volgens de vergelijking
+</p>
+
+<p>
+\[ \frac {dp}{dh} = -\lambda \cdot p \]
+</p>
+
+<p>
+met
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(p\): luchtdruk (in hectopascal),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(h\): hoogte (in km) boven de zeespiegel/
+</p>
+</li>
+</ul>
+
+<p>
+De luchtdruk op zeeniveau is \(1000\) hectopascal en op \(1\) km boven de zeespiegel \(869\) hectopascal.
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Schrijf \(p\) in functie van \(h\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> In een luchtballon kun je echter eenvoudiger de luchtdruk meten dan de hoogte. Zoek de formule die \(h\) uitdrukt in functie van \(p\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Toon aan dat de snelheid waarmee de hoogte (afhankelijk van \(p\)) verandert, negatief is.
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<p>
+We lossen eerst de differentiaalvergelijking \(\dfrac {dp}{dh}=-\lambda p\) op:
+</p>
+
+<p>
+\[ \frac {1}{p}\,dp=-\lambda \,dh \quad \Rightarrow \quad \ln p = -\lambda h + C \quad \Rightarrow \quad p(h)=Ce^{-\lambda h}.                   \]
+</p>
+
+<p>
+Uit \(p(0)=1000\) volgt \(C=1000\), dus
+</p>
+
+<p>
+\[ p(h)=1000e^{-\lambda h}.      \]
+</p>
+
+<p>
+Verder is \(p(1)=869\), dus
+</p>
+
+<p>
+\[ 869 = 1000e^{-\lambda } \quad \Rightarrow \quad e^{-\lambda }=\frac {869}{1000}.               \]
+</p>
+
+<p>
+Daarmee kunnen we schrijven
+</p>
+
+<p>
+\[ p(h) = 1000\Bigl (\frac {869}{1000}\Bigr )^h.          \]
+</p>
+
+<p>
+Dit beantwoordt vraag <b>(a)</b>.
+</p>
+
+<p>
+Voor <b>(b)</b> schrijven we \(h\) als functie van \(p\). Uit
+</p>
+
+<p>
+\[ p = 1000\Bigl (\frac {869}{1000}\Bigr )^h \]
+</p>
+
+<p>
+volgt
+</p>
+
+<p>
+\[ \frac {p}{1000} = \Bigl (\frac {869}{1000}\Bigr )^h \quad \Rightarrow \quad \ln \!\left (\frac {p}{1000}\right ) = h\,\ln \!\left (\frac {869}{1000}\right ), \]
+</p>
+
+<p>
+dus
+</p>
+
+<p>
+\[ h(p) = \frac {\ln \!\left (\dfrac {p}{1000}\right )} {\ln \!\left (\dfrac {869}{1000}\right )}.               \]
+</p>
+
+<p>
+Voor <b>(c)</b> bekijken we de afgeleide van \(h\) naar \(p\):
+</p>
+
+<p>
+\[ h&apos;(p) = \frac {d}{dp}\left ( \frac {\ln \!\left (\dfrac {p}{1000}\right )} {\ln \!\left (\dfrac {869}{1000}\right )}\right ) = \frac {1}{p\,\ln \!\left (\dfrac {869}{1000}\right )}.   \]
+</p>
+
+<p>
+Omdat \(\dfrac {869}{1000}&lt;1\), is \(\ln \!\left (\dfrac {869}{1000}\right )&lt;0\), terwijl \(p&gt;0\) is. Bijgevolg geldt
+</p>
+
+<p>
+\[ h&apos;(p) &lt; 0.     \]
+</p>
+
+<p>
+Dus de snelheid waarmee de hoogte verandert (als functie van \(p\)) is negatief.
+</p>
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection p85 nr32 ......
+-->
+<h6 id="autosec-30">p85 nr32</h6>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+Een parachutespringer opent zijn valscherm op het moment \(t=0\) dat hij 700 m boven de grond is. De valweg wordt gegeven door
+</p>
+
+<p>
+\[ s(t)=30+6t-30\cdot 0.223^{\,t}, \]
+</p>
+
+<p>
+met \(s(t)\): valweg in m na \(t\) seconden.
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Geef de formule voor de snelheid van de parachutist.
+</p>
+<div class="oplossing">
+<p>
+De snelheid is de afgeleide van de valweg:
+</p>
+<p>
+\[ v(t)=s&apos;(t) =\bigl (30+6t-30\cdot 0.223^{\,t}\bigr )&apos; =6-30\cdot (0.223^{\,t})&apos;.               \]
+</p>
+<p>
+We gebruiken \((a^t)&apos;=a^t\ln a\) met \(a=0.223\):
+</p>
+<p>
+\[ v(t)=6-30\cdot 0.223^{\,t}\ln (0.223). \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Welke snelheid (in m/s) had de parachutist op het moment dat zijn parachute openging? Hoeveel km/h is dit?
+</p>
+<div class="oplossing">
+<p>
+De snelheid op het openingsmoment van het valscherm is \(v(0)\):
+</p>
+<p>
+\[ v(0)=6-30\cdot 0.223^{\,0}\ln (0.223) =6-30\ln (0.223) \approx 51\ \text {m/s}. \]
+</p>
+<p>
+Omzetten naar km/h:
+</p>
+<p>
+\[ 51\ \text {m/s}\approx 51\cdot 3.6 \approx 184\ \text {km/h}. \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Geef de formule voor de vertraging van de parachutist.
+</p>
+<div class="oplossing">
+<p>
+De vertraging is de afgeleide van de snelheid:
+</p>
+<p>
+\[ a(t)=v&apos;(t) =\bigl (6-30\cdot 0.223^{\,t}\ln (0.223)\bigr )&apos; =-30\ln (0.223)\cdot (0.223^{\,t})\ln (0.223).              \]
+</p>
+<p>
+Dus
+</p>
+<p>
+\[ a(t)=-30\bigl (\ln (0.223)\bigr )^2\cdot 0.223^{\,t}. \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Wat is de vertraging (in m/s\(^2\)) na 1 seconde? En na 3 seconden?
+</p>
+<div class="oplossing">
+<p>
+Na 1 seconde:
+</p>
+<p>
+\[ a(1)=-30\bigl (\ln (0.223)\bigr )^2\cdot 0.223 \approx -15.1\ \text {m/s}^2. \]
+</p>
+<p>
+Na 3 seconden:
+</p>
+<p>
+\[ a(3)=-30\bigl (\ln (0.223)\bigr )^2\cdot 0.223^{3} \approx -0.75\ \text {m/s}^2. \]
+</p>
+<p>
+De negatieve waarden duiden op een vertraging.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> Beredeneer dat de snelheid van de parachutist afneemt tot ongeveer \(6\) m/s.
+</p>
+<div class="oplossing">
+<p>
+De snelheid is
+</p>
+<p>
+\[ v(t)=6-30\cdot 0.223^{\,t}\ln (0.223). \]
+</p>
+<p>
+Omdat \(0&lt;0.223&lt;1\) geldt \(\lim _{t\to \infty }0.223^{\,t}=0\). Het tweede lid in de formule voor \(v(t)\) verdwijnt dus voor grote \(t\), zodat
+</p>
+<p>
+\[ \lim _{t\to \infty }v(t)=6\ \text {m/s}. \]
+</p>
+<p>
+Daarom neemt de snelheid van de parachutist af tot ongeveer \(6\) m/s.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection p88 nr48, Toelatingsexamen arts 2020, vraag 8 ......
+-->
+<h6 id="autosec-31">p88 nr48, <em>Toelatingsexamen arts 2020, vraag 8</em></h6>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+Gegeven is de functie \(f\) met functievoorschrift
+</p>
+
+<p>
+\[ f(x)=\ln (e^x+2).        \]
+</p>
+
+<p>
+Bepaal het snijpunt van de raaklijn aan de grafiek van \(f\) in het punt met \(x\)-coo&#x0308;rdinaat \(\ln (2)\), en de rechte met vergelijking \(y=\ln (2)\).
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(A)</span> \((-\ln (2),\ln (2))\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(B)</span> \((\ln (2),\ln (2))\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(C)</span> \((\ln (2),-\ln (2))\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(D)</span> \((2\ln (2),\ln (2))\)
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<p>
+We bepalen eerst het punt van de grafiek met \(x\)-coo&#x0308;rdinaat \(\ln (2)\):
+</p>
+
+<p>
+\[ f(\ln 2) = \ln \!\bigl (e^{\ln 2}+2\bigr ) = \ln (2+2) = \ln 4 = \ln (2^2) = 2\ln 2.                \]
+</p>
+
+<p>
+Het raakpunt is dus \((\ln 2,2\ln 2)\).
+</p>
+
+<p>
+De afgeleide van \(f\) is
+</p>
+
+<p>
+\[ f&apos;(x)=\frac {e^x}{e^x+2}, \]
+</p>
+
+<p>
+dus
+</p>
+
+<p>
+\[ f&apos;(\ln 2)=\frac {e^{\ln 2}}{e^{\ln 2}+2} =\frac {2}{2+2} =\frac 12.               \]
+</p>
+
+<p>
+De vergelijking van de raaklijn in \((\ln 2,2\ln 2)\) is
+</p>
+
+<p>
+\[ y-2\ln 2 = \frac 12\bigl (x-\ln 2\bigr ).         \]
+</p>
+
+<p>
+We zoeken het snijpunt met de rechte \(y=\ln 2\). Stel \(y=\ln 2\) in de raaklijnvergelijking:
+</p>
+
+<p>
+\[ \ln 2 - 2\ln 2 = \frac 12\bigl (x-\ln 2\bigr ) \quad \Longrightarrow \quad -\ln 2 = \frac 12\bigl (x-\ln 2\bigr ).                     \]
+</p>
+
+<p>
+Vermenigvuldig met \(2\):
+</p>
+
+<p>
+\[ -2\ln 2 = x-\ln 2 \quad \Longrightarrow \quad x = -\ln 2.            \]
+</p>
+
+<p>
+Het gezochte snijpunt is dus
+</p>
+
+<p>
+\[ (-\ln 2,\ln 2), \]
+</p>
+
+<p>
+dus antwoord <b>(A)</b>.
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

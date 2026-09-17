@@ -1,0 +1,21 @@
+{
+ "titel": "T -Formules en Formules van Simpson",
+ "hoofdstuk": 4,
+ "code": "G04",
+ "vak": "Wiskunde",
+ "domein": "Goniometrie",
+ "domeinnaam": "Goniometrie",
+ "url": "goniometrie/t-formules-en-simpson",
+ "secties": [
+  "T -formules (universele t-substitutie)",
+  "Formules van Simpson (som–product en product–som)",
+  "Combineren: t -formules en Simpson"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.18",
+  "WD3_06.08.22"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

@@ -1,0 +1,2359 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cyclometrische functies</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 10</p> <h1>Cyclometrische functies</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                           π    y
+                           2
+                                        y = Bgsin x
+                                    y=x
+
+                                                  x
+                    −1              1
+
+
+y = sin x beperkt
+                         − π2
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.20</b> (MD 06.08.08) De leerlingen leggen grafisch het verband tussen inverteerbare functies en hun inverse.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: bijectie
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: cyclometrische functies
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.21</b> (MD 06.08.07) De leerlingen leggen het verband tussen de grafiek en het voorschrift van een functie en haar kenmerken.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">veeltermfuncties</span>, <span class="leerplan-grijs">rationale functies</span>, <span class="leerplan-grijs">(elementaire)
+irrationale functies</span>, <span class="leerplan-grijs">exponentie&#x0308;le functies</span>, <span class="leerplan-grijs">logaritmische functies \(f(x)=\log _a(x)\)</span>, <span
+class="leerplan-grijs">goniometrische functies \(f(x)=\cos x\) en \(f(x)=\tan x\)</span>, cyclometrische functies, <span class="leerplan-grijs">absolute waardenfunctie</span>, <span
+class="leerplan-grijs">meervoudig functievoorschrift</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: domein, bereik, <span class="leerplan-grijs">nulwaarden</span>, <span class="leerplan-grijs">tekenverloop</span>, <span
+class="leerplan-grijs">stijgen/dalen/constant</span>, <span class="leerplan-grijs">extrema</span>, <span class="leerplan-grijs">constante/toenemende/afnemende stijging/daling</span>, symmetrie, <span
+class="leerplan-grijs">periode</span>, <span class="leerplan-grijs">amplitude</span>, <span class="leerplan-grijs">asymptotisch gedrag</span>, <span class="leerplan-grijs">gedrag op oneindig</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> inverse functies, domeinbeperking, symmetrie, eigenschappen van cyclometrische functies gebruiken om uitdrukkingen te vereenvoudigen
+</p>
+
+<p>
+<b>Extra uitleg:</b> verband met grafieken, hoofdwaarden, samengestelde functies
+</p>
+
+</div>
+<!--
+...... section Bgsin ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Bgsin</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsubsection Probleem ......
+-->
+<h6 id="autosec-7"><span class="sectionnumber">&#x2003;</span>Probleem</h6>
+<a id="mkpiweb-autopage-7"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+           R                    [−1, 1]
+
+       x             sin
+                                    sin x
+  x + 2π           bgsin
+
+de omgekeerde relatie van sin is geen functie
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+De omgekeerde relatie van \(\sin \) of \(\bgsin \) is geen functie!
+</p>
+<!--
+...... subsubsection Oplossing ......
+-->
+<h6 id="autosec-11"><span class="sectionnumber">&#x2003;</span>Oplossing</h6>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+We beperken daarom het domein tot
+</p>
+
+<p>
+\[ \left [-\frac {\pi }{2},\frac {\pi }{2}\right ], \]
+</p>
+
+<p>
+zo wordt \(y=\sin x\) een bijectie en is de inverse relatie een functie.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+ π π
+ −2, 2            [−1, 1]
+
+          sin
+ x                    sin x
+         Bgsin
+
+                 hoofdletter!
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                        h π πi
+                                                                      Bgsin : [−1, 1] −→ − ,   : x 7−→ Bgsin x
+                                                                                          2 2
+                                                                                                                           h π πi
+                                                                                  met y = Bgsin x   ⇐⇒     sin y = x en y ∈ − ,
+                                                                                                                             2 2
+
+-->
+
+<p>
+
+\begin{align*}
+\Bgsin : [-1,1] &amp;\longrightarrow \left [-\frac {\pi }{2},\frac {\pi }{2}\right ] :      x \longmapsto \Bgsin x \\ &amp;\text {met } y=\Bgsin x \quad \Longleftrightarrow \quad \sin y=x \text {
+en } y\in \left [-\frac {\pi }{2},\frac {\pi }{2}\right ]
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsection Eigenschappen en grafiek ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">2&#x2003;</span>Eigenschappen en grafiek</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                          dom Bgsin = [−1, 1]
+                                                                                                      h π πi
+                                                                                           ber Bgsin = − ,
+                                                                                                         2 2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\dom \Bgsin &amp; =[-1,1] \\ \ber \Bgsin &amp; =\left [-\frac {\pi }{2},\frac {\pi }{2}\right ]
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+                    y
+               π
+               2
+
+
+
+
+               1
+                        y = Bgsin x
+
+
+
+
+                                             x
+−1.57   −1                   1        1.57
+
+
+
+
+             −1
+
+
+             − π2
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">3&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\Bgsin 0=0\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\Bgsin 1=\frac {\pi }{2}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\Bgsin (-1)=-\frac {\pi }{2}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\Bgsin \left (\frac {1}{2}\right )=\frac {\pi }{6}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\Bgsin \left (-\frac {\sqrt 2}{2}\right )=-\frac {\pi }{4}\)
+</p>
+</li>
+</ul>
+<!--
+...... section Bgcos ......
+-->
+<h4 id="autosec-21"><span class="sectionnumber">II&#x2003;</span>Bgcos</h4>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+We beperken het domein voor de cos nu tot \([0,\pi ]\).
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-22"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                        Bgcos : [−1, 1] −→ [0, π] : x 7−→ Bgcos x
+                                                                                      met y = Bgcos x     ⇐⇒        cos y = x en y ∈ [0, π]
+
+
+-->
+
+<p>
+
+\begin{align*}
+\Bgcos : [-1,1] &amp;\longrightarrow [0,\pi ] :    x \longmapsto \Bgcos x \\ &amp;\text {met } y=\Bgcos x \quad \Longleftrightarrow \quad \cos y=x \text { en } y\in [0,\pi ]
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsection Eigenschappen en grafiek ......
+-->
+<h5 id="autosec-23"><span class="sectionnumber">2&#x2003;</span>Eigenschappen en grafiek</h5>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                           dom Bgcos = [−1, 1]
+                                                                                            ber Bgcos = [0, π]
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\dom \Bgcos &amp; =[-1,1] \\ \ber \Bgcos &amp; =[0,\pi ]
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+               y
+        π
+ y = Bgcos x
+
+
+
+
+        π
+        2
+
+
+        1
+
+
+                               x
+−1                 1   π   π
+                       2
+
+
+
+      −1
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">3&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\Bgcos 1=0\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\Bgcos 0=\frac {\pi }{2}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\Bgcos (-1)=\pi \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\Bgcos \left (\frac {1}{2}\right )=\frac {\pi }{3}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\Bgcos \left (-\frac {\sqrt 2}{2}\right )=\frac {3\pi }{4}\)
+</p>
+</li>
+</ul>
+<!--
+...... section Bgtan ......
+-->
+<h4 id="autosec-28"><span class="sectionnumber">III&#x2003;</span>Bgtan</h4>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+We beperken het domein voor de tan nu tot \(\left (-\frac {\pi }{2},\frac {\pi }{2}\right ).\)
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                     π π
+                                                                        Bgtan : R −→ − ,   : x 7−→ Bgtan x
+                                                                                      2 2
+                                                                                                                         π π
+                                                                                 met y = Bgtan x   ⇐⇒   tan y = x en y ∈ − ,
+                                                                                                                          2 2
+
+-->
+
+<p>
+
+\begin{align*}
+\Bgtan : \R &amp;\longrightarrow \left (-\frac {\pi }{2},\frac {\pi }{2}\right ) :      x \longmapsto \Bgtan x \\ &amp;\text {met } y=\Bgtan x \quad \Longleftrightarrow \quad \tan y=x \text { en
+} y\in \left (-\frac {\pi }{2},\frac {\pi }{2}\right )
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsection Eigenschappen en grafiek ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">2&#x2003;</span>Eigenschappen en grafiek</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                         dom Bgtan = R
+                                                                                                      π π
+                                                                                          ber Bgtan = − ,
+                                                                                                       2 2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\dom \Bgtan &amp; =\R \\ \ber \Bgtan &amp; =\left (-\frac {\pi }{2},\frac {\pi }{2}\right )
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+                   y
+
+              3
+
+
+              π
+              2
+                       y = Bgtan x
+
+
+                                     x
+−3   − π2              π
+                       2
+                                 3
+
+            − π2
+
+
+            −3
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-34"><span class="sectionnumber">3&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\Bgtan 0=0\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\Bgtan 1=\frac {\pi }{4}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\Bgtan (-1)=-\frac {\pi }{4}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\Bgtan (\sqrt 3)=\frac {\pi }{3}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\Bgtan (-\sqrt 3)=-\frac {\pi }{3}\)
+</p>
+</li>
+</ul>
+<!--
+...... section Bgcot ......
+-->
+<h4 id="autosec-35"><span class="sectionnumber">IV&#x2003;</span>Bgcot</h4>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p>
+We beperken het domein voor de cot nu tot \((0,\pi ).\)
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-36"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                          Bgcot : R −→ (0, π) : x 7−→ Bgcot x
+                                                                                   met y = Bgcot x    ⇐⇒        cot y = x en y ∈ (0, π)
+
+
+-->
+
+<p>
+
+\begin{align*}
+\Bgcot : \R &amp;\longrightarrow (0,\pi ) :    x \longmapsto \Bgcot x \\ &amp;\text {met } y=\Bgcot x \quad \Longleftrightarrow \quad \cot y=x \text { en } y\in (0,\pi )
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsection Eigenschappen en grafiek ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">2&#x2003;</span>Eigenschappen en grafiek</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                           dom Bgcot = R
+                                                                                            ber Bgcot = (0, π)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\dom \Bgcot &amp; =\R \\ \ber \Bgcot &amp; =(0,\pi )
+\end{align*}
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+          y
+      π
+
+
+      π
+      2
+
+              y = Bgcot x
+
+                                x
+−3            π             π
+              2
+
+
+
+
+     −3
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-41"><span class="sectionnumber">3&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\Bgcot 0=\frac {\pi }{2}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\Bgcot 1=\frac {\pi }{4}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\Bgcot (-1)=\frac {3\pi }{4}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\Bgcot (\sqrt 3)=\frac {\pi }{6}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\Bgcot (-\sqrt 3)=\frac {5\pi }{6}\)
+</p>
+</li>
+</ul>
+<!--
+...... section Eigenschappen ......
+-->
+<h4 id="autosec-42"><span class="sectionnumber">V&#x2003;</span>Eigenschappen</h4>
+<a id="mkpiweb-autopage-42"></a>
+<!--
+...... subsection Inverse eigenschappen ......
+-->
+<h5 id="autosec-43"><span class="sectionnumber">1&#x2003;</span>Inverse eigenschappen</h5>
+<a id="mkpiweb-autopage-43"></a>
+<!--
+...... subsubsection Stellingen ......
+-->
+<h6 id="autosec-44"><span class="sectionnumber">&#x2003;</span>Stellingen</h6>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                        sin(Bgsin x) = x                                                       (x ∈ [−1, 1])
+
+                                                        cos(Bgcos x) = x                                                       (x ∈ [−1, 1])
+
+                                                        tan(Bgtan x) = x                                                           (x ∈ R)
+
+                                                        cot(Bgcot x) = x                                                           (x ∈ R)
+
+
+-->
+
+<p>
+
+\begin{align*}
+\sin (\Bgsin x)&amp;=x &amp; \qquad (x\in [-1,1])\\[1.5ex] \cos (\Bgcos x)&amp;=x &amp; \qquad (x\in [-1,1])\\[1.5ex] \tan (\Bgtan x)&amp;=x &amp; \qquad (x\in \R )\\[1.5ex] \cot (\Bgcot
+x)&amp;=x &amp; \qquad (x\in \R )
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsubsection Bewijzen ......
+-->
+<h6 id="autosec-45"><span class="sectionnumber">&#x2003;</span>Bewijzen</h6>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p>
+Neem \(x\in [-1,1]\). Stel \(y=\Bgsin x\).
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                           y = Bgsin x
+                                                                                                                                                 h π πi
+                                             ⇔                                          sin y = x                                         met y ∈ − ,
+                                                                                                                                                   2 2
+                                             ⇔                                   sin(Bgsin x) = x.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; y &amp; = \Bgsin x \\ &amp; \Leftrightarrow &amp; \sin y &amp; = x &amp;&amp; \text {met } y\in \left [-\frac {\pi }{2},\frac {\pi }{2}\right ] \\ &amp; \Leftrightarrow &amp; \sin
+(\Bgsin x) &amp; = x.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\sin (\Bgsin x)=x} \]
+</p>
+
+<p>
+Rest analoog.
+</p>
+<!--
+...... subsubsection Stellingen ......
+-->
+<h6 id="autosec-46"><span class="sectionnumber">&#x2003;</span>Stellingen</h6>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                  h π π i
+                                                        Bgsin(sin x) = x                                                         x∈ − ,
+                                                                                                                                     2 2
+
+                                                        Bgcos(cos x) = x                                                           (x ∈ [0, π])
+                                                                                                                                  i π π h
+                                                        Bgtan(tan x) = x                                                         x∈ − ,
+                                                                                                                                     2 2
+
+                                                        Bgcot(cot x) = x                                                           (x ∈]0, π[)
+
+
+-->
+
+<p>
+
+\begin{align*}
+\Bgsin (\sin x) &amp; =x &amp; \qquad \left (x\in \left [-\frac {\pi }{2},\frac {\pi }{2}\right ]\right ) \\[1.5ex] \Bgcos (\cos x) &amp; =x &amp; \qquad (x\in [0,\pi ]) \\[1.5ex] \Bgtan (\tan
+x) &amp; =x &amp; \qquad \left (x\in \left ]-\frac {\pi }{2},\frac {\pi }{2}\right [\right ) \\[1.5ex] \Bgcot (\cot x) &amp; =x &amp; \qquad (x\in ]0,\pi [)
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsubsection Bewijzen ......
+-->
+<h6 id="autosec-47"><span class="sectionnumber">&#x2003;</span>Bewijzen</h6>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+Neem \(x\in \left [-\frac {\pi }{2},\frac {\pi }{2}\right ]\). Stel \(y=\Bgsin (\sin x)\).
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                 y = Bgsin(sin x)
+                                                                                                                                    h π πi
+                                   ⇔                                          sin y = sin x                                 met y ∈ − ,
+                                                                                                                                       2 2
+                                   ⇔                                             y=x                                        want \(\sin \) is injectief op dit interval
+                                   ⇔                                   Bgsin(sin x) = x.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; y &amp; = \Bgsin (\sin x) \\ &amp; \Leftrightarrow &amp; \sin y &amp; = \sin x &amp;&amp; \text {met } y\in \left [-\frac {\pi }{2},\frac {\pi }{2}\right ] \\ &amp; \Leftrightarrow
+&amp; y &amp; = x &amp;&amp; \text {want \(\sin \) is injectief op dit interval} \\ &amp; \Leftrightarrow &amp; \Bgsin (\sin x) &amp; = x.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\Bgsin (\sin x)=x} \]
+</p>
+
+<p>
+Rest analoog.
+</p>
+<!--
+...... subsection Verbanden ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">2&#x2003;</span>Verbanden</h5>
+<a id="mkpiweb-autopage-48"></a>
+<!--
+...... subsubsection Stellingen ......
+-->
+<h6 id="autosec-49"><span class="sectionnumber">&#x2003;</span>Stellingen</h6>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                              π
+                                                        Bgsin x + Bgcos x =                                                      (x ∈ [−1, 1])
+                                                                              2
+                                                                              π
+                                                        Bgtan x + Bgcot x =                                                          (x ∈ R)
+                                                                              2
+
+-->
+
+<p>
+
+\begin{align*}
+\Bgsin x+\Bgcos x&amp;=\frac {\pi }{2} &amp; \qquad (x\in [-1,1]) \\[1.5ex] \Bgtan x+\Bgcot x&amp;=\frac {\pi }{2} &amp; \qquad (x\in \R )
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsubsection Bewijzen ......
+-->
+<h6 id="autosec-50"><span class="sectionnumber">&#x2003;</span>Bewijzen</h6>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p>
+Neem \(x\in [-1,1]\).
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                                       π
+                                                                                                                                 Bgsin x + Bgcos x =
+                                                                                                                                                       2
+                                                                                                                                                            π
+                                                   ⇔                                                                         sin(Bgsin x + Bgcos x) = sin
+                                                                                                                                                            2
+                                                   ⇔                                           sin(Bgsin x) cos(Bgcos x) + cos(Bgsin x) sin(Bgcos x) = 1
+                                                                                                                                 p          p
+                                                   ⇔                                                                      x · x + 1 − x2 · 1 − x2 = 1
+                                                   ⇔                                                                                    x2 + 1 − x2 = 1
+                                                   ⇔                                                                                              1 = 1.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; \Bgsin x+\Bgcos x &amp; = \frac {\pi }{2} \\ &amp; \Leftrightarrow &amp; \sin (\Bgsin x+\Bgcos x) &amp; = \sin \frac {\pi }{2} \\ &amp; \Leftrightarrow &amp; \sin (\Bgsin x)\cos
+(\Bgcos x) +\cos (\Bgsin x)\sin (\Bgcos x) &amp; = 1 \\ &amp; \Leftrightarrow &amp; x\cdot x+\sqrt {1-x^2}\cdot \sqrt {1-x^2} &amp; = 1 \\ &amp; \Leftrightarrow &amp; x^2+1-x^2 &amp; = 1 \\
+&amp; \Leftrightarrow &amp; 1 &amp; = 1.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\Bgsin x+\Bgcos x=\frac {\pi }{2}} \]
+</p>
+
+<p>
+Rest analoog.
+</p>
+<!--
+...... subsection Symmetrie ......
+-->
+<h5 id="autosec-51"><span class="sectionnumber">3&#x2003;</span>Symmetrie</h5>
+<a id="mkpiweb-autopage-51"></a>
+<!--
+...... subsubsection Stellingen ......
+-->
+<h6 id="autosec-52"><span class="sectionnumber">&#x2003;</span>Stellingen</h6>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                        Bgsin(−x) = − Bgsin x                                                     (x ∈ [−1, 1])
+
+                                                        Bgcos(−x) = π − Bgcos x                                                   (x ∈ [−1, 1])
+
+                                                        Bgtan(−x) = − Bgtan x                                                         (x ∈ R)
+
+                                                        Bgcot(−x) = π − Bgcot x                                                       (x ∈ R)
+
+
+-->
+
+<p>
+
+\begin{align*}
+\Bgsin (-x)&amp;=-\Bgsin x &amp; \qquad (x\in [-1,1])\\[1.5ex] \Bgcos (-x)&amp;=\pi -\Bgcos x &amp; \qquad (x\in [-1,1])\\[1.5ex] \Bgtan (-x)&amp;=-\Bgtan x &amp; \qquad (x\in \R )\\[1.5ex]
+\Bgcot (-x)&amp;=\pi -\Bgcot x &amp; \qquad (x\in \R )
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsubsection Bewijzen ......
+-->
+<h6 id="autosec-53"><span class="sectionnumber">&#x2003;</span>Bewijzen</h6>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Neem \(x\in [-1,1]\). Stel \(\alpha =\Bgsin x\).
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       α = Bgsin x
+                                                                                                                                                    h π πi
+                                            ⇔                                       sin α = x                                                met α ∈ − ,
+                                                                                                                                                      2 2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; \alpha &amp; = \Bgsin x \\ &amp; \Leftrightarrow &amp; \sin \alpha &amp; = x &amp;&amp; \text {met }\alpha \in \left [-\frac {\pi }{2},\frac {\pi }{2}\right ]
+\end{align*}
+
+</p>
+
+<p>
+Omdat
+</p>
+
+<p>
+\[ -\alpha \in \left [-\frac {\pi }{2},\frac {\pi }{2}\right ] \]
+</p>
+
+<p>
+geldt:
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                      sin(−α) = − sin α
+                                                          ⇔                                                           sin(−α) = −x
+                                                          ⇔                                                         Bgsin(−x) = −α
+                                                          ⇔                                                         Bgsin(−x) = − Bgsin x.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; \sin (-\alpha ) &amp; = -\sin \alpha \\ &amp; \Leftrightarrow &amp; \sin (-\alpha ) &amp; = -x \\ &amp; \Leftrightarrow &amp; \Bgsin (-x) &amp; = -\alpha \\ &amp; \Leftrightarrow
+&amp; \Bgsin (-x) &amp; = -\Bgsin x.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\Bgsin (-x)=-\Bgsin x} \]
+</p>
+
+<p>
+Rest analoog.
+</p>
+<!--
+...... subsection Gemengde samenstellingen ......
+-->
+<h5 id="autosec-54"><span class="sectionnumber">4&#x2003;</span>Gemengde samenstellingen</h5>
+<a id="mkpiweb-autopage-54"></a>
+<!--
+...... subsubsection Stellingen ......
+-->
+<h6 id="autosec-55"><span class="sectionnumber">&#x2003;</span>Stellingen</h6>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                         p
+                                                        cos(Bgsin x) =       1 − x2                                                (x ∈ [−1, 1])
+                                                                         p
+                                                        sin(Bgcos x) =       1 − x2                                                (x ∈ [−1, 1])
+
+
+-->
+
+<p>
+
+\begin{align*}
+\cos (\Bgsin x)&amp;=\sqrt {1-x^2} &amp; \qquad (x\in [-1,1])\\[1.5ex] \sin (\Bgcos x)&amp;=\sqrt {1-x^2} &amp; \qquad (x\in [-1,1])
+\end{align*}
+
+</p>
+
+</div>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                             x
+                                                        sin(Bgtan x) = √                                                                (x ∈ R)
+                                                                           1 + x2
+
+                                                                             1
+                                                        cos(Bgtan x) = √                                                                (x ∈ R)
+                                                                           1 + x2
+                                                                             x
+                                                        tan(Bgsin x) = √                                                           (x ∈ (−1, 1))
+                                                                           1 − x2
+                                                                             x
+                                                        cot(Bgcos x) = √                                                           (x ∈ (−1, 1))
+                                                                           1 − x2
+
+-->
+
+<p>
+
+\begin{align*}
+\sin (\Bgtan x)&amp;=\frac {x}{\sqrt {1+x^2}} &amp; \qquad (x\in \R )\\[1.5ex] \cos (\Bgtan x)&amp;=\frac {1}{\sqrt {1+x^2}} &amp; \qquad (x\in \R )\\[1.5ex] \tan (\Bgsin x)&amp;=\frac
+{x}{\sqrt {1-x^2}} &amp; \qquad (x\in (-1,1))\\[1.5ex] \cot (\Bgcos x)&amp;=\frac {x}{\sqrt {1-x^2}} &amp; \qquad (x\in (-1,1))
+\end{align*}
+
+</p>
+
+</div>
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                              1
+                                                           cot(Bgtan x) =                                                          (x ∈ R0 )
+                                                                              x
+                                                                              1
+                                                           tan(Bgcot x) =                                                          (x ∈ R0 )
+                                                                              x
+
+-->
+
+<p>
+
+\begin{align*}
+\cot (\Bgtan x)&amp;=\frac {1}{x} &amp; \qquad (x\in \R _0)\\[1.5ex] \tan (\Bgcot x)&amp;=\frac {1}{x} &amp; \qquad (x\in \R _0)
+\end{align*}
+
+</p>
+
+</div>
+<!--
+...... subsubsection Bewijzen ......
+-->
+<h6 id="autosec-56"><span class="sectionnumber">&#x2003;</span>Bewijzen</h6>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p>
+Neem \(x\in [-1,1]\). Stel \(\alpha =\Bgsin x\).
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       α = Bgsin x
+                                                                                                                                                     h π πi
+                                            ⇔                                       sin α = x                                                 met α ∈ − ,
+                                                                                                                                                       2 2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; \alpha &amp; = \Bgsin x \\ &amp; \Leftrightarrow &amp; \sin \alpha &amp; = x &amp;&amp; \text {met }\alpha \in \left [-\frac {\pi }{2},\frac {\pi }{2}\right ]
+\end{align*}
+
+</p>
+
+<p>
+Omdat \(\cos \alpha \geq 0\), geldt:
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                  sin2 α + cos2 α = 1
+                                                        ⇔                                                            x2 + cos2 α = 1
+                                                        ⇔                                                                 cos2 α = 1 − x2
+                                                                                                                                   p
+                                                        ⇔                                                                  cos α = 1 − x2
+                                                                                                                                   p
+                                                        ⇔                                                           cos(Bgsin x) = 1 − x2 .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; \sin ^2\alpha +\cos ^2\alpha &amp; = 1 \\ &amp; \Leftrightarrow &amp; x^2+\cos ^2\alpha &amp; = 1 \\ &amp; \Leftrightarrow &amp; \cos ^2\alpha &amp; = 1-x^2 \\ &amp;
+\Leftrightarrow &amp; \cos \alpha &amp; = \sqrt {1-x^2} \\ &amp; \Leftrightarrow &amp; \cos (\Bgsin x) &amp; = \sqrt {1-x^2}.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {\cos (\Bgsin x)=\sqrt {1-x^2}} \]
+</p>
+
+<p>
+Rest analoog.
+</p>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-57"><span class="sectionnumber">VI&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-57"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-58">Oefening 1</h5>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<p>
+Bepaal exact.
+</p>
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\Bgsin \left (\frac 12\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\Bgsin \left (-\frac {\sqrt 3}{2}\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\Bgcos \left (\frac 12\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\Bgcos \left (-\frac {\sqrt 2}{2}\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\Bgtan (1)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\Bgtan (-\sqrt 3)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(\Bgcot (0)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(\Bgcot (-1)\)
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-60">Oefening 2</h5>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+Vereenvoudig.
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\sin (\Bgsin x)\), met \(x\in [-1,1]\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\cos (\Bgcos x)\), met \(x\in [-1,1]\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\tan (\Bgtan x)\), met \(x\in \R \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\cot (\Bgcot x)\), met \(x\in \R \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\Bgsin (\sin x)\), met \(x\in \left [-\frac {\pi }{2},\frac {\pi }{2}\right ]\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\Bgcos (\cos x)\), met \(x\in [0,\pi ]\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-61">Oefening 3</h5>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<p>
+Bereken telkens de juiste hoofdwaarde.
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\Bgsin \left (\sin \frac {5\pi }{6}\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\Bgsin \left (\sin \frac {7\pi }{6}\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\Bgcos \left (\cos \frac {5\pi }{6}\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\Bgcos \left (\cos \frac {7\pi }{6}\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\Bgtan \left (\tan \frac {3\pi }{4}\right )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\Bgcot \left (\cot \frac {5\pi }{4}\right )\)
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-62">Oefening 4</h5>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p>
+Los op.
+</p>
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\Bgsin x=\frac {\pi }{6}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\Bgsin x=-\frac {\pi }{4}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\Bgcos x=\frac {2\pi }{3}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\Bgcos x=\frac {\pi }{4}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\Bgtan x=-\frac {\pi }{3}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\Bgtan x=\frac {\pi }{4}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(\Bgcot x=\frac {3\pi }{4}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(\Bgcot x=\frac {\pi }{6}\)
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-64">Oefening 5</h5>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p>
+Toon aan met behulp van de definities.
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\Bgsin x+\Bgcos x=\frac {\pi }{2}\), met \(x\in [-1,1]\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\Bgtan x+\Bgcot x=\frac {\pi }{2}\), met \(x\in \R \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\Bgsin (-x)=-\Bgsin x\), met \(x\in [-1,1]\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\Bgcos (-x)=\pi -\Bgcos x\), met \(x\in [-1,1]\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\cos (\Bgsin x)=\sqrt {1-x^2}\), met \(x\in [-1,1]\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\sin (\Bgtan x)=\frac {x}{\sqrt {1+x^2}}\), met \(x\in \R \)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(\tan (\Bgsin x)=\frac {x}{\sqrt {1-x^2}}\), met \(x\in (-1,1)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(\cot (\Bgtan x)=\frac {1}{x}\), met \(x\in \R _0\)
+</p>
+</li>
+</ul>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

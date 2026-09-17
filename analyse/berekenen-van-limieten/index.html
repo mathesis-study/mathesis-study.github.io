@@ -1,0 +1,2480 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Berekenen van limieten</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 14</p> <h1>Berekenen van limieten</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+x→a
+            x→∞
+
+
+ a
+
+
+
+      lim
+±∞
+            1
+                  e
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.21</b> (MD 06.08.07) De leerlingen leggen het verband tussen de grafiek en het voorschrift van een functie en haar kenmerken.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: veeltermfuncties, rationale functies, (elementaire) irrationale functies, <span class="leerplan-grijs">exponentie&#x0308;le functies</span>, <span
+class="leerplan-grijs">logaritmische functies \(f(x)=\log _a(x)\)</span>, goniometrische functies \(f(x)=\cos x\) en \(f(x)=\tan x\), <span class="leerplan-grijs">cyclometrische functies</span>, <span
+class="leerplan-grijs">absolute waardenfunctie</span>, <span class="leerplan-grijs">meervoudig functievoorschrift</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: domein, <span class="leerplan-grijs">bereik</span>, nulwaarden, tekenverloop, <span class="leerplan-grijs">stijgen/dalen/constant</span>, <span
+class="leerplan-grijs">extrema</span>, <span class="leerplan-grijs">constante/toenemende/afnemende stijging/daling</span>, <span class="leerplan-grijs">symmetrie</span>, <span
+class="leerplan-grijs">periode</span>, <span class="leerplan-grijs">amplitude</span>, asymptotisch gedrag, gedrag op oneindig
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.26</b> (MD 06.08.16) De leerlingen bepalen <span class="leerplan-grijs">grafisch</span> en algebraı&#x0308;sch limieten van functies en analyseren het
+asymptotisch gedrag.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: continuı&#x0308;teit
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: horizontaal, verticaal en <span class="leerplan-grijs">schuin</span> asymptotisch gedrag
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> limiet van een veeltermfunctie, limiet van een rationale functie, limiet van een irrationale functie, limiet van een goniometrische functie; \(x\to a\), \(x\to \pm \infty \); continuı&#x0308;teit;
+linker- en rechterlimiet; horizontaal en verticaal asymptotisch gedrag; tekenverloop; hoogstegraadsterm; toegevoegde uitdrukking.
+</p>
+
+<p>
+<b>Extra uitleg:</b> bijzondere limieten voor \(x\to 0\); \(\lim _{x\to 0}\frac {\sin x}{x}=1\); \(\lim _{x\to 0}\frac {x}{\sin x}=1\); \(\lim _{x\to 0}\frac {\tan x}{x}=1\); \(\lim _{x\to 0}\frac
+{x}{\tan x}=1\); limiet die het getal van Euler definieert; gelijkwaardige vormen van de Eulerlimiet; onbepaalde vormen.
+</p>
+
+</div>
+<!--
+...... section Limiet van een veeltermfunctie ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Limiet van een veeltermfunctie</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>\(x \to a\)</h5>
+<a id="mkpiweb-autopage-7"></a>
+<!--
+...... subsubsection Regel ......
+-->
+<h6 id="autosec-8"><span class="sectionnumber">&#x2003;</span>Regel</h6>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+\[ \lim _{x \to a} f(x) = f(a) \qquad \text {(veeltermfunctie is cont.   in } \R \text {)} \]
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-9"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                   lim (2x3 + 5x − 7) = 2 · 33 + 5 · 3 − 7
+                                                                                   x→3
+
+                                                                                                      = 62.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 3} (2x^3 + 5x - 7) &amp;= 2 \cdot 3^3 + 5 \cdot 3 - 7 \\ &amp;= 62.
+\end{align*}
+
+</p>
+<!--
+...... subsection ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">2&#x2003;</span>\(x \to \pm \infty \)</h5>
+<a id="mkpiweb-autopage-10"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-11"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                              lim (5x3 + 3x2 + 2x + 8) = +∞ + ∞ + ∞ + 8
+                                                                             x→+∞
+
+                                                                                                    = +∞
+                                                                                                    = lim 5x3
+                                                                                                       x→+∞
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to +\infty } (5x^3 + 3x^2 + 2x + 8) &amp;= +\infty + \infty + \infty + 8 \\ &amp;= +\infty \\ &amp;= \lim _{x \to +\infty } 5x^3
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-12"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                            lim (5x3 − 3x2 + 2x + 8) = "+∞ − ∞"      VOV!
+                                                           x→+∞
+                                                                                                                  
+                                                                                                      3    2     8
+                                                                                     = lim 5x3 1 −      + 2+ 3
+                                                                                       x→+∞          5x 5x      5x
+                                                                                                                        
+                                                                                                              3    2   8
+                                                                                              3
+                                                                                     = lim (5x ) · lim    1−    +    + 3     lim. v. prod.
+                                                                                       x→+∞       x→+∞       5x 5x2   5x
+                                                                                  = +∞ · (1 − 0 + 0 + 0)
+                                                                                  = +∞
+                                                                                  = lim 5x3
+                                                                                    x→+∞
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to +\infty } (5x^3 - 3x^2 + 2x + 8) &amp;= \vovvorm {+\infty - \infty } \qquad \text {VOV!} \\ &amp;= \lim _{x \to +\infty } 5x^3\left (1 - \frac {3}{5x} + \frac {2}{5x^2} + \frac
+{8}{5x^3}\right ) \\ &amp;= \lim _{x \to +\infty } (5x^3) \cdot \lim _{x \to +\infty } \left (1 - \frac {3}{5x} + \frac {2}{5x^2} + \frac {8}{5x^3}\right ) \qquad \text {lim. v. prod.} \\
+&amp;= +\infty \cdot (1 - 0 + 0 + 0) \\ &amp;= +\infty \\ &amp;= \lim _{x \to +\infty } 5x^3
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Regel ......
+-->
+<h6 id="autosec-13"><span class="sectionnumber">&#x2003;</span>Regel</h6>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+\[ \boxed { \text {Als } p(x)=a_nx^n+a_{n-1}x^{n-1}+\cdots +a_1x+a_0 \text { met } a_n \neq 0, \text { dan } \lim _{x \to \pm \infty } p(x) = \lim _{x \to \pm \infty } a_nx^n.   } \]
+</p>
+
+<p>
+limiet v/e veeltermfunctie voor \(x \to \pm \infty =\) limiet v/d hoogstegraadsterm.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+VBTL - Analyse 2 p86, nr1
+</p>
+<!--
+...... section Limiet van rationale functie ......
+-->
+<h4 id="autosec-15"><span class="sectionnumber">II&#x2003;</span>Limiet van rationale functie</h4>
+<a id="mkpiweb-autopage-15"></a>
+<!--
+...... subsection ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">1&#x2003;</span>\(x \to a\)</h5>
+<a id="mkpiweb-autopage-16"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-17"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+\[ \lim _{x \to 2} \frac {x^2 - 1}{x + 3} = \frac {3}{5} \qquad \text {merk op:   } x = 2 \in \dom f \]
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-18"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                    x+1       4
+                                                                                              lim         =
+                                                                                             x→3 x2 − 9       0
+                                                                                              <
+                                                                                              >
+
+                                                                                                          =−
+                                                                                                           +∞
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{\substack {x \to 3 \\ &lt; \\ &gt;}} \frac {x + 1}{x^2 - 9} &amp;= \frac {4}{0} \\ &amp;= \substack {- \\ +}\infty
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{c|ccccccc} x &amp; &amp; -3 &amp; &amp; -1 &amp; &amp; 3 &amp; \\ \hline T=x+1 &amp; - &amp; - &amp; - &amp; 0 &amp; + &amp; + &amp; + \\ N=x^2-9 &amp; + &amp; 0 &amp; - &amp;
+- &amp; - &amp; 0 &amp; + \\ \hline f(x) &amp; - &amp; | &amp; + &amp; 0 &amp; - &amp; | &amp; + \end {array} \]
+</p>
+
+<p>
+Merk op: \(a = 3 \notin \dom f\), nulw \(N\), \(\cancel {\text {nulw } T}\). Dus \(\boxed {x = 3 \text { is VA!}}\)
+</p>
+<!--
+...... subsubsection Voorbeeld 3 ......
+-->
+<h6 id="autosec-19"><span class="sectionnumber">&#x2003;</span>Voorbeeld 3</h6>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                   x2 − 1 " 0 "
+                                                               lim       =                                                            VOV!
+                                                               x→1 x − 1    0
+                                                                                (x − 1)(x + 1)
+                                                                          = lim
+                                                                            x→1     x−1
+                                                                                (x −
+                                                                                    1) (x + 1)
+                                                                                     
+                                                                          = lim
+                                                                                
+                                                                            x→1     −
+                                                                                    x  1
+                                                                          = lim (x + 1)
+                                                                            x→1
+
+                                                                          = 2.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 1} \frac {x^2 - 1}{x - 1} &amp;= \vovvorm {\frac {0}{0}} &amp;&amp; \text {VOV!} \\ &amp;= \lim _{x \to 1} \frac {(x - 1)(x + 1)}{x - 1} \\ &amp;= \lim _{x \to 1} \frac {\cancel
+{(x - 1)}(x + 1)}{\cancel {x - 1}} \\ &amp;= \lim _{x \to 1} (x + 1) \\ &amp;= 2.
+\end{align*}
+
+</p>
+
+<p>
+Merk op: \(a = 1 \notin \dom f\), nulw \(N\), nulw \(T\).
+</p>
+
+<p>
+Als \(x=1\) zowel nulw \(T\) als nulw \(N\) is, kunnen we in \(T\) en \(N\) factor \((x-1)\) voorop zetten.
+</p>
+<!--
+...... subsubsection Regel ......
+-->
+<h6 id="autosec-20"><span class="sectionnumber">&#x2003;</span>Regel</h6>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+Voor de rationale functie \(f = \dfrac {T(x)}{N(x)}\) geldt:
+</p>
+
+<p>
+\[ \begin {array}{ll} a \in \dom f &amp; \displaystyle \lim _{x \to a} f(x) = f(a) \\[2ex] \text {nulw } N,\ \cancel {\text {nulw } T} &amp; \displaystyle \lim _{x \to a} f(x) = \pm \infty ,
+\quad \text {t.v. voor } +\infty \text { of } -\infty \\[2ex] \text {nulw } N,\ \text {nulw } T &amp; \text {zet in } T \text { en } N \text { factor } (x-a) \text { voorop en schrap deze.}
+\end {array} \]
+</p>
+
+<p>
+\[ \boxed { \lim _{x \to a} \frac {T(x)}{N(x)} = \begin {cases} \dfrac {T(a)}{N(a)} &amp; \text {als } N(a) \neq 0, \\[2ex] \pm \infty &amp; \text {als } N(a)=0 \text { en } T(a)\neq 0, \\[2ex]
+\displaystyle \lim _{x \to a} \frac {T_1(x)}{N_1(x)} &amp; \text {als } T(a)=N(a)=0, \end {cases} } \]
+</p>
+
+<p>
+met \(T(x)=(x-a)T_1(x)\) en \(N(x)=(x-a)N_1(x)\).
+</p>
+<!--
+...... subsection ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">2&#x2003;</span>\(x \to \pm \infty \)</h5>
+<a id="mkpiweb-autopage-21"></a>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-22"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                               2x3 + x2 − 5x + 7 " ∞ "
+                                            lim                 =                                                                VOV!
+                                          x→−∞   3x2 + 8x − 1      ∞
+                                                                     x3 2 + x1 − x52 + x73
+                                                                                             
+                                                               = lim                                                             hoogstegraadsterm voorop
+                                                                       x2 3 + x8 − x12
+                                                                                       
+                                                                x→−∞
+
+                                                                      2x3
+                                                               = lim                                                             overige factoren → 23
+                                                                 x→−∞ 3x2
+
+                                                                      2x
+                                                               = lim                                                             vereenvoudigen
+                                                                 x→−∞ 3
+
+                                                                 2
+                                                               = (−∞)
+                                                                 3
+                                                               = −∞.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to -\infty } \frac {2x^3 + x^2 - 5x + 7}{3x^2 + 8x - 1} &amp; = \vovvorm {\frac {\infty }{\infty }} &amp;&amp; \text {VOV!} \\ &amp; = \lim _{x \to -\infty } \frac {x^3\left (2 +
+\frac {1}{x} - \frac {5}{x^2} + \frac {7}{x^3}\right )} {x^2\left (3 + \frac {8}{x} - \frac {1}{x^2}\right )} &amp;&amp; \text {hoogstegraadsterm voorop} \\ &amp; = \lim _{x \to -\infty }
+\frac {2x^3}{3x^2} &amp;&amp; \text {overige factoren} \to \tfrac {2}{3} \\ &amp; = \lim _{x \to -\infty } \frac {2x}{3} &amp;&amp; \text {vereenvoudigen} \\ &amp; = \frac {2}{3}(-\infty ) \\
+&amp; = -\infty .
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Regel ......
+-->
+<h6 id="autosec-23"><span class="sectionnumber">&#x2003;</span>Regel</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+Als \(T(x)=a_nx^n+\cdots +a_1x+a_0\) en \(N(x)=b_mx^m+\cdots +b_1x+b_0\), dan:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                       T (x)       an xn
+                                                                                   lim       = lim
+                                                                                  x→±∞ N (x)  x→±∞ bm xm
+                                                                                                   an n−m
+                                                                                             = lim    x     na vereenvoudiging!
+                                                                                              x→±∞ bm
+
+
+
+-->
+
+<p>
+
+\begin{align*}
+\lim _{x \to \pm \infty } \frac {T(x)}{N(x)} &amp;= \lim _{x \to \pm \infty } \frac {a_nx^n}{b_mx^m} \\ &amp;= \lim _{x \to \pm \infty } \frac {a_n}{b_m}x^{\,n-m} \qquad \text {na
+vereenvoudiging!}
+\end{align*}
+
+</p>
+
+</div>
+
+<p>
+limiet v/e rat. \(f\) voor \(x \to \pm \infty \) = limiet v/h quotie&#x0308;nt v/d hoogstegraadstermen
+</p>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-24"><span class="sectionnumber">&#x2003;</span>Voorbeelden</h6>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                 7x4 + 8x       7x4       7x
+                                                                              lim     3
+                                                                                          = lim     = lim    = +∞.
+                                                                            x→+∞   3x      x→+∞ 3x3  x→+∞ 3
+
+                                                                                  5x2 + 7       5x2  5
+                                                                                  lim
+                                                                                    2
+                                                                                          = lim     = .
+                                                                             x→−∞ 2x − 8   x→−∞ 2x2  2
+                                                                                        4x + 4           4x           4
+                                                                             lim                 = lim        = lim       = 0.
+                                                                            x→−∞ 7x4 + 5x2        x→−∞ 7x4     x→−∞ 7x3
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to +\infty } \frac {7x^4 + 8x}{3x^3} &amp;= \lim _{x \to +\infty } \frac {7x^4}{3x^3} = \lim _{x \to +\infty } \frac {7x}{3} = +\infty . \\[1ex] \lim _{x \to -\infty } \frac {5x^2 +
+7}{2x^2 - 8} &amp;= \lim _{x \to -\infty } \frac {5x^2}{2x^2} = \frac {5}{2}. \\[1ex] \lim _{x \to -\infty } \frac {4x + 4}{7x^4 + 5x^2} &amp;= \lim _{x \to -\infty } \frac {4x}{7x^4} = \lim
+_{x \to -\infty } \frac {4}{7x^3} = 0.
+\end{align*}
+
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-25"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+VBTL – Analyse 2: p 86, nr 2
+</p>
+<!--
+...... section Limiet van een irrationale functie ......
+-->
+<h4 id="autosec-26"><span class="sectionnumber">III&#x2003;</span>Limiet van een irrationale functie</h4>
+<a id="mkpiweb-autopage-26"></a>
+<!--
+...... subsection ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">1&#x2003;</span>\(x \to a\)</h5>
+<a id="mkpiweb-autopage-27"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-28"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+\[ \lim _{x \to 1}(\sqrt {x+3}-2)=0 \qquad \text {merk op:   } a=1 \in \dom f \]
+</p>
+
+<p>
+\[ \lim _{x \to 6}(\sqrt {x+3}-2)=1 \qquad \text {merk op:   } a=6 \in \dom f \]
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-29"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-29"></a>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:268pt ; ">
+
+<a id="mkpiweb-autopage-30"></a>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                            3x + 5   11
+                                                                                        lim √      =
+                                                                                        x→2   x−2     0
+                                                                                                     = +∞.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 2} \frac {3x+5}{\sqrt {x-2}} &amp;= \frac {11}{0} \\ &amp;= +\infty .
+\end{align*}
+
+</p>
+
+
+</div>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:225pt ; ">
+
+<a id="mkpiweb-autopage-31"></a>
+
+<p>
+\[ \begin {array}{c|ccccc} x &amp; &amp; -\frac 53 &amp; &amp; 2 &amp; \\ \hline T &amp; - &amp; 0 &amp; + &amp; + &amp; + \\ N &amp; / &amp; / &amp; / &amp; 0 &amp; + \\ f &amp; / &amp; /
+&amp; / &amp; / &amp; + \end {array} \]
+</p>
+
+</div>
+
+<p>
+Merk op: \(a=2 \notin \dom f\), \(a=\text {nulw } N\), \(\cancel {\text {nulw } T}\).
+</p>
+<!--
+...... subsubsection Voorbeeld 3 ......
+-->
+<h6 id="autosec-32"><span class="sectionnumber">&#x2003;</span>Voorbeeld 3</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                               √
+                                                                   x + 3 − 2 "0"
+                                                         lim                =                                                             VOV!
+                                                        x→1         x−1       0
+                                                                                   √        √
+                                                                                  x+3−2       x+3+2
+                                                                          = lim            ·√
+                                                                            x→1    x−1        x+3+2
+                                                                                     x+3−4
+                                                                          = lim         √
+                                                                            x→1 (x − 1)( x + 3 + 2)
+
+                                                                                      −
+                                                                                       x 1
+                                                                                          
+                                                                          = lim        √
+                                                                                − 1 ( x + 3 + 2)
+                                                                            x→1 x 
+                                                                            1
+                                                                          = .
+                                                                            4
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 1} \frac {\sqrt {x+3}-2}{x-1} &amp;= \vovvorm {\frac 00} &amp;&amp; \text {VOV!} \\ &amp;= \lim _{x \to 1} \frac {\sqrt {x+3}-2}{x-1} \cdot \frac {\sqrt {x+3}+2}{\sqrt {x+3}+2} \\
+&amp;= \lim _{x \to 1} \frac {x+3-4}{(x-1)(\sqrt {x+3}+2)} \\ &amp;= \lim _{x \to 1} \frac {\cancel {x-1}}{\cancel {x-1}(\sqrt {x+3}+2)} \\ &amp;= \frac {1}{4}.
+\end{align*}
+
+</p>
+
+<p>
+Vermenigvuldig \(T\) en \(N\) met de toegevoegde uitdrukking van de wortelvorm. Schrap daarna factor \((x-a)\) in \(T\) en \(N\).
+</p>
+<!--
+...... subsubsection Regel ......
+-->
+<h6 id="autosec-33"><span class="sectionnumber">&#x2003;</span>Regel</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+Voor de limiet van een irrationale functie \(f\) voor \(x \to a\) geldt:
+</p>
+
+<p>
+\[ \begin {array}{ll} a \in \dom f &amp; \displaystyle \lim _{x \to a} f(x)=f(a) \\[2ex] a \notin \dom f \text { en } a=\text {nulw } N,\ \cancel {\text {nulw } T} &amp; \displaystyle \lim _{x
+\to a} f(x)=\pm \infty , \quad \text {t.v.} \\[2ex] a \notin \dom f \text { en } a=\text {nulw } N,\ \text {nulw } T &amp; \begin {array}{l} \text {T en N vermenigvuldigen met de toegevoegde}
+\\ \text {uitdrukking van de wortelvorm;} \\ \text {factor } (x-a) \text { schrappen.} \end {array} \end {array} \]
+</p>
+
+<p>
+\[ \boxed { \lim _{x \to a} f(x) = \begin {cases} f(a) &amp; \text {als } a \in \dom f, \\[1ex] \pm \infty &amp; \text {als } a \notin \dom f,\ a=\text {nulw } N,\ \cancel {\text {nulw } T}
+\quad (\text {t.v.}), \\[1ex] \displaystyle \lim _{x \to a} f_1(x) &amp; \text {als } a \notin \dom f,\ a=\text {nulw } N,\ \text {nulw } T. \end {cases} } \]
+</p>
+
+<p>
+Bij \(\vovvorm {\frac 00}\): vermenigvuldig met de toegevoegde uitdrukking en schrap \((x-a)\).
+</p>
+<!--
+...... subsection ......
+-->
+<h5 id="autosec-34"><span class="sectionnumber">2&#x2003;</span>\(x \to \pm \infty \)</h5>
+<a id="mkpiweb-autopage-34"></a>
+<!--
+...... subsubsection Geval 1:     breuk ......
+-->
+<h6 id="autosec-35"><span class="sectionnumber">&#x2003;</span>Geval 1: \(f(x)=\) breuk</h6>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p>
+Vorm \(\vovvorm {\frac {\infty }{\infty }}\).
+</p>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-36"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                √
+                                                                                                  x2 + 5 + 2x " ∞ "
+                                                                                           lim                =                                         VOV!
+                                                                                          x→+∞      3x + 1      ∞
+                                                                                           q
+                                                                                              x2 1 + x52 + 2x
+                                                                                                        
+                                            =                                       lim
+                                                                                    x→+∞        3x + 1
+                                                                                               q
+                                                                                              x 1 + x52 + 2x
+                                            =                                           lim
+                                                                                                x 3 + x1
+                                                                                                           
+                                                                                       x→+∞
+                                                                                              q               
+                                                                                                       5
+                                                                                            x
+                                                                                                1 +  x 2 +  2
+                                            =                                         lim               1
+                                                                                                          
+                                                                                     x→+∞      x
+                                                                                                  3 +  x
+                                                                                                  √
+                                                                                                     1+0+2
+                                            =                                                                    = 1.
+                                                                                                      3+0
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; \lim _{x \to +\infty } \frac {\sqrt {x^2+5}+2x}{3x+1} &amp; = \vovvorm {\frac {\infty }{\infty }} &amp;&amp; \text {VOV!} \\ &amp; = &amp; \lim _{x \to +\infty } \frac {\sqrt
+{x^2\left (1+\frac {5}{x^2}\right )}+2x}{3x+1} &amp; \\ &amp; = &amp; \lim _{x \to +\infty } \frac {x\sqrt {1+\frac {5}{x^2}}+2x}{x\left (3+\frac 1x\right )} &amp; \\ &amp; = &amp; \lim _{x
+\to +\infty } \frac {\cancel {x}\left (\sqrt {1+\frac {5}{x^2}}+2\right )} {\cancel {x}\left (3+\frac 1x\right )} &amp; \\ &amp; = &amp; \frac {\sqrt {1+0}+2}{3+0} &amp; = 1.
+\end{align*}
+
+</p>
+
+<p>
+We proberen de hoogstegraadsterm voorop te plaatsen. Let op: \(\sqrt {x^2}=|x|\).
+</p>
+
+<p>
+\[ \sqrt {x^2} = \begin {cases} +x &amp; \text {als } x \in \R ^+ \quad (x \to +\infty ),\\ -x &amp; \text {als } x \in \R ^- \quad (x \to -\infty ).    \end {cases} \]
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-37"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                            √
+                                                                                              x2 + 5x + 2x " ∞ − ∞ "
+                                                                                      lim                    =                                       VOV!
+                                                                                     x→−∞       3x − 1         ∞
+                                                                                              q
+                                                                                           −x 1 + x5 + 2x
+                                        =                                            lim
+                                                                                              x 3 − x1
+                                                                                                       
+                                                                                    x→−∞
+                                                                                            q             
+                                                                                                    5
+                                                                                         x
+                                                                                           −   1 + x  + 2
+                                        =                                          lim              1
+                                                                                                      
+                                                                                  x→−∞       x
+                                                                                               3 − x
+                                                                                                 −1 + 2  1
+                                        =                                                               = .
+                                                                                                   3     3
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; \lim _{x \to -\infty } \frac {\sqrt {x^2+5x}+2x}{3x-1} &amp; = \vovvorm {\frac {\infty -\infty }{\infty }} &amp;&amp; \text {VOV!} \\ &amp; = &amp; \lim _{x \to -\infty } \frac
+{-x\sqrt {1+\frac 5x}+2x}{x\left (3-\frac 1x\right )} &amp; \\ &amp; = &amp; \lim _{x \to -\infty } \frac {\cancel {x}\left (-\sqrt {1+\frac 5x}+2\right )} {\cancel {x}\left (3-\frac 1x\right
+)} &amp; \\ &amp; = &amp; \frac {-1+2}{3} &amp; = \frac 13.
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Regel ......
+-->
+<h6 id="autosec-38"><span class="sectionnumber">&#x2003;</span>Regel</h6>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+Limiet voor \(x \to \pm \infty \) van een irrationale breuk:
+</p>
+<p>
+Zet in \(T\) en \(N\) de hoogstegraadsterm voorop en vereenvoudig.
+</p>
+<p>
+Let op:
+</p>
+<p>
+\[ \begin {array}{ll} x \to +\infty : &amp; \sqrt {x^2}=+x,\\[0.5ex] x \to -\infty :   &amp; \sqrt {x^2}=-x.   \end {array} \]
+</p>
+
+</div>
+<!--
+...... subsubsection Geval 2:     is geen breuk ......
+-->
+<h6 id="autosec-39"><span class="sectionnumber">&#x2003;</span>Geval 2: \(f(x)\) is geen breuk</h6>
+<a id="mkpiweb-autopage-39"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-40"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+\[ \lim _{x \to +\infty } \left (\sqrt {4x^2+3x}+2x\right ) = +\infty \quad \Rightarrow \quad \text {geen VOV} \Rightarrow \text {geen probleem} \]
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-41"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                        4x2 + 3x + 2x = "+∞ − ∞"
+                                                   p                
+                                             lim                                                                                                 VOV
+                                            x→−∞
+                                                                              √               √               
+                                                                                4x2 + 3x + 2x     4x2 + 3x − 2x
+                                                                       = lim           √
+                                                                        x→−∞             4x2 + 3x − 2x
+                                                                            4x2 + 3x − 4x2
+                                                                      = lim √
+                                                                       x→−∞   4x2 + 3x − 2x
+                                                                                  3x           −∞ "
+                                                                      = lim √               ="
+                                                                       x→−∞   4x2 + 3x − 2x    +∞
+                                                                                   3x
+                                                                      = lim    q
+                                                                       x→−∞
+                                                                            −x 4 + x3 − 2x
+                                                                                      x·3
+                                                                      = lim         q         
+                                                                          x→−∞
+                                                                                 x − 4 + x3 − 2
+                                                                                 
+                                                                            3      3
+                                                                      =          =− .
+                                                                          −2 − 2   4
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to -\infty } \left (\sqrt {4x^2+3x}+2x\right ) &amp; = \vovvorm {+\infty -\infty } &amp;&amp; \text {VOV} \\ &amp; = \lim _{x \to -\infty } \frac {\left (\sqrt {4x^2+3x}+2x\right )
+\left (\sqrt {4x^2+3x}-2x\right )} {\sqrt {4x^2+3x}-2x} &amp; \\ &amp; = \lim _{x \to -\infty } \frac {4x^2+3x-4x^2} {\sqrt {4x^2+3x}-2x} &amp; \\ &amp; = \lim _{x \to -\infty } \frac {3x}
+{\sqrt {4x^2+3x}-2x} = \vovvorm {\frac {-\infty }{+\infty }} \\ &amp; = \lim _{x \to -\infty } \frac {3x} {-x\sqrt {4+\frac 3x}-2x} &amp; \\ &amp; = \lim _{x \to -\infty } \frac {\cancel {x}
+\cdot 3} {\cancel {x}\left (-\sqrt {4+\frac 3x}-2\right )} &amp; \\ &amp; = \frac {3}{-2-2} = -\frac 34.
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Regel ......
+-->
+<h6 id="autosec-42"><span class="sectionnumber">&#x2003;</span>Regel</h6>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+Als bij de limiet voor \(x \to \pm \infty \) van een irrationale functie die geen breuk is de uitkomst \(\vovvorm {+\infty -\infty }\) is, dan:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> vermenigvuldigen we \(T\) en \(N\) met de toegevoegde uitdrukking van \(T\);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> zetten we vervolgens de hoogstegraadsterm in \(T\) en \(N\) voorop.
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsubsection Opmerking ......
+-->
+<h6 id="autosec-43"><span class="sectionnumber">&#x2003;</span>Opmerking</h6>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+Vergeet niet vooraf de onbepaaldheid te controleren!!
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-44"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p>
+VBTL – Analyse 2: p 87 nr 4, 5, 6
+</p>
+<!--
+...... section Limiet van een goniometrische functie ......
+-->
+<h4 id="autosec-45"><span class="sectionnumber">IV&#x2003;</span>Limiet van een goniometrische functie</h4>
+<a id="mkpiweb-autopage-45"></a>
+<!--
+...... subsection ......
+-->
+<h5 id="autosec-46"><span class="sectionnumber">1&#x2003;</span>\(x \to a\)</h5>
+<a id="mkpiweb-autopage-46"></a>
+<!--
+...... subsubsection Regel ......
+-->
+<h6 id="autosec-47"><span class="sectionnumber">&#x2003;</span>Regel</h6>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ \begin {array}{ll} \sin x,\ \cos x &amp; \text {continu in } \R , \\[1ex] \tan x &amp; \text {continu in } \dom (\tan ) = \R \setminus \left \{\frac {\pi }{2}+k\pi \mid k \in \Z \right \},
+\\[1ex] \cot x &amp; \text {continu in } \dom (\cot ) = \R \setminus \{k\pi \mid k \in \Z \}. \end {array} \]
+</p>
+<p>
+\[ a \in \dom f \quad \Rightarrow \quad \lim _{x \to a} f(x)=f(a) \]
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-48"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                   π       π
+                                                                                  lim (2 sin x + cos 2x) = 2 sin     + cos
+                                                                                  x→ π
+                                                                                     6                             6       3
+                                                                                                                  1 1
+                                                                                                        =2·        +
+                                                                                                                  2 2
+                                                                                                            3
+                                                                                                        =     .
+                                                                                                            2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to \frac {\pi }{6}} \left (2\sin x+\cos 2x\right ) &amp;= 2\sin \frac {\pi }{6}+\cos \frac {\pi }{3} \\ &amp;= 2\cdot \frac 12+\frac 12 \\ &amp;= \frac 32.
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-49"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                          sin π2
+                                                                                           limπ tan x =
+                                                                                          x→ 2            cos π2
+                                                                                           <
+                                                                                           >
+                                                                                                          1
+                                                                                                     =
+                                                                                                          0
+                                                                                                      +
+                                                                                                     =− ∞
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{\substack {x \to \frac {\pi }{2} \\ &lt; \\ &gt;}} \tan x &amp;= \frac {\sin \frac {\pi }{2}}{\cos \frac {\pi }{2}} \\ &amp;= \frac {1}{0} \\ &amp;= \substack {+ \\ -}\infty
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{c|ccc} x &amp; &amp; \frac {\pi }{2} &amp; \\ \hline \sin x &amp; + &amp; 1 &amp; + \\ \cos x &amp; + &amp; 0 &amp; - \\ \hline \tan x &amp; + &amp; | &amp; - \end {array} \]
+</p>
+
+<p>
+Merk op: \(a=\frac {\pi }{2} \notin \dom (\tan )\). Dus \(\boxed {x=\frac {\pi }{2} \text { is VA!}}\)
+</p>
+<!--
+...... subsection Bijzondere limieten voor ......
+-->
+<h5 id="autosec-50"><span class="sectionnumber">2&#x2003;</span>Bijzondere limieten voor \(x \to 0\)</h5>
+<a id="mkpiweb-autopage-50"></a>
+<!--
+...... subsubsection Opstellen formule ......
+-->
+<h6 id="autosec-51"><span class="sectionnumber">&#x2003;</span>Opstellen formule</h6>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<p>
+Alle hoeken in radialen!
+</p>
+
+<p>
+\[ \begin {array}{c|ccccc} x &amp; 1 &amp; 0.1 &amp; 0.01 &amp; 0.001 &amp; 0.0001 \\ \hline \dfrac {\sin x}{x} &amp; 0.841471 &amp; 0.998334 &amp; 0.999983 &amp; 1.000000 &amp; 1.000000 \end
+{array} \]
+</p>
+
+<p>
+Uit de tabel blijkt dat \(\dfrac {\sin x}{x}\) naar \(1\) nadert als \(x\) dichter bij \(0\) komt.
+</p>
+<!--
+...... subsubsection Regel ......
+-->
+<h6 id="autosec-52"><span class="sectionnumber">&#x2003;</span>Regel</h6>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+\[ \boxed { \lim _{x \to 0}\frac {\sin x}{x}=1 } \]
+</p>
+
+<p>
+Bewijs: Is mogelijk m.b.v. l’Hospital, zie later.
+</p>
+<!--
+...... subsubsection Afgeleide formule 1 ......
+-->
+<h6 id="autosec-53"><span class="sectionnumber">&#x2003;</span>Afgeleide formule 1</h6>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+\[ \boxed { \lim _{x \to 0}\frac {x}{\sin x}=1 } \]
+</p>
+
+<p>
+Bewijs:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                x             1
+                                                                                          lim         = lim sin x
+                                                                                          x→0 sin x     x→0
+                                                                                                              x
+                                                                                                        1
+                                                                                                      =
+                                                                                                        1
+                                                                                                      = 1.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 0}\frac {x}{\sin x} &amp;= \lim _{x \to 0}\frac {1}{\frac {\sin x}{x}} \\ &amp;= \frac {1}{1} \\ &amp;= 1.
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Afgeleide formule 2 ......
+-->
+<h6 id="autosec-54"><span class="sectionnumber">&#x2003;</span>Afgeleide formule 2</h6>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+\[ \boxed { \lim _{x \to 0}\frac {\tan x}{x}=1 } \]
+</p>
+
+<p>
+Bewijs:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                         tan x        sin x
+                                                                                      lim      = lim
+                                                                                     x→0   x     x→0 x cos x
+                                                                                                                    
+                                                                                                       sin x     1
+                                                                                               = lim         ·
+                                                                                                 x→0     x     cos x
+                                                                                                      1
+                                                                                               =1·
+                                                                                                      1
+                                                                                               = 1.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 0}\frac {\tan x}{x} &amp;= \lim _{x \to 0}\frac {\sin x}{x\cos x} \\ &amp;= \lim _{x \to 0} \left (\frac {\sin x}{x}\cdot \frac {1}{\cos x}\right ) \\ &amp;= 1 \cdot \frac {1}{1}
+\\ &amp;= 1.
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Afgeleide formule 3 ......
+-->
+<h6 id="autosec-55"><span class="sectionnumber">&#x2003;</span>Afgeleide formule 3</h6>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+\[ \boxed { \lim _{x \to 0}\frac {x}{\tan x}=1 } \]
+</p>
+
+<p>
+Bewijs:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                x             1
+                                                                                          lim         = lim tan x
+                                                                                          x→0 tan x     x→0
+                                                                                                              x
+                                                                                                        1
+                                                                                                      =
+                                                                                                        1
+                                                                                                      = 1.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 0}\frac {x}{\tan x} &amp;= \lim _{x \to 0}\frac {1}{\frac {\tan x}{x}} \\ &amp;= \frac {1}{1} \\ &amp;= 1.
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-56"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                     
+                                                                                      sin 5x              sin 5x 5
+                                                                                   lim       = lim              ·
+                                                                                   x→0 2x      x→0          5x    2
+                                                                                                      5
+                                                                                            =1·
+                                                                                                      2
+                                                                                                5
+                                                                                            =     .
+                                                                                                2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 0}\frac {\sin 5x}{2x} &amp;= \lim _{x \to 0}\left (\frac {\sin 5x}{5x}\cdot \frac 52\right ) \\ &amp;= 1\cdot \frac 52 \\ &amp;= \frac 52.
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-57"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                               1 − cos x " 0 "
+                                                         lim            =                                                               VOV!
+                                                        x→0       x2       0
+                                                                              1 − cos x 1 + cos x
+                                                                        = lim            ·
+                                                                            x→0   x2       1 + cos x
+                                                                                       2
+                                                                                1 − cos x
+                                                                        = lim 2
+                                                                          x→0 x (1 + cos x)
+
+                                                                                  sin2 x
+                                                                        = lim
+                                                                          x→0 x2 (1 + cos x)
+                                                                                     2
+                                                                                sin x          1
+                                                                        = lim            ·
+                                                                          x→0     x        1 + cos x
+                                                                                   1
+                                                                        = 12 ·
+                                                                                  1+1
+                                                                            1
+                                                                        =     .
+                                                                            2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 0}\frac {1-\cos x}{x^2} &amp;= \vovvorm {\dfrac 00} &amp;&amp; \text {VOV!} \\ &amp;= \lim _{x \to 0}\frac {1-\cos x}{x^2} \cdot \frac {1+\cos x}{1+\cos x} \\ &amp;= \lim _{x \to
+0}\frac {1-\cos ^2 x}{x^2(1+\cos x)} \\ &amp;= \lim _{x \to 0}\frac {\sin ^2 x}{x^2(1+\cos x)} \\ &amp;= \lim _{x \to 0}\left (\frac {\sin x}{x}\right )^2 \cdot \frac {1}{1+\cos x} \\ &amp;=
+1^2 \cdot \frac {1}{1+1} \\ &amp;= \frac 12.
+\end{align*}
+
+</p>
+
+<p>
+Bij \(\vovvorm {\frac 00}\): probeer \(\dfrac {\sin u}{u}\) te bekomen of gebruik de toegevoegde uitdrukking.
+</p>
+<!--
+...... subsection ......
+-->
+<h5 id="autosec-58"><span class="sectionnumber">3&#x2003;</span>\(x \to \pm \infty \)</h5>
+<a id="mkpiweb-autopage-58"></a>
+<!--
+...... subsubsection Regel ......
+-->
+<h6 id="autosec-59"><span class="sectionnumber">&#x2003;</span>Regel</h6>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ \lim _{x \to \pm \infty }\sin x \quad \text {en} \quad \lim _{x \to \pm \infty }\cos x \quad \text {bestaan niet.} \]
+</p>
+<p>
+\[ -1 \leq \sin x \leq 1, \qquad -1 \leq \cos x \leq 1. \]
+</p>
+<p>
+\[ \begin {array}{c} h(x) \text { begrensd en } \lim \limits _{x \to \pm \infty } g(x)=0 \\[1ex] \Downarrow \\[1ex] \lim \limits _{x \to \pm \infty } h(x)\,g(x)=0 \end {array} \]
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-60"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                             
+                                                                                      sin x                 1
+                                                                                    lim     = lim   sin x ·
+                                                                                  x→±∞ x     x→±∞           x
+                                                                                             = begrensd · 0
+                                                                                             = 0.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to \pm \infty }\frac {\sin x}{x} &amp;= \lim _{x \to \pm \infty }\left (\sin x \cdot \frac 1x\right ) \\ &amp;= \text {begrensd} \cdot 0 \\ &amp;= 0.
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed { \lim _{x \to \pm \infty }\frac {\sin x}{x}=0 } \]
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-61"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                     
+                                                                                               1                  1
+                                                                                     lim sin     = sin        lim
+                                                                                    x→+∞       x             x→+∞ x
+
+                                                                                                 = sin 0
+                                                                                                 = 0.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to +\infty }\sin \frac 1x &amp;= \sin \left (\lim _{x \to +\infty }\frac 1x\right ) \\ &amp;= \sin 0 \\ &amp;= 0.
+\end{align*}
+
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-62"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p>
+VBTL – Analyse 2: p 87 nr 7, 8
+</p>
+<!--
+...... section Limiet die het getal van Euler definieert ......
+-->
+<h4 id="autosec-63"><span class="sectionnumber">V&#x2003;</span>Limiet die het getal van Euler definieert</h4>
+<a id="mkpiweb-autopage-63"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-64"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-64"></a>
+<!--
+...... subsubsection Motivatie ......
+-->
+<h6 id="autosec-65"><span class="sectionnumber">&#x2003;</span>Motivatie</h6>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<p>
+\[ \begin {array}{c|cccccc} n &amp; 1 &amp; 2 &amp; 5 &amp; 10 &amp; 100 &amp; 1000 \\ \hline \left (1+\frac 1n\right )^n &amp; 2 &amp; 2.25 &amp; 2.48832 &amp; 2.59374 &amp; 2.70481 &amp;
+2.71692 \end {array} \]
+</p>
+
+<p>
+Voor steeds grotere waarden van \(n\) komen de getallen dichter bij \(e \approx 2.71828\).
+</p>
+<!--
+...... subsubsection Definitie van ......
+-->
+<h6 id="autosec-66"><span class="sectionnumber">&#x2003;</span>Definitie van \(e\)</h6>
+<a id="mkpiweb-autopage-66"></a>
+
+
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<p>
+\[ e := \lim _{n \to +\infty }\left (1+\frac 1n\right )^n \]
+</p>
+<p>
+\[ e \approx 2.71828 \]
+</p>
+
+</div>
+
+<p>
+Dit is geen rekenregel, maar de definitie van het getal van Euler. We spreken af dat de limiet \(\displaystyle \lim _{n \to +\infty }\left (1+\frac 1n\right )^n\) gelijk is aan het getal \(e\).
+</p>
+<!--
+...... subsubsection Opmerking ......
+-->
+<h6 id="autosec-67"><span class="sectionnumber">&#x2003;</span>Opmerking</h6>
+<a id="mkpiweb-autopage-67"></a>
+
+
+<p>
+De limiet heeft de onbepaalde vorm \(\vovvorm {1^\infty }\): de basis \(\displaystyle 1+\frac 1n\) nadert naar \(1\), terwijl de exponent \(n\) naar \(+\infty \) gaat.
+</p>
+<!--
+...... subsection Gelijkwaardige vorm 1 ......
+-->
+<h5 id="autosec-68"><span class="sectionnumber">2&#x2003;</span>Gelijkwaardige vorm 1</h5>
+<a id="mkpiweb-autopage-68"></a>
+
+
+<p>
+\[ \boxed { \lim _{x \to +\infty }\left (1+\frac 1x\right )^x = e } \]
+</p>
+
+<p>
+Bewijs: Dit is dezelfde limiet als in de definitie, maar met een ree&#x0308;le veranderlijke \(x\) in plaats van een natuurlijke veranderlijke \(n\).
+</p>
+<!--
+...... subsection Gelijkwaardige vorm 2 ......
+-->
+<h5 id="autosec-69"><span class="sectionnumber">3&#x2003;</span>Gelijkwaardige vorm 2</h5>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+\[ \boxed { \lim _{x \to -\infty }\left (1+\frac 1x\right )^x = e } \]
+</p>
+
+<p>
+Bewijs: Stel \(t=-x\). Dan \(t \to +\infty \) en
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                            x              −t
+                                                                                         1                  1
+                                                                            lim       1+          = lim 1 −
+                                                                           x→−∞          x         t→+∞     t
+                                                                                                             t
+                                                                                                          t
+                                                                                                  = lim
+                                                                                                   t→+∞ t − 1
+                                                                                                                t
+                                                                                                               1
+                                                                                                  = lim 1 +
+                                                                                                   t→+∞     t−1
+                                                                                                                t−1         
+                                                                                                               1             1
+                                                                                                  = lim 1 +            1+
+                                                                                                   t→+∞     t−1            t−1
+                                                                                                        |     {z    }|    {z   }
+                                                                                                              →e         →1
+
+                                                                                                  = e.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to -\infty }\left (1+\frac 1x\right )^x &amp;= \lim _{t \to +\infty }\left (1-\frac 1t\right )^{-t} \\ &amp;= \lim _{t \to +\infty }\left (\frac {t}{t-1}\right )^t \\ &amp;= \lim _{t
+\to +\infty }\left (1+\frac 1{t-1}\right )^t \\ &amp;= \lim _{t \to +\infty } \underbrace { \left (1+\frac 1{t-1}\right )^{t-1} }_{\to e} \underbrace { \left (1+\frac 1{t-1}\right ) }_{\to 1}
+\\ &amp;= e.
+\end{align*}
+
+</p>
+<!--
+...... subsection Gelijkwaardige vorm 3 ......
+-->
+<h5 id="autosec-70"><span class="sectionnumber">4&#x2003;</span>Gelijkwaardige vorm 3</h5>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+\[ \boxed { \lim _{x \to 0}(1+x)^{\frac 1x} = e } \]
+</p>
+
+<p>
+Bewijs: Stel \(t=\dfrac 1x\). Dan \(x \to 0 \Leftrightarrow t \to \pm \infty \) en
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                     t
+                                                                                              1                   1
+                                                                                     lim (1 + x) = lim
+                                                                                              x                1+
+                                                                                     x→0            t→±∞          t
+                                                                                                  = e.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 0}(1+x)^{\frac 1x} &amp;= \lim _{t \to \pm \infty }\left (1+\frac 1t\right )^t \\ &amp;= e.
+\end{align*}
+
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-71"><span class="sectionnumber">5&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-71"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-72"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-72"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                  x
+                                                                 3
+                                                         lim  1+      = "1+∞ "                                                          VOV!
+                                                        x→+∞     x
+                                                                                    x
+                                                                                   1
+                                                                      = lim     1+ x
+                                                                        x→+∞
+                                                                                          3
+                                                                                             3· x3
+                                                                                          1
+                                                                      = lim            1+ x
+                                                                        x→+∞
+                                                                                          3
+                                                                                   3t
+                                                                      t= x
+                                                                         3       1
+                                                                       =     lim        1+
+                                                                         t→+∞     t
+                                                                            "     t #3
+                                                                                 1
+                                                                      = lim   1+
+                                                                       t→+∞      t
+
+                                                                      = e3 .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to +\infty }\left (1+\frac {3}{x}\right )^x &amp;= \vovvorm {1^{+\infty }} &amp;&amp; \text {VOV!} \\ &amp;= \lim _{x \to +\infty } \left (1+\frac {1}{\frac {x}{3}}\right )^x \\
+&amp;= \lim _{x \to +\infty } \left (1+\frac {1}{\frac {x}{3}}\right )^{3\cdot \frac {x}{3}} \\ &amp;\overset {t=\frac {x}{3}}{=} \lim _{t \to +\infty } \left (1+\frac {1}{t}\right )^{3t} \\
+&amp;= \lim _{t \to +\infty } \left [ \left (1+\frac {1}{t}\right )^t \right ]^3 \\ &amp;= \boxed {e^3.}
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-73"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-73"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                        lim (1 + 5x) x = "1∞ "
+                                                                    2
+                                                                                                                                      VOV!
+                                                        x→0
+                                                                                       10
+                                                                        = lim (1 + 5x) 5x
+                                                                          x→0
+                                                                        t=5x           10
+                                                                         = lim (1 + t) t
+                                                                               t→0
+                                                                                      1 10
+                                                                             h          i
+                                                                        = lim (1 + t) t
+                                                                          t→0
+                                                                                      1 10
+                                                                         h              i
+                                                                        = lim (1 + t) t
+                                                                           t→0
+
+                                                                        = e10 .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to 0}(1+5x)^{\frac {2}{x}} &amp;= \vovvorm {1^\infty } &amp;&amp; \text {VOV!} \\ &amp;= \lim _{x \to 0}(1+5x)^{\frac {10}{5x}} \\ &amp;\overset {t=5x}{=} \lim _{t \to 0}(1+t)^{\frac
+{10}{t}} \\ &amp;= \lim _{t \to 0} \left [ (1+t)^{\frac {1}{t}} \right ]^{10} \\ &amp;= \left [ \lim _{t \to 0} (1+t)^{\frac {1}{t}} \right ]^{10} \\ &amp;= \boxed {e^{10}.}
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Voorbeeld 3 ......
+-->
+<h6 id="autosec-74"><span class="sectionnumber">&#x2003;</span>Voorbeeld 3</h6>
+<a id="mkpiweb-autopage-74"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                             2x−1              2x−1
+                                                        x+4                     4
+                                              lim                     = lim  1+                                                            vorm "1∞ "
+                                             x→+∞        x             x→+∞     x
+                                                                                 2x−1
+                                                                                1
+                                                                      = lim  1+ x
+                                                                        x→+∞
+                                                                                        4
+                                                                                 8· x4 −1
+                                                                                1
+                                                                      = lim  1+ x
+                                                                        x→+∞
+                                                                                        4
+                                                                                    8t−1
+                                                                      t= x
+                                                                         4        1
+                                                                       =     lim       1+
+                                                                         t→+∞      t
+                                                                            "      t # 8       −1
+                                                                                  1             1
+                                                                      = lim    1+            1+
+                                                                       t→+∞       t             t
+                                                                       "           t 8
+                                                                                       #               −1
+                                                                                  1                   1
+                                                                      = lim 1 +            · lim 1 +
+                                                                        t→+∞      t         t→+∞      t
+
+                                                                      = e8 · 1
+
+                                                                      = e8 .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\lim _{x \to +\infty } \left (\frac {x+4}{x}\right )^{2x-1} &amp;= \lim _{x \to +\infty } \left (1+\frac 4x\right )^{2x-1} &amp;&amp; \text {vorm } \vovvorm {1^\infty } \\ &amp;= \lim _{x \to
++\infty } \left (1+\frac {1}{\frac {x}{4}}\right )^{2x-1} \\ &amp;= \lim _{x \to +\infty } \left (1+\frac {1}{\frac {x}{4}}\right )^{8\cdot \frac {x}{4}-1} \\ &amp;\overset {t=\frac {x}{4}}{=}
+\lim _{t \to +\infty } \left (1+\frac 1t\right )^{8t-1} \\ &amp;= \lim _{t \to +\infty } \left [ \left (1+\frac 1t\right )^t \right ]^8 \left (1+\frac 1t\right )^{-1} \\ &amp;= \left [ \lim
+_{t \to +\infty } \left (1+\frac 1t\right )^t \right ]^8 \cdot \lim _{t \to +\infty } \left (1+\frac 1t\right )^{-1} \\ &amp;= e^8 \cdot 1 \\ &amp;= \boxed {e^8.}
+\end{align*}
+
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-75"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+VBTL – Analyse 2: p 89 nr 15
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

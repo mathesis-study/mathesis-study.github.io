@@ -1,0 +1,3168 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vergelijkingen van rechten en vlakken</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 3</p> <h1>Vergelijkingen van rechten en vlakken</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-asymptote-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.08</b> (MD 06.08.30) De leerlingen stellen vectorie&#x0308;le, parametrische en cartesische vergelijkingen van rechten en vlakken in de ruimte op.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.09</b> (MD 06.08.32) De leerlingen bepalen de onderlinge ligging van twee rechten, van een rechte en een vlak en van twee vlakken in de ruimte met behulp van
+vergelijkingen.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> richtingsvectoren en richtingsgetallen van rechten, vectorie&#x0308;le, parametrische en cartesische vergelijkingen van rechten in de ruimte, onderlinge ligging van rechten, vectorie&#x0308;le en
+cartesische vergelijkingen van vlakken, vlak door drie punten, coplanariteit van punten, snijlijn van twee vlakken, en onderlinge ligging van een rechte en een vlak of van twee vlakken.
+</p>
+
+</div>
+<div class="multicols">
+
+</div>
+
+<p>
+In dit hoofdstuk zullen we steeds veronderstellen dat er een basis \((\overrightarrow {E_1},\overrightarrow {E_2},\overrightarrow {E_3})\) met bijhorend assenstelsel \((xyz)\) met oorsprong \(O\) gegeven is.
+</p>
+<!--
+...... section Rechten ......
+-->
+<h4 id="autosec-7"><span class="sectionnumber">I&#x2003;</span>Rechten</h4>
+<a id="mkpiweb-autopage-7"></a>
+<!--
+...... subsection Richtingsvector van een rechte ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">1&#x2003;</span>Richtingsvector van een rechte</h5>
+<a id="mkpiweb-autopage-8"></a>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-9"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p>
+<i>Een richtingsvector van de rechte \(e\) is een willekeurige (van de nulvector verschillende) plaatsvector \(\overrightarrow {R}\) van de rechte \(e_O\), die door de oorsprong gaat en evenwijdig met \(e\) wordt getrokken.</i>
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-asymptote-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsubsection Richtingsvector van een rechte door twee punten en ......
+-->
+<h6 id="autosec-13"><span class="sectionnumber">&#x2003;</span>Richtingsvector van een rechte \(e\) door twee punten \(P_1\) en \(P_2\)</h6>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+\[\overrightarrow {R}=\overrightarrow {P_1P_2} \quad \Leftrightarrow \quad \boxed {\overrightarrow {R}=\overrightarrow {P_2}-\overrightarrow {P_1}}\]
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-asymptote-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Vectoriele vergelijking van een rechte ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">2&#x2003;</span>Vectorie&#x0308;le vergelijking van een rechte</h5>
+<a id="mkpiweb-autopage-17"></a>
+<!--
+...... subsubsection Rechte door oorsprong en punt ......
+-->
+<h6 id="autosec-18"><span class="sectionnumber">&#x2003;</span>Rechte \(e_O\) door oorsprong \(O\) en punt \(P_1\)</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+\[P\in e_O \quad \Leftrightarrow \quad \boxed {e_O \leftrightarrow \overrightarrow {P}=k\cdot \overrightarrow {P_1}}\]
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-asymptote-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsubsection Rechte door punt met richtingsvector ......
+-->
+<h6 id="autosec-22"><span class="sectionnumber">&#x2003;</span>Rechte \(e\) door punt \(P_1\) met richtingsvector \(R\)</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+\[P\in e \quad \Leftrightarrow \quad \boxed {e\leftrightarrow \overrightarrow {P}=\overrightarrow {P_1} + k\cdot \overrightarrow {R}}\]
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-asymptote-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsubsection Rechte door twee punten en ......
+-->
+<h6 id="autosec-26"><span class="sectionnumber">&#x2003;</span>Rechte \(e\) door twee punten \(P_1\) en \(P_2\)</h6>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                   P ∈ e ⇔ e ↔ P⃗ = P⃗1 + k · P1⃗P2
+
+                                                                                         ⇔ e ↔ P⃗ = P⃗1 + k · (P⃗2 − P⃗1 )
+
+                                                                                         ⇔ e ↔ P⃗ = (1 − k) · P⃗1 + k · P⃗2
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P\in e &amp;\Leftrightarrow e\leftrightarrow \overrightarrow {P} =\overrightarrow {P_1} + k\cdot \overrightarrow {P_1P_2} \\[0.5em] &amp;\Leftrightarrow \boxed {e\leftrightarrow
+\overrightarrow {P}=\overrightarrow {P_1} + k\cdot (\overrightarrow {P_2}-\overrightarrow {P_1})} \\[0.5em] &amp;\Leftrightarrow \boxed {e\leftrightarrow \overrightarrow {P}=(1-k)\cdot
+\overrightarrow {P_1} + k\cdot \overrightarrow {P_2}}
+\end{align*}
+
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-asymptote-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-30"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nr. 4 (a-b-c-d) p. 70.
+</p>
+<!--
+...... subsection Stel richtingsgetallen van een rechte ......
+-->
+<h5 id="autosec-31"><span class="sectionnumber">3&#x2003;</span>Stel richtingsgetallen van een rechte</h5>
+<a id="mkpiweb-autopage-31"></a>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-32"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p>
+<i>De coo&#x0308;rdinaat \((a,b,c)\) of \((x_2-x_1,y_2-y_1,z_2-z_1)\) van een richtingsvector \(\overrightarrow {R}\) van een rechte \(e\) noemen we een stel richtingsgetallen van \(e\).</i>
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-asymptote-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsubsection Eigenschappen ......
+-->
+<h6 id="autosec-36"><span class="sectionnumber">&#x2003;</span>Eigenschappen</h6>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <i>De stellen richtingsgetallen van een rechte zijn bepaald op een evenredigheidsfactor na.</i><br />
+M.a.w. als \((a,b,c)\) een stel richtingsgetallen is van de rechte \(e\), dan is \((k.a,k.b,k.c)\) met \(k\in \mathbb {R}_0\) ook een stel richtingsgetallen van \(e\). Logisch, want als \(\overrightarrow {R}\) een
+richtingsvector is, dan is \(k\cdot \overrightarrow {R}\) dat ook.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <i>Twee rechten zijn evenwijdig als en slechts als hun stellen richtingsgetallen evenredig zijn.</i><br />
+
+</p>
+<p>
+\[\boxed {e \parallel f \quad \Leftrightarrow \quad (a_2,b_2,c_2)=k\cdot (a_1,b_1,c_1) \text { met }k\in \mathbb {R}_0}\]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+<b>Bewijs</b>
+</p>
+<div class="oplossing">
+
+<p>
+Beschouw rechte \(e\) met richtingsvector \(\overrightarrow {R}(a_1,b_1,c_1)\) en rechte \(f\) met richtingsvector \(\overrightarrow {S}(a_2,b_2,c_2)\). Dan
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                        e ∥ f ⇔ e0 = f0
+                                                                                               ⃗ = kR
+                                                                                              ⇒S    ⃗          met k ∈ R0
+                                                                                              ⇒ (a2 , b2 , c2 ) = k (a1 , b1 , c1 )   met k ∈ R0 .
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+e \parallel f &amp;\Leftrightarrow e_0 = f_0 \\[0.3em] &amp;\Rightarrow \overrightarrow {S} = k\,\overrightarrow {R} \quad \text {met } k \in \mathbb {R}_0 \\[0.3em] &amp;\Rightarrow
+(a_2,b_2,c_2) = k\,(a_1,b_1,c_1) \quad \text {met } k \in \mathbb {R}_0.
+\end{align*}
+
+</p>
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-37">Voorbeeld</h6>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+T.o.v. een willekeurige basis zijn gegeven: \(A(2, 1, -1), B(-1, 2, -5), C(6, 1, -1), D(9,0,3)\)<br />
+Ga na dat de rechten \(AB\) en \(CD\) evenwijdig zijn.<br />
+
+</p>
+<div class="oplossing">
+
+<p>
+We berekenen richtingsvectoren van de rechten \(AB\) en \(CD\):
+</p>
+
+<p>
+\[ \overrightarrow {AB} = \overrightarrow {B}-\overrightarrow {A} = (-1-2,\;2-1,\;-5-(-1)) = (-3,1,-4), \]
+</p>
+
+<p>
+\[ \overrightarrow {CD} = \overrightarrow {D}-\overrightarrow {C} = (9-6,\;0-1,\;3-(-1)) = (3,-1,4).        \]
+</p>
+
+<p>
+We zien dat
+</p>
+
+<p>
+\[ \overrightarrow {CD} = -1\cdot \overrightarrow {AB}, \]
+</p>
+
+<p>
+dus \(\overrightarrow {AB}\) en \(\overrightarrow {CD}\) zijn evenwijdige richtingsvectoren, en bijgevolg
+</p>
+
+<p>
+\[ AB \parallel CD. \]
+</p>
+
+</div>
+<!--
+...... subsubsection Bijzondere gevallen ......
+-->
+<h6 id="autosec-38"><span class="sectionnumber">&#x2003;</span>Bijzondere gevallen</h6>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+Geef voor elk van volgende rechten een stel richtingsgetallen.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(x\)-as: <span class="opl opl-vast" style="min-width:5cm">(a,0,0)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(y\)-as: <span class="opl opl-vast" style="min-width:5cm">(0,b,0)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(z\)-as: <span class="opl opl-vast" style="min-width:5cm">(0,0,c)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> rechte evenwijdig met het \(xy\)-vlak: <span class="opl opl-vast" style="min-width:5cm">(a,b,0)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> rechte evenwijdig met het \(xz\)-vlak: <span class="opl opl-vast" style="min-width:5cm">(a,0,c)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> rechte evenwijdig met het \(yz\)-vlak: <span class="opl opl-vast" style="min-width:5cm">(0,b,c)</span>
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-39"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 1 (a-b-c-d) en 2 p. 70.
+</p>
+<!--
+...... subsection Stelsel cartesische vergelijkingen van een rechte door één punt met richtingsvector ......
+-->
+<h5 id="autosec-40"><span class="sectionnumber">4&#x2003;</span>Stelsel cartesische vergelijkingen van een rechte \(e\) door één punt \(P_1\) met richtingsvector \(R\)</h5>
+<a id="mkpiweb-autopage-40"></a>
+<!--
+...... subsubsection Opstellen formules ......
+-->
+<h6 id="autosec-41"><span class="sectionnumber">&#x2003;</span>Opstellen formules</h6>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+Beschouw de rechte \(e\) die door het punt \(P_1(x_1,y_1,z_1)\) gaat en richtingsvector \(\overrightarrow {R}(a,b,c)\) heeft. Om het stelsel cartesische vergelijkingen op te stellen, kunnen we vertrekken van de
+<i>vectorie&#x0308;le vergelijking</i>, waarbij \(P(x,y,z)\) een willekeurig punt van de rechte \(e\) voorstelt.
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                            e ↔ P⃗ = P⃗1 + k · R
+                                                                                                               ⃗        met k ∈ R
+
+                                                                                                                            R) met k ∈ R
+                                                                                              ⇔ co(P⃗ ) = co(P⃗1 ) + k · co( ⃗
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+e &amp; \leftrightarrow \boxed {\overrightarrow {P}=\overrightarrow {P_1} + k\cdot \overrightarrow {R}}\quad \text {met } k\in \mathbb {R} \\[0.5em] &amp; \Leftrightarrow co(\overrightarrow
+{P}) = co(\overrightarrow {P_1}) + k\cdot co(\overrightarrow {R}) \quad \text {met } k\in \mathbb {R}
+\end{align*}
+
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                              ⇔ (x, y, z) = (x1 , y1 , z1 ) + k (a, b, c)
+                                                                                                           = (x1 + ka, y1 + kb, z1 + kc)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Leftrightarrow (x,y,z) &amp; = (x_1,y_1,z_1) + k\,(a,b,c) \\ &amp; = (x_1 + k a,\; y_1 + k b,\; z_1 + k c)
+\end{align*}
+
+</p>
+</div>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                   
+                                                                                                   x = x1 + k · a,
+                                                                                                   
+                                                                                              ⇔ e ↔ y = y1 + k · b,               met k ∈ R.
+                                                                                                   
+                                                                                                     z = z1 + k · c
+                                                                                                   
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; \Leftrightarrow \boxed {e\leftrightarrow \begin{cases} x = x_1 + k\cdot a, \\ y = y_1 + k\cdot b, \\ z = z_1 + k\cdot c \end {cases} } \quad \text {met } k\in \mathbb {R}.
+\end{align*}
+
+</p>
+
+<p>
+Aangezien dit stelsel nog een parameter \(k\) bevat, noemen we dit het <i>stelsel parametervergelijkingen</i> van de rechte \(e\).<br />
+
+</p>
+
+<p>
+Indien de richtingsgetallen \(a, b\) en \(c\) alle verschillend zijn van 0, kunnen we hieruit de parameter \(k\) elimineren. Dan bekomen we het <i>stelsel cartesische vergelijkingen</i> van de rechte \(e\):<br />
+
+</p>
+
+<p>
+
+</p>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-42"></a>
+
+<p>
+\[ \begin {cases} x = x_1 + k\cdot a,\\ y = y_1 + k\cdot b,\\ z = z_1 + k\cdot c \end {cases} \]
+</p>
+
+</div>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-43"></a>
+
+<div class="oplossing">
+
+<p>
+\[ \Rightarrow \begin {cases} k = \dfrac {x - x_1}{a},\\[0.3em] k = \dfrac {y - y_1}{b},\\[0.3em] k = \dfrac {z - z_1}{c} \end {cases} \]
+</p>
+
+</div>
+
+</div>
+
+<p>
+\[ \boxed {e\leftrightarrow \frac {x-x_1}{a}=\frac {y-y_1}{b}=\frac {z-z_1}{c} \text { als } a,b,c \in \mathbb {R}_0} \]
+</p>
+<!--
+...... subsubsection Enkele bijzondere gevallen ......
+-->
+<h6 id="autosec-44"><span class="sectionnumber">&#x2003;</span>Enkele bijzondere gevallen</h6>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p>
+Indien \(a, b\) en/of \(c\) wel gelijk is aan nul, hebben we geen vaste formule. We zullen de parameter \(k\) elimineren naargelang het aantal coo&#x0308;rdinaatgetallen dat gelijk is aan 0. We geven enkele voorbeelden.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <span class="underline">Rechte evenwijdig met het \(xy\)-vlak</span><br />
+
+</p>
+<p>
+In dit geval is \(\overrightarrow {R}(a,b,\textbf {0})\). We vinden dus als stelsel parametervergelijkingen:<br />
+
+</p>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:268pt ; ">
+<a id="mkpiweb-autopage-45"></a>
+<p>
+\[ e \leftrightarrow \begin {cases} x = x_1 + k\cdot a,\\ y = y_1 + k\cdot b,\\ z = z_1 \end {cases} \quad \text {met } k\in \mathbb {R} \]
+</p>
+</div>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:203pt ; ">
+<a id="mkpiweb-autopage-46"></a>
+<div class="oplossing">
+<p>
+\[ \Rightarrow \begin {cases} k = \dfrac {x - x_1}{a},\\[0.3em] k = \dfrac {y - y_1}{b},\\[0.3em] z = z_1 \end {cases} \]
+</p>
+</div>
+</div>
+<p>
+Elimineren we hieruit \(k\), dan bekomen we het stelsel cartesische vergelijkingen:
+</p>
+<p>
+\[ e\leftrightarrow \begin {cases} \frac {x-x_1}{a}=\frac {y-y_1}{b}\\ z=z_1 \end {cases} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <span class="underline">Rechte evenwijdig met de \(x\)-as</span><br />
+
+</p>
+<p>
+In dit geval is \(\overrightarrow {R}(a,\textbf {0},\textbf {0})\). We vinden dus als stelsel parametervergelijkingen:<br />
+
+</p>
+<p>
+\[ e\leftrightarrow \begin {cases} x=x_1+k.a\\y=y_1\\z=z_1 \end {cases} \text { met }k\in \mathbb {R} \]
+</p>
+<p>
+Aangezien \(k\) een willekeurig ree&#x0308;el getal is, kan \(x\) ook eender welk ree&#x0308;el getal zijn. Enkel \(y\) en \(z\) voldoen dus nog aan een voorwaarde. Deze voorwaarden vormen het stelsel cartesische
+vergelijkingen:<br />
+
+</p>
+<div class="center">
+<p>
+\(e\leftrightarrow \left \{\begin {matrix} y=y_1\\z=z_1 \end {matrix}\right .\)
+</p>
+</div>
+</li>
+</ul>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-48"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+Bepaal het stelsel cartesische vergelijkingen van de rechte \(e\) door het punt \(P_1(3,\frac {3}{2},-1)\) en met richtingsvector \(\overrightarrow {R}(-3,0,4)\).<br />
+
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                        
+                                                                                                        x = x1 + ka
+                                                                                                        
+                                                                                                     e ↔ y = y1 + kb
+                                                                                                        
+                                                                                                          z = z1 + kc
+                                                                                                        
+
+                                                                                                        
+                                                                                                        
+                                                                                                         x = 3 − 3k
+                                                                                                              3
+                                                                                                        
+                                                                                              ⇔      e ↔ y = + 0k
+                                                                                                        
+                                                                                                             2
+                                                                                                          z = −1 + 4k
+                                                                                                        
+
+                                                                                                              x−3
+                                                                                                        
+                                                                                                        
+                                                                                                         k=
+                                                                                                        
+                                                                                                               −3
+                                                                                                              3
+                                                                                                        
+                                                                                              ⇔      e↔ y=
+                                                                                                             2
+                                                                                                        k = z + 1
+                                                                                                        
+                                                                                                        
+                                                                                                        
+                                                                                                                4
+                                                                                                          x−3
+                                                                                                        
+                                                                                                                   z+1
+                                                                                                        
+                                                                                                               =
+                                                                                              ⇔      e↔    −3       4
+                                                                                                              3
+                                                                                                        y =
+                                                                                                        
+                                                                                                              2
+                                                                                                        
+                                                                                                        4x + 3z − 9 = 0
+                                                                                              ⇔      e↔
+                                                                                                        y = 3
+                                                                                                              2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;e \leftrightarrow \begin{cases} x = x_1 + k a\\ y = y_1 + k b\\ z = z_1 + k c \end {cases} \\[0.5em] \Leftrightarrow \qquad &amp;e \leftrightarrow \begin{cases} x = 3 - 3k\\ y = \dfrac
+{3}{2} + 0k\\ z = -1 + 4k \end {cases} \\[0.5em] \Leftrightarrow \qquad &amp;e \leftrightarrow \begin{cases} k = \dfrac {x-3}{-3}\\[0.3em] y = \dfrac {3}{2}\\[0.3em] k = \dfrac {z+1}{4} \end
+{cases} \\[0.5em] \Leftrightarrow \qquad &amp;e \leftrightarrow \begin{cases} \dfrac {x-3}{-3} = \dfrac {z+1}{4}\\[0.3em] y = \dfrac {3}{2} \end {cases} \\[0.5em] \Leftrightarrow \qquad &amp;e
+\leftrightarrow \begin{cases} 4x + 3z - 9 = 0\\[0.3em] y = \dfrac {3}{2} \end {cases}
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-49"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+Een raket wordt gevolgd op een radarscherm. Op het scherm geeft een ruimtelijk coo&#x0308;rdinaatsysteem op elk moment de positie van de raket weer.<br />
+Op het tijdstip \(t=0\) bevindt de raket zich in het punt \(A(5, 10, 15)\). Per tijdseenheid verplaatst de raket zich volgens de richtingsvector \((1,1,2)\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Geef een stelsel parametervergelijkingen van de baan van de raket.
+</p>
+<div class="oplossing">
+<p>
+We gebruiken \(t\) als parameter (tijd), punt \(A(5,10,15)\) en richtingsvector \(\overrightarrow {R}(1,1,2)\):
+</p>
+<p>
+\[ e \leftrightarrow \begin {cases} x = 5 + t,\\ y = 10 + t,\\ z = 15 + 2t, \end {cases} \quad t\in \mathbb {R}.                   \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bereken hieruit de coo&#x0308;rdinaten van de plaatsen waar de raket zich bevindt op de tijdstippen \(t=2\) en \(t=5\).
+</p>
+<div class="oplossing">
+<p>
+Voor \(t=2\): \((x,y,z) = (5+2,\;10+2,\;15+2\cdot 2) = (7,12,19).\)<br />
+Voor \(t=5\): \((x,y,z) = (5+5,\;10+5,\;15+2\cdot 5) = (10,15,25). \)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Geef het stelsel cartesische vergelijkingen van de baan van de raket.
+</p>
+<div class="oplossing">
+<p>
+Uit de parametervergelijkingen t elimineren:
+</p>
+<p>
+\[ t = x-5,\quad t = y-10,\quad t = \frac {z-15}{2},\qquad \Leftrightarrow \qquad \frac {x-5}{1} = \frac {y-10}{1} = \frac {z-15}{2}.                       \]
+</p>
+<p>
+Een stelsel cartesische vergelijkingen is bijvoorbeeld
+</p>
+<p>
+\[ \begin {cases} x - y + 5 = 0,\\ 2x - z + 5 = 0. \end {cases} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Open Geogebra tracht de baan van de raket te tekenen als snijlijn van twee vlakken.
+</p>
+<div class="oplossing">
+<p>
+De baan is de snijlijn van twee vlakken:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                      α ↔ x − y + 5 = 0,
+                                                                                                      β ↔ 2x − z + 5 = 0,
+
+
+-->
+
+<p>
+
+\begin{align*}
+\alpha &amp;\leftrightarrow x - y + 5 = 0,\\ \beta &amp;\leftrightarrow 2x - z + 5 = 0,
+\end{align*}
+die je in GeoGebra kunt tekenen.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Stelsel cartesische vergelijkingen van een rechte door twee punten en ......
+-->
+<h5 id="autosec-50"><span class="sectionnumber">5&#x2003;</span>Stelsel cartesische vergelijkingen van een rechte \(e\) door twee punten \(P_1\) en \(P_2\)</h5>
+<a id="mkpiweb-autopage-50"></a>
+<!--
+...... subsubsection Opstellen formules ......
+-->
+<h6 id="autosec-51"><span class="sectionnumber">&#x2003;</span>Opstellen formules</h6>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<p>
+Beschouw de rechte \(e\) die door de punten \(P_1(x_1,y_1,z_1)\) en \(P_2(x_2,y_2,z_2)\) gaat. Om het stelsel cartesische vergelijkingen op te stellen, vertrekken we opnieuw van de <i>vectorie&#x0308;le vergelijking</i>,
+waarbij \(P(x,y,z)\) een willekeurig punt van de rechte \(e\) voorstelt.<br />
+
+</p>
+
+<p>
+\[ \boxed {e\leftrightarrow \overrightarrow {P}=\overrightarrow {P_1} + k\cdot (\overrightarrow {P_2}-\overrightarrow {P_1}) \text { met } k\in \mathbb {R}} \]
+</p>
+
+<p>
+\(\Leftrightarrow co(\overrightarrow {P})=co(\overrightarrow {P_1}) + k\cdot co(\overrightarrow {P_2}-\overrightarrow {P_1})\) met \(k\in \mathbb {R}\)<br />
+
+</p>
+
+<p>
+\[ \boxed {e\leftrightarrow \left \{\begin {matrix} x=x_1+k.(x_2-x_1)\\y=y_1+k.(y_2-y_1)\\z=z_1+k.(z_2-z_1) \end {matrix}\right .                          \text { met } k\in \mathbb {R}} \]
+</p>
+
+<p>
+Aangezien dit stelsel nog een parameter \(k\) bevat, noemen we dit het <i>stelsel parametervergelijkingen</i> van de rechte \(e\).<br />
+
+</p>
+
+<p>
+Indien alle noemers verschillend zijn van 0, kunnen we hieruit de parameter \(k\) elimineren en bekomen we het <i>stelsel cartesische vergelijkingen</i> van de rechte \(e\):
+</p>
+
+<p>
+\[ \boxed {e\leftrightarrow \frac {x-x_1}{x_2-x_1}=\frac {y-y_1}{y_2-y_1}=\frac {z-z_1}{z_2-z_1} \text { met } x_2-x_1,y_2-y_1,z_2-z_1 \neq 0} \]
+</p>
+<!--
+...... subsubsection Enkele bijzondere gevallen ......
+-->
+<h6 id="autosec-52"><span class="sectionnumber">&#x2003;</span>Enkele bijzondere gevallen</h6>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+Indien één of meerdere noemers \(x_2-x_1,y_2-y_1\) en/of \(z_2-z_1\) wel gelijk zijn aan nul, hebben we geen vaste formule. We zullen de parameter \(k\) elimineren naargelang het aantal noemers dat gelijk is aan 0. We geven
+enkele voorbeelden.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <span class="underline">Rechte evenwijdig met het \(xy\)-vlak</span>
+</p>
+<p>
+Dergelijke rechte gaat door de punten \(P_1(x_1, y_1, z_1)\) en \(P_2(x_2, y_2, z_1)\). In dit geval is \(z\) dus een vast ree&#x0308;el getal \(z_1\) en vinden we één noemer gelijk aan nul. We vinden, na eliminatie van
+\(k\) uit het stelsel parametervergelijkingen, het stelsel cartesische vergelijkingen:
+</p>
+<div class="center">
+<p>
+\(e\leftrightarrow \left \{\begin {matrix} \frac {x-x_1}{x_2-x_1}=\frac {y-y_1}{y_2-y_1}\\z=z_1 \end {matrix}\right .\)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <span class="underline">Rechte evenwijdig met de \(x\)-as</span>
+</p>
+<p>
+Dergelijke rechte gaat door de punten \(P_1(x_1,y_1,z_1)\) en \(P_2(x_2, y_1,z_1)\). We krijgen dus twee noemers die gelijk zijn aan nul. Na eliminatie van \(k\) uit het stelsel parametervergelijkingen, vinden we het stelsel
+cartesische vergelijkingen:
+</p>
+<p>
+\[ e \leftrightarrow \left \{ \begin {matrix} y=y_1\\ z=z_1 \end {matrix} \right . \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-54"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+Bepaal het stelsel cartesische vergelijkingen van de rechte \(e\) door de punten \(P_1(3,-2,-3)\) en \(P_2(5,-3,0)\).<br />
+
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                      x−3   y+2      z+3
+                                                                                                 e↔       =        =
+                                                                                                      5−3   −3 + 2   0+3
+                                                                                                      x−3   y+2   z+3
+                                                                                                  ⇔       =     =
+                                                                                                       2     −1    3
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+e &amp;\leftrightarrow \frac {x-3}{5-3} = \frac {y+2}{-3+2} = \frac {z+3}{0+3} \\[0.3em] &amp;\Leftrightarrow \frac {x-3}{2} = \frac {y+2}{-1} = \frac {z+3}{3}
+\end{align*}
+Uit deze gelijkheid kunnen we op verschillende manieren een stelsel van twee vergelijkingen afleiden.
+</p>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:160pt ; ">
+
+<a id="mkpiweb-autopage-55"></a>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                      x−3
+                                                                                    
+                                                                                              y+2
+                                                                                    
+                                                                                          =       ,
+                                                                                       2       −1
+                                                                                      x−3     z+3
+                                                                                    
+                                                                                          =
+                                                                                       2        3
+                                                                                      (
+                                                                                        −(x − 3) = 2(y + 2),
+                                                                                    ⇔
+                                                                                        3(x − 3) = 2(z + 3)
+                                                                                       (
+                                                                                        x + 2y + 1 = 0,
+                                                                                     ⇔
+                                                                                        3x − 2z − 15 = 0
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\begin{cases} \dfrac {x-3}{2} = \dfrac {y+2}{-1},\\[0.3em] \dfrac {x-3}{2} = \dfrac {z+3}{3} \end {cases} \\[0.5em] &amp;\Leftrightarrow \begin{cases} -(x-3) = 2(y+2),\\ 3(x-3) = 2(z+3)
+\end {cases} \\[0.5em] &amp;\Leftrightarrow \begin{cases} x + 2y + 1 = 0,\\ 3x - 2z - 15 = 0 \end {cases}
+\end{align*}
+
+</p>
+
+
+</div>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:334pt ; ">
+
+<a id="mkpiweb-autopage-56"></a>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                      x−3
+                                                                                    
+                                                                                               y+2
+                                                                                    
+                                                                                           =       ,
+                                                                                        2       −1
+                                                                                      y+2      z+3
+                                                                                    
+                                                                                           =
+                                                                                       −1        3
+                                                                                       (
+                                                                                         −(x − 3) = 2(y + 2),
+                                                                                    ⇔
+                                                                                         3(y + 2) = −(z + 3)
+                                                                                       (
+                                                                                        x + 2y + 1 = 0,
+                                                                                     ⇔
+                                                                                        3y + z + 9 = 0
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\begin{cases} \dfrac {x-3}{2} = \dfrac {y+2}{-1},\\[0.3em] \dfrac {y+2}{-1} = \dfrac {z+3}{3} \end {cases} \\[0.5em] &amp;\Leftrightarrow \begin{cases} -(x-3) = 2(y+2),\\ 3(y+2) = -(z+3)
+\end {cases} \\[0.5em] &amp;\Leftrightarrow \begin{cases} x + 2y + 1 = 0,\\ 3y + z + 9 = 0 \end {cases}
+\end{align*}
+
+</p>
+
+
+</div>
+
+<p>
+Beide stelsels zijn een correcte voorstelling van de rechte \(e\).
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-57"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 1 (e en g) p. 70 en 7 (a-b-c-d) p. 70.
+</p>
+<!--
+...... subsection Omgekeerd: Stel richtingsgetallen van een rechte bepalen, als het stelsel cartesische vergelijkingen gegeven is ......
+-->
+<h5 id="autosec-58"><span class="sectionnumber">7&#x2003;</span>Omgekeerd: Stel richtingsgetallen van een rechte bepalen, als het stelsel cartesische vergelijkingen gegeven is</h5>
+<a id="mkpiweb-autopage-58"></a>
+<!--
+...... subsubsection Opstelling formule ......
+-->
+<h6 id="autosec-59"><span class="sectionnumber">&#x2003;</span>Opstelling formule</h6>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<p>
+<span class="underline">Gegeven:</span> Stelsel cartesische vergelijkingen van een rechte \(e\):
+</p>
+
+<p>
+\[ \begin {cases} u_1x+v_1y+w_1z+t_1=0\\ u_2x+v_2y+w_2z+t_2=0 \end {cases} \]
+</p>
+
+<p>
+<span class="underline">Gevraagd:</span> Een stel richtingsgetallen van \(e\).<br />
+
+</p>
+
+<p>
+<span class="underline">Figuur:</span>
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-asymptote-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+<p>
+<span class="underline">Oplossing:</span>
+</p>
+<div class="oplossing">
+
+<p>
+Stel een richtingsvector \(\overrightarrow {R}(a,b,c)\) van \(e\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                     (a, b, c) = coördinaat van een punt R van e0
+                                                                            = oplossing van het stelsel cartesische vergelijkingen van e0
+                                                                                            (
+                                                                                              u1 x + v1 y + w1 z = 0,
+                                                                            = oplossing van
+                                                                                              u2 x + v2 y + w2 z = 0.
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+(a,b,c) &amp;= \text {co\&quot;ordinaat van een punt } R \text { van } e_0\\ &amp;= \text {oplossing van het stelsel cartesische vergelijkingen van } e_0\\ &amp;= \text {oplossing van }
+\begin{cases} u_1 x + v_1 y + w_1 z = 0,\\ u_2 x + v_2 y + w_2 z = 0. \end {cases}
+\end{align*}
+Dit is een homogeen \(2\times 3\)-stelsel. De oplossingen worden gegeven door
+</p>
+
+<p>
+\[ \boxed { a = \lambda \begin {vmatrix} v_1 &amp; w_1\\ v_2 &amp; w_2 \end {vmatrix},\qquad b = -\lambda \begin {vmatrix} u_1 &amp; w_1\\ u_2 &amp; w_2 \end {vmatrix},\qquad c = \lambda \begin
+{vmatrix} u_1 &amp; v_1\\ u_2 &amp; v_2 \end {vmatrix}, } \qquad \text {met } \lambda \in \mathbb {R}. \]
+</p>
+
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-63"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+Bepaal een stel richtingsgetallen van de rechte \(e\)
+</p>
+
+<p>
+\[ e\leftrightarrow \left \{\begin {matrix} 2x+y+z-3=0\\x-y-2z+1=0 \end {matrix}\right .                   \]
+</p>
+
+<div class="oplossing">
+
+<p>
+We hebben
+</p>
+
+<p>
+\[ e \leftrightarrow \begin {cases} 2x + y + z - 3 = 0,\\ x - y - 2z + 1 = 0.                \end {cases} \]
+</p>
+
+<p>
+Dus in de notatie uit de formule:
+</p>
+
+<p>
+\[ u_1 = 2,\; v_1 = 1,\; w_1 = 1, \qquad u_2 = 1,\; v_2 = -1,\; w_2 = -2.           \]
+</p>
+
+<p>
+Met
+</p>
+
+<p>
+\[ a = \lambda \begin {vmatrix} v_1 &amp; w_1\\ v_2 &amp; w_2 \end {vmatrix}, \quad b = -\lambda \begin {vmatrix} u_1 &amp; w_1\\ u_2 &amp; w_2 \end {vmatrix}, \quad c = \lambda \begin
+{vmatrix} u_1 &amp; v_1\\ u_2 &amp; v_2 \end {vmatrix}, \quad \lambda \in \mathbb {R}, \]
+</p>
+
+<p>
+vinden we
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                         1         1
+                                                                                  a=λ                = λ(−2 + 1) = −λ,
+                                                                                         −1       −2
+                                                                                             2     1
+                                                                                  b = −λ             = −λ(2 · (−2) − 1 · 1) = −λ(−4 − 1) = 5λ,
+                                                                                             1    −2
+                                                                                         2        1
+                                                                                  c=λ               = λ(2 · (−1) − 1 · 1) = λ(−2 − 1) = −3λ.
+                                                                                         1       −1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+a &amp;= \lambda \begin{vmatrix} 1 &amp; 1\\ -1 &amp; -2 \end {vmatrix} = \lambda (-2 + 1) = -\lambda , \\ b &amp;= -\lambda \begin{vmatrix} 2 &amp; 1\\ 1 &amp; -2 \end {vmatrix} = -\lambda
+(2\cdot (-2) - 1\cdot 1) = -\lambda (-4 - 1) = 5\lambda , \\ c &amp;= \lambda \begin{vmatrix} 2 &amp; 1\\ 1 &amp; -1 \end {vmatrix} = \lambda (2\cdot (-1) - 1\cdot 1) = \lambda (-2 - 1) =
+-3\lambda .
+\end{align*}
+
+</p>
+
+<p>
+Een stel richtingsgetallen van \(e\) is bijvoorbeeld
+</p>
+
+<p>
+\[ (a,b,c) = (-1,5,-3) \]
+</p>
+
+<p>
+(maar ook elk niet-nul veelvoud hiervan, zoals \((1,-5,3)\) of \((-2,10,-6)\)).
+</p>
+</div>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-64"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 1(f) en 7(e) p. 70 en volgende.
+</p>
+<!--
+...... subsection Onderlinge stand van rechten ......
+-->
+<h5 id="autosec-65"><span class="sectionnumber">8&#x2003;</span>Onderlinge stand van rechten</h5>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<p>
+Beschouw twee rechten:<br />
+De rechte \(e\) door het punt \(P_1(x_1,y_1,z_1)\) en met richtingsvector \(\overrightarrow {R}(a_1,b_1,c_1)\).<br />
+De rechte \(f\) door het punt \(P_2(x_2,y_2,z_2)\) en met richtingsvector \(\overrightarrow {S}(a_2,b_2,c_2)\).
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-asymptote-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsubsection en zijn evenwijdig ......
+-->
+<h6 id="autosec-69"><span class="sectionnumber">&#x2003;</span>\(e\) en \(f\) zijn evenwijdig</h6>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+We bewezen reeds de eigenschap: <i>Twee rechten zijn evenwijdig als en slechts als hun stellen richtingsgetallen evenredig zijn.</i>
+</p>
+
+<p>
+\[ \boxed {e \parallel f \Leftrightarrow (a_2,b_2,c_2)=k\cdot (a_1,b_1,c_1) \text { met } k \in \mathbb {R}_0} \]
+</p>
+<!--
+...... subsubsection en zijn snijdend ......
+-->
+<h6 id="autosec-70"><span class="sectionnumber">&#x2003;</span>\(e\) en \(f\) zijn snijdend</h6>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+We veronderstellen nu dat \(e\) en \(f\) niet evenwijdig zijn en onderzoeken wanneer deze rechten een snijpunt hebben. Dit snijpunt moet bijgevolg voldoen aan zowel de vectorie&#x0308;le vergelijking van \(e\) als van \(f\):<br
+/>
+
+</p>
+
+<p>
+\[e\leftrightarrow \overrightarrow {P}=\overrightarrow {P_1}+k.\overrightarrow {R}\]
+</p>
+
+<p>
+\[f\leftrightarrow \overrightarrow {P}=\overrightarrow {P_2}+l.\overrightarrow {S}\]
+</p>
+
+<p>
+M.a.w. er bestaat juist één waarde voor de parameter \(k\) en één waarde voor de parameter \(l\) zodat
+</p>
+
+<p>
+\[\overrightarrow {P_1}+k.\overrightarrow {R}=\overrightarrow {P_2}+l.\overrightarrow {S}\]
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                     ⇔ P⃗1 + k R
+                                                                                                               ⃗ = P⃗2 + l S
+                                                                                                                           ⃗
+                                                                                                        ⃗ −lS
+                                                                                                     ⇔ kR      ⃗ = P⃗2 − P⃗1
+                                                                                                       
+                                                                                                       k a1 − l a2 = x2 − x1 ,
+                                                                                                       
+                                                                                                     ⇔ k b1 − l b2 = y2 − y1 ,
+                                                                                                       
+                                                                                                         k c1 − l c2 = z2 − z1 .
+                                                                                                       
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Leftrightarrow \overrightarrow {P_1} + k\,\overrightarrow {R} = \overrightarrow {P_2} + l\,\overrightarrow {S}\\ &amp;\Leftrightarrow k\,\overrightarrow {R} - l\,\overrightarrow {S} =
+\overrightarrow {P_2}-\overrightarrow {P_1}\\ &amp;\Leftrightarrow \begin{cases} k\,a_1 - l\,a_2 = x_2 - x_1,\\ k\,b_1 - l\,b_2 = y_2 - y_1,\\ k\,c_1 - l\,c_2 = z_2 - z_1. \end {cases}
+\end{align*}
+
+</p>
+</div>
+
+<p>
+We zoeken een opl. voor dit stelsel in \(k\) en \(l\). Opdat het stelsel een opl. zou hebben, moet de rang van de verhoogde matrix gelijk zijn aan de rang van de matrix.
+</p>
+<div class="oplossing">
+
+<p>
+stelsel heeft een opl. als \(r(A_b) = r(A)\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                              maar e ∦ f ⇔ (a1 , b1 , c1 ) ≁ k (a2 , b2 , c2 )
+                                                                                                           ⇒ r(A) = 2
+                                                                                                           ⇒ r(Ab ) = 2
+                                                                                                           ⇒ det Ab = 0
+
+                                                                                                             a1      a2    x2 − x 1
+                                                                                                           ⇒ b1      b2    y2 − y1 = 0.
+                                                                                                             c1      c2    z2 − z1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {maar } e \nparallel f &amp;\Leftrightarrow \; (a_1,b_1,c_1) \nsim k\,(a_2,b_2,c_2)\\[0.3em] &amp;\Rightarrow r(A) = 2\\[0.3em] &amp;\Rightarrow r(A_b) = 2\\[0.3em] &amp;\Rightarrow \det
+A_b = 0\\[0.3em] &amp;\Rightarrow \begin{vmatrix} a_1 &amp; a_2 &amp; x_2 - x_1\\ b_1 &amp; b_2 &amp; y_2 - y_1\\ c_1 &amp; c_2 &amp; z_2 - z_1 \end {vmatrix} = 0.
+\end{align*}
+
+</p>
+</div>
+
+<p>
+<span class="underline">Besluit:</span>
+</p>
+
+<p>
+\[ \boxed {e \text { en } f \text { zijn snijdend } \Leftrightarrow (a_2,b_2,c_2)\neq k\cdot (a_1,b_1,c_1) \text { en } \begin {vmatrix} a_1&amp; a_2&amp;x_2-x_1 \\ b_1&amp;b_2&amp; y_2-y_1 \\
+c_1&amp;c_2&amp; z_2-z_1 \end {vmatrix}=0} \]
+</p>
+<!--
+...... subsubsection en zijn kruisend ......
+-->
+<h6 id="autosec-71"><span class="sectionnumber">&#x2003;</span>\(e\) en \(f\) zijn kruisend</h6>
+<a id="mkpiweb-autopage-71"></a>
+
+
+<p>
+Als de voorwaarden voor evenwijdigheid en voor snijdend zijn niet voldaan zijn, blijft er slechts één mogelijkheid over, nl. dat \(e\) en \(f\) kruisend zijn. We kunnen dus besluiten:
+</p>
+
+<p>
+\[ \boxed {e \text { en } f \text { zijn kruisend } \Leftrightarrow (a_2,b_2,c_2)\neq k\cdot (a_1,b_1,c_1) \text { en } \begin {vmatrix} a_1&amp; a_2&amp;x_2-x_1 \\ b_1&amp;b_2&amp; y_2-y_1 \\
+c_1&amp;c_2&amp; z_2-z_1 \end {vmatrix}\neq 0} \]
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-72"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-72"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 9 en 10 p. 70 en volgende.
+</p>
+<!--
+...... section Vlakken ......
+-->
+<h4 id="autosec-73"><span class="sectionnumber">II&#x2003;</span>Vlakken</h4>
+<a id="mkpiweb-autopage-73"></a>
+<!--
+...... subsection Een paar richtingsvectoren van een vlak ......
+-->
+<h5 id="autosec-74"><span class="sectionnumber">1&#x2003;</span>Een paar richtingsvectoren van een vlak</h5>
+<a id="mkpiweb-autopage-74"></a>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-75"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+<i>Een richtingsvector van een vlak \(\alpha \) is een willekeurige (van de nulvector verschillende) plaatsvector \(\overrightarrow {R}\) van het vlak \(\alpha _O\), dat door de oorsprong gaat en evenwijdig met \(\alpha \)
+wordt getrokken.</i><br />
+<br />
+Het vlak \(\alpha _O\) wordt volledig bepaald door twee van haar punten \(R\) en \(S\) die niet collineair zijn met \(O\). M.a.w. voor de overeenkomstige plaatsvectoren \(\overrightarrow {R}\) en \(\overrightarrow {S}\)
+geldt: \(\overrightarrow {S}\neq k.\overrightarrow {R}\) \(\forall k \in \mathbb {R}\). We noemen \(\overrightarrow {R}\) en \(\overrightarrow {S}\) <i>lineair onafhankelijk</i>.<br />
+
+</p>
+
+<p>
+We kunnen besluiten:<br />
+
+</p>
+
+<p>
+<i>Twee lineair onafhankelijke richtingsvectoren \(\overrightarrow {R}\) en \(\overrightarrow {S}\) van het vlak \(\alpha \) bepalen het vlak \(\alpha _O\) en dus ook de richting van het vlak \(\alpha \).</i>
+</p>
+<!--
+...... subsubsection Paar richtingsvectoren van een vlak door drie punten , en ......
+-->
+<h6 id="autosec-76"><span class="sectionnumber">&#x2003;</span>Paar richtingsvectoren van een vlak \(\alpha \) door drie punten \(P_1\), \(P_2\) en \(P_3\)</h6>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<p>
+\(\overrightarrow {R}=\overrightarrow {P_1P_2}\) en \(\overrightarrow {S}=\overrightarrow {P_1P_3}\)<br />
+
+</p>
+
+<p>
+\[ \boxed {\Leftrightarrow \quad \overrightarrow {R}=\overrightarrow {P_2}-\overrightarrow {P_1} \text { en } \overrightarrow {S}=\overrightarrow {P_3}-\overrightarrow {P_1}} \]
+</p>
+<!--
+...... subsection Vectoriele vergelijking van een vlak ......
+-->
+<h5 id="autosec-77"><span class="sectionnumber">2&#x2003;</span>Vectorie&#x0308;le vergelijking van een vlak</h5>
+<a id="mkpiweb-autopage-77"></a>
+<!--
+...... subsubsection Vlak door punt met paar richtingsvectoren en ......
+-->
+<h6 id="autosec-78"><span class="sectionnumber">&#x2003;</span>Vlak \(\alpha \) door punt \(P_1\) met paar richtingsvectoren \(R\) en \(S\)</h6>
+<a id="mkpiweb-autopage-78"></a>
+
+
+<p>
+\[ \boxed {P\in \alpha \Leftrightarrow \alpha \leftrightarrow \overrightarrow {P}=\overrightarrow {P_1} + k\cdot \overrightarrow {R} + m\cdot \overrightarrow {S}} \]
+</p>
+<!--
+...... subsubsection Vlak door drie punten , en ......
+-->
+<h6 id="autosec-79"><span class="sectionnumber">&#x2003;</span>Vlak \(\alpha \) door drie punten \(P_1\), \(P_2\) en \(P_3\)</h6>
+<a id="mkpiweb-autopage-79"></a>
+
+
+<p>
+\(P\in \alpha \Leftrightarrow \overrightarrow {P}=\overrightarrow {P_1} + k\cdot \overrightarrow {P_1P_2}+m\cdot \overrightarrow {P_1P_3}\)<br />
+
+</p>
+
+<p>
+\[ \boxed {\Leftrightarrow \quad \alpha \leftrightarrow \overrightarrow {P}=\overrightarrow {P_1} + k\cdot (\overrightarrow {P_2}-\overrightarrow {P_1}) +m\cdot (\overrightarrow
+{P_3}-\overrightarrow {P_1})} \]
+</p>
+
+<p>
+\[ \boxed {\Leftrightarrow \quad \alpha \leftrightarrow \overrightarrow {P}=(1-k-m)\cdot \overrightarrow {P_1} + k\cdot \overrightarrow {P_2} + m\cdot \overrightarrow {P_3}} \]
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-80"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nr. 4 (e-f-g-h) p. 70.
+</p>
+<!--
+...... subsection Paar stellen richtingsgetallen van een vlak ......
+-->
+<h5 id="autosec-81"><span class="sectionnumber">3&#x2003;</span>Paar stellen richtingsgetallen van een vlak</h5>
+<a id="mkpiweb-autopage-81"></a>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-82"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-82"></a>
+
+
+<p>
+<i>De stellen coo&#x0308;rdinaatgetallen van een koppel lineair onafhankelijke richtingsvectoren van het vlak \(\alpha \) noemen we een paar stellen richtingsgetallen van het vlak \(\alpha \):</i><br />
+
+</p>
+
+<p>
+\[\{(a_1,b_1,c_1),(a_2,b_2,c_2)\}=\{(x_2-x_1,y_2-y_1,z_2-z_1),(x_3-x_1,y_3-y_1,z_3-z_1)\}\]
+</p>
+<!--
+...... subsubsection Bijzondere gevallen ......
+-->
+<h6 id="autosec-83"><span class="sectionnumber">&#x2003;</span>Bijzondere gevallen</h6>
+<a id="mkpiweb-autopage-83"></a>
+
+
+<p>
+Geef voor elk van volgende vlakken een paar stellen richtingsgetallen.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> vlak evenwijdig met het xy-vlak: \(..................................................\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> vlak evenwijdig met het xz-vlak: \(..................................................\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> vlak evenwijdig met het yz-vlak: \(..................................................\)
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-84"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-84"></a>
+
+
+<p>
+Bepaal een paar stellen richtingsgetallen van het vlak \(\alpha \) dat door de punten \(P_1(2,5,-1)\), \(P_2(4,1,4)\) en \(P_3(0,-2,3)\) gaat.<br />
+<br />
+We mogen de punten in een willekeurige volgorde nemen, maar krijgen dan wel een ander paar stellen richtingsgetallen van het vlak.
+</p>
+<!--
+...... subsection Cartesische vergelijking van een vlak door een punt met stel richtingsvectoren en ......
+-->
+<h5 id="autosec-85"><span class="sectionnumber">4&#x2003;</span>Cartesische vergelijking van een vlak \(\alpha \) door een punt \(P_1\) met stel richtingsvectoren \(R\) en \(S\)</h5>
+<a id="mkpiweb-autopage-85"></a>
+<!--
+...... subsubsection Opstellen formules ......
+-->
+<h6 id="autosec-86"><span class="sectionnumber">&#x2003;</span>Opstellen formules</h6>
+<a id="mkpiweb-autopage-86"></a>
+
+
+<p>
+Beschouw het vlak \(\alpha \) dat door het punt \(P_1(x_1,y_1,z_1)\) gaat en stel richtingsvectoren \(\overrightarrow {R}(a_1,b_1,c_1)\) en \(\overrightarrow {S}(a_2,b_2,c_2)\) heeft. Om de cartesische vergelijking
+op te stellen, kunnen we vertrekken van de <i>vectorie&#x0308;le vergelijking</i>, waarbij \(P(x,y,z)\) een willekeurig punt van het vlak \(\alpha \) voorstelt.<br />
+
+</p>
+
+<p>
+\[ \boxed {\alpha \leftrightarrow \overrightarrow {P}=\overrightarrow {P_1} + k\cdot \overrightarrow {R} + m\cdot \overrightarrow {S} \text { met } k,m\in \mathbb {R}} \]
+</p>
+
+<p>
+\(\Leftrightarrow co(\overrightarrow {P})=co(\overrightarrow {P_1}) + k\cdot co(\overrightarrow {R}) + m\cdot co(\overrightarrow {S})\) met \(k,m\in \mathbb {R}\)<br />
+
+</p>
+
+<p>
+\[ \boxed {\Leftrightarrow \quad \alpha \leftrightarrow \left \{\begin {matrix} x=x_1+k.a_1+m.a_2\\y=y_1+k.b_1+m.b_2\\z=z_1+k.c_1+m.c_2 \end {matrix}\right .                         \text { met } k,m\in \mathbb {R}}
+\]
+</p>
+
+<p>
+Aangezien dit stelsel nog de parameters \(k\) en \(m\) bevat, noemen we dit het <i>stelsel parametervergelijkingen</i> van het vlak \(\alpha \).<br />
+
+</p>
+
+<p>
+We beschouwen dit stelsel nu als een stelsel met onbekenden \(k\) en \(m\).<br />
+<br />
+Daar \(\overrightarrow {R}\) en \(\overrightarrow {S}\) lineair onafhankelijk zijn, vinden we voor de rang van de coe&#x0308;fficie&#x0308;ntenmatrix \(A\):<br />
+
+</p>
+
+<p>
+We mogen dus de coe&#x0308;xistentievoorwaarde voor een 3x2-stelsel toepassen om \(k\) en \(m\) te elimineren (zie algebra), waarna we de <i>cartesische vergelijking</i> van het vlak \(\alpha \) bekomen:<br />
+
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-87"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-87"></a>
+
+
+<p>
+Bepaal de cartesische vergelijking van het vlak \(\alpha \) door het punt \(P_1(3,-1,4)\) en met stel richtingsvectoren \(\overrightarrow {R}(-5,0,3)\) en \(\overrightarrow {S}(-1,3,1)\) .<br />
+<span class="underline">\(1^e\) manier</span><br />
+<br />
+
+</p>
+
+<p>
+<span class="underline">\(2^e\) manier</span><br />
+
+</p>
+<!--
+...... subsubsection Algemene gedaante ......
+-->
+<h6 id="autosec-88"><span class="sectionnumber">&#x2003;</span>Algemene gedaante</h6>
+<a id="mkpiweb-autopage-88"></a>
+
+
+<p>
+We kunnen de cartesische vergelijking van een vlak \(\alpha \) steeds in de gedaante brengen:
+</p>
+
+<p>
+\[ \boxed {\alpha \leftrightarrow ux+vy+wz+t=0} \]
+</p>
+<!--
+...... subsubsection Opmerkingen ......
+-->
+<h6 id="autosec-89"><span class="sectionnumber">&#x2003;</span>Opmerkingen</h6>
+<a id="mkpiweb-autopage-89"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Wanneer we het stelsel cartesische vergelijkingen van een rechte in de vorm
+</p>
+<p>
+\[\left \{\begin {matrix}u_1x+v_1y+w_1z+t_1=0\\u_2x+v_2y+w_2z+t_2=0\end {matrix}\right .\]
+</p>
+<p>
+hebben, blijkt duidelijk dat een rechte steeds kan beschouwd worden als de snijlijn van twee snijdende vlakken.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De cartesische vergelijking van een vlak \(\alpha _O\) door de oorsprong wordt gegeven door
+</p>
+<p>
+\[ \boxed {\alpha _O \leftrightarrow ux+vy+wz=0} \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Cartesische vergelijking van een vlak door drie punten , en ......
+-->
+<h5 id="autosec-90"><span class="sectionnumber">5&#x2003;</span>Cartesische vergelijking van een vlak \(\alpha \) door drie punten \(P_1\), \(P_2\) en \(P_3\)</h5>
+<a id="mkpiweb-autopage-90"></a>
+<!--
+...... subsubsection Opstellen formules ......
+-->
+<h6 id="autosec-91"><span class="sectionnumber">&#x2003;</span>Opstellen formules</h6>
+<a id="mkpiweb-autopage-91"></a>
+
+
+<p>
+Beschouw het vlak \(\alpha \) dat door de punten \(P_1(x_1,y_1,z_1)\), \(P_2(x_2,y_2,z_2)\) en \(P_3(x_3,y_3,z_3)\) gaat. Om het stelsel parametervergelijking en de cartesische vergelijking op te stellen, kunnen we de
+substitutie
+</p>
+
+<p>
+\[\{(a_1,b_1,c_1),(a_2,b_2,c_2)\}=\{(x_2-x_1,y_2-y_1,z_2-z_1),(x_3-x_1,y_3-y_1,z_3-z_1)\}\]
+</p>
+
+<p>
+toepassen op het stelsel parametervergelijkingen en op de cartesische vergelijking van een vlak waarvan een punt en een stel richtingsvectoren gegeven zijn.<br />
+
+</p>
+
+<p>
+We vinden voor het <i>stelsel parametervergelijkingen</i> van het vlak \(\alpha \):<br />
+
+</p>
+
+<p>
+\[ \boxed {\alpha \leftrightarrow \left \{\begin {matrix} x=x_1+k.(x_2-x_1)+m.(x_3-x_1)\\y=y_1+k.(y_2-y_1)+m.(y_3-y_1)\\z=z_1+k.(z_2-z_1)+m.(z_3-z_1) \end {matrix}\right .                         \text { met } k,m\in
+\mathbb {R}} \]
+</p>
+
+<p>
+En voor de <i>cartesische vergelijking</i> van het vlak \(\alpha \):<br />
+
+</p>
+
+<p>
+\[ \boxed {\alpha \leftrightarrow \begin {vmatrix} x&amp;y&amp;z&amp;1 \\ x_1&amp;y_1&amp; z_1&amp;1 \\ x_2&amp;y_2&amp; z_2&amp;1 \\x_3&amp;y_3&amp; z_3&amp;1 \end {vmatrix}=0} \]
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-92"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-92"></a>
+
+
+<p>
+Bepaal de cartesische vergelijking van het vlak \(\alpha \) door de punten \(P_1(4,-1,3)\), \(P_2(-2,3,1)\) en \(P_3(3,1,-4)\).<br />
+
+</p>
+<!--
+...... subsubsection Toepassing: voorwaarde opdat vier punten coplanair zouden zijn ......
+-->
+<h6 id="autosec-93"><span class="sectionnumber">&#x2003;</span>Toepassing: voorwaarde opdat vier punten coplanair zouden zijn</h6>
+<a id="mkpiweb-autopage-93"></a>
+
+
+<p>
+Beschouw in een geijkte ruimte de punten \(P_1(x_1, y_1, z_1)\), \(P_2(x_2, y_2, z_2)\), \(P_3(x_3, y_3, z_3)\) en \(P_4(x_4, y_4, z_4)\). Dan kunnen we stellen:<br />
+<br />
+
+</p>
+
+<p>
+\[ \boxed {P_1, P_2, P_3 \text { en } P_4 \text { zijn coplanair } \Leftrightarrow \begin {vmatrix} x_1&amp;y_1&amp; z_1&amp;1 \\ x_2&amp;y_2&amp; z_2&amp;1 \\x_3&amp;y_3&amp; z_3&amp;1
+\\x_4&amp;y_4&amp; z_4&amp;1 \end {vmatrix}=0} \]
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-94"><span class="sectionnumber">&#x2003;</span>Oefeningen</h6>
+<a id="mkpiweb-autopage-94"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 9 en 10 p. 99.
+</p>
+<!--
+...... subsubsection Vlak op de assegmenten ......
+-->
+<h6 id="autosec-95"><span class="sectionnumber">&#x2003;</span>Vlak op de assegmenten</h6>
+<a id="mkpiweb-autopage-95"></a>
+<!--
+......   paragraph Opstelling formule ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-96">Opstelling formule</span>
+<a id="mkpiweb-autopage-96"></a>
+Onder een vlak op de assegmenten verstaan we een vlak \(\alpha \) gegeven door zijn drie snijpunten met de coo&#x0308;rdinaatassen. We zoeken dus de vergelijking van het vlak dat door de punten \(P_1(x_1,0,0),
+P_2(0,y_2,0)\) en \(P_3(0,0,z_3)\) gaat.<br />
+Invullen in de cartesische vergelijking van een vlak door drie punten en uitwerken geeft ons achtereenvolgend<br />
+
+</p>
+<!--
+......   paragraph Voorbeeld ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-97">Voorbeeld</span>
+<a id="mkpiweb-autopage-97"></a>
+Bepaal de cartesische vergelijking van het vlak \(\alpha \) door de punten \(A(4,0,0)\), \(B(0,3,0)\) en \(C(0,0,-2)\).<br />
+
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-98"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-98"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 1 t.e.m. 5 p. 98.
+</p>
+<!--
+...... subsection Onderlinge ligging van twee vlakken ......
+-->
+<h5 id="autosec-99"><span class="sectionnumber">7&#x2003;</span>Onderlinge ligging van twee vlakken</h5>
+<a id="mkpiweb-autopage-99"></a>
+<!--
+...... subsubsection Bespreking ......
+-->
+<h6 id="autosec-100"><span class="sectionnumber">&#x2003;</span>Bespreking</h6>
+<a id="mkpiweb-autopage-100"></a>
+
+
+<p>
+In het eerste hoofdstuk zagen we reeds dat er drie mogelijkheden zijn voor de onderlinge stand van twee vlakken, nl.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> evenwijdig en samenvallend
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> evenwijdig en niet samenvallend
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> snijdend
+</p>
+</li>
+</ul>
+
+<p>
+We bekijken dit nu vanuit een algebraı&#x0308;sch standpunt en beschouwen in de geijkte ruimte twee vlakken:<br />
+
+</p>
+
+<p>
+\[ \alpha \leftrightarrow u_1x+v_1y+w_1z+t_1=0 \hspace {2cm} (*) \]
+</p>
+
+<p>
+\[ \beta \leftrightarrow u_2x+v_2y+w_2z+t_2=0 \hspace {2cm} (**) \]
+</p>
+
+<p>
+<span class="underline">Geval 1: \(\alpha \) en \(\beta \) zijn evenwijdig en samenvallend</span><br />
+
+</p>
+
+<p>
+In dit geval stellen (*) en (**) hetzelfde vlak voor. We besluiten dus
+</p>
+
+<p>
+\[ \boxed {\alpha = \beta \Leftrightarrow \exists k \in \mathbb {R}_0:               (u_2,v_2,w_2,t_2)=k\cdot (u_1,v_1,w_1,t_1)} \]
+</p>
+
+<p>
+<span class="underline">Geval 2: \(\alpha \) en \(\beta \) zijn evenwijdig en niet samenvallend</span><br />
+
+</p>
+
+<p>
+Als \(\alpha \parallel \beta \), dan moet \(\alpha _O = \beta _O\) en vinden we
+</p>
+
+<p>
+\[ \boxed {\alpha \parallel \beta \text { en } \alpha \neq \beta \Leftrightarrow \exists k \in \mathbb {R}_0:                  (u_2,v_2,w_2)=k\cdot (u_1,v_1,w_1) \text { en } t_2 \neq k\cdot t_1} \]
+</p>
+
+<p>
+<span class="underline">Geval 3: \(\alpha \) en \(\beta \) zijn snijdend</span><br />
+
+</p>
+
+<p>
+In dit geval zijn \(\alpha \) en \(\beta \) niet evenwijdig en geldt er \((u_2,v_2,w_2)\neq k\cdot (u_1,v_1,w_1)\). De rang van het stelsel bepaald door bovenstaande vergelijkingen (*) en (**) is bijgevolg 2.<br />
+\(r(A)=2\)<br />
+\(\Rightarrow r(A_b)=r(A)=2 &lt;\) aantal onbekenden \(n=3\)<br />
+\(\Rightarrow \) Het stelsel is oplosbaar en we mogen 1 onbekende vrij kiezen. Er zijn dus oneindig veel oplossingen.<br />
+\(\Rightarrow \) We vinden een snijlijn \(s\).<br />
+
+</p>
+
+<p>
+We besluiten:
+</p>
+
+<p>
+\[ \boxed {\alpha \text { snijdt } \beta \Leftrightarrow (u_2,v_2,w_2)\neq k\cdot (u_1,v_1,w_1)} \]
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-101"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-101"></a>
+
+
+<p>
+Onderzoek de onderlinge ligging van \(\alpha \) en \(\beta \). Bepaal een stel richtingsgetallen van hun snijlijn, indien ze snijdend zijn.
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                        α ↔ x − 3y + z − 2 = 0
+                                                                                                       β ↔ 2x + y − 2z − 1 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\alpha \leftrightarrow x-3y+z-2=0\\ \beta \leftrightarrow 2x+y-2z-1=0
+\end{align*}
+
+</p>
+<!--
+...... subsection Onderlinge ligging van een rechte en een vlak ......
+-->
+<h5 id="autosec-102"><span class="sectionnumber">8&#x2003;</span>Onderlinge ligging van een rechte en een vlak</h5>
+<a id="mkpiweb-autopage-102"></a>
+<!--
+...... subsubsection Bespreking ......
+-->
+<h6 id="autosec-103"><span class="sectionnumber">&#x2003;</span>Bespreking</h6>
+<a id="mkpiweb-autopage-103"></a>
+
+
+<p>
+Beschouw een vlak \(\alpha \) met gegeven cartesische vergelijking en een rechte \(e\) gegeven door haar stelsel parametervergelijkingen.
+</p>
+
+<p>
+\[\alpha \leftrightarrow ux+vy+wz+t=0\]
+</p>
+
+<p>
+\[e \leftrightarrow \left \{\begin {matrix} x=x_1+k.a\\y=y_1+k.b\\z=z_1+k.c \end {matrix}\right .\]
+</p>
+
+<p>
+We onderzoeken of \(\alpha \) en \(e\) gemeenschappelijke punten hebben. Kunnen we m.a.w. een waarde vinden voor de parameter \(k\), zodanig dan het bijhorende punt van \(e\) voldoet aan de vergelijking van het vlak
+\(\alpha \)?<br />
+
+</p>
+
+<p>
+\(\exists k \in \mathbb {R}:       u(x_1+k.a)+v(y_1+k.b)+w(z_1+k.c)+t=0\)<br />
+
+</p>
+
+<p>
+\(\Leftrightarrow \exists k \in \mathbb {R}:(ua+vb+wc)\cdot k = -ux_1-vy_1-wz_1-t\)<br />
+
+</p>
+
+<p>
+<span class="underline">Geval 1: \(ua+vb+wc\neq 0\)</span><br />
+
+</p>
+
+<p>
+Dan vinden we juist één waarde voor k en dus een snijpunt. \(e\) en \(\alpha \) zijn snijdend.
+</p>
+
+<p>
+<span class="underline">Geval 2: \(ua+vb+wc=0\) en \(-ux_1-vy_1-wz_1-t\neq 0\)</span><br />
+
+</p>
+
+<p>
+We vinden een strijdige vergelijking: \(0.k\neq 0\). Er zijn bijgevolg geen snijpunten, \(e\) en \(\alpha \) zijn evenwijdig.<br />
+
+</p>
+
+<p>
+<span class="underline">Geval 3: \(ua+vb+wc=0\) en \(-ux_1-vy_1-wz_1-t=0\)</span><br />
+
+</p>
+
+<p>
+We vinden een vergelijking met oneindig veel oplossingen: \(0.k= 0\). Er zijn dus \(\infty \) veel gemeenschappelijke punten: \(e\) ligt in \(\alpha \).<br />
+
+</p>
+
+<p>
+We besluiten:<br />
+<i>Voor een rechte \(e\) met stel richtingsgetallen \((a,b,c)\) en een vlak \(\alpha \leftrightarrow ux+vy+wz+t=0\) geldt:</i>
+</p>
+
+<p>
+\[ \boxed {e \text { snijdt } \alpha \Leftrightarrow ua+vb+wc\neq 0} \]
+</p>
+
+<p>
+\[ \boxed {e \parallel \alpha \Leftrightarrow ua+vb+wc=0} \]
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-104"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-104"></a>
+
+
+<p>
+Onderzoek de onderlinge ligging van het vlak \(\alpha \leftrightarrow x-3y+z-2=0\) en de rechte \(e\) met stel richtingsgetallen \((1,2,5)\).<br />
+
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-105"><span class="sectionnumber">9&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-105"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 12 t.e.m. 21 p. 100 en volgende.
+</p>
+
+<div class="cursusappendix"><a href="R03_VergelijkingenVanRechtenEnVlakken_Appendix.pdf" download="R03_VergelijkingenVanRechtenEnVlakken_Appendix.pdf"></a></div>
+<!--
+...... section Rang van een matrix ......
+-->
+<h4 id="autosec-106"><span class="sectionnumber">A&#x2003;</span>Rang van een matrix</h4>
+<a id="mkpiweb-autopage-106"></a>
+
+
+<p>
+In deze appendix herhalen we kort de nodige theorie over de rang van een matrix. Dit is de theorie die gebruikt wordt in de paragraaf over snijdende rechten.
+</p>
+<!--
+...... subsection Matrix en bijhorend stelsel ......
+-->
+<h5 id="autosec-107"><span class="sectionnumber">1&#x2003;</span>Matrix en bijhorend stelsel</h5>
+<a id="mkpiweb-autopage-107"></a>
+
+
+<p>
+Een <em>matrix</em> is een rechthoekig schema van getallen. Bijvoorbeeld een \(3\times 2\)-matrix:
+</p>
+
+<p>
+\[ A = \begin {pmatrix} a_{11} &amp; a_{12}\\ a_{21} &amp; a_{22}\\ a_{31} &amp; a_{32} \end {pmatrix}.                \]
+</p>
+
+<p>
+Bij een stelsel van lineaire vergelijkingen schrijven we vaak:
+</p>
+
+<p>
+\[ A\mathbf {x} = \mathbf {b}, \]
+</p>
+
+<p>
+waarbij
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(A\) de <em>coe&#x0308;fficie&#x0308;ntenmatrix</em> is;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\mathbf {x}\) de kolomvector met onbekenden;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\mathbf {b}\) de kolomvector met de rechterleden.
+</p>
+</li>
+</ul>
+
+<p>
+Voegen we \(\mathbf {b}\) als extra kolom toe aan \(A\), dan krijgen we de <em>verhoogde matrix</em> (of <em>geaugmenteerde matrix</em>) van het stelsel:
+</p>
+
+<p>
+\[ A_b = \left ( \begin {array}{c|c} A &amp; \mathbf {b} \end {array} \right ).            \]
+</p>
+
+<p>
+In de tekst over snijdende rechten is \(A\) de coe&#x0308;fficie&#x0308;ntenmatrix in de onbekenden \(k\) en \(l\), en \(A_b\) de verhoogde matrix waarin ook het verschil \(\overrightarrow {P_2}-\overrightarrow {P_1}\)
+als extra kolom voorkomt.
+</p>
+<!--
+...... subsection Lineaire combinatie en lineaire onafhankelijkheid ......
+-->
+<h5 id="autosec-108"><span class="sectionnumber">2&#x2003;</span>Lineaire combinatie en lineaire onafhankelijkheid</h5>
+<a id="mkpiweb-autopage-108"></a>
+
+
+<p>
+Laat \(\vec {v}_1,\vec {v}_2,\dots ,\vec {v}_n\) vectoren in \(\mathbb {R}^m\) zijn. Een <em>lineaire combinatie</em> van deze vectoren is een vector van de vorm
+</p>
+
+<p>
+\[ \lambda _1\vec {v}_1 + \lambda _2\vec {v}_2 + \dots + \lambda _n\vec {v}_n \]
+</p>
+
+<p>
+met \(\lambda _1,\dots ,\lambda _n \in \mathbb {R}\).
+</p>
+
+<p>
+We noemen de vectoren \(\vec {v}_1,\dots ,\vec {v}_n\) <em>lineair onafhankelijk</em> als
+</p>
+
+<p>
+\[ \lambda _1\vec {v}_1 + \dots + \lambda _n\vec {v}_n = \vec {0} \]
+</p>
+
+<p>
+alleen mogelijk is wanneer
+</p>
+
+<p>
+\[ \lambda _1 = \lambda _2 = \dots = \lambda _n = 0.           \]
+</p>
+
+<p>
+Met andere woorden: geen van de vectoren kan als lineaire combinatie van de andere geschreven worden.
+</p>
+
+<p>
+Zijn de vectoren <em>niet</em> lineair onafhankelijk, dan noemen we ze <em>lineair afhankelijk</em>. Dit betekent dat er een niet-triviale combinatie (dus niet alle \(\lambda _i = 0\)) bestaat die de nulvector geeft.
+</p>
+<!--
+...... subsection Definitie van de rang ......
+-->
+<h5 id="autosec-109"><span class="sectionnumber">3&#x2003;</span>Definitie van de rang</h5>
+<a id="mkpiweb-autopage-109"></a>
+
+
+<p>
+Laat \(A\) een \(m\times n\)-matrix zijn.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> De <em>kolomrang</em> van \(A\) is het maximaal aantal lineair onafhankelijke kolommen van \(A\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De <em>rijrang</em> van \(A\) is het maximaal aantal lineair onafhankelijke rijen van \(A\).
+</p>
+</li>
+</ul>
+
+<p>
+Een belangrijk resultaat (dat we hier niet bewijzen) is dat
+</p>
+
+<p>
+\[ \text {kolomrang}(A) = \text {rijrang}(A). \]
+</p>
+
+<p>
+Dit gemeenschappelijke getal noemen we de <em>rang</em> van \(A\) en we duiden het aan met \(r(A)\).
+</p>
+
+<p>
+Samengevat:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                  r(A) = maximaal aantal lineair onafhankelijke kolommen
+                                                                                       = maximaal aantal lineair onafhankelijke rijen.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+r(A) &amp; = \text {maximaal aantal lineair onafhankelijke kolommen} \\ &amp; = \text {maximaal aantal lineair onafhankelijke rijen}.
+\end{align*}
+
+</p>
+<!--
+...... subsection Belangrijke eigenschappen van de rang ......
+-->
+<h5 id="autosec-110"><span class="sectionnumber">4&#x2003;</span>Belangrijke eigenschappen van de rang</h5>
+<a id="mkpiweb-autopage-110"></a>
+
+
+<p>
+Enkele basisfeiten over de rang van een \(m\times n\)-matrix \(A\):
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(0 \le r(A) \le \min (m,n)\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(r(A) = 0\) als en slechts als \(A\) de nulmatrix is.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(r(A) = n\) (bij een \(m\times n\)-matrix) als en slechts als de \(n\) kolommen lineair onafhankelijk zijn.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Elementaire rijoperaties (rijen verwisselen, een rij met een niet-nul getal vermenigvuldigen, een veelvoud van een rij bij een andere rij optellen) veranderen de rang van een matrix niet.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Elementaire kolomoperaties (analoge operaties op kolommen) veranderen de rang evenmin.
+</p>
+</li>
+</ul>
+
+<p>
+In de praktijk betekent dit dat we een matrix mogen herleiden (bijvoorbeeld met de methode van Gauss) zonder de rang te veranderen. In een <em>gereduceerde</em> vorm is de rang dan gewoon het aantal niet-nul rijen.
+</p>
+<!--
+...... subsection Rang en determinant bij een -matrix ......
+-->
+<h5 id="autosec-111"><span class="sectionnumber">5&#x2003;</span>Rang en determinant bij een \(3\times 3\)-matrix</h5>
+<a id="mkpiweb-autopage-111"></a>
+
+
+<p>
+Voor een <em>vierkante</em> \(3\times 3\)-matrix \(B\) geldt:
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(\det (B) \neq 0 \;\Leftrightarrow \; r(B) = 3\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(\det (B) = 0 \;\Rightarrow \; r(B) \le 2\).
+</p>
+</li>
+</ul>
+
+<p>
+In woorden:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als de determinant niet nul is, zijn de drie kolommen (en ook de drie rijen) lineair onafhankelijk, en is de rang 3.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als de determinant nul is, zijn de drie kolommen (of rijen) lineair afhankelijk en is de rang hoogstens 2.
+</p>
+</li>
+</ul>
+
+<p>
+In onze context gebruiken we vooral de tweede eigenschap: als een \(3\times 3\)-matrix rang 2 heeft, dan is de determinant gelijk aan 0.
+</p>
+<!--
+...... subsection Rang en oplossingen van een stelsel ......
+-->
+<h5 id="autosec-112"><span class="sectionnumber">6&#x2003;</span>Rang en oplossingen van een stelsel</h5>
+<a id="mkpiweb-autopage-112"></a>
+
+
+<p>
+Beschouw een stelsel \(A\mathbf {x} = \mathbf {b}\) met \(n\) onbekenden. Laat \(A\) de coe&#x0308;fficie&#x0308;ntenmatrix zijn en \(A_b\) de verhoogde matrix.
+</p>
+
+<p>
+Dan geldt:
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als \(r(A_b) &gt; r(A)\), dan heeft het stelsel <em>geen</em> oplossing.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(r(A_b) = r(A)\), dan heeft het stelsel <em>wel</em> oplossingen.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> Als \(r(A_b) = r(A) = n\), dan is er <em>juist één</em> oplossing.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Als \(r(A_b) = r(A) &lt; n\), dan zijn er <em>oneindig veel</em> oplossingen.
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+In symbolen:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                          r(Ab ) > r(A) ⇒ geen oplossingen,
+                                                                                      r(Ab ) = r(A) = n ⇒ exact één oplossing,
+                                                                                      r(Ab ) = r(A) < n ⇒ oneindig veel oplossingen.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+r(A_b) &gt; r(A) &amp;\Rightarrow \text {geen oplossingen},\\ r(A_b) = r(A) = n &amp;\Rightarrow \text {exact ÃľÃľn oplossing},\\ r(A_b) = r(A) &lt; n &amp;\Rightarrow \text {oneindig veel
+oplossingen}.
+\end{align*}
+
+</p>
+<!--
+...... subsection Toepassing op snijdende rechten in de ruimte ......
+-->
+<h5 id="autosec-113"><span class="sectionnumber">7&#x2003;</span>Toepassing op snijdende rechten in de ruimte</h5>
+<a id="mkpiweb-autopage-113"></a>
+
+
+<p>
+In de paragraaf over snijdende rechten \(e\) en \(f\) in de ruimte verkrijgen we het stelsel
+</p>
+
+<p>
+\[ \begin {cases} k\,a_1 - l\,a_2 = x_2 - x_1,\\ k\,b_1 - l\,b_2 = y_2 - y_1,\\ k\,c_1 - l\,c_2 = z_2 - z_1, \end {cases} \]
+</p>
+
+<p>
+met onbekenden \(k\) en \(l\).
+</p>
+
+<p>
+De coe&#x0308;fficie&#x0308;ntenmatrix \(A\) (in \(k\) en \(l\)) is dan een \(3\times 2\)-matrix met als kolommen de richtingsvectoren van \(e\) en \(f\) (op een teken na):
+</p>
+
+<p>
+\[ A = \begin {pmatrix} a_1 &amp; -a_2\\ b_1 &amp; -b_2\\ c_1 &amp; -c_2 \end {pmatrix}.                   \]
+</p>
+
+<p>
+Omdat \(e \nparallel f\), zijn de richtingsvectoren
+</p>
+
+<p>
+\[ \overrightarrow {R} = (a_1,b_1,c_1) \quad \text {en}\quad \overrightarrow {S} = (a_2,b_2,c_2) \]
+</p>
+
+<p>
+niet evenwijdig en dus lineair onafhankelijk. Dat betekent dat de twee kolommen van \(A\) lineair onafhankelijk zijn en dus:
+</p>
+
+<p>
+\[ r(A) = 2.     \]
+</p>
+
+<p>
+Voor het stelsel om een oplossing te hebben, moet
+</p>
+
+<p>
+\[ r(A_b) = r(A) = 2.      \]
+</p>
+
+<p>
+Nu is \(A_b\) de \(3\times 3\)-matrix
+</p>
+
+<p>
+\[ A_b = \begin {pmatrix} a_1 &amp; a_2 &amp; x_2 - x_1\\ b_1 &amp; b_2 &amp; y_2 - y_1\\ c_1 &amp; c_2 &amp; z_2 - z_1 \end {pmatrix}.                      \]
+</p>
+
+<p>
+We gebruiken dan de eigenschap voor een \(3\times 3\)-matrix:
+</p>
+
+<p>
+\[ r(A_b) = 2 \;\Leftrightarrow \; \det (A_b) = 0.            \]
+</p>
+
+<p>
+Daarom leidt de voorwaarde dat \(e\) en \(f\) een snijpunt hebben precies tot
+</p>
+
+<p>
+\[ \det \!     \begin {pmatrix} a_1 &amp; a_2 &amp; x_2 - x_1\\ b_1 &amp; b_2 &amp; y_2 - y_1\\ c_1 &amp; c_2 &amp; z_2 - z_1 \end {pmatrix} = 0.                    \]
+</p>
+
+<p>
+Dit is de determinantvergelijking die in de hoofdtekst wordt gebruikt om te beslissen of twee niet-evenwijdige rechten in de ruimte een snijpunt hebben.
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

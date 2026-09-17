@@ -1,0 +1,2728 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Grondbegrippen van de kansrekening</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+\(\newcommand {\die }[1]{\ifstrequal {#1}{1}{\unicode {x2680}}{\ifstrequal {#1}{2}{\unicode {x2681}}{\ifstrequal {#1}{3}{\unicode {x2682}}{\ifstrequal {#1}{4}{\unicode {x2683}}{\ifstrequal
+{#1}{5}{\unicode {x2684}}{\unicode {x2685}}}}}}}\)
+
+\(\newcommand {\tcbset }[1]{}\)
+
+\(\newcommand {\tcbsetforeverylayer }[1]{}\)
+
+\(\newcommand {\tcbox }[2][]{\boxed {\text {#2}}}\)
+
+\(\newcommand {\tcboxfit }[2][]{\boxed {#2}}\)
+
+\(\newcommand {\tcblower }{}\)
+
+\(\newcommand {\tcbline }{}\)
+
+\(\newcommand {\tcbtitle }{}\)
+
+\(\newcommand {\tcbsubtitle [2][]{\mathrm {#2}}}\)
+
+\(\newcommand {\tcboxmath }[2][]{\boxed {#2}}\)
+
+\(\newcommand {\tcbhighmath }[2][]{\boxed {#2}}\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 4</p> <h1>Grondbegrippen van de kansrekening</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+E   U
+        A   B
+
+
+                              #A
+                0 ≤ P (A) =      ≤1
+                              #U
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>BV3_06.13</b> (MD 06.13) De leerlingen bepalen kansen met behulp van <span class="leerplan-grijs">kruistabellen</span>, <span
+class="leerplan-grijs">boomdiagrammen</span> en de wet van Laplace.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: verband tussen relatieve frequentie en kans
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.33</b> (MD 06.08.34) De leerlingen lossen telproblemen op met en zonder herhaling en waarbij de volgorde al dan niet van belang is.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">binomium van Newton</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">driehoek van Pascal</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">duiventilprincipe van Dirichlet</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Extra uitleg:</b> kansexperiment, uitkomst, uitkomstenverzameling, gebeurtenis, elementaire gebeurtenis, onmogelijke gebeurtenis, zekere gebeurtenis, tegengestelde gebeurtenissen, doorsnede van twee gebeurtenissen, verschil
+van twee gebeurtenissen, vereniging of unie van twee gebeurtenissen, twee elkaar uitsluitende gebeurtenissen, axioma’s van de kansrekening, complementregel, somregel, verschilregel, stelling van Boole
+</p>
+
+</div>
+<!--
+...... section Kansexperiment ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Kansexperiment</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+<i>Een kansexperiment of kort een <b>experiment</b> is een verschijnsel<br />
+       <span class="listmarker">•</span> waarvan het verloop van het toeval afhangt <br />
+       <span class="listmarker">•</span> dat steeds onder gelijk blijvende omstandigheden kan herhaald worden<br />
+</i>
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een muntstuk opwerpen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Een dobbelsteen gooien
+</p>
+</li>
+</ul>
+<!--
+...... subsection Tegenvoorbeelden ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">3&#x2003;</span>Tegenvoorbeelden</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Water opwarmen is geen wiskundig experiment, want het is niet van het toeval afhankelijk, maar wel van fysische wetten.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Een vervalste dobbelsteen gooien, bijvoorbeeld één die altijd ’6’ werpt, is niet van het toeval afhankelijk en wordt bijgevolg niet als een experiment beschouwd in de kansrekening.
+</p>
+</li>
+</ul>
+<!--
+...... subsection It’s complicated ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">4&#x2003;</span>It’s complicated</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> De uitslag van een voetbalwedstrijd voorspellen
+</p>
+</li>
+</ul>
+<!--
+...... section Uitkomst ......
+-->
+<h4 id="autosec-11"><span class="sectionnumber">II&#x2003;</span>Uitkomst</h4>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+Het begrip ’uitkomst’ is een grondbegrip van de kansrekening en kan niet nauwkeurig gedefinieerd worden. We stellen wel als voorwaarde:<br />
+
+</p>
+<div class="center">
+
+<p>
+<i>Elk experiment geeft aanleiding tot precies 1 uitkomst.</i>
+</p>
+</div>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-13"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+Een mogelijke uitkomst bij het opwerpen van een dobbelsteen is ’4’.
+</p>
+<!--
+...... section Uitkomstenverzameling ......
+-->
+<h4 id="autosec-14"><span class="sectionnumber">III&#x2003;</span>Uitkomstenverzameling</h4>
+<a id="mkpiweb-autopage-14"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+<i>De <b>uitkomstenverzameling</b> van een experiment is de verzameling van alle mogelijke uitkomsten van dit experiment.</i>
+</p>
+<!--
+...... subsection Notatie ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">2&#x2003;</span>Notatie</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+\[ U=\{u_1, u_2, u_3, \dots \} = \text {universum} \]
+</p>
+
+<p>
+Naast \(U\) wordt voor de uitkomstenverzameling in kansrekening ook vaak de Griekse letter \(\Omega \) (omega) gebruikt.
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">3&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <i>Eindige uitkomstenverzamelingen</i>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> Opwerpen van één dobbelsteen
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                          U = {1, 2, 3, 4, 5, 6}
+
+
+
+                                                                                                       ⇒ U = {1, 2, 3, 4, 5, 6}
+
+
+-->
+
+<p>
+
+\begin{align*}
+U&amp;=\{\die {1},\,\die {2},\,\die {3},\,\die {4},\,\die {5},\,\die {6}\}\\[1cm] \Rightarrow U&amp;=\{1, 2, 3, 4, 5, 6\}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Opwerpen van twee verschillend gekleurde dobbelstenen
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                                   
+                                                                                             
+                                                                                             (1, 1)      (1, 2)   (1, 3)   (1, 4)   (1, 5)   (1, 6)
+                                                                                                                                                    
+                                                                                              (2, 1)      (2, 2)   (2, 3)   (2, 4)   (2, 5)   (2, 6)
+                                                                                             
+                                                                                                                                                   
+                                                                                             
+                                                                                                                                                   
+                                                                                                                                                    
+                                                                                              (3, 1)      (3, 2)   (3, 3)   (3, 4)   (3, 5)   (3, 6)
+                                                                                                                                                   
+                                                                                          U=
+                                                                                             
+                                                                                             (4, 1)      (4, 2)   (4, 3)   (4, 4)   (4, 5)   (4, 6)
+                                                                                                                                                    
+                                                                                              (5, 1)      (5, 2)   (5, 3)   (5, 4)   (5, 5)   (5, 6)
+                                                                                             
+                                                                                                                                                   
+                                                                                             
+                                                                                                                                                   
+                                                                                                                                                    
+                                                                                              (6, 1)      (6, 2)   (6, 3)   (6, 4)   (6, 5)   (6, 6)
+                                                                                                                                                   
+
+
+
+                                                                                            n                                   o
+                                                                                       ⇒ U = (x, y) | x, y ∈ {1, 2, 3, 4, 5, 6}
+
+
+-->
+
+<p>
+
+\begin{align*}
+U &amp;= \begin{Bmatrix} (1,1) &amp; (1,2) &amp; (1,3) &amp; (1,4) &amp; (1,5) &amp; (1,6) \\ (2,1) &amp; (2,2) &amp; (2,3) &amp; (2,4) &amp; (2,5) &amp; (2,6) \\ (3,1) &amp; (3,2) &amp; (3,3)
+&amp; (3,4) &amp; (3,5) &amp; (3,6) \\ (4,1) &amp; (4,2) &amp; (4,3) &amp; (4,4) &amp; (4,5) &amp; (4,6) \\ (5,1) &amp; (5,2) &amp; (5,3) &amp; (5,4) &amp; (5,5) &amp; (5,6) \\ (6,1) &amp;
+(6,2) &amp; (6,3) &amp; (6,4) &amp; (6,5) &amp; (6,6) \end {Bmatrix}\\[1cm] \Rightarrow U&amp;=\Bigr \{(x,y) \mid x,y \in \{1, 2, 3, 4, 5, 6\}\Bigl \}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Opwerpen van twee dezelfde dobbelstenen
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                                   
+                                                                                           
+                                                                                            {1, 1} {1, 2} {1, 3} {1, 4} {1, 5}               {1, 6}
+                                                                                                                                                    
+                                                                                                    {2, 2} {2, 3} {2, 4} {2, 5}               {2, 6}
+                                                                                           
+                                                                                                                                                   
+                                                                                           
+                                                                                                                                                   
+                                                                                                                                                    
+                                                                                                           {3, 3} {3, 4} {3, 5}               {3, 6}
+                                                                                                                                                   
+                                                                                        U=
+                                                                                           
+                                                                                                                 {4, 4} {4, 5}               {4, 6}
+                                                                                                                                                    
+                                                                                                                         {5, 5}               {5, 6}
+                                                                                           
+                                                                                                                                                   
+                                                                                           
+                                                                                                                                                   
+                                                                                                                                                    
+                                                                                                                                              {6, 6}
+                                                                                                                                                   
+
+
+
+                                                                                             n                                 o
+                                                                                     ⇒U =      x, y} | x, y ∈ {1, 2, 3, 4, 5, 6
+
+
+-->
+
+<p>
+
+\begin{align*}
+U &amp;= \begin{Bmatrix} \{1,1\} &amp; \{1,2\} &amp; \{1,3\} &amp; \{1,4\} &amp; \{1,5\} &amp; \{1,6\} \\ &amp; \{2,2\} &amp; \{2,3\} &amp; \{2,4\} &amp; \{2,5\} &amp; \{2,6\} \\ &amp; &amp;
+\{3,3\} &amp; \{3,4\} &amp; \{3,5\} &amp; \{3,6\} \\ &amp; &amp; &amp; \{4,4\} &amp; \{4,5\} &amp; \{4,6\} \\ &amp; &amp; &amp; &amp; \{5,5\} &amp; \{5,6\} \\ &amp; &amp; &amp; &amp; &amp;
+\{6,6\} \end {Bmatrix}\\[1cm] \Rightarrow U&amp;=\Bigl \{\bigl \{x,y\} \mid x,y \in \{1, 2, 3, 4, 5, 6\bigr \}\Bigr \}
+\end{align*}
+
+</p>
+</div>
+
+<div
+    class="tcolorbox"
+    style=" border: 1px solid #000000; background:            #FFFFFF; "
+>
+
+<div
+     class="tcolorboxupper"
+     style=" color: #000000; "
+>
+<p>
+Opmerking: Hoewel de dobbelstenen “hetzelfde” zijn, zijn het in de proef twee <em>verschillende</em> objecten (bv. links en rechts). Daarom is de uitkomst een geordend paar:
+</p>
+<p>
+\[ U=\{(x,y)\mid x,y\in \{1,2,3,4,5,6\}\}. \]
+</p>
+<p>
+Dan zijn \((1,2)\) en \((2,1)\) twee verschillende (en even waarschijnlijke) uitkomsten. Werk je met \(\{x,y\}\) (on-geordend), dan hebben sommige uitkomsten dubbel zoveel kans (bv. \(\{1,2\}\)) als andere (bv. \(\{3,3\}\)).
+</p>
+</div>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Opwerpen van één muntstuk
+</p>
+<div class="oplossing">
+<p>
+\(U=\{K, M\}\)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Opwerpen van twee muntstukken
+</p>
+<div class="oplossing">
+<p>
+\(U=\{KK, KM, MK, MM\}\)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Voorspellen van een voetbalwedstrijd
+</p>
+<div class="oplossing">
+<p>
+\(U=\{W, G, V\}\)
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <i>Aftelbaar oneindige uitkomstenverzamelingen</i>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> Een leerling noteert bijvoorbeeld een natuurlijk getal, een andere leerling raadt het getal
+</p>
+<div class="oplossing">
+<p>
+\(U = \N \)
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <i>Overaftelbare uitkomstenverzamelingen</i>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> Een leerling noteert een ree&#x0308;el getal gelegen tussen 0 en 1, een andere leerling raadt het getal
+</p>
+<div class="oplossing">
+<p>
+\(U = [0, 1]\)
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+
+<div
+    class="tcolorbox"
+    style=" border: 1px solid #000000; background:            #FFFFFF; "
+>
+
+
+<div
+    class="tcolorboxupper"
+    style=" color: #000000; "
+>
+
+<p>
+Opmerking: Dat de verzameling van de ree&#x0308;le getallen groter is dan de verzameling van de natuurlijke getallen, terwijl alle twee deze verzamelingen oneindig veel elementen bevatten, weten we door het diagonaalbewijs van
+Cantor, zie Georg Cantor (1891) “Ueber eine elementare Frage der Mannigfaltigheidslehr”.
+</p>
+</div>
+
+</div>
+<!--
+...... section Gebeurtenis ......
+-->
+<h4 id="autosec-18"><span class="sectionnumber">IV&#x2003;</span>Gebeurtenis</h4>
+<a id="mkpiweb-autopage-18"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+<i>Een <b>gebeurtenis</b> bij een gegeven experiment is elke deelverzameling van de uitkomstenverzameling \(U\). We noteren een gebeurtenis met een hoofdletter: \(A, B, C, \dots \) met \(A \subset U\) zijn
+gebeurtenissen. </i>
+</p>
+
+<p>
+Als een uitkomst tot \(A\) behoort, dan zeggen we dat de gebeurtenis \(A\) <b>optreedt</b>, <b>zich voordoet</b> of <b>gerealiseerd wordt</b>.
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+Beschouw als experiment het opwerpen van één dobbelsteen. Dan zijn mogelijke gebeurtenissen:<br />
+\(A=\{2, 4, 6\}=\) ’een even aantal ogen gooien’<br />
+\(B=\{4\}=\) ’een vier gooien’<br />
+\(C=\{2, 3\}=\) ’een twee of een drie gooien’
+</p>
+
+<p>
+Grafisch:
+</p>
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+U = {1, 2, 3, 4, 5, 6}
+
+                   A         C
+             B
+                   4     2       3
+
+               6
+     1                               5
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Enkele bijzondere gebeurtenissen ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">3&#x2003;</span>Enkele bijzondere gebeurtenissen</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>Elementaire gebeurtenis</b><br />
+<i>Een gebeurtenis met één mogelijke uitkomst: \(\{u_1\},\{u_2\},\dots \)</i><br />
+Bijvoorbeeld:
+</p>
+<div class="oplossing">
+<p>
+\(B = \{ 4 \}\)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Onmogelijke gebeurtenis</b><br />
+<i>Hieronder verstaan we de ledige deelverzameling \(\varnothing \)</i> Bijvoorbeeld:
+</p>
+<div class="oplossing">
+<p>
+Het werpen van 7 ogen met één dobbelsteen.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Zekere gebeurtenis</b><br />
+<i>Hieronder verstaan we de uitkomstenverzameling \(U\) zelf.</i> Bijvoorbeeld:
+</p>
+<div class="oplossing">
+<p>
+Het werpen van minder dan 7 ogen met één dobbelsteen.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Tegengestelde gebeurtenissen \(A\) en \(\overline {A}\)</b><br />
+<i>\(\overline {A}\) doet zich enkel en alleen voor als \(A\) zich niet voordoet.</i><br />
+= het complement van \(A = \overline {A} = U\diagdown A\)
+</p>
+<div class="oplossing">
+<p>
+\[\Rightarrow A \cup \overline {A} = U \wedge A \cap \overline {A} = \emptyset \]
+</p>
+<div class="center">
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+        U
+
+A   A
+--><img
+     src="mkpiweb-images/image-3.svg"
+     alt="(-tikz-&nbsp;diagram)"
+     style=""
+     class="lateximage"
+></span>
+</p>
+</div>
+</div>
+<p>
+Bijvoorbeeld:
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                          A = een even aantal ogen gooien
+                                                                                       ⇒ A = {1, 3, 5} = een oneven aantal ogen gooien
+
+
+-->
+
+<p>
+
+\begin{align*}
+A &amp; = \text {een even aantal ogen gooien} \\ \Rightarrow \overline {A} &amp; = \{1, 3, 5\} = \text {een oneven aantal ogen gooien}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Doorsnede van twee gebeurtenissen \(A\cap B\)</b><br />
+<i>Een gebeurtenis die zich voordoet enkel en alleen als gebeurtenis \(A\) <b>en</b> gebeurtenis \(B\) zich voordoen = \(A\cap B\)</i><br />
+
+</p>
+<p>
+Bv. \(A\cap B =\opl {\{4\}}\) \(\overline {A}\cap C =\opl {\{3\}}\)
+</p>
+<div class="oplossing">
+<div class="center">
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+A   B
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Verschil van twee gebeurtenissen \(A\diagdown B\)</b><br />
+<i>Een gebeurtenis die zich voordoet enkel en alleen als gebeurtenis \(A\) zich voordoet en gebeurtenis \(B\) niet \(=A\diagdown B\)</i><br />
+
+</p>
+<p>
+Bv. \(A\setminus B=\opl {\{2,6\}}\) \(\overline {A}\setminus C=\opl {\{1,5\}}\)
+</p>
+<div class="oplossing">
+<div class="center">
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+ A    B
+
+A\B
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Vereniging of unie van twee gebeurtenissen\(A\cup B\)</b><br />
+<i>Een gebeurtenis die zich voordoet enkel en alleen als gebeurtenis \(A\) <b>of</b> de gebeurtenis \(B\) zich voordoet = \(A\cup B\)</i><br />
+
+</p>
+<p>
+Bv. \(A\cup B=\opl {\{2,4,6\}}\) \(\overline {A}\cup C=\opl {\{1,2,3,5\}=U\setminus \{4,6\}}\)
+</p>
+<div class="oplossing">
+<div class="center">
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+A   B
+
+
+
+        A∪B
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Twee elkaar uitsluitende gebeurtenissen</b><br />
+<i>Twee gebeurtenissen sluiten elkaar uit, als hun doorsnede de ledige verzameling is.</i><br />
+Bv. \(B\) en \(C\) sluiten elkaar uit, want \(B\cap C =\varnothing \)<br />
+
+</p>
+<div class="oplossing">
+<p>
+\(A\cap \overline {A}=\varnothing \ \Rightarrow \ A\ \text {en}\ \overline {A}\ \text {sluiten elkaar uit.}\)
+</p>
+<div class="center">
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+B   C   U
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+</div>
+</li>
+</ul>
+<!--
+...... section Relatieve frequentie van een gebeurtenis bij herhaalde experimenten ......
+-->
+<h4 id="autosec-40"><span class="sectionnumber">V&#x2003;</span>Relatieve frequentie van een gebeurtenis bij herhaalde experimenten</h4>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+We voeren een groot aantal herhaalde experimenten uit, door elk een 100-tal keren met een dobbelsteen te gooien. Vervolgens <i>turven</i> we de uitkomsten van alle leerlingen in onderstaande tabel. Daar dit echter veel tijd in
+beslag zou nemen, zullen we het experiment ’100 keer gooien van een dobbelsteen’ simuleren met onze GRM. Hoe je dit doet, staat stap voor stap beschreven in het handboek <i>Van Basis Tot Limiet, Combinatoriek en
+Kansrekening</i> p. 64-65.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black">1</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">3</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">4</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">5</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">6</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black">            </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">       </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">       </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">       </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">       </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">       </td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+</table>
+
+</div>
+
+<p>
+We vatten dit samen in een overzicht, waarbij we niet enkel de absolute frequentie \(n_i\) van elke uitkomst noteren, maar ook de relatieve frequentie \(f_i = n_i / n\). Hierin stelt \(n\) het totaal aantal uitgevoerde
+experimenten voor. Rond af op 4 decimalen.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">1</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">3</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">4</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">5</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">6</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black">         </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black">\(n_i\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">      </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">      </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">      </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">      </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black">\(f_i\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">      </td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:                   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">      </td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+</table>
+
+</div>
+
+<dl class="description" >
+
+<dt><span class="listmarker">Besluit: Wet der grote aantallen</span></dt>
+<dd>
+<p>
+De relatieve frequentie van het optreden van een bepaalde gebeurtenis bij herhaalde experimenten heeft de neiging steeds minder af te wijken van een zeker getal, als het aantal experimenten toeneemt (statistische methode).<br />
+<i>Het getal waarrond de relatieve frequentie schommelt, als het aantal experimenten onbeperkt toeneemt, noemen we <b>de kans op een gebeurtenis \(=P(A)\)</b>.</i>
+</p>
+</dd>
+</dl>
+<!--
+...... section Axiomatische behandeling ......
+-->
+<h4 id="autosec-45"><span class="sectionnumber">VI&#x2003;</span>Axiomatische behandeling</h4>
+<a id="mkpiweb-autopage-45"></a>
+<!--
+...... subsection Axioma A1 ......
+-->
+<h5 id="autosec-46"><span class="sectionnumber">1&#x2003;</span>Axioma A1</h5>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+<i>In een uitkomstenverzameling \(U\) wordt aan een gebeurtenis \(A\) een positief ree&#x0308;el getal toegekend. Dit getal noemt men de kans op het optreden van \(A\) bij een experiment.</i>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(P(A) \in \mathbb {R^+}\)</span>
+</p>
+</div>
+<!--
+...... subsection Axioma A2 ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">2&#x2003;</span>Axioma A2</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+<i>De kans op het optreden van de zekere gebeurtenis is 1 (\(=100\%\)).</i>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(P(U)=1\)</span>
+</p>
+</div>
+<!--
+...... subsection Axioma A3: Somwet van de kansrekening ......
+-->
+<h5 id="autosec-50"><span class="sectionnumber">3&#x2003;</span>Axioma A3: Somwet van de kansrekening</h5>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p>
+<i>Voor aftelbaar veel gebeurtenissen, die elkaar twee aan twee uitsluiten, is de kans op het optreden van hun vereniging gelijk aan de som van de kansen op het optreden van elke gebeurtenis afzonderlijk.</i>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\begin {array}{l} \forall i,j \in \mathbb {N}_0: A_i\cap A_j = \varnothing \text { voor } i \neq j \\ \Rightarrow P(A_1\cup A_2\cup A_3 \cup \dots )=P(A_1)+P(A_2)+P(A_3)+\dots \end
+{array}\)</span>
+</p>
+</div>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+                U
+     A2
+A1
+          ···
+     A3
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... section Stellingen ......
+-->
+<h4 id="autosec-55"><span class="sectionnumber">VII&#x2003;</span>Stellingen</h4>
+<a id="mkpiweb-autopage-55"></a>
+<!--
+...... subsection Stelling S1 ......
+-->
+<h5 id="autosec-56"><span class="sectionnumber">1&#x2003;</span>Stelling S1</h5>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p>
+<i>De kans op de onmogelijke gebeurtenis is 0.</i>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(P(\varnothing )=0\)</span>
+</p>
+</div>
+
+<p>
+<span class="underline">Bewijs</span>
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                        A2
+                                                        ⇒                                                          P (U ) = 1
+                                                        ⇔                                                     P (U ∪ ∅) = 1
+                                                        A3
+                                                        ⇔                                                  P (U ) + P (∅) = 1   want U ∩ ∅ = ∅
+                                                        A2
+                                                        ⇔                                                      1 + P (∅) = 1
+                                                        ⇔                                                          P (∅) = 0.   □
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\overset {\text {A2}}{\Rightarrow } &amp; &amp; \quad P(U) &amp; = 1 \\ \Leftrightarrow &amp; &amp; \ P(U\cup \varnothing ) &amp; =1 \\ \overset {\text {A3}}{\Leftrightarrow } &amp; &amp;
+\quad P(U)+P(\varnothing ) &amp; =1 \qquad \text {want}\quad U \cap \varnothing = \varnothing \\ \overset {\text {A2}}{\Leftrightarrow } &amp; &amp; \quad 1+P(\varnothing ) &amp; =1 \\
+\Leftrightarrow &amp; &amp; \ P(\varnothing ) &amp; =0. \qquad \square
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Stelling S2 ......
+-->
+<h5 id="autosec-58"><span class="sectionnumber">2&#x2003;</span>Stelling S2</h5>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<p>
+<i>De som van de kansen op twee tegengestelde gebeurtenissen is 1.</i>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(P(A)+P(\overline {A})=1\)</span>
+</p>
+</div>
+
+<p>
+<span class="underline">Bewijs</span>
+</p>
+<div class="oplossing">
+
+<p>
+\[\text {Definitie:}\quad \overline {A}=U\setminus A \Rightarrow \ \quad A\cup \overline {A} = U \; \wedge \; A\cap \overline {A} = \varnothing \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                        ⇔                                                        P (A ∪ A) = P (U )
+                                                    A2 & A3
+                                                        ⇔                                                    P (A) + P (A) = 1        want A ∩ A = ∅
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\weq {\Leftrightarrow } &amp; &amp; \quad P(A\cup \overline {A}) &amp;= P(U) \\ \weq [\text {A2 \&amp; A3}]{\Leftrightarrow }&amp; &amp; \quad P(A)+P(\overline {A}) &amp;= 1 \qquad \text
+{want}\quad A\cap \overline {A}=\varnothing
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Stelling S3 ......
+-->
+<h5 id="autosec-60"><span class="sectionnumber">3&#x2003;</span>Stelling S3</h5>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+<i>De kans op een willekeurige gebeurtenis is begrepen tussen 0 en 1.</i>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(0\leq P(A)\leq 1\)</span>
+</p>
+</div>
+
+<p>
+<span class="underline">Bewijs</span>
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                   0 ≤ P (A)    (uit A1)
+                                                                                                       )
+                                                                                   P (A) + P (A) = 1
+                                                                                                           ⇒ P (A) ≤ 1
+                                                                                           P (A) ≥ 0
+
+                                                                                   ⇒ 0 ≤ P (A) ≤ 1.          □
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;0 \le P(A) \qquad \text {(uit A1)} \\[2mm] &amp;\left .   \begin{aligned} P(A)+P(\overline {A}) &amp;= 1 \\ P(\overline {A}) &amp;\ge 0 \end {aligned} \right \} \Rightarrow \ P(A)\le 1
+\\[2mm] &amp;\Rightarrow \ 0 \le P(A) \le 1. \qquad \square
+\end{align*}
+
+</p>
+</div>
+<!--
+...... section Uniforme kansverdeling en de regel van Laplace ......
+-->
+<h4 id="autosec-62"><span class="sectionnumber">VIII&#x2003;</span>Uniforme kansverdeling en de regel van Laplace</h4>
+<a id="mkpiweb-autopage-62"></a>
+<!--
+...... subsection Inleiding ......
+-->
+<h5 id="autosec-63"><span class="sectionnumber">1&#x2003;</span>Inleiding</h5>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+We beschouwen een experiment met
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> een <b>eindige</b> uitkomstenverzameling \(U=\{u_1, u_2, \dots ,u_n\}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> elementaire gebeurtenissen \(A_1=\{ u_1\}\)<span style="width:28pt; display:inline-block"><!----></span> \(A_2=\{ u_2\}\)<span style="width:28pt;
+display:inline-block"><!----></span>&#x2026;<span style="width:28pt; display:inline-block"><!----></span>\(A_n=\{ u_n\}\)
+</p>
+</li>
+</ul>
+
+<p>
+We veronderstellen dat de experimenten op willekeurige (=lukrake = aselecte) wijze uitgevoerd worden.
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-64"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p>
+<i>Bij een eindige uitkomstenverzameling \(U\) zeggen we dat de kansverdeling <b>uniform</b> verdeeld is, als de kansen op elk van de elementaire gebeurtenissen even waarschijnlijk zijn.<br />
+We spreken in dergelijk geval van een <b>model van Laplace</b>.</i>
+</p>
+<!--
+...... subsection Eigenschap E1 ......
+-->
+<h5 id="autosec-65"><span class="sectionnumber">3&#x2003;</span>Eigenschap E1</h5>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<p>
+<i>Bij een uniforme kansverdeling met \(n\) mogelijke uitkomsten is de kans op elk van de elementaire gebeurtenissen gelijk aan \(\frac {1}{n}\).</i><br />
+<span class="underline">Bewijs</span>
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                                        P (U ) = 1       met A1 ∪ A2 ∪ · · · ∪ An = U
+                                                    ⇒                                                               P (A1 ∪ A2 ∪ · · · ∪ An ) = 1        met Ai ∩ Aj = ∅ voor i ̸= j
+                                                    A3
+                                                    ⇒                                                      P (A1 ) + P (A2 ) + · · · + P (An ) = 1
+                                                  uniform
+                                                    ⇒                                                       P (A1 ) + P (A1 ) + · · · + P (A1 ) = 1
+                                                    ⇒                                                                              n · P (A1 ) = 1
+                                                                                                                                                   1
+                                                    ⇒                                                      P (A1 ) = P (A2 ) = · · · = P (An ) =     .    □
+                                                                                                                                                   n
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp;P(U) &amp;= 1 \qquad \text {met } A_1 \cup A_2 \cup \cdots \cup A_n = U \\ \weq {\Rightarrow }&amp;&amp;\quad P(A_1 \cup A_2 \cup \cdots \cup A_n) &amp;= 1 \qquad \text {met } A_i
+\cap A_j = \varnothing \text { voor } i \neq j \\ \weq [\text {A3}]{\Rightarrow }&amp;&amp; P(A_1)+P(A_2)+\cdots +P(A_n) &amp;= 1 \\ \weq [\text {uniform}]{\Rightarrow }&amp;&amp;
+P(A_1)+P(A_1)+\cdots +P(A_1) &amp;= 1 \\ \weq {\Rightarrow }&amp;&amp; n\cdot P(A_1) &amp;= 1 \\ \weq {\Rightarrow }&amp;&amp; P(A_1) = P(A_2) = \cdots = P(A_n) &amp;= \frac {1}{n}. \qquad
+\square
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Eigenschap E2: Formule van Laplace ......
+-->
+<h5 id="autosec-66"><span class="sectionnumber">4&#x2003;</span>Eigenschap E2: Formule van Laplace </h5>
+<a id="mkpiweb-autopage-66"></a>
+
+
+<p>
+<i>Bij een uniforme kansverdeling met \(n\) mogelijke uitkomsten is de kans op een gebeurtenis \(A\) met \(k\) elementen gelijk aan \(\frac {k}{n}\).</i>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(P(A)=\frac {\# A}{\# U}=\frac {k}{n}\)</span>
+</p>
+</div>
+<!--
+...... section Voorbeelden ......
+-->
+<h4 id="autosec-68"><span class="sectionnumber">IX&#x2003;</span>Voorbeelden</h4>
+<a id="mkpiweb-autopage-68"></a>
+<!--
+...... subsection Muntstuk ......
+-->
+<h5 id="autosec-69"><span class="sectionnumber">1&#x2003;</span>Muntstuk</h5>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+<span class="underline">Experiment</span> = ’Eén muntstuk opgooien’<br />
+
+</p>
+
+<p>
+<span class="underline">Uitkomstenverzameling</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                 U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > {kop, munt} < /span >
+                                                               #U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 2 < /span >
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+U&amp;=\opl {\{ \text {kop}, \text {munt} \}}\\ \# U &amp;=\opl {2}
+\end{align*}
+Hierbij horen twee <span class="underline">elementaire gebeurtenissen</span>:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                      K = ’kop gooien’ met                                        #K =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 1 < /span >
+                                      M = ’munt gooien’ met                                       #M =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 1 < /span >
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+K&amp;=\text {&apos;kop gooien&apos; met } &amp;\# K &amp;=\opl {1}\\ M&amp;=\text {&apos;munt gooien&apos; met } &amp;\# M &amp;=\opl {1}
+\end{align*}
+We vinden dus
+</p>
+
+<p>
+\[P(K) = \frac {\# K}{\# U} = \opl [1cm]{\dfrac {1}{2}} = P(M) = \frac {\# M}{\# U}\]
+</p>
+<!--
+...... subsection Dobbelsteen ......
+-->
+<h5 id="autosec-70"><span class="sectionnumber">2&#x2003;</span>Dobbelsteen</h5>
+<a id="mkpiweb-autopage-70"></a>
+<!--
+...... subsubsection Experiment 1 ......
+-->
+<h6 id="autosec-71"><span class="sectionnumber">&#x2003;</span>Experiment 1</h6>
+<a id="mkpiweb-autopage-71"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                   E = Eén dobbelsteen \(d_6\) gooien
+                                                                   U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > {1, 2, 3, 4, 5, 6} < /span >
+                                                                  #U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 6 < /span >
+                                                        Gebeurtenis A = Een even aantal ogen gooien
+                                                                      =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 2, 4, 6 < /span >
+                                                               ⇒ #A =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 3 < /span >
+                                                                                                                                    3  1
+                                                            ⇒ #P (A) =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >      = < /span >
+                                                                                                                                    6  2
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+E &amp; = \text {EÃľn dobbelsteen $d_6$ gooien}\\ U &amp; =\opl {\{ 1,2,3,4,5,6 \}} \\ \# U &amp; =\opl {6} \\ \text {Gebeurtenis } A &amp; = \text {Een even aantal ogen gooien} \\ &amp; =
+\opl {2,4,6} \\ \Rightarrow \# A &amp; = \opl {3} \\ \Rightarrow \# P(A) &amp; = \opl {\dfrac {3}{6} = \dfrac {1}{2}} \\
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Experiment 2 ......
+-->
+<h6 id="autosec-72"><span class="sectionnumber">&#x2003;</span>Experiment 2</h6>
+<a id="mkpiweb-autopage-72"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                              E = twee dobbelstenen na elkaar gooien (volgorde telt)
+                              U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > {(1, 1), (1, 2), . . . , (1, 6), (2, 1), . . . , (6, 6)} < /span >
+                            #U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 6 · 6 = 36 < /span >
+                  Gebeurtenis A = som ogen is groter dan drie
+                              A = som ogen is \(2\) of \(3\)
+                                =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > {(1, 1), (1, 2), (2, 1)} < /span >
+                        ⇒ #A =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 3 < /span >
+                                                                                           #A                                                                          3    1
+                       ⇒ P (A) =< spanclass = ”oplopl − vast”style = ”min − width : 2cm” >      < /span >=< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >     =    < /span >
+                                                                                           #U                                                                         36   12
+                                                                                                                                                                              1    11
+                       ⇒ P (A) =< spanclass = ”oplopl − vast”style = ”min − width : 2cm” > 1 − P (A) < /span >=< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 1 −    =    < /span >
+                                                                                                                                                                              12   12
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+E &amp; = \text {twee dobbelstenen na elkaar gooien (volgorde telt)} \\ U &amp; = \opl {\{(1,1),(1,2),\ldots ,(1,6),(2,1),\ldots ,(6,6)\}} \\ \#U &amp; = \opl {6\cdot 6 = 36} \\ \text
+{Gebeurtenis } A &amp; = \text {som ogen is groter dan drie} \\ \overline {A} &amp; = \text {som ogen is $2$ of $3$} \\ &amp; = \opl {\{(1,1),(1,2),(2,1)\}} \\ \Rightarrow \ \#\overline {A}
+&amp; = \opl {3} \\ \Rightarrow \ P(\overline {A}) &amp; = \opl [2cm]{\dfrac {\#\overline {A}}{\#U}} =\opl {\dfrac {3}{36}=\dfrac {1}{12}} \\ \Rightarrow \ P(A) &amp; = \opl
+[2cm]{1-P(\overline {A})} = \opl {1-\dfrac {1}{12}=\dfrac {11}{12}} \\
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Experiment 3 ......
+-->
+<h6 id="autosec-73"><span class="sectionnumber">&#x2003;</span>Experiment 3</h6>
+<a id="mkpiweb-autopage-73"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                E = twee dobbelstenen tegelijk gooien (volgorde telt niet)
+                               U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > {{1, 1}, {1, 2}, . . . , {1, 6}, {2, 2}, . . . , {6, 6}} < /span >
+                                                                                                          
+                                                                                               6+2−1               7         7!
+                              #U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >                =           =        = 21 < /span >
+                                                                                                   2               2       2! 5!
+                    Gebeurtenis A = som ogen is groter dan drie
+                                A = som ogen is \(2\) of \(3\)
+                                  =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > {{1, 1}, {1, 2}} < /span >
+                           ⇒ #A =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 2 < /span >
+                                                                                              #A                                                                          2
+                          ⇒ P (A) =< spanclass = ”oplopl − vast”style = ”min − width : 2cm” >      < /span >=< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >     < /span >
+                                                                                              #U                                                                         21
+                                                                                                                                                                                 2    19
+                          ⇒ P (A) =< spanclass = ”oplopl − vast”style = ”min − width : 2cm” > 1 − P (A) < /span >=< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 1 −    =    < /span >
+                                                                                                                                                                                 21   21
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+E &amp; = \text {twee dobbelstenen tegelijk gooien (volgorde telt niet)} \\ U &amp; = \opl {\{\{1,1\},\{1,2\},\ldots ,\{1,6\},\{2,2\},\ldots ,\{6,6\}\}} \\ \#U &amp; = \opl {\binom
+{6+2-1}{2}=\binom {7}{2}=\dfrac {7!}{2!\,5!}=21} \\ \text {Gebeurtenis } A &amp; = \text {som ogen is groter dan drie} \\ \overline {A} &amp; = \text {som ogen is $2$ of $3$} \\ &amp; = \opl
+{\{\{1,1\},\{1,2\}\}} \\ \Rightarrow \ \#\overline {A} &amp; = \opl {2} \\ \Rightarrow \ P(\overline {A}) &amp; = \opl [2cm]{\dfrac {\#\overline {A}}{\#U}} = \opl {\dfrac {2}{21}} \\
+\Rightarrow \ P(A) &amp; = \opl [2cm]{1-P(\overline {A})} = \opl {1-\dfrac {2}{21}=\dfrac {19}{21}} \\
+\end{align*}
+
+</p>
+
+<div class="oplossing">
+
+<p>
+Bovenstaande oplossing gaat fout! Waarom: De kansen zijn niet uniform. \(\{1,2\}\) heeft een grotere kans om voor te komen dan \(\{1,1\}\). Trek maar een dikke streep door het voorgaande!
+</p>
+</div>
+<!--
+...... subsection Kaartspel ......
+-->
+<h5 id="autosec-74"><span class="sectionnumber">3&#x2003;</span>Kaartspel</h5>
+<a id="mkpiweb-autopage-74"></a>
+<!--
+...... subsubsection Experiment 1 ......
+-->
+<h6 id="autosec-75"><span class="sectionnumber">&#x2003;</span>Experiment 1</h6>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                              E = één kaart trekken uit \(52\) kaarten
+                                                               U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > {alle \(52\) kaarten} < /span >
+                                                             #U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 52 < /span >
+                                                   Gebeurtenis A = hartenaas trekken
+                                                         ⇒ #A =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 1 < /span >
+                                                                                                                              #A   1
+                                                        ⇒ P (A) =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >      =    < /span >
+                                                                                                                              #U   52
+                                                   Gebeurtenis B = een aas trekken
+                                                         ⇒ #B =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 4 < /span >
+                                                                                                                              #B    4    1
+                                                        ⇒ P (B) =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >      =    =    < /span >
+                                                                                                                              #U   52   13
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+E &amp; = \text {\&apos;e\&apos;en kaart trekken uit $52$ kaarten} \\ U &amp; = \opl {\{\text {alle $52$ kaarten}\}} \\ \#U &amp; = \opl {52} \\ \text {Gebeurtenis } A &amp; = \text
+{harten\!aas trekken} \\ \Rightarrow \ \#A &amp; = \opl {1} \\ \Rightarrow \ P(A) &amp; = \opl {\dfrac {\#A}{\#U}=\dfrac {1}{52}} \\ \text {Gebeurtenis } B &amp; = \text {een aas trekken} \\
+\Rightarrow \ \#B &amp; = \opl {4} \\ \Rightarrow \ P(B) &amp; = \opl {\dfrac {\#B}{\#U}=\dfrac {4}{52}=\dfrac {1}{13}} \\
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Experiment 2 ......
+-->
+<h6 id="autosec-76"><span class="sectionnumber">&#x2003;</span>Experiment 2</h6>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<p>
+Manillen:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                   E = \(8\) kaarten trekken uit \(32\) kaarten, zonder terugleggen
+                                                  U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > {alle \(8\)-kaartcombinaties uit \(32\) kaarten} < /span >
+                                                                                                                 
+                                                                                                                 32
+                                                 #U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >        = 10 518 300 < /span >
+                                                                                                                  8
+                                       Gebeurtenis A = de vier manillen trekken
+                                                  =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > dus \(4\) manillen en nog \(4\) andere kaarten < /span >
+                                                                                                                  
+                                                                                                               4 28         28
+                                             ⇒ #A =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >           =        = 20 475 < /span >
+                                                                                                               4    4       4
+                                                                                                                 #A
+                                            ⇒ P (A) =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >       < /span >
+                                                                                                                 #U
+                                                                                                                   20 475
+                                                     =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >            ≈ 0.00195 < /span >
+                                                                                                                 10 518 300
+                                                                                                                                      1
+                                                     =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >≈ 0.00195 ≈ 0.002 ≈      < /span >
+                                                                                                                                     500
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+E &amp; = \text {$8$ kaarten trekken uit $32$ kaarten, zonder terugleggen} \\ U &amp; = \opl {\{\text {alle $8$-kaartcombinaties uit $32$ kaarten}\}} \\ \#U &amp; = \opl {\binom
+{32}{8}=10\,518\,300} \\ \text {Gebeurtenis } A &amp; = \text {de vier manillen trekken} \\ &amp; = \opl {\text {dus $4$ manillen en nog $4$ andere kaarten}} \\ \Rightarrow \ \#A &amp; = \opl
+{\binom {4}{4}\binom {28}{4}=\binom {28}{4}=20\,475} \\ \Rightarrow \ P(A) &amp; = \opl {\dfrac {\#A}{\#U}} \\ &amp; = \opl {\dfrac {20\,475}{10\,518\,300}\approx 0.00195} \\ &amp; = \opl
+{\approx 0.00195 \approx 0.002 \approx \dfrac {1}{500}} \\
+\end{align*}
+
+</p>
+<!--
+...... subsection Bak knikkers ......
+-->
+<h5 id="autosec-77"><span class="sectionnumber">4&#x2003;</span>Bak knikkers</h5>
+<a id="mkpiweb-autopage-77"></a>
+
+
+<p>
+Beschouw een bak met \(6\) witte en \(4\) rode knikkers.
+</p>
+<!--
+...... subsubsection Experiment 1 ......
+-->
+<h6 id="autosec-78"><span class="sectionnumber">&#x2003;</span>Experiment 1</h6>
+<a id="mkpiweb-autopage-78"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                               E = één knikker trekken uit de bak
+                                                               U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > {alle \(10\) knikkers} < /span >
+                                                             #U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 10 < /span >
+                                                   Gebeurtenis R = een rode knikker trekken
+                                                                                                                               4   2
+                                                        ⇒ P (R) =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >       = < /span >
+                                                                                                                               10  5
+                                                  Gebeurtenis W = een witte knikker trekken
+                                                                                                                               6   3
+                                                        ⇒ P (W ) =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >      = < /span >
+                                                                                                                               10  5
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+E &amp; = \text {\&apos;e\&apos;en knikker trekken uit de bak} \\ U &amp; = \opl {\{\text {alle $10$ knikkers}\}} \\ \#U &amp; = \opl {10} \\ \text {Gebeurtenis } R &amp; = \text {een rode
+knikker trekken} \\ \Rightarrow \ P(R) &amp; = \opl {\dfrac {4}{10}=\dfrac {2}{5}} \\ \text {Gebeurtenis } W &amp; = \text {een witte knikker trekken} \\ \Rightarrow \ P(W) &amp; = \opl
+{\dfrac {6}{10}=\dfrac {3}{5}} \\
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Experiment 2 ......
+-->
+<h6 id="autosec-79"><span class="sectionnumber">&#x2003;</span>Experiment 2</h6>
+<a id="mkpiweb-autopage-79"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                  E = vier knikkers tegelijk trekken uit de bak, zonder terugleggen
+                                                 U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > {alle \(4\)-knikkercombinaties uit \(10\) knikkers} < /span >
+                                                                                                                
+                                                                                                                10       10!
+                                                #U =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >        =       = 210 < /span >
+                                                                                                                 4      4! 6!
+                                      Gebeurtenis A = bij het trekken van vier knikkers zijn er twee rood
+                                                      (dus \(2\) rood en \(2\) wit)
+                                                                                                                
+                                                                                                               4 6
+                                             ⇒ #A =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >        = 6 · 15 = 90 < /span >
+                                                                                                               2 2
+                                                                                                                      #A    90  3
+                                           ⇒ P (A) =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” >           =     = < /span >
+                                                                                                                      #U   210  7
+                                      Gebeurtenis B = bij het trekken van vier knikkers is #rood verschillend van #wit
+                                              ⇒ B =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > A < /span >
+                                                                                                                                 3  4
+                                           ⇒ P (B) =< spanclass = ”oplopl − vast”style = ”min − width : 5cm” > 1 − P (A) = 1 −     = < /span >
+                                                                                                                                 7  7
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+E &amp; = \text {vier knikkers tegelijk trekken uit de bak, zonder terugleggen} \\ U &amp; = \opl {\{\text {alle $4$-knikkercombinaties uit $10$ knikkers}\}} \\ \#U &amp; = \opl {\binom
+{10}{4}=\dfrac {10!}{4!\,6!}=210} \\ \text {Gebeurtenis } A &amp; = \text {bij het trekken van vier knikkers zijn er twee rood} \\ &amp; \quad \text {(dus $2$ rood en $2$ wit)} \\ \Rightarrow
+\ \#A &amp; = \opl {\binom {4}{2}\binom {6}{2}=6\cdot 15=90} \\ \Rightarrow \ P(A) &amp; = \opl {\dfrac {\#A}{\#U} = \dfrac {90}{210}=\dfrac {3}{7}} \\ \text {Gebeurtenis } B &amp; = \text
+{bij het trekken van vier knikkers is \#rood verschillend van \#wit} \\ \Rightarrow \ B &amp; = \opl {\overline {A}} \\ \Rightarrow \ P(B) &amp; = \opl {1-P(A) = 1-\dfrac {3}{7}=\dfrac {4}{7}}
+\\
+\end{align*}
+
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-80"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Combinatoriek en Kansrekening</i>: nrs. 7, 10, 15 tem 21, 24, 39, 40... p.94 en volgende.
+</p>
+<!--
+...... section Samenvatting: kansregels of kanswetten ......
+-->
+<h4 id="autosec-81"><span class="sectionnumber">X&#x2003;</span>Samenvatting: kansregels of kanswetten</h4>
+<a id="mkpiweb-autopage-81"></a>
+<!--
+...... subsection Rekenregels voor kansen ......
+-->
+<h5 id="autosec-82"><span class="sectionnumber">1&#x2003;</span>Rekenregels voor kansen</h5>
+<a id="mkpiweb-autopage-82"></a>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(P(U)=1 \hspace {2cm} P(\varnothing )=0\)</span><br />
+
+</p>
+</div>
+
+<p>
+<b>Complementregel</b>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(P(A) = 1-P(\overline {A})\)</span>
+</p>
+</div>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+        U
+A
+    A
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+<p>
+<b>Somregel voor twee disjuncte gebeurtenissen</b>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(A\cap B = \varnothing \Rightarrow P(A\cup B)=P(A)+P(B)\)</span>
+</p>
+</div>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+        U
+
+A   B
+--><img
+    src="mkpiweb-images/image-10.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+<p>
+<b>Somregel voor willekeurige gebeurtenissen of de stelling van Boole</b>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(P(A \cup B)=P(A)+P(B)-P(A \cap B)\)</span>
+</p>
+</div>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-11"
+    class="lateximagesource"
+><!--
+        U
+
+A   B
+--><img
+    src="mkpiweb-images/image-11.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+<p>
+<b>Verschilregel</b>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(P(A\diagdown B)=P(A)-P(A\cap B)\)</span>
+</p>
+</div>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-12"
+    class="lateximagesource"
+><!--
+        U
+
+A   B
+--><img
+    src="mkpiweb-images/image-12.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-100"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-100"></a>
+
+
+<p>
+Uit het handboek <i>Van Basis tot Limiet, Combinatoriek en Kansrekening</i>: nr. 7 p.115.
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

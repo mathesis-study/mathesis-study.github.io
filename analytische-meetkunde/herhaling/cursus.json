@@ -1,0 +1,17 @@
+{
+ "titel": "Herhaling Meetkunde",
+ "hoofdstuk": 1,
+ "code": "M01",
+ "vak": "Wiskunde",
+ "domein": "AnalytischeMeetkunde",
+ "domeinnaam": "Analytische meetkunde",
+ "url": "analytische-meetkunde/herhaling",
+ "secties": [
+  "Formules",
+  "Oefeningen"
+ ],
+ "leerplandoelen": [],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

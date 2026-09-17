@@ -1,0 +1,23 @@
+{
+ "titel": "Verloop van exponentiële en logaritmische functies",
+ "hoofdstuk": 18,
+ "code": "A18",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/verloop-exp-log-funct",
+ "secties": [
+  "Limieten",
+  "Afgeleide van logaritmische functies",
+  "Afgeleide van exponentiële functies",
+  "Toepassingen",
+  "Oefeningen"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.26",
+  "WD3_06.08.28"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

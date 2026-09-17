@@ -1,0 +1,23 @@
+{
+ "titel": "Berekenen van limieten",
+ "hoofdstuk": 14,
+ "code": "A14",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/berekenen-van-limieten",
+ "secties": [
+  "Limiet van een veeltermfunctie",
+  "Limiet van rationale functie",
+  "Limiet van een irrationale functie",
+  "Limiet van een goniometrische functie",
+  "Limiet die het getal van Euler definieert"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.21",
+  "WD3_06.08.26"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

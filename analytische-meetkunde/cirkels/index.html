@@ -1,0 +1,3398 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>De cirkel</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 2</p> <h1>De cirkel</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+          y
+               t
+
+
+      y                    P (x, y)
+
+M (xM , yM )       r
+
+                                      x
+                       x
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.11.02</b> De leerlingen formuleren cirkel, <span class="leerplan-grijs">ellips</span>, <span class="leerplan-grijs">parabool</span>, <span
+class="leerplan-grijs">hyperbool</span> als meetkundige plaats.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.11.03</b> De leerlingen formuleren de standaardvergelijkingen van cirkel, <span class="leerplan-grijs">ellips</span>, <span
+class="leerplan-grijs">parabool</span>, <span class="leerplan-grijs">hyperbool</span>.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Aanvullend voor het onderdeel functioneel verloop van de halve cirkels</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.21</b> (MD 06.08.07) De leerlingen leggen het verband tussen de grafiek en het voorschrift van een functie en haar kenmerken.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">veeltermfuncties</span>, <span class="leerplan-grijs">rationale functies</span>, (elementaire) irrationale functies, <span
+class="leerplan-grijs">exponentie&#x0308;le functies</span>, <span class="leerplan-grijs">logaritmische functies \(f(x)=\log _a(x)\)</span>, <span class="leerplan-grijs">goniometrische functies \(f(x)=\cos
+x\) en \(f(x)=\tan x\)</span>, <span class="leerplan-grijs">cyclometrische functies</span>, <span class="leerplan-grijs">absolute waardenfunctie</span>, <span class="leerplan-grijs">meervoudig
+functievoorschrift</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: domein, bereik, nulwaarden, tekenverloop, stijgen/dalen/constant, extrema, <span class="leerplan-grijs">constante/toenemende/afnemende stijging/daling</span>,
+symmetrie, <span class="leerplan-grijs">periode</span>, <span class="leerplan-grijs">amplitude</span>, <span class="leerplan-grijs">asymptotisch gedrag</span>, <span class="leerplan-grijs">gedrag op
+oneindig</span>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.28.01</b> (MD 06.08.17) De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit veeltermfuncties, rationale functies, irrationale functies,
+exponentie&#x0308;le functies, logaritmische functies en goniometrische functies.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.29</b> (MD 06.08.18) De leerlingen analyseren het verloop van functies met behulp van de eerste en tweede afgeleide functie en <span class="leerplan-grijs">lossen
+extremumproblemen op</span>.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">stelling van Rolle</span>, <span class="leerplan-grijs">middelwaardestelling van Lagrange</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> de cirkel als meetkundige plaats, standaardvergelijking en algemene vorm, middelpunt en straal bepalen, raaklijnen, afstanden in het vlak, functioneel verloop van de bovenste en onderste halve
+cirkel, en parametervoorstelling van een cirkel.
+</p>
+
+</div>
+<!--
+...... section Definitie van een cirkel ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Definitie van een cirkel</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+Een <b>cirkel</b> is de verzameling van alle punten in het vlak die op een vaste afstand liggen van een vast punt.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Het vaste punt noemen we het <b>middelpunt</b>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De vaste afstand noemen we de <b>straal</b>.
+</p>
+</li>
+</ul>
+
+<p>
+Als het middelpunt \(M\) is en de straal \(r\), dan noteren we:
+</p>
+
+<p>
+\[ \mathcal {C}(M,r)=\{\,P \in \pi _0 \mid d(P,M)=r\,\} \]
+</p>
+<!--
+...... subsection Figuur ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Figuur</h5>
+<a id="mkpiweb-autopage-8"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+y
+
+
+
+          r    P (x, y)
+
+M (xM , yM )
+                          x
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Een punt behoort tot de cirkel als en slechts als zijn afstand tot het middelpunt gelijk is aan de straal.
+</p>
+<!--
+...... section Cartesische vergelijking ......
+-->
+<h4 id="autosec-12"><span class="sectionnumber">II&#x2003;</span>Cartesische vergelijking</h4>
+<a id="mkpiweb-autopage-12"></a>
+<!--
+...... subsection Opstelling formule ......
+-->
+<h5 id="autosec-13"><span class="sectionnumber">1&#x2003;</span>Opstelling formule</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+We kiezen een orthonormaal assenstelsel:
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+y
+
+
+
+
+    M (xM , yM )
+
+      r    P (x, y)
+
+
+
+                      x
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdl">geg.:</td>
+<td class="tdl">middelpunt \(M(x_M,y_M)\)</td>
+</tr>
+
+<tr>
+<td class="tdl"></td>
+<td class="tdl">straal \(r\)</td>
+</tr>
+
+<tr>
+<td class="tdl">gev.:</td>
+<td class="tdl">vergelijking van \(\mathcal {C}(M,r)\)</td>
+</tr>
+</table>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                 P (x, y) ∈ C(M, r)
+                                                        ⇔ d(P, M ) = r
+                                                                                                                          BV: OK
+                                                                                                                          KV: \(r\ge 0\), want afstand
+                                                            p
+                                                        ⇔       (x − xM )2 + (y − yM )2 = r
+
+                                                        ⇔ (x − xM )2 + (y − yM )2 = r2                                     ↔ C(M, r)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(x,y) &amp;\in \mathcal {C}(M,r) \\ &amp;\Leftrightarrow d(P,M)=r \\ &amp;\Leftrightarrow \sqrt {(x-x_M)^2+(y-y_M)^2}=r &amp;&amp; \text {\shortstack [l]{BV: OK\\KV: $r\ge 0$, want afstand}}
+\\ &amp;\Leftrightarrow \boxed {(x-x_M)^2+(y-y_M)^2=r^2} &amp;&amp; \leftrightarrow \mathcal {C}(M,r)
+\end{align*}
+
+</p>
+<!--
+...... subsection Bijzonder geval ......
+-->
+<h5 id="autosec-18"><span class="sectionnumber">2&#x2003;</span>Bijzonder geval</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+\[ M = O(0,0) \Rightarrow \boxed {\mathcal {C}(O,r) \leftrightarrow x^2+y^2=r^2} \]
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+Gegeven:
+</p>
+
+<p>
+\[ M(-2,1),\qquad r=3 \]
+</p>
+
+<p>
+<div class="voorbeeld"> Dan is de vergelijking van de cirkel:
+</p>
+
+<p>
+\[ (x+2)^2+(y-1)^2=9 \]
+</p>
+
+<p>
+</div>
+</p>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-20">Oefening 1</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+Stel telkens de vergelijking op van de cirkel met middelpunt \(M\) en straal \(r\) als:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(M(2,3)\), \(r = 5\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                             (x − 2)2 + (y − 3)2 = 52
+                                                    ⇔                                        (x − 2)2 + (y − 3)2 = 25
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; (x-2)^2+(y-3)^2 &amp;= 5^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (x-2)^2+(y-3)^2 &amp;= 25 &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(M(-1,4)\), \(r = 4\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                           (x − (−1))2 + (y − 4)2 = 42
+                                                   ⇔                                           (x + 1)2 + (y − 4)2 = 16
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; (x-(-1))^2+(y-4)^2 &amp;= 4^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (x+1)^2+(y-4)^2 &amp;= 16 &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(M(-3,-5)\), \(r = 2\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                          (x − (−3))2 + (y − (−5))2 = 22
+                                                  ⇔                                             (x + 3)2 + (y + 5)2 = 4
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; (x-(-3))^2+(y-(-5))^2 &amp;= 2^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (x+3)^2+(y+5)^2 &amp;= 4 &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(M(0,-1)\), \(r = \sqrt {3}\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                    √
+                                                                                          (x − 0)2 + (y − (−1))2 = ( 3)2
+                                                  ⇔                                               x2 + (y + 1)2 = 3
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; (x-0)^2+(y-(-1))^2 &amp;= (\sqrt {3})^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; x^2+(y+1)^2 &amp;= 3 &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-21">Oefening 2</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+Geef de vergelijking van de cirkel met middelpunt \(M(-2,4)\) en straal \(3\).
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                          (x − a)2 + (y − b)2 = r2
+                                                 ⇔                                    (x − (−2))2 + (y − 4)2 = 32
+
+                                                 ⇔                                    (x + 2)2 + (y − 4)2 = 9
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; (x-a)^2+(y-b)^2 &amp;= r^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (x-(-2))^2+(y-4)^2 &amp;= 3^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; \Aboxed {(x+2)^2+(y-4)^2 = 9} &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-22">Oefening 3</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+Stel de vergelijking op van de cirkel met middelpunt \(M(2,5)\) die door de oorsprong gaat.
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                r2 = (0 − 2)2 + (0 − 5)2
+                                                  ⇔                                             r2 = 4 + 25
+                                                  ⇔                                             r2 = 29
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; r^2 &amp;= (0-2)^2+(0-5)^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; r^2 &amp;= 4+25 &amp;&amp;\\ &amp;\Leftrightarrow &amp; r^2 &amp;= 29 &amp;&amp;
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                   (x − a)2 + (y − b)2 = r2
+                                                 ⇔                                                 (x − 2)2 + (y − 5)2 = 29
+
+                                                 ⇔                                            (x − 2)2 + (y − 5)2 = 29
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; (x-a)^2+(y-b)^2 &amp;= r^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (x-2)^2+(y-5)^2 &amp;= 29 &amp;&amp;\\ &amp;\Leftrightarrow &amp; \Aboxed {(x-2)^2+(y-5)^2 = 29} &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+<!--
+...... section Algemene gedaante ......
+-->
+<h4 id="autosec-23"><span class="sectionnumber">III&#x2003;</span>Algemene gedaante</h4>
+<a id="mkpiweb-autopage-23"></a>
+<!--
+...... subsection Van standaardvorm naar algemene vorm ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">1&#x2003;</span>Van standaardvorm naar algemene vorm</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                              (x − xM )2 + (y − yM )2 = r2
+                                                  ⇔                                                              x2 − 2xM x + x2M + y 2 − 2yM y + yM
+                                                                                                                                                   2
+                                                                                                                                                     = r2
+                                                  ⇔                                                  x2 + y 2 + (−2xM ) x + (−2yM ) y + x2M + yM
+                                                                                                                                               2
+                                                                                                                                                 − r2 = 0
+                                                                                                                | {z }      | {z }      |     {z    }
+                                                                                                                 = 2a        = 2b           =c
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; (x-x_M)^2 + (y-y_M)^2 &amp;= r^2\\ &amp; \Leftrightarrow &amp; x^2 - 2x_Mx + x_M^2 + y^2 - 2y_My + y_M^2 &amp;= r^2\\ &amp; \Leftrightarrow &amp; x^2 + y^2 + \underbrace
+{(-2x_M)}_{=\,2a}x + \underbrace {(-2y_M)}_{=\,2b}y + \underbrace {x_M^2 + y_M^2 - r^2}_{=\,c} &amp;= 0
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {x^2 + y^2 + 2ax + 2by + c = 0} \]
+</p>
+<!--
+...... subsection Omgekeerde werkwijze ......
+-->
+<h5 id="autosec-25"><span class="sectionnumber">2&#x2003;</span>Omgekeerde werkwijze</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                              x2 + y 2 + 2ax + 2by + c = 0
+                                                        ⇔                                                        x2 + 2ax + y 2 + 2by = −c
+                                                        ⇔                                               x2 + 2ax + a2 + y 2 + 2by + b2 = −c + a2 + b2
+                                                        ⇔                                                          (x + a)2 + (y + b)2 = a2 + b2 − c
+                                                                                                                                         | {z }
+                                                                                                                                             = r2
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; x^2 + y^2 + 2ax + 2by + c &amp; = 0 \\ &amp; \Leftrightarrow &amp; x^2 + 2ax + y^2 + 2by &amp; = -c \\ &amp; \Leftrightarrow &amp; x^2 + 2ax + a^2 + y^2 + 2by + b^2 &amp; = -c +
+a^2 + b^2 \\ &amp; \Leftrightarrow &amp; (x+a)^2 + (y+b)^2 &amp; = \underbrace {a^2 + b^2 - c}_{=\,r^2}
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{c@{\qquad }c} \boxed {M(-a,-b)} &amp; \boxed {r=\sqrt {a^2+b^2-c}} \end {array} \qquad \text {met } a^2+b^2&gt;c \]
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-26"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+Geef \(M\) en \(r\) van de cirkel met vgl.
+</p>
+
+<p>
+\[ x^2+y^2-4x-16y+43=0 \]
+</p>
+
+<p>
+<i>1\(^\text {e}\) manier: met formules</i>
+</p>
+
+<p>
+<div class="voorbeeld">
+</p>
+
+<p>
+\[ \left \{ \begin {aligned} 2a&amp;=-4 &amp;&amp;\Rightarrow a=-2\\ 2b&amp;=-16 &amp;&amp;\Rightarrow b=-8\\ c&amp;=43 \end {aligned} \right .          \]
+</p>
+
+<p>
+\[ \qquad \Rightarrow \qquad M(-a,-b)=(2,8) \text { en } r=\sqrt {a^2+b^2-c}=\sqrt {4+64-43}=5 \]
+</p>
+
+<p>
+</div>
+</p>
+
+<p>
+<i>2\(^\text {e}\) manier: berekenen met volledig kwadraat</i>
+</p>
+
+<p>
+<div class="voorbeeld">
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                   x2 − 4x + y 2 − 16y = −43
+                                                        ⇔                                              (x2 − 4x + 4) + (y 2 − 16y + 64) = −43 + 4 + 64
+                                                        ⇔                                                          (x − 2)2 + (y − 8)2 = 25
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; &amp; x^2-4x+y^2-16y &amp; = -43 \\ &amp; \Leftrightarrow &amp; (x^2-4x+4)+(y^2-16y+64) &amp; = -43+4+64 \\ &amp; \Leftrightarrow &amp; (x-2)^2+(y-8)^2 &amp; = 25
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {M(2,8)\quad \text {en}\quad r=5} \]
+</p>
+
+<p>
+</div>
+</p>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-27">Oefening 4</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+Bepaal middelpunt en straal van:
+</p>
+
+<p>
+\[ x^2+y^2+8x-6y+9=0 \]
+</p>
+
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                    x2 + y 2 + 8x − 6y + 9 = 0
+                                        ⇔                                               x2 + 8x + y 2 − 6y = −9
+                                        ⇔                                       x2 + 8x + 16 + y 2 − 6y + 9 = −9 + 16 + 9
+                                        ⇔                                              (x + 4)2 + (y − 3)2 = 16
+
+                                        ⇔                                               M (−4, 3) en r = 4
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; x^2+y^2+8x-6y+9 &amp;= 0 &amp;&amp;\\ &amp;\Leftrightarrow &amp; x^2+8x+y^2-6y &amp;= -9 &amp;&amp;\\ &amp;\Leftrightarrow &amp; x^2+8x+16+y^2-6y+9 &amp;= -9+16+9 &amp;&amp;\\
+&amp;\Leftrightarrow &amp; (x+4)^2+(y-3)^2 &amp;= 16 &amp;&amp;\\ &amp;\Leftrightarrow &amp; \Aboxed {M(-4,3)\ \text {en}\ r=4} &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-28">Oefening 5</h5>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+Stel de vergelijking op in algemene vorm, van de cirkel met middelpunt \(M(2,5)\) die door de oorsprong gaat.
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                      r2 = (0 − 2)2 + (0 − 5)2
+                                                  ⇔                                                   r2 = 4 + 25
+                                                  ⇔                                                   r2 = 29
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; r^2 &amp;= (0-2)^2+(0-5)^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; r^2 &amp;= 4+25 &amp;&amp;\\ &amp;\Leftrightarrow &amp; r^2 &amp;= 29 &amp;&amp;
+\end{align*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                 (x − a)2 + (y − b)2 = r2
+                                            ⇔                                                    (x − 2)2 + (y − 5)2 = 29
+
+                                            ⇔                                               (x − 2)2 + (y − 5)2 = 29                        (standaardvorm)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; (x-a)^2+(y-b)^2 &amp;= r^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (x-2)^2+(y-5)^2 &amp;= 29 &amp;&amp;\\ &amp;\Leftrightarrow &amp; \Aboxed {(x-2)^2+(y-5)^2 = 29} &amp;&amp; \text
+{(standaardvorm)}
+\end{align*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                  (x − 1)2 + (y − 1)2 = 74
+                                            ⇔                                               x2 − 2x + 1 + y 2 − 2y + 1 = 74
+                                            ⇔                                                 x2 + y 2 − 2x − 2y − 72 = 0
+
+                                            ⇔                                             x2 + y 2 − 2x − 2y − 72 = 0                        (algemene vorm)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; (x-1)^2+(y-1)^2 &amp;= 74 &amp;&amp;\\ &amp;\Leftrightarrow &amp; x^2-2x+1+y^2-2y+1 &amp;= 74 &amp;&amp;\\ &amp;\Leftrightarrow &amp; x^2+y^2-2x-2y-72 &amp;= 0 &amp;&amp;\\
+&amp;\Leftrightarrow &amp; \Aboxed {x^2+y^2-2x-2y-72=0} &amp;&amp; \text {(algemene vorm)}
+\end{align*}
+
+</p>
+</div>
+<!--
+...... section Raaklijn aan een cirkel ......
+-->
+<h4 id="autosec-29"><span class="sectionnumber">IV&#x2003;</span>Raaklijn aan een cirkel</h4>
+<a id="mkpiweb-autopage-29"></a>
+<!--
+...... subsection Eigenschap ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">1&#x2003;</span>Eigenschap</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+De raaklijn aan een cirkel in een punt \(D\) staat loodrecht op de straal door dat punt.
+</p>
+
+<p>
+\[ t \perp MD \]
+</p>
+<!--
+...... subsection Raaklijn aan in een punt ......
+-->
+<h5 id="autosec-31"><span class="sectionnumber">2&#x2003;</span>Raaklijn aan \(\mathcal {C}(O,r)\) in een punt \(D(x_1,y_1)\)</h5>
+<a id="mkpiweb-autopage-31"></a>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:268pt ; ">
+
+<a id="mkpiweb-autopage-32"></a>
+<!--
+...... subsubsection Gegeven ......
+-->
+<h6 id="autosec-33"><span class="sectionnumber">&#x2003;</span>Gegeven</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+\[ \mathcal {C}(O;r):\ x^2+y^2=r^2 \]
+</p>
+
+<p>
+\[ D(x_1,y_1)\in \mathcal {C}(O;r) \]
+</p>
+<!--
+...... subsubsection Gevraagd ......
+-->
+<h6 id="autosec-34"><span class="sectionnumber">&#x2003;</span>Gevraagd</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+Vergelijking van de raaklijn \(t\) in \(D\) aan \(\mathcal {C}(O;r)\).
+</p>
+
+
+</div>
+
+&#x2003;
+
+&#x2003;
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:203pt ; ">
+
+<a id="mkpiweb-autopage-35"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+    y
+
+
+
+C       D(x1 , y1 )
+
+
+    O                 x
+         r       t
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+
+</div>
+<!--
+...... subsubsection Oplossing ......
+-->
+<h6 id="autosec-38"><span class="sectionnumber">&#x2003;</span>Oplossing</h6>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+\[ 1)\; t \perp OD \qquad \qquad 2)\; D(x_1,y_1)\in t \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                              1
+                                              1)                                                    mt = −
+                                                                                                             mOD
+                                                                                                              1
+                                                                                                        = − y1 −0
+                                                                                                             x1 −0
+                                                                                                           x1
+                                                                                                        =−
+                                                                                                           y1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; 1) &amp; m_t &amp;= -\frac {1}{m_{OD}} &amp;&amp;\\ &amp;&amp; &amp;= -\frac {1}{\frac {y_1-0}{x_1-0}} &amp;&amp;\\ &amp;&amp; &amp;= -\frac {x_1}{y_1}&amp;&amp;
+\end{align*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                   x1
+                                       2)                                       t : y − y1 = −        (x − x1 )
+                                                                                                   y1
+                                       ⇔                                         y1 y − y12 = −x1 x + x21
+                                       ⇔                                        x1 x + y1 y = x21 + y12                                  r2 want D ∈ C(O, r)
+                                                                                              | {z }
+                                                                                                   r2
+
+                                       ⇔                                        x1 x + y1 y = r2
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; 2) &amp; t:\ y-y_1 &amp;= -\frac {x_1}{y_1}(x-x_1) \\ &amp; \Leftrightarrow &amp; y_1y-y_1^2 &amp;= -x_1x+x_1^2 \\ &amp; \Leftrightarrow &amp; x_1x+y_1y &amp;= \underbrace
+{x_1^2+y_1^2}_{r^2} &amp;&amp; r^2 \text { want } D\in \mathcal {C}(O,r) \\ &amp; \Leftrightarrow &amp; x_1x+y_1y &amp;= r^2
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {t:\ x_1x+y_1y=r^2} \]
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-39"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+Gegeven \(\mathcal {C} \leftrightarrow x^2+y^2=25\), bepaal de raaklijn in \(D(4,3)\).
+</p>
+
+<p>
+<div class="voorbeeld"> Controle punt D: \(D \in \mathcal {C}\): \(4^2+3^2 = 25\), Ja, \(\Rightarrow D\in \mathcal {C}\)
+</p>
+
+<p>
+\[ \boxed {t:\ 4x+3y=25} \]
+</p>
+
+<p>
+</div>
+</p>
+<!--
+...... subsection Oefening 6 ......
+-->
+<h5 id="autosec-40">Oefening 6</h5>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+Bepaal de raaklijn aan de cirkel
+</p>
+
+<p>
+\[ x^2+y^2=13 \]
+</p>
+
+<p>
+in het punt \(D(2,3)\).
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                            22 + 32 = 13
+                                                 ⇔                                            4 + 9 = 13
+                                                 ⇔                                              13 = 13
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; 2^2+3^2 &amp;= 13 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 4+9 &amp;= 13 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 13 &amp;= 13 &amp;&amp;
+\end{align*}
+
+</p>
+
+<p>
+Dus \(D(2,3)\) ligt op de cirkel.
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                    3−0   3
+                                                                                           mOD =        =
+                                                                                                    2−0   2
+                                                                                                      2
+                                             ⇔                                          mraaklijn = −
+                                                                                                      3
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; m_{OD} &amp;= \frac {3-0}{2-0} = \frac {3}{2} &amp;&amp;\\ &amp;\Leftrightarrow &amp; m_{\text {raaklijn}} &amp;= -\frac {2}{3} &amp;&amp;
+\end{align*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                      2
+                                                                                             y − 3 = − (x − 2)
+                                                                                                      3
+                                            ⇔                                               3y − 9 = −2x + 4
+                                            ⇔                                         2x + 3y = 13
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; y-3 &amp;= -\frac {2}{3}(x-2) &amp;&amp;\\ &amp;\Leftrightarrow &amp; 3y-9 &amp;= -2x+4 &amp;&amp;\\ &amp;\Leftrightarrow &amp; \Aboxed {2x+3y=13} &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Oefening 7 ......
+-->
+<h5 id="autosec-41">Oefening 7</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+Bepaal de raaklijn in \(A\) aan \(\mathcal {C}\) als:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\mathcal {C} \leftrightarrow x^2 + y^2 = 9\), \(A(1,\sqrt {8})\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                √
+                                                                                          12 + ( 8)2 = 9
+                                            ⇔                                                  1+8=9
+                                            ⇔                                                         9=9                                     ⇒A∈C
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; 1^2+(\sqrt {8})^2 &amp;= 9 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 1+8 &amp;= 9 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 9 &amp;= 9 &amp;&amp; \Rightarrow A \in \mathcal {C}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                               xA x + y A y = r 2
+                                                                                                     √
+                                             ⇔                                                  1x + 8 y = 9
+                                                                                                 √
+                                             ⇔                                               x + 8y = 9
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; x_Ax+y_Ay &amp;= r^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 1x+\sqrt {8}\,y &amp;= 9 &amp;&amp;\\ &amp;\Leftrightarrow &amp; \Aboxed {x+\sqrt {8}\,y=9} &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\mathcal {C} \leftrightarrow x^2 + y^2 = 13\), \(A(-2,3)\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                         (−2)2 + 32 = 13
+                                            ⇔                                                 4 + 9 = 13
+                                            ⇔                                                       13 = 13                                    ⇒A∈C
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; (-2)^2+3^2 &amp;= 13 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 4+9 &amp;= 13 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 13 &amp;= 13 &amp;&amp; \Rightarrow A \in \mathcal {C}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                   xA x + y A y = r 2
+                                             ⇔                                                      −2x + 3y = 13
+                                             ⇔                                              −2x + 3y = 13
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; x_Ax+y_Ay &amp;= r^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; -2x+3y &amp;= 13 &amp;&amp;\\ &amp;\Leftrightarrow &amp; \Aboxed {-2x+3y=13} &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\mathcal {C} \leftrightarrow x^2 + y^2 = 8\), \(A(-2,-2)\)
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                        (−2)2 + (−2)2 = 8
+                                           ⇔                                                        4+4=8
+                                           ⇔                                                            8=8                                    ⇒A∈C
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; (-2)^2+(-2)^2 &amp;= 8 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 4+4 &amp;= 8 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 8 &amp;= 8 &amp;&amp; \Rightarrow A \in \mathcal {C}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                              xA x + y A y = r 2
+                                               ⇔                                                −2x − 2y = 8
+                                               ⇔                                              x + y = −4
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; x_Ax+y_Ay &amp;= r^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; -2x-2y &amp;= 8 &amp;&amp;\\ &amp;\Leftrightarrow &amp; \Aboxed {x+y=-4} &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Algemene formule ......
+-->
+<h5 id="autosec-42"><span class="sectionnumber">4&#x2003;</span>Algemene formule</h5>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+Voor de cirkel
+</p>
+
+<p>
+\[ (x-x_M)^2+(y-y_M)^2=r^2 \]
+</p>
+
+<p>
+en een raakpunt
+</p>
+
+<p>
+\[ D(x_1,y_1) \]
+</p>
+
+<p>
+is de raaklijn:
+</p>
+
+<p>
+\[ \boxed {(x_1-x_M)(x-x_M)+(y_1-y_M)(y-y_M)=r^2} \]
+</p>
+
+<p>
+Deze formule zegt in feite opnieuw dat de normaalvector van de raaklijn de richting van de straal \(MD\) heeft.
+</p>
+<!--
+...... section Functioneel verloop van de cirkel ......
+-->
+<h4 id="autosec-43"><span class="sectionnumber">V&#x2003;</span>Functioneel verloop van de cirkel</h4>
+<a id="mkpiweb-autopage-43"></a>
+<!--
+...... subsection Een cirkel is geen functie ......
+-->
+<h5 id="autosec-44"><span class="sectionnumber">1&#x2003;</span>Een cirkel is geen functie</h5>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p>
+\[ \mathcal {C}(O;r) \leftrightarrow x^2+y^2=r^2 \]
+</p>
+
+<p>
+Bij één \(x\)-waarde horen meestal twee \(y\)-waarden:
+</p>
+
+<p>
+\[ y=\sqrt {r^2-x^2} \qquad \text {en} \qquad y=-\sqrt {r^2-x^2} \]
+</p>
+
+<p>
+Daarom beschrijven we de cirkel met twee functies:
+</p>
+
+<p>
+\[ f_1(x)=\sqrt {r^2-x^2} \qquad \text {en} \qquad f_2(x)=-\sqrt {r^2-x^2} \]
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(f_1\) beschrijft de <b>bovenste halve cirkel</b>;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(f_2\) beschrijft de <b>onderste halve cirkel</b>.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Nulwaarden ......
+-->
+<h5 id="autosec-45"><span class="sectionnumber">2&#x2003;</span>Nulwaarden</h5>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p>
+\[ r^2-x^2=0 \qquad \Leftrightarrow \qquad x=-r \text { of } x=r \]
+</p>
+<!--
+...... subsection Tekenverloop ......
+-->
+<h5 id="autosec-46"><span class="sectionnumber">3&#x2003;</span>Tekenverloop</h5>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+\[ \begin {array}{c|ccccc} \text {t.v.} &amp; x &amp; -r &amp; &amp; r &amp; x \\ \hline r^2-x^2 &amp; - &amp; 0 &amp; + &amp; 0 &amp; - \\ f_1(x)=\sqrt {r^2-x^2} &amp; // &amp; 0 &amp; + &amp;
+0 &amp; /// \end {array} \]
+</p>
+<!--
+...... subsection Domein ......
+-->
+<h5 id="autosec-47"><span class="sectionnumber">4&#x2003;</span>Domein</h5>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+\[ \text {eis:   } r^2-x^2 \ge 0 \qquad \Rightarrow \qquad \boxed {\dom f_1=[-r,r]} \]
+</p>
+<!--
+...... subsection Symmetrie ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">5&#x2003;</span>Symmetrie</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+\[ f_1(-x)=f_1(x) \]
+</p>
+
+<p>
+\(\Rightarrow \) \(f_1\) is even.
+</p>
+<!--
+...... subsection Continuıteit ......
+-->
+<h5 id="autosec-49"><span class="sectionnumber">6&#x2003;</span>Continuı&#x0308;teit</h5>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+\(f_1\) is een irrationale functie \(\Rightarrow \) cont. in \(\dom f_1=[-r,r]\).
+</p>
+<!--
+...... subsection Asymptoten ......
+-->
+<h5 id="autosec-50"><span class="sectionnumber">7&#x2003;</span>Asymptoten</h5>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<dl class="description" >
+
+<dt><span class="listmarker">VA:</span></dt>
+<dd>
+<p>
+geen! (geen noemers)
+</p>
+
+</dd>
+<dt><span class="listmarker">HA:</span></dt>
+<dd>
+<p>
+\(\displaystyle \lim _{x\to \pm \infty } f_1(x)\) bestaat niet (zie \(\dom f_1\)) \(\Rightarrow \) geen!
+</p>
+
+</dd>
+<dt><span class="listmarker">SA:</span></dt>
+<dd>
+<p>
+geen! (idem HA)
+</p>
+</dd>
+</dl>
+<!--
+...... subsection Stijgen - dalen ......
+-->
+<h5 id="autosec-51"><span class="sectionnumber">8&#x2003;</span>Stijgen &amp; dalen</h5>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                  1 (r2 − x2 )′
+                                                                                           f1′ (x) =· √
+                                                                                                  2      r 2 − x2
+                                                                                                      −2x
+                                                                                                 = √
+                                                                                                  2 r 2 − x2
+                                                                                                      −x
+                                                                                                 =√
+                                                                                                    r 2 − x2
+                                                                                              ⇒nulw T f ′ : x = 0
+                                                                                                 nulw N f ′ : x = ±r
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f_1&apos;(x) &amp; = \frac {1}{2}\cdot \frac {(r^2-x^2)&apos;}{\sqrt {r^2-x^2}} \\ &amp; = \frac {-2x}{2\sqrt {r^2-x^2}} \\ &amp; = \frac {-x}{\sqrt {r^2-x^2}} \\ \Rightarrow &amp; \text {nulw
+} Tf&apos; \colon x=0 \\ &amp; \text {nulw } Nf&apos; \colon x=\pm r
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{c|c c c c c c c} \text {t.v.} &amp; x &amp; -r &amp; &amp; 0 &amp; &amp; r &amp; x \\ \hline \text {Nf&apos;} &amp; &amp; &amp; &amp; 0 &amp; &amp; &amp; \\ \text {Tf&apos;}
+&amp; // &amp; &amp; + &amp; 0 &amp; - &amp; &amp; // \\ \hline f_1&apos;(x) &amp; // &amp; &amp; + &amp; 0 &amp; - &amp; &amp; // \\ \hline f_1 &amp; // &amp; 0 &amp; \nearrow &amp; \tvmax
+{r} &amp; \searrow &amp; 0 &amp; /// \end {array} \]
+</p>
+
+<p>
+\[ \boxed {\max =f_1(0)=r} \qquad \text {en}\qquad \left \{ \begin {array}{l} \text {stijgt op } ]-r,0[ \\ \text {daalt op } ]0,r[ \end {array} \right .   \]
+</p>
+<!--
+...... subsection Hol - bol ......
+-->
+<h5 id="autosec-52"><span class="sectionnumber">9&#x2003;</span>Hol &amp; bol</h5>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                            ′
+                                                                                                      −x
+                                                                                       f1′′ (x) =       √
+                                                                                                    r 2 − x2
+                                                                                                  √                   −x
+                                                                                                − r2 − x2 − (−x) · √
+                                                                                                                     r − x2
+                                                                                                                      2
+                                                                                              =               2   2
+                                                                                                             r −x
+                                                                                                 −(r2 − x2 ) − x2
+                                                                                              =           √
+                                                                                                (r2 − x2 ) r2 − x2
+                                                                                                           −r2
+                                                                                              =               √
+                                                                                                    (r2 − x2 ) r2 − x2
+                                                                                     besluit: nulw Tf ′′ : /     en      nulw Nf ′′ : x = ±r
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f_1&apos;&apos;(x) &amp;= \left (\frac {-x}{\sqrt {r^2-x^2}}\right )&apos; \\ &amp;= \frac {-\sqrt {r^2-x^2}-(-x)\cdot \dfrac {-x}{\sqrt {r^2-x^2}}}{r^2-x^2} \\ &amp;= \frac
+{-(r^2-x^2)-x^2}{(r^2-x^2)\sqrt {r^2-x^2}} \\ &amp;= \frac {-r^2}{(r^2-x^2)\sqrt {r^2-x^2}} \\ \text {besluit: } &amp; \text {nulw T}f&apos;&apos; \colon / \qquad \text {en} \qquad \text
+{nulw N}f&apos;&apos; \colon x=\pm r
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{c|ccccc} \text {t.v.} &amp; x &amp; -r &amp; &amp; r &amp; x \\ \hline \text {T}f&apos;&apos; &amp; &amp; &amp; + &amp; &amp; \\ \text {N}f&apos;&apos; &amp; // &amp; 0 &amp;
++ &amp; 0 &amp; // \\ \hline f_1&apos;&apos;(x) &amp; // &amp; &amp; - &amp; &amp; // \\ \hline f_1 &amp; // &amp; 0 &amp; \cap &amp; 0 &amp; /// \end {array} \]
+</p>
+
+<p>
+En analoog voor \(f_2\) \(\Rightarrow \) onder de \(x\)-as &#x202f;(\(f_2=-f_1\)).
+</p>
+<!--
+...... subsection Grafiek ......
+-->
+<h5 id="autosec-53"><span class="sectionnumber">10&#x2003;</span>Grafiek</h5>
+<a id="mkpiweb-autopage-53"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+          y
+
+
+      r
+              f1
+
+
+
+                       x
+−r                 r
+
+
+              f2
+     −r
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Oefening 8 ......
+-->
+<h5 id="autosec-57">Oefening 8</h5>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Stel de vergelijking op van de cirkel met middelpunt \(M(2,0)\) en straal \(2\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Splits de vergelijking van de cirkel in de vereniging van twee vergelijkingen van grafieken van functies.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Bestudeer één van deze functies.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Ga na dat de vergelijking van de raaklijn in een willekeurig punt \(D(x_1,y_1)\) van deze cirkel gegeven wordt door:<br />
+\(y_1 y + x_1 x - 2(x + x_1) = 4\)
+</p>
+</li>
+</ul>
+<!--
+...... section Parametervoorstelling ......
+-->
+<h4 id="autosec-58"><span class="sectionnumber">VI&#x2003;</span>Parametervoorstelling</h4>
+<a id="mkpiweb-autopage-58"></a>
+<!--
+...... subsection M = O(0,0) ......
+-->
+<h5 id="autosec-59"><span class="sectionnumber">1&#x2003;</span>M = O(0,0)</h5>
+<a id="mkpiweb-autopage-59"></a>
+<!--
+......   paragraph Figuur:   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-60">Figuur:</span>
+<a id="mkpiweb-autopage-60"></a>
+
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+    y
+
+
+
+               P (x, y)
+        r      y
+             t
+                          x
+O           x Q
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+......   paragraph Gegeven:     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-64">Gegeven:</span>
+<a id="mkpiweb-autopage-64"></a>
+
+</p>
+
+<p>
+\[ c(O;r):\ x^2+y^2=r^2 \tag {1} \]
+</p>
+
+<p>
+\(P(x,y)\in \text {cirkel}\)
+</p>
+
+<p>
+\(t=\) hoek t.o.v. pos. \(x\)-as en \(\angle LOP\)
+</p>
+
+<p>
+\[ \Rightarrow \ t\in [0;2\pi [ \]
+</p>
+<!--
+......   paragraph Opstellen formule:   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-65">Opstellen formule:</span>
+<a id="mkpiweb-autopage-65"></a>
+\(\triangle OPQ\) is rechthoekig \(\Rightarrow \)
+</p>
+
+<p>
+\[ \left \{ \begin {array}{l} x=r\cos t \\ y=r\sin t \end {array} \right .   \qquad \text {met } t\in [0;2\pi [ \]
+</p>
+<!--
+......   paragraph Controle:   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-66">Controle:</span>
+<a id="mkpiweb-autopage-66"></a>
+Voldoet dit aan \((1)\)?
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                    x2 + y 2 = r2 cos2 t + r2 sin2 t
+                                                                                            = r2 (cos2 t + sin2 t)
+                                                                                            = r2 · 1
+                                                                                            = r2
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2+y^2 &amp;= r^2\cos ^2 t+r^2\sin ^2 t \\ &amp;= r^2(\cos ^2 t+\sin ^2 t) \\ &amp;= r^2\cdot 1 \\ &amp;= r^2
+\end{align*}
+
+</p>
+<!--
+......   paragraph Stelsel parameter vergelijking (parvgl):      ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-67">Stelsel parameter vergelijking (parvgl):</span>
+<a id="mkpiweb-autopage-67"></a>
+
+</p>
+
+<p>
+\[ \mathcal {C}(O,r) \leftrightarrow \boxed { \left \{ \begin {array}{l} x=r\cos t \\ y=r\sin t \end {array} \right .   \qquad \text {met } t\in [0;2\pi [ } \]
+</p>
+<!--
+...... subsection Algemeen geval ......
+-->
+<h5 id="autosec-68"><span class="sectionnumber">2&#x2003;</span>Algemeen geval</h5>
+<a id="mkpiweb-autopage-68"></a>
+
+
+<p>
+Voor een cirkel met middelpunt
+</p>
+
+<p>
+\[ M(x_M,y_M) \]
+</p>
+
+<p>
+en straal \(r\) verschuift alles gewoon met \((x_M,y_M)\).
+</p>
+
+<p>
+We krijgen:
+</p>
+
+<p>
+\[ \boxed { \begin {cases} x=x_M+r\cos t\\ y=y_M+r\sin t \end {cases} \qquad \text {met } t\in [0,2\pi [ } \]
+</p>
+<!--
+...... subsection Figuur ......
+-->
+<h5 id="autosec-69"><span class="sectionnumber">3&#x2003;</span>Figuur</h5>
+<a id="mkpiweb-autopage-69"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+       y
+
+
+
+                         P
+                r
+                         r sin t
+M (xM , yM )
+               r cos t
+                                   x
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+<!--
+...... subsection Oefening 9 ......
+-->
+<h5 id="autosec-73">Oefening 9</h5>
+<a id="mkpiweb-autopage-73"></a>
+
+
+<p>
+Schrijf de cirkel
+</p>
+
+<p>
+\[ (x-4)^2+(y+1)^2=16 \]
+</p>
+
+<p>
+in parametervorm.
+</p>
+<!--
+...... section Toepassingen ......
+-->
+<h4 id="autosec-74"><span class="sectionnumber">VII&#x2003;</span>Toepassingen</h4>
+<a id="mkpiweb-autopage-74"></a>
+<!--
+...... subsection Van algemene vorm naar middelpunt en straal ......
+-->
+<h5 id="autosec-75"><span class="sectionnumber">1&#x2003;</span>Van algemene vorm naar middelpunt en straal</h5>
+<a id="mkpiweb-autopage-75"></a>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-76"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<p>
+Bepaal middelpunt en straal van:
+</p>
+
+<p>
+\[ x^2+y^2+6x-4y+1=0 \]
+</p>
+
+<p>
+<div class="voorbeeld"> We vergelijken met:
+</p>
+
+<p>
+\[ x^2+y^2+2ax+2by+c=0 \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ 2a=6 \Rightarrow a=3,\qquad 2b=-4 \Rightarrow b=-2,\qquad c=1 \]
+</p>
+
+<p>
+Daaruit volgt:
+</p>
+
+<p>
+\[ M(-a,-b)=(-3,2) \]
+</p>
+
+<p>
+en
+</p>
+
+<p>
+\[ r=\sqrt {a^2+b^2-c}=\sqrt {9+4-1}=\sqrt {12}=2\sqrt 3 \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ \boxed {M(-3,2)\qquad r=2\sqrt 3} \]
+</p>
+
+<p>
+</div>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-77"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-77"></a>
+
+
+<p>
+Bepaal de vergelijking van de cirkel met middelpunt
+</p>
+
+<p>
+\[ M(1,-2) \]
+</p>
+
+<p>
+die door het punt
+</p>
+
+<p>
+\[ A(5,2) \]
+</p>
+
+<p>
+gaat.
+</p>
+
+<p>
+<div class="voorbeeld"> De straal is:
+</p>
+
+<p>
+\[ r=d(M,A)=\sqrt {(5-1)^2+(2+2)^2}=\sqrt {16+16}=4\sqrt 2 \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ r^2=32 \]
+</p>
+
+<p>
+en de vergelijking wordt:
+</p>
+
+<p>
+\[ \boxed {(x-1)^2+(y+2)^2=32} \]
+</p>
+
+<p>
+</div>
+</p>
+<!--
+...... subsection Raaklijn via afstand van punt tot rechte ......
+-->
+<h5 id="autosec-78"><span class="sectionnumber">2&#x2003;</span>Raaklijn via afstand van punt tot rechte</h5>
+<a id="mkpiweb-autopage-78"></a>
+
+
+<p>
+Een rechte \(a\) is raaklijn aan een cirkel \(\mathcal {C}(M,r)\) als en slechts als:
+</p>
+
+<p>
+\[ d(M,a)=r \]
+</p>
+
+<p>
+Dit criterium is vaak de snelste manier om te controleren of een rechte raaklijn is.
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-79"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-79"></a>
+
+
+<p>
+Beschouw de cirkel
+</p>
+
+<p>
+\[ (x-1)^2+(y-3)^2=25 \]
+</p>
+
+<p>
+met middelpunt \(M(1,3)\) en straal \(r=5\).
+</p>
+
+<p>
+Onderzoek of de rechte
+</p>
+
+<p>
+\[ a:\ -3x+4y+16=0 \]
+</p>
+
+<p>
+een raaklijn is.
+</p>
+
+<p>
+<div class="voorbeeld"> We berekenen:
+</p>
+
+<p>
+\[ d(M,a)=\frac {|-3\cdot 1+4\cdot 3+16|}{\sqrt {(-3)^2+4^2}} =\frac {25}{5}=5 \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ d(M,a)=r \]
+</p>
+
+<p>
+en daarom is \(a\) een raaklijn. </div>
+</p>
+<!--
+...... subsection Oefening 10 ......
+-->
+<h5 id="autosec-80">Oefening 10</h5>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+Een cirkel heeft vergelijking
+</p>
+
+<p>
+\[ x^2+y^2-2x+4y-11=0 \]
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> bepaal het middelpunt;
+</p>
+<div class="oplossing">
+<p>
+We brengen de vergelijking naar standaardvorm:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                              x2 + y 2 − 2x + 4y − 11 = 0
+                                              ⇔                                                 (x2 − 2x) + (y 2 + 4y) = 11
+                                              ⇔                                            (x − 1)2 − 1 + (y + 2)2 − 4 = 11
+                                              ⇔                                                   (x − 1)2 + (y + 2)2 = 16
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; x^2+y^2-2x+4y-11 &amp;= 0 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (x^2-2x)+(y^2+4y) &amp;= 11 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (x-1)^2-1+(y+2)^2-4 &amp;= 11 &amp;&amp;\\
+&amp;\Leftrightarrow &amp; (x-1)^2+(y+2)^2 &amp;= 16 &amp;&amp;
+\end{align*}
+Dus:
+</p>
+<p>
+\[ \boxed {M(1,-2)} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> bepaal de straal;
+</p>
+<div class="oplossing">
+<p>
+Uit de standaardvorm volgt:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                              (x − 1)2 + (y + 2)2 = 16
+                                                ⇔                                             (x − 1)2 + (y + 2)2 = 42
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;&amp; (x-1)^2+(y+2)^2 &amp;= 16 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (x-1)^2+(y+2)^2 &amp;= 4^2 &amp;&amp;
+\end{align*}
+Dus:
+</p>
+<p>
+\[ \boxed {r=4} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> onderzoek of de rechte \(x-2y+1=0\) een raaklijn is.
+</p>
+<div class="oplossing">
+<p>
+We vergelijken de afstand van het middelpunt tot de rechte met de straal:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                     |1 − 2(−2) + 1|
+                                                                                            d(M, l) = p
+                                                                                                         12 + (−2)2
+                                                                                                     |1 + 4 + 1|
+                                                                                                    =    √
+                                                                                                           5
+                                                                                                      6
+                                                                                                    =√
+                                                                                                       5
+
+-->
+
+<p>
+
+\begin{align*}
+d(M,l) &amp;= \frac {|1-2(-2)+1|}{\sqrt {1^2+(-2)^2}}\\ &amp;= \frac {|1+4+1|}{\sqrt {5}}\\ &amp;= \frac {6}{\sqrt {5}}
+\end{align*}
+Omdat
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                      6
+                                                                                                     √ ̸= 4,
+                                                                                                       5
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {6}{\sqrt {5}} &amp;\neq 4,
+\end{align*}
+is de rechte geen raaklijn.
+</p>
+<p>
+\[ \boxed {\text {geen raaklijn}} \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 11 ......
+-->
+<h5 id="autosec-81">Oefening 11</h5>
+<a id="mkpiweb-autopage-81"></a>
+
+
+<p>
+Stel de vergelijking op van de cirkel met middelpunt \(M(-1,4)\) die de rechte \(a \leftrightarrow y = 2x - 3\) raakt.
+</p>
+<div class="oplossing">
+
+<p>
+De straal is de afstand van het middelpunt tot de raaklijn:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                        a ↔ 2x − y − 3 = 0
+
+                                                                                                              |2 · (−1) − 4 − 3|
+                                                                                              r = d(M, a) =     p
+                                                                                                                    22 + (−1)2
+                                                                                                           | − 2 − 4 − 3|
+                                                                                                          =      √
+                                                                                                                   5
+                                                                                                             9
+                                                                                                          =√
+                                                                                                              5
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+a &amp;\leftrightarrow 2x-y-3=0\\[0.3em] r=d(M,a) &amp;= \frac {|2\cdot (-1)-4-3|}{\sqrt {2^2+(-1)^2}}\\ &amp;= \frac {|-2-4-3|}{\sqrt {5}}\\ &amp;= \frac {9}{\sqrt {5}}
+\end{align*}
+De vergelijking van de cirkel is:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                   (x − a)2 + (y − b)2 = r2
+                                                                                                                              2
+                                                                                                          2          2      9
+                                               ⇔                                               (x − (−1)) + (y − 4) = √
+                                                                                                                             5
+                                                                                                                          81
+                                               ⇔                                                  (x + 1)2 + (y − 4)2 =
+                                                                                                                           5
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; (x-a)^2+(y-b)^2 &amp;= r^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (x-(-1))^2+(y-4)^2 &amp;= \left (\frac {9}{\sqrt {5}}\right )^2 &amp;&amp;\\ &amp;\Leftrightarrow &amp; \Aboxed
+{(x+1)^2+(y-4)^2 &amp;= \frac {81}{5}} &amp;&amp;
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Oefening 12 ......
+-->
+<h5 id="autosec-82">Oefening 12</h5>
+<a id="mkpiweb-autopage-82"></a>
+
+
+<p>
+Zoek de vergelijking van de raaklijnen aan \(x^2 + y^2 - 2x - 2y - 8 = 0\) die evenwijdig zijn met de rechte \(-3x + y - 2 = 0\).
+</p>
+
+<p>
+<i>Tip:</i>
+</p>
+
+<p>
+Stel \(y = 3x + m\) en los volgend stelsel op:
+</p>
+
+<p>
+\[ \begin {cases} y = 3x + m \\ x^2 + y^2 - 2x - 2y - 8 = 0 \end {cases} \]
+</p>
+
+<p>
+Stel nadien de bekomen \(x\)-waarden aan elkaar gelijk en zoek \(m\).
+</p>
+<div class="oplossing">
+
+<p>
+Raaklijnen evenwijdig met de gegeven rechte hebben vorm \(y=3x+m\).
+</p>
+
+<p>
+We substitueren in de cirkelvergelijking:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                   x2 + (3x + m)2 − 2x − 2(3x + m) − 8 = 0
+                                                 ⇔                                          x2 + 9x2 + 6mx + m2 − 2x − 6x − 2m − 8 = 0
+                                                 ⇔                                                    10x2 + (6m − 8)x + m2 − 2m − 8 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; x^2+(3x+m)^2-2x-2(3x+m)-8 &amp;= 0 &amp;&amp;\\ &amp;\Leftrightarrow &amp; x^2+9x^2+6mx+m^2-2x-6x-2m-8 &amp;= 0 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 10x^2+(6m-8)x+m^2-2m-8 &amp;=
+0 &amp;&amp;
+\end{align*}
+
+</p>
+
+<p>
+Voor een raaklijn moet deze kwadratische vergelijking precies één oplossing hebben, dus \(D=0\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                                   D=0
+                                                 ⇔                                                  (6m − 8)2 − 4 · 10 · (m2 − 2m − 8) = 0
+                                                 ⇔                                            36m2 − 96m + 64 − 40m2 + 80m + 320 = 0
+                                                 ⇔                                                                −4m2 − 16m + 384 = 0
+                                                 ⇔                                                                     m2 + 4m − 96 = 0
+                                                 ⇔                                                                   (m + 12)(m − 8) = 0
+                                                 ⇔                                                              m = −12    of   m=8
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; D &amp;= 0 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (6m-8)^2-4\cdot 10\cdot (m^2-2m-8) &amp;= 0 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 36m^2-96m+64-40m^2+80m+320 &amp;= 0
+&amp;&amp;\\ &amp;\Leftrightarrow &amp; -4m^2-16m+384 &amp;= 0 &amp;&amp;\\ &amp;\Leftrightarrow &amp; m^2+4m-96 &amp;= 0 &amp;&amp;\\ &amp;\Leftrightarrow &amp; (m+12)(m-8) &amp;= 0
+&amp;&amp;\\ &amp;\Leftrightarrow &amp; m=-12 \quad \text {of} \quad m=8 &amp;&amp;
+\end{align*}
+
+</p>
+
+<p>
+Dus de raaklijnen zijn:
+</p>
+
+<p>
+\[ \boxed {y=3x-12 \quad \text {en} \quad y=3x+8} \]
+</p>
+
+</div>
+<!--
+...... subsection Omgeschreven cirkel van een driehoek ......
+-->
+<h5 id="autosec-83"><span class="sectionnumber">3&#x2003;</span>Omgeschreven cirkel van een driehoek</h5>
+<a id="mkpiweb-autopage-83"></a>
+<!--
+......   paragraph Methode ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-84">Methode</span>
+<a id="mkpiweb-autopage-84"></a>
+De omgeschreven cirkel van een driehoek gaat door de drie hoekpunten. Het middelpunt is het snijpunt van twee middelloodlijnen van de zijden.
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-85"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-85"></a>
+
+
+<p>
+Bepaal de omgeschreven cirkel van de driehoek met hoekpunten
+</p>
+
+<p>
+\[ A(5,6),\qquad B(-2,-1),\qquad C(5,0) \]
+</p>
+
+<p>
+<div class="voorbeeld"> <b>1. Middelloodlijn van \([AB]\)</b>
+</p>
+
+<p>
+Midden van \([AB]\):
+</p>
+
+<p>
+\[ \left (\frac {5+(-2)}{2},\frac {6+(-1)}{2}\right )=\left (\frac 32,\frac 52\right ) \]
+</p>
+
+<p>
+Richtingscoe&#x0308;fficie&#x0308;nt van \(AB\):
+</p>
+
+<p>
+\[ m_{AB}=\frac {-1-6}{-2-5}=1 \]
+</p>
+
+<p>
+Dus de middelloodlijn heeft rico \(-1\):
+</p>
+
+<p>
+\[ y-\frac 52=-1\left (x-\frac 32\right ) \]
+</p>
+
+<p>
+of:
+</p>
+
+<p>
+\[ x+y-4=0 \]
+</p>
+
+<p>
+<b>2. Middelloodlijn van \([BC]\)</b>
+</p>
+
+<p>
+Midden van \([BC]\):
+</p>
+
+<p>
+\[ \left (\frac {-2+5}{2},\frac {-1+0}{2}\right )=\left (\frac 32,-\frac 12\right ) \]
+</p>
+
+<p>
+Richtingscoe&#x0308;fficie&#x0308;nt van \(BC\):
+</p>
+
+<p>
+\[ m_{BC}=\frac {0-(-1)}{5-(-2)}=\frac 17 \]
+</p>
+
+<p>
+Dus de middelloodlijn heeft rico \(-7\):
+</p>
+
+<p>
+\[ y+\frac 12=-7\left (x-\frac 32\right ) \]
+</p>
+
+<p>
+of:
+</p>
+
+<p>
+\[ 7x+y-10=0 \]
+</p>
+
+<p>
+<b>3. Snijpunt van beide middelloodlijnen</b>
+</p>
+
+<p>
+We lossen op:
+</p>
+
+<p>
+\[ \begin {cases} x+y-4=0\\ 7x+y-10=0 \end {cases} \]
+</p>
+
+<p>
+Aftrekken geeft:
+</p>
+
+<p>
+\[ 6x=6 \Rightarrow x=1 \]
+</p>
+
+<p>
+en dan:
+</p>
+
+<p>
+\[ y=3 \]
+</p>
+
+<p>
+Dus:
+</p>
+
+<p>
+\[ M(1,3) \]
+</p>
+
+<p>
+<b>4. Straal</b>
+</p>
+
+<p>
+\[ r=d(M,A)=\sqrt {(5-1)^2+(6-3)^2}=\sqrt {16+9}=5 \]
+</p>
+
+<p>
+<b>Besluit</b>
+</p>
+
+<p>
+De gezochte cirkel is:
+</p>
+
+<p>
+\[ \boxed {(x-1)^2+(y-3)^2=25} \]
+</p>
+
+<p>
+</div>
+</p>
+<!--
+...... subsection Oefening 13 ......
+-->
+<h5 id="autosec-86">Oefening 13</h5>
+<a id="mkpiweb-autopage-86"></a>
+
+
+<p>
+Bepaal de vergelijking van de omgeschreven cirkel van de driehoek met hoekpunten
+</p>
+
+<p>
+\[ A(2,-1),\qquad B(4,2),\qquad C(-1,0) \]
+</p>
+
+<div class="oplossing">
+
+<p>
+De middelloodlijn van \([AB]\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                
+                                                             1                           3
+                                          MAB =         3,           ,           mAB =
+                                                             2                           2
+                                                        2
+                                         m⊥AB = −
+                                                        3
+                                                                                                                                     1     2
+                                                                                                                                  y−   = − (x − 3)
+                                                                                                                                     2     3
+                                                                                                                                     3
+                                                ⇔                                                                               3y − = −2x + 6
+                                                                                                                                     2
+                                                ⇔                                                                         4x + 6y − 15 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+M_{AB} &amp;= \left (3,\frac 12\right ), \qquad m_{AB}=\frac {3}{2}\\ m_{\perp AB} &amp;= -\frac {2}{3}\\ &amp;&amp; y-\frac 12 &amp;= -\frac 23(x-3) &amp;&amp;\\ &amp;\Leftrightarrow &amp;
+3y-\frac 32 &amp;= -2x+6 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 4x+6y-15 &amp;= 0 &amp;&amp;
+\end{align*}
+
+</p>
+
+<p>
+De middelloodlijn van \([AC]\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                        
+                                                         1 1                                 1
+                                           MAC =          ,−                 ,     mAC = −
+                                                         2 2                                 3
+                                          m⊥AC = 3
+                                                                                                                                               
+                                                                                                                                      1       1
+                                                                                                                                 y+     =3 x−
+                                                                                                                                      2       2
+                                                                                                                                      1        3
+                                                ⇔                                                                                y+     = 3x −
+                                                                                                                                      2        2
+                                                ⇔                                                                                     y = 3x − 2
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+M_{AC} &amp;= \left (\frac 12,-\frac 12\right ), \qquad m_{AC}=-\frac {1}{3}\\ m_{\perp AC} &amp;= 3\\ &amp;&amp; y+\frac 12 &amp;= 3\left (x-\frac 12\right ) &amp;&amp;\\ &amp;\Leftrightarrow
+&amp; y+\frac 12 &amp;= 3x-\frac 32 &amp;&amp;\\ &amp;\Leftrightarrow &amp; y &amp;= 3x-2 &amp;&amp;
+\end{align*}
+
+</p>
+
+<p>
+Het snijpunt is het middelpunt \(M\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                      (
+                                                                                                          4x + 6y − 15 = 0
+                                                                                                          y = 3x − 2
+                                                ⇔                                                         4x + 6(3x − 2) − 15 = 0
+                                                ⇔                                                                       22x − 27 = 0
+                                                                                                                                      27
+                                                ⇔                                                                                x=
+                                                                                                                                      22
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp; \begin{cases} 4x+6y-15=0\\ y=3x-2 \end {cases} &amp;&amp;\\ &amp;\Leftrightarrow &amp; 4x+6(3x-2)-15 &amp;= 0 &amp;&amp;\\ &amp;\Leftrightarrow &amp; 22x-27 &amp;= 0 &amp;&amp;\\
+&amp;\Leftrightarrow &amp; x &amp;= \frac {27}{22} &amp;&amp;
+\end{align*}
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                         27
+                                                                                                               y =3·        −2
+                                                                                                                         22
+                                                                                                                      81 44
+                                                                                                                    =    −
+                                                                                                                      22 22
+                                                                                                                      37
+                                                                                                                    =
+                                                                                                                      22
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+y &amp;= 3\cdot \frac {27}{22}-2\\ &amp;= \frac {81}{22}-\frac {44}{22}\\ &amp;= \frac {37}{22}
+\end{align*}
+
+</p>
+
+<p>
+Dus \(M\left (\frac {27}{22},\frac {37}{22}\right )\).
+</p>
+
+<p>
+De straal bepalen we met punt \(A\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                             2         2
+                                                                                                           27          37
+                                                                                                 r2 =         2−+ −1 −
+                                                                                                           22          22
+                                                                                                        2        2
+                                                                                                        17       59
+                                                                                                     =       + −
+                                                                                                        22       22
+                                                                                                       289 3481
+                                                                                                     =     +
+                                                                                                       484   484
+                                                                                                       3770
+                                                                                                     =
+                                                                                                       484
+                                                                                                       1885
+                                                                                                     =
+                                                                                                       242
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+r^2 &amp;= \left (2-\frac {27}{22}\right )^2+\left (-1-\frac {37}{22}\right )^2\\ &amp;= \left (\frac {17}{22}\right )^2+\left (-\frac {59}{22}\right )^2\\ &amp;= \frac {289}{484}+\frac
+{3481}{484}\\ &amp;= \frac {3770}{484}\\ &amp;= \frac {1885}{242}
+\end{align*}
+
+</p>
+
+<p>
+De vergelijking van de omgeschreven cirkel is:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                              2          2
+                                                                                                          27             37      1885
+                                                                                                     x−             + y−       =
+                                                                                                          22             22      242
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Aboxed { \left (x-\frac {27}{22}\right )^2+\left (y-\frac {37}{22}\right )^2 &amp;= \frac {1885}{242} }
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Oefening 14 ......
+-->
+<h5 id="autosec-87">Oefening 14</h5>
+<a id="mkpiweb-autopage-87"></a>
+
+
+<p>
+Gegeven: \(A(5,6)\), \(B(-2,-1)\) en \(C(5,0)\)
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Stel de vergelijking op van de omgeschreven cirkel van \(\Delta ABC\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bereken de afstand van het middelpunt van deze cirkel tot de rechte \(a \leftrightarrow -3x + 4y + 16 = 0\) en tot \(b \leftrightarrow 8x + 15y + 49 = 0\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Controleer m.b.v. ICT.
+</p>
+</li>
+</ul>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

@@ -1,0 +1,2944 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Discrete kansvariabelen</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 6</p> <h1>Discrete kansvariabelen</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+Ω                                       F
+    X           µ       f
+
+
+
+
+        0   1       2       0   1   2
+            σ
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>BV3_06.13</b> (MD 06.13) De leerlingen bepalen kansen met behulp van <span class="leerplan-grijs">kruistabellen</span>, <span
+class="leerplan-grijs">boomdiagrammen</span> en de wet van Laplace.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">verband tussen relatieve frequentie en kans</span>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>BV3_06.21</b> (MD 06.21) De leerlingen gebruiken ICT om berekeningen uit te voeren en grafische voorstellingen te maken.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.33</b> (MD 06.08.34) De leerlingen lossen telproblemen op met en zonder herhaling en waarbij de volgorde al dan niet van belang is.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">binomium van Newton</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">driehoek van Pascal</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">duiventilprincipe van Dirichlet</span>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.35</b> (MD 06.08.35) De leerlingen berekenen en interpreteren kansen met behulp van <span class="leerplan-grijs">de binomiale verdeling</span>.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: verwachtingswaarde, standaardafwijking
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.37</b> De leerlingen leggen in betekenisvolle situaties de betekenis van <span class="leerplan-grijs">betrouwbaarheidsniveau</span>, <span
+class="leerplan-grijs">betrouwbaarheidsinterval</span> en <span class="leerplan-grijs">foutenmarge</span> uit.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">steekproefverdeling</span> (gemiddelde en standaardafwijking)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: verband met steekproefgrootte en standaardafwijking
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> de wet van Laplace, grafische voorstellingen, verwachtingswaarde, standaardafwijking, verband met steekproefgrootte en standaardafwijking
+</p>
+
+<p>
+<b>Extra uitleg:</b> kansvariabele, discrete en continue kansvariabelen, kansdichtheidsfunctie van een discrete kansvariabele, verdelingsfunctie van een discrete kansvariabele, variantie, eigenschappen van de verwachtingswaarde
+en de variantie, \(\sqrt {n}\)-wet
+</p>
+
+</div>
+<!--
+...... section Kansvariabele ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Kansvariabele</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Voorbeeld 1: Een zuiver muntstuk opgooien ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Voorbeeld 1: Een zuiver muntstuk opgooien</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+<i>Een speler gooit een zuiver muntstuk op. Er wordt afgesproken dat hij 2 EUR krijgt als hij kop werpt en 1 EUR als hij munt werpt.</i><br />
+
+</p>
+
+<p>
+We kunnen hiervoor een uitkomstenverzameling \(U\) opstellen en vervolgens met elk element van \(U\) een ree&#x0308;el getal associe&#x0308;ren.
+</p>
+
+<p>
+\[U=\{\opl [2cm]{\begin {matrix} k \\ \downarrow \\ 2 \end {matrix}},\opl [2cm]{\begin {matrix} m \\ \downarrow \\ 1 \end {matrix}}\}\]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                         k →< spanclass = ”oplopl − vast”style = ”min − width : 2cm” > 2 < /span >
+                                                                        m →< spanclass = ”oplopl − vast”style = ”min − width : 2cm” > 1 < /span >
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+k &amp;\rightarrow \opl [2cm]{2}\\ m &amp;\rightarrow \opl [2cm]{1}
+\end{align*}
+
+</p>
+
+<p>
+Op deze manier krijgen we een functie \(X\) van de uitkomstenverzameling \(U\) naar de verzameling van de ree&#x0308;le getallen \(\mathbb {R}\). We noemen zo’n functie een <b>kansvariabele \(X\)</b> of
+<b>toevalsveranderlijke \(X\)</b>.<br />
+
+</p>
+
+<p>
+Schematisch stellen we dit als volgt voor:
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+    U       R
+        X
+k           2
+
+
+m           1
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Voorbeeld 2: Controle van geleverde onderdelen ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">2&#x2003;</span>Voorbeeld 2: Controle van geleverde onderdelen</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+<i>Van de onderdelen geleverd door een onbetrouwbare leverancier is \(25\%\) defect. Bij een controle onderzoeken we twee onderdelen en tellen we het aantal defecte stukken. Stel hierbij een defect stuk voor door de letter \(d\) en
+een goed stuk door de letter \(g\).</i><br />
+
+</p>
+
+<p>
+Dan vinden we
+</p>
+
+<p>
+\[U=\{\opl [2.2cm]{\begin {matrix} (d,d) \\ \downarrow \\ 2 \end {matrix}}, \opl [2.2cm]{\begin {matrix} (d,g) \\ \downarrow \\ 1 \end {matrix}}, \opl [2.2cm]{\begin {matrix} (g,d) \\
+\downarrow \\ 1 \end {matrix}}, \opl [2.2cm]{\begin {matrix} (g,g) \\ \downarrow \\ 0 \end {matrix}}\}\]
+</p>
+
+<p>
+We associe&#x0308;ren opnieuw met elk element van \(U\) een ree&#x0308;el getal, namelijk het aantal defecte onderdelen.
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                     (d, d) →< spanclass = ”oplopl − vast”style = ”min − width : 2cm” > 2 < /span >                           (g, d) →< spanclass = ”oplopl − vast”style = ”min − width : 2cm” > 1 < /span >
+                     (d, g) →< spanclass = ”oplopl − vast”style = ”min − width : 2cm” > 1 < /span >                           (g, g) →< spanclass = ”oplopl − vast”style = ”min − width : 2cm” > 0 < /span >
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+(d,d) &amp;\rightarrow \opl [2cm]{2} &amp; (g,d) &amp;\rightarrow \opl [2cm]{1}\\ (d,g) &amp;\rightarrow \opl [2cm]{1} &amp; (g,g) &amp;\rightarrow \opl [2cm]{0}
+\end{align*}
+
+</p>
+
+<p>
+We krijgen ook nu een kansvariabele \(X\) van de uitkomstenverzameling \(U\) naar de verzameling van de ree&#x0308;le getallen \(\mathbb {R}\).<br />
+
+</p>
+
+<p>
+Schematisch:<br />
+
+</p>
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+  U
+         x   R
+(d, d)       2
+
+(d, g)
+             1
+(g, d)
+
+(g, g)       0
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">3&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+<i>Bij het uitvoeren van een experiment met uitkomstenverzameling \(U\) en kansvariabele \(X\), noemen we een <b>kansvariabele</b> \(X\) een functie die elk element van \(U\) afbeeldt op een ree&#x0308;el getal.</i><br />
+
+</p>
+
+<p>
+\[X:U \rightarrow \mathbb {R}:      u \rightarrow X(u)=x\]
+</p>
+<!--
+...... subsection Discrete en continue kansvariabelen ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">4&#x2003;</span>Discrete en continue kansvariabelen</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+<i>Een kansvariabele \(X\) noemen we <b>discreet</b>, als de verzameling van haar mogelijke getalwaarden </i>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> ofwel eindig is (voorbeelden 1 en 2)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> ofwel oneindig aftelbaar is (bv. \(\mathbb {N}\))
+</p>
+</li>
+</ul>
+
+<p>
+<i>Een kansvariabele \(X\) noemen we <b>continu</b>, als de verzameling van haar mogelijke getalwaarden overaftelbaar is (bv. \(\mathbb {R}\) of een interval van \(\mathbb {R}\)).</i>
+</p>
+
+<p>
+In dit hoofdstuk zullen we ons concentreren op discrete kansvariabelen. In hoofdstuk 4 behandelen we hier dan enkele specifieke voorbeelden op. In hoofdstuk 5 zullen de continue kansvariabelen met enkele specifieke voorbeelden
+bekeken worden.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-17"></a>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-18">Oefening 1</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Een fietsenmaker heeft een doos met tien fietsbellen. Er zijn zes goede en vier defecte, maar dat weet hij niet. Hij test de bellen één voor één tot hij een goede fietsbel te pakken heeft. Een fietsbel die getest is, wordt niet terug in de
+doos gestoken. We beschouwen het aantal geteste fietsbellen als een kansvariabele.<br />
+Welke waarden kan die kansvariabele aannemen? <span class="opl opl-vast" style="min-width:5cm">{1, 2, 3, 4, 5}</span>
+</p>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-19">Oefening 2</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+Je gooit met twee dobbelstenen na elkaar. Als kansvariabele neem je de som van het aantal ogen.<br />
+Welke waarden kan die kansvariabele aannemen? <span class="opl opl-vast" style="min-width:5cm">{2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}</span>
+</p>
+<!--
+...... section Kansdichtheidsfunctie van een discrete kansvariabele ......
+-->
+<h4 id="autosec-20"><span class="sectionnumber">II&#x2003;</span>Kansdichtheidsfunctie van een discrete kansvariabele</h4>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+We hernemen de voorbeelden uit het eerste deel van dit hoofdstuk.
+</p>
+<!--
+...... subsection Voorbeeld 1: Een zuiver muntstuk opgooien ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">1&#x2003;</span>Voorbeeld 1: Een zuiver muntstuk opgooien</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+<i>Een speler gooit een zuiver muntstuk op. Er wordt afgesproken dat hij 2 EUR krijgt als hij kop werpt en 1 EUR als hij munt werpt.</i>
+</p>
+<div class="center">
+
+<p>
+
+<a href="belgischefrank.png" target="_blank" ><img
+    src="belgischefrank.png"
+    style="
+    width:260pt;
+    "
+    class="inlineimage"
+    alt="(image)"
+></a>
+</p>
+</div>
+
+<p>
+<i>Wat is de kans dat de speler 1 EUR krijgt, wat is de kans om 2 EUR te krijgen?</i>
+</p>
+
+<p>
+Hiertoe associe&#x0308;ren we met de beelden van de kansvariabele \(X\) een <b>kansdichtheidsfunctie \(f\)</b> van \(\mathbb {R}\) naar \([0;1]\):
+</p>
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+        R
+u
+    X
+k       2   f
+                1
+m
+        1       1/2
+                0
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+<p>
+Kans op het krijgen van 2 EUR = \(P(X=2)=P(\{\)kop\(\})=\frac {1}{2}=\opl [2cm]{f(2)}\)<br />
+
+</p>
+
+<p>
+Kans op het krijgen van 1 EUR = \(P(X=1)=P(\{\)munt\(\})=\frac {1}{2}=\opl [2cm]{f(1)}\)<br />
+
+</p>
+<!--
+...... subsection Voorbeeld 2: Controle van geleverde onderdelen ......
+-->
+<h5 id="autosec-26"><span class="sectionnumber">2&#x2003;</span>Voorbeeld 2: Controle van geleverde onderdelen</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+<i>Van de onderdelen geleverd door een onbetrouwbare leverancier is \(25\%\) defect. Bij een controle onderzoeken we twee onderdelen en tellen we het aantal defecte stukken.</i>
+</p>
+
+<p>
+<i>Wat is de kans dat \(X\) respectievelijk de getalwaarden 0, 1 en 2 aanneemt?</i>
+</p>
+
+<p>
+Kans op 0 defecte stukken = \(P(X=0)=f(0)=\opl {0,5625 = \frac {9}{16}}\)<br />
+Kans op 1 defecte stuk = \(P(X=1)=f(1)=\opl {0,375 = \frac {6}{16}}\)<br />
+Kans op 2 defecte stukken = \(P(X=2)=f(2)=\opl {0,0625 = \frac {1}{16}}\)<br />
+
+</p>
+
+<p>
+We krijgen opnieuw een kansdichtheidsfunctie \(f\) van de kansvariabele \(X\) van \(\mathbb {R}\) naar \([0;1]\).
+</p>
+
+<p>
+We kunnen dit ook in een tabelvorm schrijven, die duidelijker de analogie met de beschrijvende statistiek uit het vierde jaar weergeeft.
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:    1px solid black">\(x_i\)</td>
+<td class="tdc">\(f(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right: 1px solid black">0</td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:5cm">\(0,5625 = \frac {9}{16}\)</span></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">1</td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:5cm">\(0,375 = \frac {6}{16}\)</span></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">2</td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:5cm">\(0,0625 = \frac {1}{16}\)</span></td>
+</tr>
+
+</table>
+
+</div>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">3&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+<i>Bij het uitvoeren van een experiment met uitkomstenverzameling \(U\) en kansvariabele \(X\), noemen we de <b>kansdichtheidsfunctie van \(X\)</b> de functie van \(\mathbb {R}\) naar \([0;1]\) die aangeeft met welke
+kans elke getalwaarde van \(X\) wordt aangenomen.</i><br />
+
+</p>
+
+<p>
+\[f:\mathbb {R} \rightarrow [0;1]:     x_i \rightarrow f(x_i)=P(X=x_i)\]
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+      U        X          R              f         [0, 1]
+(uitkomsten)       (waarden van X)               (kansen)
+
+
+
+               X                     f
+   ω∈U                x = X(ω)               f (x) = P (X = x)
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Grafische voorstelling van een kansdichtheidsfunctie ......
+-->
+<h5 id="autosec-33"><span class="sectionnumber">4&#x2003;</span>Grafische voorstelling van een kansdichtheidsfunctie</h5>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+We stellen zo’n kansdichtheidsfunctie vaak grafisch voor met een <b>staafjesdiagram</b> (ook: <b>staafdiagram</b>).
+</p>
+<!--
+...... subsubsection Staafjesdiagram van een kansfunctie ......
+-->
+<h6 id="autosec-34"><span class="sectionnumber">&#x2003;</span>Staafjesdiagram van een kansfunctie</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+Bij een discrete toevalsvariabele \(X\) met waarden \(x_1,x_2,\dots \) tekenen we op de \(x\)-as de mogelijke waarden \(x_i\). Boven elke \(x_i\) tekenen we een verticale staaf met hoogte \(f(x_i)=P(X=x_i)\).
+</p>
+<!--
+...... subsubsection Voorbeeld 1: Een zuiver muntstuk opgooien ......
+-->
+<h6 id="autosec-35"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1: Een zuiver muntstuk opgooien</h6>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p>
+<i>Een speler gooit een zuiver muntstuk op. Er wordt afgesproken dat hij 2 EUR krijgt als hij kop werpt en 1 EUR als hij munt werpt.</i>
+</p>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-36"></a>
+<div class="center">
+
+<p>
+Tabel
+</p>
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:    1px solid black">\(x_i\)</td>
+<td class="tdc">\(f(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right: 1px solid black">1</td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:5cm">\(\frac {1}{2}\)</span></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">2</td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:5cm">\(\frac {1}{2}\)</span></td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-39"></a>
+<div class="center">
+
+<p>
+Grafiek
+</p>
+<div class="oplossing">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+f (xi )
+ 1
+ 2
+
+
+                  xi
+          1   2
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+</div>
+<!--
+...... subsubsection Voorbeeld 2: Controle van geleverde onderdelen ......
+-->
+<h6 id="autosec-43"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2: Controle van geleverde onderdelen</h6>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+<i>Van de onderdelen geleverd door een onbetrouwbare leverancier is \(25\%\) defect. Bij een controle onderzoeken we twee onderdelen en tellen we het aantal defecte stukken.</i>
+</p>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-44"></a>
+<div class="center">
+
+<p>
+Tabel
+</p>
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(x_i\)</td>
+<td class="tdc">\(f(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:   1px solid black">0</td>
+<td class="tdc">\(0.5625=\frac {9}{16}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">1</td>
+<td class="tdc">\(0.375=\frac {6}{16}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">2</td>
+<td class="tdc">\(0.0625=\frac {1}{16}\)</td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-47"></a>
+<div class="center">
+
+<p>
+Grafiek
+</p>
+<div class="oplossing">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+f (xi )
+9
+16
+6
+16
+1
+16                xi
+     0    1   2
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+</div>
+<!--
+...... section Verdelingsfunctie van een discrete kansvariabele ......
+-->
+<h4 id="autosec-51"><span class="sectionnumber">III&#x2003;</span>Verdelingsfunctie van een discrete kansvariabele</h4>
+<a id="mkpiweb-autopage-51"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-52"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+<i>We definie&#x0308;ren de (cumulatieve) <b>verdelingsfunctie \(F\)</b> van een kansvariabele \(X\) als</i><br />
+
+</p>
+
+<p>
+\[ F(x_i)=P(X\leq x_i)\opl {=\sum _{x_j\le x_i} f(x_j).} \]
+</p>
+<!--
+...... subsection Opmerking ......
+-->
+<h5 id="autosec-53"><span class="sectionnumber">2&#x2003;</span>Opmerking</h5>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+De verdelingsfunctie \(F\) kan vergeleken worden met de cumulatieve relatieve frequentie uit de cursus beschrijvende statistiek uit het vierde jaar.
+</p>
+<!--
+...... subsection Grafische voorstelling van een verdelingsfunctie ......
+-->
+<h5 id="autosec-54"><span class="sectionnumber">3&#x2003;</span>Grafische voorstelling van een verdelingsfunctie</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+Omdat \(X\) slechts <em>sprongsgewijs</em> kansen opstapelt, is \(F\) een <b>trapfunctie</b> (stapfunctie): ze is constant tussen twee mogelijke waarden en maakt sprongen ter hoogte van de \(x_i\).
+</p>
+<!--
+...... subsubsection Trapfunctie van de verdelingsfunctie ......
+-->
+<h6 id="autosec-55"><span class="sectionnumber">&#x2003;</span>Trapfunctie van de verdelingsfunctie</h6>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+In de grafiek teken je horizontale stukken (trappen). Op elk sprongpunt \(x_i\):
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> een <b>open bolletje</b> op het oude niveau (waarde vlak vóór \(x_i\)),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> een <b>gevuld bolletje</b> op het nieuwe niveau (waarde in \(x_i\), want \(X\le x_i\)).
+</p>
+</li>
+</ul>
+<!--
+...... subsubsection Voorbeeld 1: Een zuiver muntstuk opgooien ......
+-->
+<h6 id="autosec-56"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1: Een zuiver muntstuk opgooien</h6>
+<a id="mkpiweb-autopage-56"></a>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-57"></a>
+<div class="center">
+
+<p>
+Tabel
+</p>
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:    1px solid black">\(x_i\)</td>
+<td class="tdc tvertbarr" style="border-right:    1px solid black">\(f(x_i)\)</td>
+<td class="tdc">\(F(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right: 1px solid black">1</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(\frac {1}{2}\)</td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:2cm">\(\frac {1}{2}\)</span></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(\frac {1}{2}\)</td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:2cm">\(1\)</span></td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-60"></a>
+<div class="center">
+
+<p>
+Grafiek
+</p>
+<div class="oplossing">
+
+<p>
+<span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+F (xi )
+ 1
+
+ 1
+ 2
+
+
+                  xi
+          1   2
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+</div>
+<!--
+...... subsubsection Voorbeeld 2: Controle van geleverde onderdelen ......
+-->
+<h6 id="autosec-64"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2: Controle van geleverde onderdelen</h6>
+<a id="mkpiweb-autopage-64"></a>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-65"></a>
+<div class="center">
+
+<p>
+Tabel
+</p>
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(x_i\)</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(f(x_i)\)</td>
+<td class="tdc">\(F(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right: 1px solid black">0</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(0,5625=\frac {9}{16}\)</td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:2cm">\(\frac {9}{16}\)</span></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">1</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(0,375=\frac {6}{16}\)</td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:2cm">\(\frac {15}{16}\)</span></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(0,0625=\frac {1}{16}\)</td>
+<td class="tdc"><span class="opl opl-vast" style="min-width:2cm">\(1\)</span></td>
+</tr>
+
+</table>
+
+</div>
+
+</div>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+
+<a id="mkpiweb-autopage-68"></a>
+<div class="center">
+
+<p>
+Grafiek
+</p>
+<div class="oplossing">
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+F (xi )
+ 1
+15
+16
+
+9
+16
+
+
+
+                  xi
+     0    1   2
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+</div>
+
+</div>
+<!--
+...... section Uitgewerkt voorbeeld ......
+-->
+<h4 id="autosec-72"><span class="sectionnumber">IV&#x2003;</span>Uitgewerkt voorbeeld</h4>
+<a id="mkpiweb-autopage-72"></a>
+
+
+<p>
+<i>In een bak zitten vijf knikkers: één rode, twee blauwe en twee gele. Bij een kansspel trekt een speler lukraak twee knikkers tegelijkertijd uit de bak. Voor een rode krijgt de speler 10 EUR, voor een blauwe 5 EUR en voor een gele 1
+EUR.<br />
+Onderzoek de kansvariabele X die als getalwaarde de opbrengst van de speler heeft, met haar kansdichtheids- en verdelingsfunctie.</i>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Aantal elementen van de uitkomstenverzameling \(U\)<br />
+
+</p>
+<div class="oplossing">
+<p>
+\[\#U = \binom {5}{2} = 10\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Mogelijke getalwaarden voor \(X\)<br />
+
+</p>
+<div class="oplossing">
+<p>
+\[X \in \{2, 6, 10, 11, 15\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> kansdichtheids- en verdelingsfuncties \(f\) en \(F\)<br />
+
+</p>
+<div class="oplossing">
+<div class="center">
+<table>
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(x_i\)</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(f(x_i)\)</td>
+<td class="tdc">\(F(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(2\)</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\dfrac {\binom {2}{2}}{\binom {5}{2}}=\dfrac {1}{10}\)</td>
+<td class="tdc">\(\dfrac {1}{10}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(6\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(\dfrac {\binom {2}{1}\binom {2}{1}}{\binom {5}{2}} =\dfrac {4}{10}\)</td>
+<td class="tdc">\(\dfrac {1}{10}+\dfrac {4}{10}=\dfrac {5}{10}=\dfrac 12\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(10\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(\dfrac {\binom {1}{1}\binom {2}{1}}{\binom {5}{2}} =\dfrac {2}{10}\)</td>
+<td class="tdc">\(\dfrac {1}{10}+\dfrac {4}{10}+\dfrac {2}{10}=\dfrac {7}{10}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(11\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(\dfrac {\binom {1}{1}\binom {2}{1}}{\binom {5}{2}} =\dfrac {2}{10}\)</td>
+<td class="tdc">\(\dfrac {1}{10}+\dfrac {4}{10}+\dfrac {2}{10}+\dfrac {2}{10} =\dfrac {9}{10}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(15\)</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\dfrac {\binom {1}{1}\binom {2}{1}}{\binom {5}{2}} =\dfrac {2}{10}\)</td>
+<td class="tdc">\(1\)</td>
+</tr>
+</table>
+</div>
+</div>
+</li>
+</ul>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-75"><span class="sectionnumber">V&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+Bepaal de kansdichtheidsfuncties \(f\) en verdelingsfuncties \(F\) van de opgaven uit 1.5 en stel ze grafisch voor.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Fietsbel<br />
+
+</p>
+<div class="center">
+<table>
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">\(x_i\)</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">\(f(x_i)\)</td>
+<td class="tdc">\(F(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:          1px solid black">1</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"><span style="width:171pt; display:inline-block"><!----></span></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">3</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">4</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:          1px solid black">5</td>
+<td class="tdc tvertbarr" style="border-right:          1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+</table>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Opgooien van twee dobbelstenen na elkaar<br />
+Hiertoe stellen we een schema (tabel) op, met op de eerste rij de mogelijke uitkomsten van de eerste worp en in de eerste kolom de mogelijke uitkomsten van de tweede worp.
+</p>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+<a id="mkpiweb-autopage-78"></a>
+<table>
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">1</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">3</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">4</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">5</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">6</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:   1px solid black">1</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:   1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:   1px solid black">3</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:   1px solid black">4</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:   1px solid black">5</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:   1px solid black">6</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+</table>
+</div>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:247pt ; ">
+<a id="mkpiweb-autopage-81"></a>
+<div class="center">
+<table>
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(x_i\)</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(f(x_i)\)</td>
+<td class="tdc">\(F(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+</table>
+</div>
+</div>
+</li>
+</ul>
+<!--
+...... section Verwachtingswaarde van een discrete kansvariabele ......
+-->
+<h4 id="autosec-85"><span class="sectionnumber">VI&#x2003;</span>Verwachtingswaarde van een discrete kansvariabele</h4>
+<a id="mkpiweb-autopage-85"></a>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-86"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-86"></a>
+
+
+<p>
+<i>In een farmaceutisch bedrijf worden tabletten van een geneesmiddel geproduceerd. De kans dat een lukraak uit de productie genomen pil voldoet aan alle wettelijke normen inzake dosering, is gelijk aan 96&percnt;. Zo’n pil kan
+dan met een winst van 0,30 EUR verkocht worden. De kans dat een pil niet aan de normen voldoet is 4&percnt;. In dat geval moet ze worden vernietigd, wat neerkomt op een verlies van 2,20 EUR.<br />
+Onderzoek de winst die de firma mag verwachten als ze een grote hoeveelheid pillen vervaardigt.</i>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Uitkomstenverzameling \(U=\opl [3cm]{}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Mogelijke getalwaarden (winst per pil) voor de kansvariabele \(X\): <span class="opl opl-vast" style="min-width:5cm"></span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Kansdichtheidsfunctie \(f\) van \(X\)
+</p>
+<div class="center">
+<table>
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">\(x_i\)</td>
+<td class="tdc">\(f(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:         1px solid black">-2.20</td>
+<td class="tdc">0.04</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">0.30</td>
+<td class="tdc">0.96</td>
+</tr>
+
+</table>
+</div>
+<p>
+Veronderstel nu dat er \(10000\) pillen geproduceerd werden. Dan kunnen we achtereenvolgens verwachten:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> Aantal goede pillen = <span class="opl opl-vast" style="min-width:3.5cm"></span> met winst = <span class="opl opl-vast" style="min-width:5cm"></span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Aantal slechte pillen = <span class="opl opl-vast" style="min-width:3.2cm"></span> met ‘winst’ = <span class="opl opl-vast" style="min-width:5cm"></span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Totaal te verwachten winst = <span class="opl opl-vast" style="min-width:3.5cm"></span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> Winst per pil = <span class="opl opl-vast" style="min-width:5cm"></span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+Gemiddeld mag men dus 0,20 EUR winst per pil verwachten. We noemen dit de <b>verwachtingswaarde E(X) \(=\mu \)</b> van de kansvariabele \(X\). We vinden \(E(X)\) door elke mogelijke waarde van \(X\) te
+vermenigvuldigen met de kans op voorkomen van deze getalwaarde en daarna de verkregen producten op te tellen.<br />
+
+</p>
+
+<p>
+Merk hier de analogie op met het rekenkundig gemiddelde \(\overline {x}\) van een steekproef uit de beschrijvende statistiek. Om de nadruk te leggen op het verschil tussen beide, noemt men \(\mu =E(X)\) het
+populatiegemiddelde en \(\overline {x}\) het steekproefgemiddelde.
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-89"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-89"></a>
+
+
+<p>
+<i>Is aan een experiment met uitkomstenverzameling \(U\) een kansvariabele \(X\) verbonden, dan noemen we de <b>verwachtingswaarde E(X)</b> van deze kansvariabele de som van de producten die we verkrijgen door elke
+getalwaarde van \(X\) te vermenigvuldigen met haar kans op voorkomen.</i>
+</p>
+
+<p>
+\[ \mu =E(X)=\sum _{i} x_i\cdot f(x_i) \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-90"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-90"></a>
+
+
+<p>
+Bereken de verwachtingswaarde \(\mu =E(X)\) van de oefeningen uit 1.5 (m.b.v. je grafisch rekentoestel!)
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(E(X)=\) het te verwachten aantal beurten dat de fietsenmaker nodig heeft om een werkende fietsbel uit de doos te halen.<br />
+
+</p>
+<table>
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:      1px solid black">\(x_i\)</td>
+<td class="tdc tvertbarr" style="border-right:      1px solid black">\(f(x_i)\)</td>
+<td class="tdc">\(x_i\cdot f(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:      1px solid black">1</td>
+<td class="tdc tvertbarr" style="border-right:      1px solid black">\(\frac {6}{10}\)</td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:      1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right:      1px solid black">\(\frac {4}{10}\cdot \frac {6}{9}=\frac {4}{15}\)</td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:      1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:      1px solid black">&#x22EE;</td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:      1px solid black">3</td>
+<td class="tdc tvertbarr" style="border-right:      1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:      1px solid black">4</td>
+<td class="tdc tvertbarr" style="border-right:      1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:      1px solid black">5</td>
+<td class="tdc tvertbarr" style="border-right:      1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:      1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:      1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:      1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:      1px solid black"></td>
+<td class="tdc">\(E(X)=\opl [4cm]{}\)</td>
+</tr>
+
+</table>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(E(X)=\) de te verwachten som van het aantal ogen bij het werpen met twee dobbelstenen.<br />
+
+</p>
+<table>
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(x_i\)</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(f(x_i)\)</td>
+<td class="tdc">\(x_i\cdot f(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:   1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\frac {1}{36}\)</td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">3</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\frac {2}{36}\)</td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">&#x22EE;</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">&#x22EE;</td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">12</td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black">\(\frac {1}{36}\)</td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:   1px solid black"></td>
+<td class="tdc">\(E(X)=\opl [4cm]{}\)</td>
+</tr>
+
+</table>
+</li>
+</ul>
+<!--
+...... section Variantie en standaardafwijking van een discrete kansvariabele ......
+-->
+<h4 id="autosec-93"><span class="sectionnumber">VII&#x2003;</span>Variantie en standaardafwijking van een discrete kansvariabele</h4>
+<a id="mkpiweb-autopage-93"></a>
+
+
+<p>
+Zoals in de beschrijvende statistiek een standaardafwijking berekend werd om na te gaan of het rekenkundig gemiddelde representatief was voor de beschouwde steekproef, zullen we dit ook hier doen voor de verwachtingswaarde.
+We vullen onze tabel dus aan met een extra kolom \((x_i-\mu )^2\cdot f(x_i)\)
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-94"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-94"></a>
+
+
+<p>
+We hernemen het voorbeeld met de medicijnen. We gingen uit van een kansvariabele \(X\) met<br />
+
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(x_i\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(f(x_i)\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(x_i\cdot f(x_i)\)</td>
+<td class="tdc">\((x_i-\mu _X)^2\cdot f(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:         1px solid black">-2.20</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">0.04</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">0.30</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">0.96</td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:         1px solid black">\(\mu _X=\opl [3cm]{}\)</td>
+<td class="tdc">\(var(X)=\opl [3cm]{}\)</td>
+</tr>
+</table>
+
+</div>
+
+<p>
+We vinden de bijhorende standaardafwijking \(\sigma \) door de vierkantswortel te nemen uit var(X).<br />
+\(\sigma _{X} = \sqrt {var(X)}=\opl {}\)
+</p>
+
+<p>
+We wijzigen nu de gegevens voor de winst naar 0.50 EUR winst bij een goede pil en 7.00 EUR verlies voor een slechte pil. We noemen de bijhorende kansvariabele \(Y\) met kansfunctie \(g\) en verwachtingswaarde \(E(Y)=\mu
+_Y\).<br />
+
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(y_i\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(g(y_i)\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(y_i\cdot g(y_i)\)</td>
+<td class="tdc">\((y_i-\mu _Y)^2\cdot g(y_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:     1px solid black">-7.00</td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black">0.04</td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:     1px solid black">0.50</td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black">0.96</td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black">\(\mu _Y=\opl [3cm]{}\)</td>
+<td class="tdc">\(var(Y)=\opl [3cm]{}\)</td>
+</tr>
+</table>
+
+</div>
+
+<p>
+Voor de standaarafwijking vinden we: \(\sigma _{Y} = \sqrt {var(Y)}=\opl {}\)
+</p>
+
+<p>
+<span class="underline">Besluit</span>: <span class="opl opl-vast" style="min-width:5cm"></span>
+</p>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-99"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-99"></a>
+
+
+<p>
+<i>Is aan een experiment met uitkomstenverzameling \(U\) een kansvariabele \(X\) verbonden met verwachtingswaarde \(E(X)\), dan noemen we de <b>variantie var(X)</b> van deze kansvariabele</i>
+</p>
+
+<p>
+\[ var(X)=\sum _{i} (x_i-\mu )^2\cdot f(x_i) \]
+</p>
+
+<p>
+<i>De positieve vierkantswortel uit de variantie noemen we de <b>standaardafwijking \(\sigma \)</b>.</i>
+</p>
+
+<p>
+\[ \sigma _{X} = \sqrt {var(X)} \]
+</p>
+<!--
+...... subsection Uitgewerkt voorbeeld ......
+-->
+<h5 id="autosec-100"><span class="sectionnumber">3&#x2003;</span>Uitgewerkt voorbeeld</h5>
+<a id="mkpiweb-autopage-100"></a>
+
+
+<p>
+<i>Speler A gooit met een zuivere dobbelsteen. Als speler A één of twee ogen gooit, dan betaalt deze speler 1.00 EUR aan speler B. Gooit speler A drie, vier of vijf ogen, dan krijgt deze speler 0.50 EUR van speler B. Worden er zes
+ogen gegooid, dan krijgt speler A 2.00 EUR van speler B.<br />
+We onderzoeken de te verwachten winst voor speler A met bijhorende standaardafwijking. Is dit een eerlijk spel?</i>
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(x_i\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(f(x_i)\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(x_i\cdot f(x_i)\)</td>
+<td class="tdc">\((x_i-\mu )^2\cdot f(x_i)\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:     1px solid black">-1.00</td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black">\(\frac 26\)</td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:     1px solid black">0.50</td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black">\(\frac 36\)</td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:     1px solid black">2.00</td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black">\(\frac 16\)</td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc"></td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right:     1px solid black">\(E(x)=\mu =\opl [3cm]{}\)</td>
+<td class="tdc">\(var(x)=\opl [3cm]{}\)</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"></td>
+<td class="tdc">\(\Rightarrow \sigma = \opl [3cm]{}\)</td>
+</tr>
+
+</table>
+
+</div>
+
+<p>
+<span class="underline">Besluit</span>: <span class="opl opl-vast" style="min-width:5cm"></span> <span class="opl opl-vast" style="min-width:5cm">2</span>
+</p>
+<!--
+...... section Eigenschappen van de verwachtingswaarde en de variantie ......
+-->
+<h4 id="autosec-103"><span class="sectionnumber">VIII&#x2003;</span>Eigenschappen van de verwachtingswaarde en de variantie</h4>
+<a id="mkpiweb-autopage-103"></a>
+
+
+<p>
+Uit de definitie kunnen de eerste vier eigenschappen afgeleid worden, de laatste twee nemen we aan zonder bewijs.<br />
+
+</p>
+
+<p>
+\(\forall k \in \mathbb {R}:\)
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(E(X+k)=E(X)+k\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(E(k \cdot X)=k \cdot E(X)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(var(X+k)=var(X)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(var(k \cdot X)=k^2 \cdot var(X)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> Als \(X\) en \(Y\) twee onafhankelijke kansvariabelen zijn, dan geldt voor de kansvariabele \(Z=X+Y\):
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(E(Z)=E(X+Y)=E(X)+E(Y)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(var(Z)=var(X+Y)=var(X)+var(Y)\Rightarrow \sigma _Z=\sqrt {\sigma _X^2+\sigma _Y^2}\)
+</p>
+</li>
+</ul>
+</li>
+</ul>
+<!--
+...... section -wet ......
+-->
+<h4 id="autosec-104"><span class="sectionnumber">IX&#x2003;</span>\(\sqrt {n}\)-wet</h4>
+<a id="mkpiweb-autopage-104"></a>
+
+
+<p>
+We beschouwen nu \(n\) onafhankelijke kansvariabelen \(X_1, X_2, \ldots X_n\), alle met eenzelfde verwachtingswaarde \(E(X_i)=\mu _X\) en eenzelfde standaardafwijking \(\sigma _X=\sqrt {var(X_i)}\).<br />
+Dan kunnen we m.b.v. bovenstaande eigenschappen makkelijk volgende rekenregels voor som en gemiddelde van de uitkomsten bewijzen.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Voor de som \(S\) van de uitkomsten
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> \(S=X_1+X_2+ \ldots +X_n\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> \(\mu _S = E(S)=n \cdot E(X)=n \cdot \mu _X\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> \(var(S) = n \cdot var(X)\Rightarrow \sigma _S=\sqrt {n} \cdot \sigma _X\)
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Voor het gemiddelde \(\overline {X}\) van de uitkomsten
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> \(\overline {X}=\frac {X_1+X_2+ \ldots +X_n}{n}=\frac {S}{n}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> \(\mu _{\overline {X}} = E(\overline {X})=E(X)=\mu _X\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> \(var(\overline {X}) = \frac {1}{n} \cdot var(X)\Rightarrow \sigma _{\overline {X}}=\frac {\sigma _X}{\sqrt {n}}\)
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+We bewijzen de laatste twee eigenschappen.<br />
+
+</p>
+
+<p>
+\(\mu _{\overline {X}} = \) <span style="width:199pt; display:inline-block"><!----></span> \(var(\overline {X}) =\)
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-105"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-105"></a>
+
+
+<p>
+<i>Een zakje nootjes weegt gemiddeld 300 gr en heeft hierop een standaardafwijking van 10 gram. Men verpakt deze nootjes per 25 zakjes in een kartonnen doos.</i><br />
+
+</p>
+
+<p>
+\(X=\)<span class="opl opl-vast" style="min-width:5cm"></span>             \(\Rightarrow E(X)=\opl [3cm]{}\) <span style="width:28pt; display:inline-block"><!----></span> \(\sigma _X=\opl [3cm]{}\)
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bereken de verwachte massa en standaardafwijking van de totale massa van de doos. <span class="opl opl-vast" style="min-width:5cm">2</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bereken de verwachte massa en standaardafwijking van één zakje uit de doos. <span class="opl opl-vast" style="min-width:5cm">2</span>
+</p>
+</li>
+</ul>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-106"><span class="sectionnumber">X&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-106"></a>
+
+
+<p>
+Zie handboek <i>Van Basis tot Limiet, Statistiek</i>: nrs. 2, 4, 5, 6, 8, 10, 11 en 14 p. 104 en volgende.
+</p>
+<!--
+...... section Extra oefeningen ......
+-->
+<h4 id="autosec-107"><span class="sectionnumber">XI&#x2003;</span>Extra oefeningen</h4>
+<a id="mkpiweb-autopage-107"></a>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-108">Oefening 3</h5>
+<a id="mkpiweb-autopage-108"></a>
+
+
+<p>
+Geef voor de kansvariabele \(X\) de kansfunctie \(f\), de verdelingsfunctie \(F\), de verwachtingswaarde \(E(X)\) en de standaardafwijking \(\sigma \). Gebruik je grafisch rekentoestel om de bijhorende tabellen op te stellen.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Een zuivere dobbelsteen opgooien. \(X\) heeft als getalwaarde het aantal ogen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Twee zuivere muntstukken opgooien. \(X\) heeft als getalwaarde het aantal maal kop.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Een bakje bevat vijf knikkers: drie witten en twee rode. We trekken lukraak twee knikkers tegelijkertijd (zonder terugleggen). X heeft als getalwaarde het aantal getrokken witte knikkers.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Een partij van zes autobanden bevat drie banden met ernstige constructiefouten. Een garagehouder kiest lukraak twee van deze banden en monteert ze op twee wagens. X heeft als
+getalwaarde het aantal gemonteerde banden met een constructiefout.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> Een spel bestaat uit 52 kaarten. We trekken lukraak vier kaarten tegelijkertijd. X heeft als getalwaarde het aantal getrokken azen.
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> <b>Dobbelsteen (\(X=\) aantal ogen)</b>
+</p>
+<p>
+\[ \begin {array}{c|c|c|c|c} x_i &amp; f(x_i) &amp; F(x_i) &amp; x_i\,f(x_i) &amp; (x_i-E)^2f(x_i)\\\hline 1 &amp; \tfrac 16 &amp; \tfrac 16 &amp; \tfrac 16 &amp; \tfrac {25}{24}\\ 2 &amp;
+\tfrac 16 &amp; \tfrac 13 &amp; \tfrac 13 &amp; \tfrac 38\\ 3 &amp; \tfrac 16 &amp; \tfrac 12 &amp; \tfrac 12 &amp; \tfrac 1{24}\\ 4 &amp; \tfrac 16 &amp; \tfrac 23 &amp; \tfrac 23 &amp;
+\tfrac 1{24}\\ 5 &amp; \tfrac 16 &amp; \tfrac 56 &amp; \tfrac 56 &amp; \tfrac 38\\ 6 &amp; \tfrac 16 &amp; 1 &amp; 1 &amp; \tfrac {25}{24}\\\hline \Sigma &amp; &amp; &amp; E(X)=\tfrac 72 &amp;
+\operatorname {Var}(X)=\tfrac {35}{12} \end {array} \]
+</p>
+<p>
+\[ \sigma =\sqrt {\tfrac {35}{12}}\approx 1.708 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> <b>Twee muntstukken (\(X=\) aantal kop)</b> \(X\sim \operatorname {Bin}(2,\tfrac 12)\)
+</p>
+<p>
+\[ \begin {array}{c|c|c|c|c} x_i &amp; f(x_i) &amp; F(x_i) &amp; x_i\,f(x_i) &amp; (x_i-E)^2f(x_i)\\\hline 0 &amp; \tfrac 14 &amp; \tfrac 14 &amp; 0 &amp; \tfrac 14\\ 1 &amp; \tfrac 12 &amp;
+\tfrac 34 &amp; \tfrac 12 &amp; 0\\ 2 &amp; \tfrac 14 &amp; 1 &amp; \tfrac 12 &amp; \tfrac 14\\\hline \Sigma &amp; &amp; &amp; E(X)=1 &amp; \operatorname {Var}(X)=\tfrac 12 \end {array} \]
+</p>
+<p>
+\[ \sigma =\sqrt {\tfrac 12}\approx 0.707 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> <b>Knikkers (\(X=\) aantal witte)</b> \(X\sim \operatorname {Hyp}(N=5,K=3,n=2)\)
+</p>
+<p>
+\[ f(x_i)=\frac {\binom {3}{x_i}\binom {2}{2-x_i}}{\binom 52},\qquad x_i=0,1,2 \]
+</p>
+<p>
+\[ \begin {array}{c|c|c|c|c} x_i &amp; f(x_i) &amp; F(x_i) &amp; x_i\,f(x_i) &amp; (x_i-E)^2f(x_i)\\\hline 0 &amp; 0.1 &amp; 0.1 &amp; 0 &amp; 0.144\\ 1 &amp; 0.6 &amp; 0.7 &amp; 0.6 &amp;
+0.024\\ 2 &amp; 0.3 &amp; 1 &amp; 0.6 &amp; 0.192\\\hline \Sigma &amp; &amp; &amp; E(X)=1.2 &amp; \operatorname {Var}(X)=0.36 \end {array} \]
+</p>
+<p>
+\[ \sigma = 0.6 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> <b>Kaarten (\(X=\) aantal azen)</b> \(X\sim \operatorname {Hyp}(N=52,K=4,n=4)\)
+</p>
+<p>
+\[ f(x_i)=\frac {\binom {4}{x_i}\binom {48}{4-x_i}}{\binom {52}{4}},\qquad x_i=0,\dots ,4 \]
+</p>
+<p>
+\[ \begin {array}{c|c|c|c|c} x_i &amp; f(x_i) &amp; F(x_i) &amp; x_i\,f(x_i) &amp; (x_i-E)^2f(x_i)\\\hline 0 &amp; 0.7187 &amp; 0.7187 &amp; 0 &amp; 0.0680\\ 1 &amp; 0.2556 &amp; 0.9743 &amp;
+0.2556 &amp; 0.1225\\ 2 &amp; 0.0250 &amp; 0.9993 &amp; 0.0500 &amp; 0.0716\\ 3 &amp; 0.0007 &amp; 0.9999 &amp; 0.0021 &amp; 0.0051\\ 4 &amp; 0.0000 &amp; 1 &amp; 0.0000 &amp; 0.0001\\\hline
+\Sigma &amp; &amp; &amp; E(X)=\tfrac {4}{13}\approx 0.308 &amp; \operatorname {Var}(X)\approx 0.267 \end {array} \]
+</p>
+<p>
+\[ \sigma \approx 0.517 \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> <b>Autobanden (\(X=\) aantal slechte)</b> \(X\sim \operatorname {Hyp}(N=6,K=3,n=2)\)
+</p>
+<p>
+\[ f(x_i)=\frac {\binom {3}{x_i}\binom {3}{2-x_i}}{\binom 62},\qquad x_i=0,1,2 \]
+</p>
+<p>
+\[ \begin {array}{c|c|c|c|c} x_i &amp; f(x_i) &amp; F(x_i) &amp; x_i\,f(x_i) &amp; (x_i-E)^2f(x_i)\\\hline 0 &amp; 0.2 &amp; 0.2 &amp; 0 &amp; 0.2\\ 1 &amp; 0.6 &amp; 0.8 &amp; 0.6 &amp; 0\\ 2
+&amp; 0.2 &amp; 1 &amp; 0.4 &amp; 0.2\\\hline \Sigma &amp; &amp; &amp; E(X)=1 &amp; \operatorname {Var}(X)=\tfrac 25 \end {array} \]
+</p>
+<p>
+\[ \sigma =\sqrt {\tfrac 25}\approx 0.632 \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-109">Oefening 4</h5>
+<a id="mkpiweb-autopage-109"></a>
+
+
+<p>
+Bij het opzoeken van onzuiverheden in een metaal gebruikt men een proef waarbij de kans om een bestaande fout te ontdekken gelijk is aan 70&percnt;. Wordt een fout gevonden, dan stopt het onderzoek. Wordt geen fout
+gevonden, dan herhaalt men veiligheidshalve de proef een tweede keer, waarna het onderzoek stopt.<br />
+Neem nu een stuk metaal dat onzuiverheden bevat en stel dat \(X\) de kansvariabele is die als getalwaarde het aantal proeven heeft die bij het onderzoek worden uitgevoerd.<br />
+Bereken \(E(X)\) en \(var(X)\).
+</p>
+
+<div class="oplossing">
+
+<p>
+<b>Proef voor metaal-onzuiverheden</b>
+</p>
+
+<p>
+Een eerste test ontdekt een bestaande fout met kans \(0.7\). Wordt de fout gevonden, dan stopt men meteen; anders voert men precies nog één test uit.
+</p>
+
+<p>
+\[ P(X=1)=0.7, \qquad P(X=2)=0.3, \qquad F(1)=0.7,\;F(2)=1.           \]
+</p>
+
+<p>
+\[ \begin {array}{c|c|c|c|c} x_i &amp; f(x_i) &amp; F(x_i) &amp; x_i\,f(x_i) &amp; (x_i-E)^2f(x_i)\\\hline 1 &amp; 0.7 &amp; 0.7 &amp; 0.7 &amp; 0.063\\ 2 &amp; 0.3 &amp; 1 &amp; 0.6 &amp;
+0.147\\\hline \Sigma &amp; &amp; &amp; E(X)=1.3 &amp; \operatorname {Var}(X)=0.21 \end {array} \]
+</p>
+
+<p>
+\[ \begin {aligned} E(X) &amp;= 1\cdot 0.7 + 2\cdot 0.3 = 1.3,\\ E(X^{2}) &amp;= 1^{2}\cdot 0.7 + 2^{2}\cdot 0.3 = 1.9,\\ \operatorname {Var}(X) &amp;= 1.9 - (1.3)^{2} = 0.21,\\ \sigma &amp;=
+\sqrt {0.21}\approx 0.458. \end {aligned} \]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-110">Oefening 5</h5>
+<a id="mkpiweb-autopage-110"></a>
+
+
+<p>
+Bij een bloedonderzoek naar syfilis bij de strijdkrachten van de Verenigde Staten is de kans op een positieve reactie van een individu 5&percnt;. Om een groep van vijf personen te onderzoeken, voegt men hun vijf bloedmonsters
+samen en onderwerpt dit geheel aan de test (om kosten te besparen van de dure proef, met relatief lage kans op besmetting). Is de reactie negatief, dan eindigt het onderzoek. Is de reactie positief, dan worden de vijf bloedmonsters
+opnieuw aan de test onderworpen, maar nu elk afzonderlijk.<br />
+Ams de kansvariabele \(X\) als getalwaarde het totaal aantal proeven heeft dat we voor vijf personen moeten uitvoeren, bereken dan \(E(X)\) en \(var(X)\).
+</p>
+
+<div class="oplossing">
+
+<p>
+<b>Groepstest op syfilis (5 samengevoegde bloedmonsters)</b>
+</p>
+
+<p>
+Een samengevoegd monster wordt <em>één</em> keer getest.
+</p>
+
+<p>
+\[ P(\text {negatief})=(1-0.05)^{5}=0.95^{5}=0.77378,\qquad P(\text {positief})=1-0.95^{5}=0.22622.                     \]
+</p>
+
+<p>
+\[ X = \begin {cases} 1 &amp; \text {met kans }0.95^{5},\\[2pt] 6 &amp; \text {met kans }1-0.95^{5}.                     \end {cases} \]
+</p>
+
+<p>
+\[ \begin {array}{c|c|c|c|c} x_i &amp; f(x_i) &amp; F(x_i) &amp; x_i\,f(x_i) &amp; (x_i-E)^2f(x_i)\\\hline 1 &amp; 0.77378 &amp; 0.77378 &amp; 0.77378 &amp; 0.98996\\ 6 &amp; 0.22622 &amp; 1
+&amp; 1.35731 &amp; 3.38614\\\hline \Sigma &amp; &amp; &amp; E(X)=2.13110 &amp; \operatorname {Var}(X)=4.37610 \end {array} \]
+</p>
+
+<p>
+\[ \begin {aligned} E(X) &amp;= 1\cdot 0.95^{5}+6\bigl (1-0.95^{5}\bigr ) \approx 2.13110,\\[2pt] E(X^{2}) &amp;= 1^{2}\cdot 0.95^{5}+6^{2}\bigl (1-0.95^{5}\bigr ) \approx 8.91767,\\[2pt]
+\operatorname {Var}(X) &amp;= E(X^{2})-E(X)^{2}\approx 4.37610,\\[2pt] \sigma &amp;= \sqrt {4.37610}\approx 2.092. \end {aligned} \]
+</p>
+
+</div>
+<!--
+...... subsection Oefening 6 ......
+-->
+<h5 id="autosec-111">Oefening 6</h5>
+<a id="mkpiweb-autopage-111"></a>
+
+
+<p>
+Een spel bestaat uit 52 kaarten. We trekken lukraak een kaart. Eén speler houdt de bank bij en ontvangt de inzet van de drie andere spelers. Deze drie anderen raden of de getrokken kaart een harten, een koeken of een klaveren
+is.<br />
+Is de getrokken kaart een schoppen, dan behoudt de bank alle inzetten. Zoniet, dan krijgt een speler die goed geraden heeft driemaal zijn inzet terug en verliest een speler zijn inzet als hij fout geraden heeft.<br />
+Bereken de verwachtingswaarde van de winst van de bank en de standaardafwijking in elk van volgende gevallen (Dit zijn dus drie verschillende oefeningen!):
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Op elk van de soorten harten, koeken en klaveren is 2 EUR ingezet
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Op harten is driemaal 2 EUR ingezet
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Op harten is 10 EUR ingezet, op koeken 4 EUR en op klaveren 2 EUR
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<p>
+<b>Spel: bank + drie spelers \(\bigl (\)één kaart uit 52, inzet wordt verdrievoudigd bij juist raden\(\bigr )\)</b>
+</p>
+
+<p>
+Voor alle gevallen geldt:
+</p>
+
+<p>
+\[ P(\text {schoppen}) = \frac {13}{52}= \frac 14, \quad P(\text {harten}) = P(\text {koeken}) = P(\text {klaveren}) = \frac 14 .                         \]
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> <b>Elk van harten, koeken, klaveren: \(\;2\) EUR ingezet</b> Bank ontvangt in totaal \(2+2+2 = 6\) EUR.
+</p>
+<p>
+\[ \begin {array}{r|c|c|c|c} x_i \;(\text {EUR}) &amp; f(x_i) &amp; F(x_i) &amp; x_i\,f(x_i) &amp; (x_i-E[X])^{2}f(x_i)\\\hline 0 &amp; \frac 34 &amp; \frac 34 &amp; 0 &amp; 2.25\\ 6 &amp;
+\frac 14 &amp; 1 &amp; 1.5 &amp; 4.50\\\hline \Sigma &amp; &amp; &amp; E[X]=1.5 &amp; \operatorname {Var}(X)=6.75 \end {array} \]
+</p>
+<p>
+\[ \begin {aligned} E[X] &amp;= 6\cdot \frac 14 = 1.5,\\ E[X^{2}] &amp;= 6^{2}\cdot \frac 14 = 9,\\ \operatorname {Var}(X) &amp;= 9 - 1.5^{2}=6.75,\\ \sigma &amp;= \sqrt {6.75}\approx 2.598.
+\end {aligned} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> <b>Drie spelers zetten ieder \(2\) EUR op harten</b> Totaal ontvangen inzet: \(6\) EUR.
+</p>
+<p>
+\[ \begin {array}{r|c|c|c|c} x_i \;(\text {EUR}) &amp; f(x_i) &amp; F(x_i) &amp; x_i\,f(x_i) &amp; (x_i-E[X])^{2}f(x_i)\\\hline -12 &amp; \frac 14 &amp; \frac 14 &amp; -3.000 &amp; 8.4375\\
+\phantom {-\,}6 &amp; \frac 34 &amp; 1 &amp; \phantom {-}4.500 &amp; 52.3125\\\hline \Sigma &amp; &amp; &amp; E[X]=1.5 &amp; \operatorname {Var}(X)=60.75 \end {array} \]
+</p>
+<p>
+\[ \begin {aligned} E[X] &amp;= (-12)\cdot \frac 14 + 6\cdot \frac 34 = 1.5,\\ E[X^{2}] &amp;= 144\cdot \frac 14 + 36\cdot \frac 34 = 63,\\ \operatorname {Var}(X) &amp;= 63 - 1.5^{2}=60.75,\\
+\sigma &amp;= \sqrt {60.75}\approx 7.797. \end {aligned} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> <b>Inzetten: harten \(10\) EUR, koeken \(4\) EUR, klaveren \(2\) EUR</b> Totaal ontvangen inzet: \(10+4+2 = 16\) EUR.
+</p>
+<p>
+\[ \begin {array}{r|c|c|c|c} x_i \;(\text {EUR}) &amp; f(x_i) &amp; F(x_i) &amp; x_i\,f(x_i) &amp; (x_i-E[X])^{2}f(x_i)\\\hline -14 &amp; \frac 14 &amp; \frac 14 &amp; -3.500 &amp; 34.875\\
+\phantom {-\,}4 &amp; \frac 14 &amp; \frac 12 &amp; 1.000 &amp; 1.000\\ 10 &amp; \frac 14 &amp; \frac 34 &amp; 2.500 &amp; 9.000\\ 16 &amp; \frac 14 &amp; 1 &amp; 4.000 &amp; 36.000\\\hline
+\Sigma &amp; &amp; &amp; E[X]=4 &amp; \operatorname {Var}(X)=126 \end {array} \]
+</p>
+<p>
+\[ \begin {aligned} E[X] &amp;= \frac {-14 + 4 + 10 + 16}{4}=4,\\ E[X^{2}] &amp;= \frac {196 + 16 + 100 + 256}{4}=142,\\ \operatorname {Var}(X) &amp;= 142 - 4^{2}=126,\\ \sigma &amp;= \sqrt
+{126}\approx 11.225. \end {aligned} \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

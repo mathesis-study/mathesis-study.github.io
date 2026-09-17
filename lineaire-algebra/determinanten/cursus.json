@@ -1,0 +1,26 @@
+{
+ "titel": "Determinanten",
+ "hoofdstuk": 2,
+ "code": "L02",
+ "vak": "Wiskunde",
+ "domein": "LineaireAlgebra",
+ "domeinnaam": "Lineaire algebra",
+ "url": "lineaire-algebra/determinanten",
+ "secties": [
+  "Determinant van een \\(n\\times n\\)-matrix",
+  "Eigenschappen van determinanten",
+  "Omgekeerde van een \\(n\\times n\\)-matrix",
+  "Stelsel van Cramer",
+  "Rang van een matrix",
+  "Meetkundige toepassingen"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.08",
+  "WD3_06.08.10",
+  "WD3_06.08.12",
+  "WD3_06.08.14"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": true
+}

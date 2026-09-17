@@ -1,0 +1,3015 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Euclidische ruimtemeetkunde</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=20737be75ee0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 4</p> <h1>Euclidische ruimtemeetkunde</h1> </header>
+</p>
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-2">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.07</b> (MD 06.08.29) De leerlingen rekenen met vectoren in de ruimte.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">vrije vector</span>, <span class="leerplan-grijs">puntvector</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: bewerkingen: <span class="leerplan-grijs">optelling</span>, <span class="leerplan-grijs">vermenigvuldiging met een getal</span> en inproduct
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: loodrechte stand
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: norm van een vector en <span class="leerplan-grijs">ontbinding van een vector in zijn componenten</span>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.08</b> (MD 06.08.30) De leerlingen stellen <span class="leerplan-grijs">vectorie&#x0308;le</span>, <span class="leerplan-grijs">parametrische</span> en
+cartesische vergelijkingen van <span class="leerplan-grijs">rechten</span> en vlakken in de ruimte op.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.10</b> (MD 06.08.33) De leerlingen berekenen afstanden en hoeken in de ruimte.
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Inproduct ......
+-->
+<h4 id="autosec-3"><span class="sectionnumber">I&#x2003;</span>Inproduct</h4>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<p>
+In het vorige hoofdstuk hebben we vooral de evenwijdige stand behandeld. Nu maken we de overgang naar de begrippen lengte, afstand, loodrechte stand en hoeken. Vanaf nu zullen we dan ook ALTIJD in een orthonormale basis
+werken. We voeren hiertoe het begrip <i>inproduct</i> of <i>scalair product</i> in.
+</p>
+<!--
+...... subsection Axioma ......
+-->
+<h5 id="autosec-4"><span class="sectionnumber">1&#x2003;</span>Axioma</h5>
+<a id="mkpiweb-autopage-4"></a>
+<div class="center">
+
+<p>
+<i>\(\mathbb {R},\Sigma _O,+\) is een driedimensionale euclidische vectorruimte.</i>
+</p>
+</div>
+
+<p>
+Dit houdt o.a. in dat alle eigenschappen van het inproduct die geldig zijn in het vlak (zie leerstof vierde jaar), geldig blijven in de driedimensionale ruimte. We zullen hierna kort de voornaamste herhalen.<br />
+Bovendien wordt door de definitie van het inproduct ook een afstand gedefinieerd. \(\mathbb {R},\Sigma _O,+\) is dan ook een metrische ruimte (zie analyse).
+</p>
+<!--
+...... subsection Orthonormale basis ......
+-->
+<h5 id="autosec-6"><span class="sectionnumber">2&#x2003;</span>Orthonormale basis</h5>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./orthonormale_basis.html?v=0ebc0ab18a64" style="display:block; width:52vw; height:34vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Een basis is <em>orthonormaal</em> wanneer de drie basisvectoren twee aan twee loodrecht op elkaar staan én alle drie de lengte \(1\) hebben:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                 (O, E⃗1 , E⃗2 , E⃗3 ) is orthonormaal ⇔ E⃗1 ⊥E⃗2 ∧ E⃗1 ⊥E⃗3 ∧ E⃗2 ⊥E⃗3
+                                                                                                                        ∧ |OE1 | = |OE2 | = |OE3 | = 1
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+(O,\overrightarrow {E_1},\overrightarrow {E_2},\overrightarrow {E_3}) \text { is orthonormaal} &amp;\Leftrightarrow \overrightarrow {E_1}\bot \overrightarrow {E_2} \wedge \overrightarrow
+{E_1}\bot \overrightarrow {E_3} \wedge \overrightarrow {E_2}\bot \overrightarrow {E_3}\\ &amp;\phantom {\Leftrightarrow }\ \wedge \ |OE_1|=|OE_2|=|OE_3|=1
+\end{align*}
+In woorden: de drie assen staan loodrecht op elkaar en dragen dezelfde ijk. Let op: het gaat om <em>drie</em> assen, dus ook om drie loodrechte standen.
+</p>
+</div>
+<!--
+...... subsection Norm van een vector ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">3&#x2003;</span>Norm van een vector</h5>
+<a id="mkpiweb-autopage-8"></a>
+<div class="center">
+
+<p>
+<i>De norm van de vector \(\overrightarrow {AB}\) is gelijk aan de lengte van het lijnstuk \([AB]\): \(||\overrightarrow {AB}||=|AB|\)</i>
+</p>
+</div>
+<!--
+...... subsection Formules voor het inproduct ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">4&#x2003;</span>Formules voor het inproduct</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+We herhalen hier kort de geziene formules uit het vierde jaar. <span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie inproduct ......
+-->
+<h6 id="autosec-11">Definitie inproduct</h6>
+<a id="mkpiweb-autopage-11"></a>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\overrightarrow {A} \cdot \overrightarrow {B}=||\overrightarrow {A}|| \cdot ||\overrightarrow {B}|| \cdot \cos \alpha \)</span><br />
+
+</p>
+</div>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./inproduct_definitie.html?v=93843a4f34d5" style="display:block; width:56vw; height:34vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Hierin is \(\alpha =\widehat {AOB}\) de hoek tussen de plaatsvectoren \(\overrightarrow {A}(x_1,y_1,z_1)\) en \(\overrightarrow {B}(x_2,y_2,z_2)\). Het inproduct is een <em>getal</em>, geen vector.
+</p>
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Analytische uitdrukking van het inproduct ......
+-->
+<h6 id="autosec-14">Analytische uitdrukking van het inproduct</h6>
+<a id="mkpiweb-autopage-14"></a>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\overrightarrow {A} \cdot \overrightarrow {B}=x_1 \cdot x_2+y_1 \cdot y_2+z_1 \cdot z_2\)</span><br />
+
+</p>
+</div>
+<!--
+...... subsection Inkwadraat van een vector ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">5&#x2003;</span>Inkwadraat van een vector</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+Indien je het inproduct neemt van een vector met zichzelf, bekomen we hieruit de formules voor het inkwadraat van deze vector.<br />
+
+</p>
+<div class="center">
+
+<p>
+<i>\(\overrightarrow {A}^2=||\overrightarrow {A}||^2=x_1^2+y_1^2+z_1^2\)</i><br />
+
+</p>
+</div>
+<!--
+...... subsection Afstand tussen twee punten ......
+-->
+<h5 id="autosec-18"><span class="sectionnumber">6&#x2003;</span>Afstand tussen twee punten</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Dit alles samen brengt ons tot de formules voor afstand tussen een punt en de oorsprong en afstand tussen twee willekeurige punten:<br />
+
+</p>
+<div class="center">
+
+<p>
+<i>\(|OA|=||\overrightarrow {OA}||=||\overrightarrow {A}||=\sqrt {x_1^2+y_1^2+z_1^2}\)</i><br />
+<i>\(|AB|=||\overrightarrow {AB}||=||\overrightarrow {B}-\overrightarrow {A}||\)</i><br />
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(|AB|=\sqrt {(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}\)</span><br />
+
+</p>
+</div>
+<!--
+...... subsection Loodrechte stand van twee vectoren ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">7&#x2003;</span>Loodrechte stand van twee vectoren</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+Tot slot kunnen we het inproduct ook gebruiken om loodrechte stand van twee vectoren na te gaan. Hun ingesloten hoek \(\alpha \) is dan immers \(90\degree \) of \(270\degree \), waarmee we 0 vinden voor \(\cos \alpha
+\). We kunnen dus stellen:
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\overrightarrow {A}\bot \overrightarrow {B}\Leftrightarrow \overrightarrow {A} \cdot \overrightarrow {B}=0\Leftrightarrow x_1 \cdot x_2+y_1 \cdot y_2+z_1 \cdot z_2=0\)</span><br />
+
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-22"><span class="sectionnumber">8&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+Zie handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 1, 7 en 8 p. 146.
+</p>
+<!--
+...... subsection Oefening 1 ......
+-->
+<h5 id="autosec-23">Oefening 1</h5>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+Gegeven zijn de punten \(A(2,3,-1)\), \(B(-1,4,3)\) en \(C(0,0,2)\). Bereken.
+</p>
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\overrightarrow {A}\cdot \overrightarrow {B}\)
+</p>
+<div class="oplossing">
+<p>
+\(\overrightarrow {A}\cdot \overrightarrow {B}=2\cdot (-1)+3\cdot 4+(-1)\cdot 3=-2+12-3=7\)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\overrightarrow {B}\cdot \overrightarrow {C}\)
+</p>
+<div class="oplossing">
+<p>
+\(\overrightarrow {B}\cdot \overrightarrow {C}=-1\cdot 0+4\cdot 0+3\cdot 2=6\)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\overrightarrow {C}\cdot (\overrightarrow
+{A}-\overrightarrow {B})\)
+</p>
+<div class="oplossing">
+<p>
+\(\overrightarrow {A}-\overrightarrow {B}=(3,-1,-4)\), dus \(\overrightarrow {C}\cdot
+(\overrightarrow {A}-\overrightarrow {B})=0\cdot 3+0\cdot (-1)+2\cdot (-4)=-8\)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(||\overrightarrow {AB}||\)
+</p>
+<div class="oplossing">
+<p>
+\(||\overrightarrow {AB}||=|AB|=\sqrt {(-1-2)^2+(4-3)^2+(3+1)^2}=\sqrt {9+1+16}=\sqrt {26}\)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\overrightarrow {A}^2\)
+</p>
+<div class="oplossing">
+<p>
+\(\overrightarrow {A}^2=2^2+3^2+(-1)^2=14\)
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(||\overrightarrow {A}+\overrightarrow {B}||\)
+</p>
+<div class="oplossing">
+<p>
+\(\overrightarrow {A}+\overrightarrow {B}=(1,7,2)\), dus \(||\overrightarrow {A}+\overrightarrow
+{B}||=\sqrt {1+49+4}=\sqrt {54}=3\sqrt {6}\)
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<p>
+Bepaal ten slotte de hoek \(\widehat {AOB}\) met behulp van het inproduct.
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                          ⃗·B
+                                                                                          A ⃗ = ||A||
+                                                                                                  ⃗ · ||B||
+                                                                                                        ⃗ · cos AOB
+                                                                                                                \
+
+                                                                                                     A⃗·B  ⃗          7
+                                                                                 ⇔      cos AOB
+                                                                                            \=                  =√      √
+                                                                                                    ⃗        ⃗
+                                                                                                  ||A|| · ||B||    14 · 26
+                                                                                     ⇒    \ = 68◦ 28′ 32′′
+                                                                                          AOB
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\overrightarrow {A}\cdot \overrightarrow {B} &amp;=||\overrightarrow {A}||\cdot ||\overrightarrow {B}||\cdot \cos \widehat {AOB}\\ \Leftrightarrow \quad \cos \widehat {AOB} &amp;=\frac
+{\overrightarrow {A}\cdot \overrightarrow {B}}{||\overrightarrow {A}||\cdot ||\overrightarrow {B}||} =\frac {7}{\sqrt {14}\cdot \sqrt {26}}\\ \Rightarrow \quad \widehat {AOB}&amp;=68\degree
+28&apos;32&apos;&apos;
+\end{align*}
+Zet het rekentoestel hiervoor in de mode <span class="textsf">DEGREE</span> en gebruik <span class="textsf">ANGLE&#x202f;4:DMS</span> om het antwoord in graden, minuten en seconden te lezen.
+</p>
+</div>
+<!--
+...... subsection Oefening 2 ......
+-->
+<h5 id="autosec-25">Oefening 2</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+Gegeven zijn \(A(0,0,0)\), \(B(4,0,-4)\) en \(C(0,4,-4)\). Toon aan dat de driehoek \(ABC\) gelijkzijdig is.
+</p>
+<div class="oplossing">
+
+<p>
+Te bewijzen: \(|AB|=|BC|=|AC|\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                         p                                       √                   √
+                                                                                |AB| =       (4 − 0)2 + (0 − 0)2 + (−4 − 0)2 =       16 + 0 + 16 =       32
+                                                                                         p                                       √                   √
+                                                                               |BC| =        (0 − 4)2 + (4 − 0)2 + (−4 + 4)2 =       16 + 16 + 0 =       32
+                                                                                         p                                       √                   √
+                                                                                |AC| =       (0 − 0)2 + (4 − 0)2 + (−4 − 0)2 =       0 + 16 + 16 =       32
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+|AB|&amp;=\sqrt {(4-0)^2+(0-0)^2+(-4-0)^2}=\sqrt {16+0+16}=\sqrt {32}\\ |BC|&amp;=\sqrt {(0-4)^2+(4-0)^2+(-4+4)^2}=\sqrt {16+16+0}=\sqrt {32}\\ |AC|&amp;=\sqrt {(0-0)^2+(4-0)^2+(-4-0)^2}=\sqrt
+{0+16+16}=\sqrt {32}
+\end{align*}
+De drie zijden zijn even lang, dus de driehoek \(ABC\) is gelijkzijdig.
+</p>
+</div>
+<!--
+...... subsection Oefening 3 ......
+-->
+<h5 id="autosec-26">Oefening 3</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+Gegeven zijn \(A(2,-1,2)\), \(B(3,k,0)\), \(C(-2,1,2)\) en \(D(0,3,-2)\). Bepaal \(k\) zodat
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(AB\parallel CD\)
+</p>
+<div class="oplossing">
+<p>
+Een stel richtingsgetallen van \(AB\) is \(\overrightarrow {B}-\overrightarrow {A}=(1,k+1,-2)\), een stel richtingsgetallen van \(CD\) is \(\overrightarrow {D}-\overrightarrow {C}=(2,2,-4)\).
+</p>
+<p>
+\[\begin {aligned} AB\parallel CD &amp;\Leftrightarrow (2,2,-4)=\ell \cdot (1,k+1,-2)\\ &amp;\Leftrightarrow \begin {cases} 2=\ell \\ 2=\ell \cdot (k+1)\\ -4=\ell \cdot (-2) \end {cases}
+\Leftrightarrow \begin {cases} \ell =2\\ k=0 \end {cases} \end {aligned}\]
+</p>
+<p>
+Dus \(k=0\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(AB\bot CD\)
+</p>
+<div class="oplossing">
+<p>
+\[\begin {aligned} AB\bot CD &amp;\Leftrightarrow \overrightarrow {AB}\cdot \overrightarrow {CD}=0\\ &amp;\Leftrightarrow 1\cdot 2+(k+1)\cdot 2+(-2)\cdot (-4)=0\\ &amp;\Leftrightarrow
+2+2(k+1)+8=0\\ &amp;\Leftrightarrow 2(k+1)=-10\\ &amp;\Leftrightarrow k=-6 \end {aligned}\]
+</p>
+<p>
+Dus \(k=-6\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... section Loodrechte stand ......
+-->
+<h4 id="autosec-27"><span class="sectionnumber">II&#x2003;</span>Loodrechte stand</h4>
+<a id="mkpiweb-autopage-27"></a>
+<!--
+...... subsection Loodrechte stand van twee rechten ......
+-->
+<h5 id="autosec-28"><span class="sectionnumber">1&#x2003;</span>Loodrechte stand van twee rechten</h5>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./loodrechte_rechten.html?v=f373efe559a6" style="display:block; width:58vw; height:36vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div>
+
+<div class="oplossing">
+
+<p>
+Twee rechten staan loodrecht op elkaar als hun richtingen loodrecht op elkaar staan. We schuiven beide rechten daarom evenwijdig naar de oorsprong en vergelijken hun richtingsvectoren \(\overrightarrow {R}(a,b,c)\) en
+\(\overrightarrow {S}(a&apos;,b&apos;,c&apos;)\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                 e⊥f ⇔ eO ⊥fO
+                                                                                                      ⇔ ⃗
+                                                                                                        R(a, b, c)⊥ ⃗
+                                                                                                                   S(a′ , b′ , c′ )
+                                                                                                       ⃗ ·S
+                                                                                                      ⇔R  ⃗=0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+e\bot f &amp;\Leftrightarrow e_O\bot f_O\\ &amp;\Leftrightarrow \overrightarrow {R}(a,b,c)\bot \overrightarrow {S}(a&apos;,b&apos;,c&apos;)\\ &amp;\Leftrightarrow \overrightarrow {R}\cdot
+\overrightarrow {S}=0
+\end{align*}
+<span class="underline">Besluit</span>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(e\bot f\Leftrightarrow aa&apos;+bb&apos;+cc&apos;=0\)</span>
+</p>
+</div>
+
+<p>
+Merk op dat \(e\) en \(f\) hiervoor niet hoeven te snijden: ook kruisende rechten kunnen loodrecht op elkaar staan.
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-31"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+Beschouw de rechten \(e\leftrightarrow \frac {x-3}{4}=1-y=\frac {3-z}{7}\) en \(f\leftrightarrow \frac {5-x}{3}=\frac {2-y}{5}=3-z\). Onderzoek of e en f loodrecht op elkaar staan.<br />
+
+</p>
+<div class="oplossing">
+
+<p>
+We schrijven beide rechten eerst in de standaardgedaante:
+</p>
+
+<p>
+\[e\leftrightarrow \frac {x-3}{4}=\frac {y-1}{-1}=\frac {z-3}{-7} \qquad \text {en}\qquad f\leftrightarrow \frac {x-5}{-3}=\frac {y-2}{-5}=\frac {z-3}{-1}\]
+</p>
+
+<p>
+Een stel richtingsgetallen van \(e\) is dus \((a,b,c)=(4,-1,-7)\) en een stel richtingsgetallen van \(f\) is \((a&apos;,b&apos;,c&apos;)=(-3,-5,-1)\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                     aa′ + bb′ + cc′ = 4 · (−3) + (−1) · (−5) + (−7) · (−1)
+                                                                                                    = −12 + 5 + 7 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+aa&apos;+bb&apos;+cc&apos; &amp;= 4\cdot (-3)+(-1)\cdot (-5)+(-7)\cdot (-1)\\ &amp;= -12+5+7=0
+\end{align*}
+Dus \(e\bot f\).
+</p>
+</div>
+<!--
+...... subsection Loodrechte stand van een rechte en een vlak ......
+-->
+<h5 id="autosec-32"><span class="sectionnumber">2&#x2003;</span>Loodrechte stand van een rechte en een vlak</h5>
+<a id="mkpiweb-autopage-32"></a>
+<!--
+...... subsubsection Normaalvector van een vlak ......
+-->
+<h6 id="autosec-33"><span class="sectionnumber">&#x2003;</span>Normaalvector van een vlak</h6>
+<a id="mkpiweb-autopage-33"></a>
+<div class="center">
+
+<p>
+<i>Een normaalvector van een vlak is een willekeurige vector, verschillend van de nulvector, gelegen op de loodlijn uit de oorsprong op het vlak.</i>
+</p>
+</div>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./normaalvector_vlak.html?v=67cae30d680e" style="display:block; width:58vw; height:36vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Is \(\alpha \leftrightarrow ux+vy+wz+t=0\), dan is \(\alpha _O\leftrightarrow ux+vy+wz=0\) het vlak door de oorsprong dat evenwijdig is met \(\alpha \). De loodlijn \(a_O\) uit \(O\) op \(\alpha _O\) staat dan ook
+loodrecht op \(\alpha \), en elke plaatsvector \(\overrightarrow {N}\ne \overrightarrow {0}\) van \(a_O\) is een normaalvector van \(\alpha \).
+</p>
+</div>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-36"><span class="sectionnumber">&#x2003;</span>Eigenschap</h6>
+<a id="mkpiweb-autopage-36"></a>
+<div class="center">
+
+<p>
+<i>Ten opzichte van een orthonormale basis heeft het vlak \(\alpha \leftrightarrow ux+vy+wz+t=0\) de vector \(\overrightarrow {N}(u,v,w)\) als normaalvector.</i>
+</p>
+</div>
+
+<p>
+Bewijs:<br />
+
+</p>
+<div class="oplossing">
+
+<p>
+Uit \(\alpha \leftrightarrow ux+vy+wz+t=0\) volgt \(\alpha _O\leftrightarrow ux+vy+wz=0\).<br />
+Beschouw een willekeurig punt \(P(x_1,y_1,z_1)\) van \(\alpha _O\), met \(P\ne O\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                           P ∈ αO
+                                                                            ⇔      ux1 + vy1 + wz1 = 0
+                                                                            ⇔          ⃗ · P⃗ = 0
+                                                                                       N               (analytische uitdrukking van het inproduct)
+                                                                            ⇔             ⃗ ⊥P⃗
+                                                                                          N
+                                                                            ⇔           ON ⊥OP
+
+
+
+-->
+
+
+<p>
+
+\begin{alignat*} {3}
+\phantom {\Leftrightarrow }\qquad &amp;&amp; P&amp;\in \alpha _O &amp;&amp;\\ \Leftrightarrow \qquad &amp;&amp; ux_1+vy_1&amp;+wz_1=0 &amp;&amp;\\ \Leftrightarrow \qquad &amp;&amp;
+\overrightarrow {N}\cdot \overrightarrow {P}&amp;=0 \qquad &amp;&amp;\text {\small (analytische uitdrukking van het inproduct)}\\ \Leftrightarrow \qquad &amp;&amp; \overrightarrow {N}&amp;\bot
+\overrightarrow {P} &amp;&amp;\\ \Leftrightarrow \qquad &amp;&amp; ON&amp;\bot OP &amp;&amp;
+\end{alignat*}
+Omdat \(P\) willekeurig gekozen is in \(\alpha _O\), geldt dit voor elke rechte door \(O\) van \(\alpha _O\). Bijgevolg staat \(ON\) loodrecht op \(\alpha _O\), en omdat \(\alpha _O\parallel \alpha \) ook op \(\alpha \):
+</p>
+
+<p>
+\[ON\bot \alpha _O \quad \text {en}\quad \alpha _O\parallel \alpha \quad \Longrightarrow \quad ON\bot \alpha \]
+</p>
+
+<p>
+Dus \(\overrightarrow {N}(u,v,w)\) is een normaalvector van \(\alpha \).<br />
+Met andere woorden: de coe&#x0308;fficie&#x0308;nten van \(x\), \(y\) en \(z\) in de cartesische vergelijking leggen de richting loodrecht op \(\alpha \) vast.
+</p>
+</div>
+<!--
+...... subsubsection Loodrechte stand van een rechte en een vlak ......
+-->
+<h6 id="autosec-38"><span class="sectionnumber">&#x2003;</span>Loodrechte stand van een rechte en een vlak</h6>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+Een rechte e met richtingsvector \(\overrightarrow {R}(a,b,c)\) en een vlak \(\alpha \leftrightarrow ux+vy+wz+t=0\) staan loodrecht op elkaar als en slechts als e evenwijdig is met een normaalvector \(\overrightarrow
+{N}(u,v,w)\) van \(\alpha \):
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                         ⃗
+                                                                                                e⊥α ⇔ e//N
+                                                                                                     ⇔ ⃗  ⃗
+                                                                                                       R//N
+                                                                                                     ⇔ (a, b, c) ∼ (u, v, w)
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+e\bot \alpha &amp;\Leftrightarrow e//\overrightarrow {N} \\ &amp;\Leftrightarrow \overrightarrow {R}//\overrightarrow {N}\\ &amp;\Leftrightarrow (a,b,c)\sim (u,v,w)\\
+\end{align*}
+
+</p>
+
+<p>
+Besluit:
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(e\bot \alpha \Leftrightarrow (a,b,c)=k\cdot (u,v,w)\)<span style="width:28pt; display:inline-block"><!----></span> met \(k\in \mathbb {R}_0\)</span>
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-40"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+Beschouw de rechte \(e\leftrightarrow \frac {x-1}{-3}=\frac {y+2}{2}=z-1\) en het vlak \(\alpha \leftrightarrow -6x+4y+2z+6=0\). Onderzoek of e en \(\alpha \) loodrecht op elkaar staan.<br />
+
+</p>
+<div class="oplossing">
+
+<p>
+Een stel richtingsgetallen van \(e\) is \((a,b,c)=(-3,2,1)\) en een normaalvector van \(\alpha \) is \(\overrightarrow {N}(u,v,w)=(-6,4,2)\).
+</p>
+
+<p>
+\[(-6,4,2)=2\cdot (-3,2,1)\quad \text {met } k=2\in \mathbb {R}_0\]
+</p>
+
+<p>
+De twee stellen zijn dus evenredig, waaruit \(e\bot \alpha \).
+</p>
+</div>
+<!--
+...... subsection Loodrechte stand van twee vlakken ......
+-->
+<h5 id="autosec-41"><span class="sectionnumber">3&#x2003;</span>Loodrechte stand van twee vlakken</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./loodrechte_vlakken.html?v=d69116e4f0ce" style="display:block; width:60vw; height:36vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Gegeven zijn
+</p>
+
+<p>
+\[\alpha \leftrightarrow ux+vy+wz+t=0 \quad \text {met normaalvector }\overrightarrow {N}(u,v,w)\]
+</p>
+
+<p>
+\[\beta \leftrightarrow u&apos;x+v&apos;y+w&apos;z+t&apos;=0 \quad \text {met normaalvector }\overrightarrow {L}(u&apos;,v&apos;,w&apos;)\]
+</p>
+
+</div>
+
+<p>
+Twee vlakken \(\alpha \) met normaalvector \(\overrightarrow {N}(u,v,w)\) en \(\beta \) met normaalvector \(\overrightarrow {L}(u&apos;,v&apos;,w&apos;)\) staan loodrecht op elkaar als en slechts als de twee
+loodlijnen op die vlakken loodrecht op elkaar staan. Dus als en slechts als hun normaalvectoren loodrecht op elkaar staan:
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                    ⃗ (u, v, w)⊥L(u
+                                                                                              α⊥β ⇔ N           ⃗ ′ , v ′ , w′ )
+                                                                                                   ⇔ uu′ + vv ′ + ww′ = 0
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\alpha \bot \beta &amp;\Leftrightarrow \overrightarrow {N}(u,v,w)\bot \overrightarrow {L}(u&apos;,v&apos;,w&apos;)\\ &amp;\Leftrightarrow uu&apos;+vv&apos;+ww&apos;=0\\
+\end{align*}
+
+</p>
+
+<p>
+Besluit:
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\alpha \bot \beta \Leftrightarrow uu&apos;+vv&apos;+ww&apos;=0 \)</span>
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-44"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p>
+Onderzoek of de vlakken \(\alpha \leftrightarrow 2x+3y-z+5=0\) en \(\beta \leftrightarrow 6x-2y+2z-7=0\) loodrecht op elkaar staan.
+</p>
+<div class="oplossing">
+
+<p>
+Een normaalvector van \(\alpha \) is \(\overrightarrow {N}(2,3,-1)\), een normaalvector van \(\beta \) is \(\overrightarrow {L}(6,-2,2)\).
+</p>
+
+<p>
+\[uu&apos;+vv&apos;+ww&apos;=2\cdot 6+3\cdot (-2)+(-1)\cdot 2=12-6-2=4\ne 0\]
+</p>
+
+<p>
+Dus \(\alpha \not \bot \beta \).
+</p>
+</div>
+<!--
+...... subsection Overzicht ......
+-->
+<h5 id="autosec-45"><span class="sectionnumber">4&#x2003;</span>Overzicht</h5>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                 e⊥f ⇔ aa′ + bb′ + cc′ = 0
+                                                                                 e⊥α ⇔ (a, b, c) = k · (u, v, w)   met k ∈ R0
+                                                                                            ′     ′      ′
+                                                                                 α⊥β ⇔ uu + vv + ww = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+e \bot f &amp;\Leftrightarrow aa&apos;+bb&apos;+cc&apos;=0\\ e \bot \alpha &amp;\Leftrightarrow (a,b,c)=k\cdot (u,v,w) \qquad \text { met } k\in \mathbb {R}_0\\ \alpha \bot \beta
+&amp;\Leftrightarrow uu&apos;+vv&apos;+ww&apos;=0
+\end{align*}
+
+</p>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-46"><span class="sectionnumber">III&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+Zie handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 13, 14, 15, 16, 17, 18, 19, 20, 21 p. 147 tot 149.
+</p>
+<!--
+...... subsection Oefening 4 ......
+-->
+<h5 id="autosec-47">Oefening 4</h5>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+Onderzoek telkens de loodrechte stand. Van elke rechte is een stel richtingsgetallen gegeven, van elk vlak een normaalvector.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(e\) met \((1,1,1)\) en \(f\) met \((1,-1,0)\).
+</p>
+<div class="oplossing">
+<p>
+\(1\cdot 1+1\cdot (-1)+1\cdot 0=0\), dus \(e\bot f\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(e\) met \((-6,8,-4)\) en \(f\) met \((2,3,3)\).
+</p>
+<div class="oplossing">
+<p>
+\(-6\cdot 2+8\cdot 3+(-4)\cdot 3=-12+24-12=0\), dus \(e\bot f\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(e\) met \((-1,3,1)\) en \(\alpha \) met \(\overrightarrow {N}(2,-6,-2)\).
+</p>
+<div class="oplossing">
+<p>
+\((2,-6,-2)=-2\cdot (-1,3,1)\), de stellen zijn evenredig, dus \(e\bot \alpha \).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(e\) met \((0,3,2)\) en \(\alpha \) met \(\overrightarrow {N}(1,-4,6)\).
+</p>
+<div class="oplossing">
+<p>
+\((1,-4,6)\) is geen veelvoud van \((0,3,2)\): uit de eerste component zou \(k\cdot 0=1\) volgen, wat onmogelijk is. Dus \(e\not \bot \alpha \).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\alpha \) met \(\overrightarrow {N}(1,1,-3)\) en \(\beta \) met \(\overrightarrow {L}(0,3,1)\).
+</p>
+<div class="oplossing">
+<p>
+\(1\cdot 0+1\cdot 3+(-3)\cdot 1=0\), dus \(\alpha \bot \beta \).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\alpha \) met \(\overrightarrow {N}(2,-1,2)\) en \(\beta \) met \(\overrightarrow {L}(-1,2,-1)\).
+</p>
+<div class="oplossing">
+<p>
+\(2\cdot (-1)+(-1)\cdot 2+2\cdot (-1)=-2-2-2=-6\ne 0\), dus \(\alpha \not \bot \beta \).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... section Afstanden ......
+-->
+<h4 id="autosec-48"><span class="sectionnumber">IV&#x2003;</span>Afstanden</h4>
+<a id="mkpiweb-autopage-48"></a>
+<!--
+...... subsection Afstand tussen twee punten ......
+-->
+<h5 id="autosec-49"><span class="sectionnumber">1&#x2003;</span>Afstand tussen twee punten</h5>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+We hernemen hier kort de formule zoals eerder in dit hoofdstuk gezien voor de afstand tussen twee punten \(A(x_1,y_1,z_1)\) en \(B(x_2,y_2,z_2)\).
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(d(A,B)=|AB|=\sqrt {(x_2-x_1)^2+(y_2-y_1)^2+(z_2-z_1)^2}\)</span><br />
+
+</p>
+</div>
+<!--
+...... subsection Afstand tussen een punt A en een rechte e ......
+-->
+<h5 id="autosec-51"><span class="sectionnumber">2&#x2003;</span>Afstand tussen een punt A en een rechte e</h5>
+<a id="mkpiweb-autopage-51"></a>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-52"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./afstand_punt_rechte.html?v=a637b2d71fe6" style="display:block; width:54vw; height:34vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Gegeven een punt \(A\) en een rechte \(e\). Construeer het vlak \(\alpha \) met \(\alpha \bot e\) en \(A\in \alpha \), en noem \(P\) het snijpunt van \(\alpha \) en \(e\).
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(d(A,e)=d(A,P)\)</span>
+</p>
+</div>
+
+<p>
+\(P\) is het <em>voetpunt</em> van de loodlijn uit \(A\) op \(e\); van alle punten van \(e\) ligt \(P\) het dichtst bij \(A\).
+</p>
+</div>
+<!--
+...... subsubsection Werkwijze ......
+-->
+<h6 id="autosec-55"><span class="sectionnumber">&#x2003;</span>Werkwijze</h6>
+<a id="mkpiweb-autopage-55"></a>
+<div class="center">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Stel de vergelijking op van het loodvlak \(\alpha \) door punt A, loodrecht op rechte e
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Zoek het snijpunt P van \(\alpha \) en e: \(\{P\}=\alpha \cap e\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Bereken de afstand tussen de punten A en P: \(d(A,P)=d(A,e)\)
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-57"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<p>
+Bereken de afstand tussen het punt \(A(5,3,2)\) en de rechte \(e\) met stelsel parametervergelijkingen \(e\leftrightarrow (x,y,z)=(2,-1,2)+k \cdot (1,0,-3)\).<br />
+
+</p>
+<div class="oplossing">
+
+<p>
+<b>1. Het loodvlak \(\alpha \) op \(e\) door \(A\).</b><br />
+Omdat \(\alpha \bot e\) is een richtingsvector van \(e\) een normaalvector van \(\alpha \): \(\overrightarrow {N}(u,v,w)=(1,0,-3)\), dus
+</p>
+
+<p>
+\[\alpha \leftrightarrow x-3z+t=0\]
+</p>
+
+<p>
+\[A\in \alpha \Leftrightarrow 5-3\cdot 2+t=0 \Leftrightarrow t=1 \quad \Longrightarrow \quad \alpha \leftrightarrow x-3z+1=0\]
+</p>
+
+<p>
+<b>2. Het snijpunt \(P\) van \(\alpha \) en \(e\).</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                   
+                                                                                   
+                                                                                    x=2+k
+                                                                                   
+                                                                                   y = −1
+                                                                                                      ⇔ (2 + k) − 3(2 − 3k) + 1 = 0
+                                                                                   
+                                                                                   
+                                                                                    z = 2 − 3k
+                                                                                     x − 3z + 1 = 0
+                                                                                   
+
+                                                                                                                                 3
+                                                                                                      ⇔ 10k − 3 = 0 ⇔ k =
+                                                                                                                                10
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\begin{cases} x=2+k\\ y=-1\\ z=2-3k\\ x-3z+1=0 \end {cases} &amp;\Leftrightarrow (2+k)-3(2-3k)+1=0\\ &amp;\Leftrightarrow 10k-3=0 \Leftrightarrow k=\frac {3}{10}
+\end{align*}
+
+</p>
+
+<p>
+\[\Longrightarrow \quad P\left (\frac {23}{10},-1,\frac {11}{10}\right )\]
+</p>
+
+<p>
+<b>3. De afstand.</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                               s           2                  2
+                                                                                                       23                     11
+                                                                            d(A, e) = d(A, P ) =    5−           + (3 + 1)2 +
+                                                                                                                           2−
+                                                                                                       10                     10
+                                                                                                 r                  r        √
+                                                                                                   729        81      2410     2410
+                                                                                               =       + 16 +     =        =        ≈ 4.91
+                                                                                                   100        100     100      10
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+d(A,e)=d(A,P) &amp;=\sqrt {\left (5-\frac {23}{10}\right )^2+(3+1)^2+\left (2-\frac {11}{10}\right )^2}\\ &amp;=\sqrt {\frac {729}{100}+16+\frac {81}{100}} =\sqrt {\frac {2410}{100}}=\frac
+{\sqrt {2410}}{10}\approx 4.91
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Afstand tussen een punt A en een vlak ......
+-->
+<h5 id="autosec-58"><span class="sectionnumber">3&#x2003;</span>Afstand tussen een punt A en een vlak \(\alpha \)</h5>
+<a id="mkpiweb-autopage-58"></a>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-59"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./afstand_punt_vlak.html?v=addac283bd66" style="display:block; width:54vw; height:34vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Gegeven een punt \(A\) en een vlak \(\alpha \leftrightarrow ux+vy+wz+t=0\). Construeer de rechte \(\ell \) met \(\ell \bot \alpha \) en \(A\in \ell \), en noem \(\{P\}=\ell \cap \alpha \).
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(d(A,\alpha )=d(A,P)\)</span>
+</p>
+</div>
+
+</div>
+<!--
+...... subsubsection Opstelling formule ......
+-->
+<h6 id="autosec-62"><span class="sectionnumber">&#x2003;</span>Opstelling formule</h6>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p>
+We vertrekken van een gegeven punt \(A(x_1,y_1,z_1)\) en vlak \(\alpha \leftrightarrow ux+vy+wz+t=0\).<br />
+Een normaalvector van \(\alpha \) is dan \(\overrightarrow {N}(u,v,w)\).<br />
+Het voetpunt (=snijpunt) van de loodlijn uit \(A\) op \(\alpha \) stellen we voor door \(P(x_2,y_2,z_2)\).<br />
+
+</p>
+
+<p>
+We berekenen nu het inproduct van \(\overrightarrow {ON}\) met \(\overrightarrow {OA}\) en zullen hieruit de formule voor de afstand tussen een punt en een vlak afleiden.<br />
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                           ON · ⃗
+                                                                            ⃗  OA = ⃗
+                                                                                   ON · ( ⃗
+                                                                                         OP + P⃗A)                                  (Chasles-Môbius)
+                                                             ⇔             ON · ⃗
+                                                                            ⃗  OA = ⃗
+                                                                                   ON · ⃗
+                                                                                       OP + ⃗
+                                                                                           ON · P⃗A                                 (distributiviteit)
+                                                             ⇔                 ⃗ ·A
+                                                                               N  ⃗=N
+                                                                                    ⃗ · P⃗ + N
+                                                                                             ⃗ · P⃗A
+
+                                                             ⇔                                            ⃗ || · ||P⃗A|| · cos 0◦
+                                                                    ux1 + vy1 + wz1 = ux2 + vy2 + wz2 + ||N                         (of \(\cos 180\degree \))
+                                                             ⇔                               ⃗ || · d(A, P )
+                                                                    ux1 + vy1 + wz1 = −t ± ||N                                      (want \(P\in \alpha \))
+                                                                                           p
+                                                             ⇔      ux1 + vy1 + wz1 = −t ± u2 + v 2 + w2 · d(A, P )
+                                                                                           p
+                                                             ⇔      ux1 + vy1 + wz1 = −t ± u2 + v 2 + w2 · d(A, α)
+
+
+
+
+-->
+
+
+<p>
+
+\begin{alignat*} {3}
+\phantom {\Leftrightarrow }\qquad &amp;&amp; \overrightarrow {ON}\cdot \overrightarrow {OA} &amp;= \overrightarrow {ON}\cdot (\overrightarrow {OP}+\overrightarrow {PA}) &amp;&amp;\text {\small
+(Chasles-MÃťbius)}\\ \Leftrightarrow \qquad &amp;&amp; \overrightarrow {ON}\cdot \overrightarrow {OA} &amp;=\overrightarrow {ON}\cdot \overrightarrow {OP}+\overrightarrow {ON}\cdot
+\overrightarrow {PA} &amp;&amp; \text {\small (distributiviteit)}\\ \Leftrightarrow \qquad &amp;&amp; \overrightarrow {N} \cdot \overrightarrow {A} &amp;= \overrightarrow {N} \cdot
+\overrightarrow {P}+\overrightarrow {N}\cdot \overrightarrow {PA}\\ \Leftrightarrow \qquad &amp;&amp; ux_1+vy_1+wz_1 &amp;= ux_2+vy_2+wz_2+||\overrightarrow {N}|| \cdot ||\overrightarrow
+{PA}|| \cdot \cos 0\degree \qquad &amp;&amp; \text {\small (of $\cos 180\degree $)}\\\Leftrightarrow \qquad &amp;&amp; ux_1+vy_1+wz_1 &amp;= -t \pm ||\overrightarrow {N}||\cdot d(A,P)
+&amp;&amp; \text {(want $P\in \alpha $)}\\ \Leftrightarrow \qquad &amp;&amp; ux_1+vy_1+wz_1 &amp;= -t \pm \sqrt {u^2+v^2+w^2} \cdot d(A,P)\\ \Leftrightarrow \qquad &amp;&amp; ux_1+vy_1+wz_1
+&amp;= -t \pm \sqrt {u^2+v^2+w^2}\cdot d(A,\alpha )\\
+\end{alignat*}
+
+</p>
+
+<p>
+Waaruit we kunnen besluiten:
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(d(A,\alpha )=\frac {|ux_1+vy_1+wz_1+t|}{\sqrt {u^2+v^2+w^2}}\)</span>
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-64"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p>
+Bereken de afstand tussen het punt \(A(2,3,-1)\) en het vlak \(\alpha \leftrightarrow 4x-4y+2z-3=0\).<br />
+
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                            |4 · 2 − 4 · 3 + 2 · (−1) − 3|   | − 9|  9  3
+                                                                                d(A, α) =         p                        = √      = =
+                                                                                                    42 + (−4)2 + 22             36   6  2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+d(A,\alpha ) &amp;=\frac {|4\cdot 2-4\cdot 3+2\cdot (-1)-3|}{\sqrt {4^2+(-4)^2+2^2}} =\frac {|-9|}{\sqrt {36}}=\frac {9}{6}=\frac {3}{2}
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-65"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<p>
+Zie handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 1, 11, 8 en 10 p. 174-176.<br />
+Extra oefening nr. 22 p. 149.<br />
+
+</p>
+<!--
+...... subsection Oefening 5 ......
+-->
+<h5 id="autosec-66">Oefening 5</h5>
+<a id="mkpiweb-autopage-66"></a>
+
+
+<p>
+Gegeven zijn de rechte \(a\leftrightarrow x+6=y+1=z\) en de punten \(A(5,3,6)\) en \(B(-3,-1,-2)\). Bepaal het punt \(P\) van \(a\) dat even ver van \(A\) als van \(B\) ligt.
+</p>
+<div class="oplossing">
+
+<p>
+<b>Eerste methode.</b> Stel \(x+6=y+1=z=k\), dan is \(P(k-6,k-1,k)\) een willekeurig punt van \(a\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                        d(P, A) = d(P, B) ⇔ d(P, A)2 = d(P, B)2
+                                                                                         ⇔ (k − 11)2 + (k − 4)2 + (k − 6)2 = (k − 3)2 + k 2 + (k + 2)2
+                                                                                         ⇔ 3k 2 − 42k + 173 = 3k 2 − 2k + 13
+                                                                                         ⇔ −40k = −160 ⇔ k = 4
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+d(P,A)=d(P,B) &amp;\Leftrightarrow d(P,A)^2=d(P,B)^2\\ &amp;\Leftrightarrow (k-11)^2+(k-4)^2+(k-6)^2=(k-3)^2+k^2+(k+2)^2\\ &amp;\Leftrightarrow 3k^2-42k+173=3k^2-2k+13\\ &amp;\Leftrightarrow
+-40k=-160 \Leftrightarrow k=4
+\end{align*}
+Dus \(P(-2,3,4)\).<br />
+<br />
+<b>Tweede methode.</b> \(d(P,A)=d(P,B)\) betekent dat \(P\) op het middelloodvlak \(\mu \) van \([AB]\) ligt. Een normaalvector van \(\mu \) is \(\overrightarrow {AB}=(-8,-4,-8)\sim (2,1,2)\) en het midden van
+\([AB]\) is \(M(1,1,2)\), zodat
+</p>
+
+<p>
+\[\mu \leftrightarrow 2x+y+2z+t=0,\qquad M\in \mu \Leftrightarrow 2+1+4+t=0 \Leftrightarrow t=-7\]
+</p>
+
+<p>
+\[\mu \leftrightarrow 2x+y+2z-7=0\]
+</p>
+
+<p>
+Het snijpunt van \(\mu \) met \(a\) geeft opnieuw \(P(-2,3,4)\).
+</p>
+</div>
+<!--
+...... section Hoeken ......
+-->
+<h4 id="autosec-67"><span class="sectionnumber">V&#x2003;</span>Hoeken</h4>
+<a id="mkpiweb-autopage-67"></a>
+<!--
+...... subsection Hoek tussen twee rechten ......
+-->
+<h5 id="autosec-68"><span class="sectionnumber">1&#x2003;</span>Hoek tussen twee rechten</h5>
+<a id="mkpiweb-autopage-68"></a>
+<!--
+...... subsubsection Opstelling formule ......
+-->
+<h6 id="autosec-69"><span class="sectionnumber">&#x2003;</span>Opstelling formule</h6>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+Beschouw twee rechten \(e\) met richtingsvector \(\overrightarrow {R}\) en \(f\) met richtingsvector \(\overrightarrow {S}\). Uit de definitie van het inproduct van de richtingsvectoren leiden we de formule af voor de hoek
+tussen beide rechten.<br />
+
+</p>
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./hoek_rechten.html?v=a78463df819d" style="display:block; width:58vw; height:36vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+We schuiven beide rechten evenwijdig naar de oorsprong. De hoek tussen \(e\) en \(f\) is dan de hoek tussen \(e_O\) en \(f_O\). Twee snijdende rechten bepalen telkens twee supplementaire hoeken; we spreken steeds af de
+<em>niet-stompe</em> hoek te nemen. Daarom is \(\cos (\widehat {e\,f})\ge 0\) en zetten we absolute waardestrepen rond de teller.
+</p>
+</div>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                           ⃗ ·S
+                                                           R  ⃗ = ||R||
+                                                                    ⃗ · ||S||
+                                                                          ⃗ · cos α
+
+                                                                         R⃗ ·S
+                                                                             ⃗
+                                                    ⇔      cos α =
+                                                                     || ⃗
+                                                                       R|| · || ⃗
+                                                                               S||
+                                                                    |a1 · a2 + b1 · b2 + c1 · c2 |
+                                                    ⇔      cos α = p 2              p                                                                (inproduct en norm)
+                                                                    a1 + b21 + c21 · a22 + b22 + c22
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\overrightarrow {R} \cdot \overrightarrow {S}&amp;=||\overrightarrow {R}|| \cdot ||\overrightarrow {S}|| \cdot \cos \alpha \\ \Leftrightarrow \qquad \cos \alpha &amp;=\frac {\overrightarrow
+{R}\cdot \overrightarrow {S}}{||\overrightarrow {R}|| \cdot ||\overrightarrow {S}||}\\ \Leftrightarrow \qquad \cos \alpha &amp;=\frac {|a_1 \cdot a_2+b_1 \cdot b_2+c_1 \cdot c_2|}{\sqrt
+{a_1^2+b_1^2+c_1^2}\cdot \sqrt {a_2^2+b_2^2+c_2^2}} &amp;&amp;\text {\small (inproduct en norm)}\\
+\end{align*}
+<span class="underline">Besluit</span>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\cos (\widehat {e\,f})=\frac {|a_1 \cdot a_2+b_1 \cdot b_2+c_1 \cdot c_2|}{\sqrt {a_1^2+b_1^2+c_1^2}\cdot \sqrt {a_2^2+b_2^2+c_2^2}}\)</span>
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-72"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-72"></a>
+
+
+<p>
+Bepaal de hoek tussen de rechte \(e\) met richtingsvector \(\overrightarrow {R}(3,-6,2)\) en de rechte \(f\) met richtingsvector \(\overrightarrow {S}(8,4,1)\).<br />
+
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                               |3 · 8 + (−6) · 4 + 2 · 1|   |24 − 24 + 2|    2
+                                                                               cos(ecf ) = √               √              =               =
+                                                                                               9 + 36 + 4 · 64 + 16 + 1          7·9        63
+                                                                               ⇒    ecf = 88◦ 10′ 51′′
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\cos (\widehat {e\,f}) &amp;=\frac {|3\cdot 8+(-6)\cdot 4+2\cdot 1|} {\sqrt {9+36+4}\cdot \sqrt {64+16+1}} =\frac {|24-24+2|}{7\cdot 9}=\frac {2}{63}\\ \Rightarrow \quad \widehat
+{e\,f}&amp;=88\degree 10&apos;51&apos;&apos;
+\end{align*}
+Bereken \(\cos ^{-1}\left (\frac {2}{63}\right )\) met het rekentoestel in de mode <span class="textsf">DEGREE</span> en zet het antwoord om met <span class="textsf">ANGLE&#x202f;4:DMS</span>.
+</p>
+</div>
+<!--
+...... subsection Hoek tussen twee snijdende vlakken ......
+-->
+<h5 id="autosec-73"><span class="sectionnumber">2&#x2003;</span>Hoek tussen twee snijdende vlakken</h5>
+<a id="mkpiweb-autopage-73"></a>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-74"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-74"></a>
+
+
+<p>
+<i>De hoek tussen twee snijdende vlakken \(\alpha \) en \(\beta \) met snijlijn \(d\) is de hoek gevormd door twee loodlijnen op \(d\) door een punt \(S\) van \(d\), respectievelijk in \(\alpha \) en \(\beta \)
+gelegen.</i><br />
+
+</p>
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./hoek_vlakken_definitie.html?v=78acce0bd979" style="display:block; width:46vw; height:38vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+\[\widehat {\alpha \,\beta }=\widehat {\ell _1\,\ell _2} \qquad \text {met } S\in d,\quad \ell _1\subset \alpha ,\ \ell _1\bot d, \quad \ell _2\subset \beta ,\ \ell _2\bot d\]
+</p>
+
+<p>
+Die hoek hangt niet af van de keuze van \(S\) op \(d\).
+</p>
+</div>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-76"><span class="sectionnumber">&#x2003;</span>Eigenschap</h6>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<p>
+<i>De hoek tussen twee vlakken is de hoek tussen twee (willekeurige) loodlijnen op de respectievelijke vlakken.</i><br />
+Voor een verduidelijking van deze eigenschap verwijzen we naar het handboek <i>VBTL Ruimtemeetkunde</i>, p. 137, de 2 figuren onderaan deze pagina.<br />
+
+</p>
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./hoek_vlakken_eigenschap.html?v=b511f8defce7" style="display:block; width:50vw; height:38vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Kies een willekeurig punt \(P\) en trek \(m_1\bot \alpha \) en \(m_2\bot \beta \) door \(P\). De hoek tussen \(m_1\) en \(m_2\) is dan gelijk aan \(\widehat {\alpha \,\beta }\). Deze eigenschap is nuttig omdat we van
+een vlak meteen een normaalvector uit de cartesische vergelijking kunnen aflezen.
+</p>
+</div>
+<!--
+...... subsubsection Gevolg ......
+-->
+<h6 id="autosec-78"><span class="sectionnumber">&#x2003;</span>Gevolg</h6>
+<a id="mkpiweb-autopage-78"></a>
+
+
+<p>
+We kunnen de hoek tussen twee snijdende vlakken \(\alpha \leftrightarrow u_1x+v_1y+w_1z+t_1=0\) en \(\beta \leftrightarrow u_2x+v_2y+w_2z+t_2=0\) dus berekenen door de hoek te berekenen tussen hun
+respectievelijke normaalvectoren:
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\cos (\widehat {\alpha \,\beta })=\frac {|u_1 \cdot u_2+v_1 \cdot v_2+w_1 \cdot w_2|}{\sqrt {u_1^2+v_1^2+w_1^2}\cdot \sqrt {u_2^2+v_2^2+w_2^2}}\)</span>
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-80"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+Bepaal de hoek tussen de vlakken \(\alpha \leftrightarrow x+4y+z-4=0\) en \(\beta \leftrightarrow 2x+2y-z+3=0\).<br />
+
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                              √
+                                                                                       |1 · 2 + 4 · 2 + 1 · (−1)|    9     1    2
+                                                                           cos(α β) = √
+                                                                               c                      √           = √    =√ =
+                                                                                        1 + 16 + 1 · 4 + 4 + 1     3 2·3    2  2
+                                                                           ⇒    αcβ = 45◦
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\cos (\widehat {\alpha \,\beta }) &amp;=\frac {|1\cdot 2+4\cdot 2+1\cdot (-1)|} {\sqrt {1+16+1}\cdot \sqrt {4+4+1}} =\frac {9}{3\sqrt {2}\cdot 3}=\frac {1}{\sqrt 2}=\frac {\sqrt 2}{2}\\
+\Rightarrow \quad \widehat {\alpha \,\beta }&amp;=45\degree
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Hoek tussen een rechte en een vlak ......
+-->
+<h5 id="autosec-81"><span class="sectionnumber">3&#x2003;</span>Hoek tussen een rechte en een vlak</h5>
+<a id="mkpiweb-autopage-81"></a>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-82"><span class="sectionnumber">&#x2003;</span>Definitie</h6>
+<a id="mkpiweb-autopage-82"></a>
+
+
+<p>
+<i>Als een rechte \(e\) een vlak \(\alpha \) snijdt en er niet loodrecht op staat, dan is de hoek tussen \(e\) en \(\alpha \) gelijk aan de hoek tussen de rechte \(e\) en haar loodrechte projectie \(e&apos;\) op \(\alpha
+\).</i><br />
+
+</p>
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./hoek_rechte_vlak.html?v=d3d52bbbc79e" style="display:block; width:56vw; height:34vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+Noem \(\{S\}=e\cap \alpha \) en \(A&apos;\) de loodrechte projectie van een punt \(A\) van \(e\) op \(\alpha \). De rechte \(e&apos;=SA&apos;\) is dan de loodrechte projectie van \(e\) op \(\alpha \) en
+</p>
+
+<p>
+\[\widehat {e\,\alpha }=\widehat {e\,e&apos;}\]
+</p>
+
+<p>
+Is \(m\) de loodlijn op \(\alpha \) door \(A\), dan is \(\widehat {e\,m}\) het complement van \(\widehat {e\,\alpha }\).
+</p>
+</div>
+<!--
+...... subsubsection Gevolg ......
+-->
+<h6 id="autosec-84"><span class="sectionnumber">&#x2003;</span>Gevolg</h6>
+<a id="mkpiweb-autopage-84"></a>
+
+
+<p>
+We kunnen dus stellen dat de hoek tussen
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> een rechte \(e\) met stel richtingsgetallen \((a,b,c)\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> en een vlak \(\alpha \leftrightarrow ux+vy+wz+t=0\)
+</p>
+</li>
+</ul>
+
+<p>
+gelijk is aan het complement van de hoek tussen de rechte \(e\) en een willekeurig loodlijn \(m\) op \(\alpha \). Een richtingsvector van deze loodlijn \(m\) wordt gegeven door de normaalvector \(\overrightarrow {N}(u,v,w)\)
+van \(\alpha \).<br />
+
+</p>
+
+<p>
+<span class="underline">Besluit</span>
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\widehat {e\,\alpha }=90\degree - \widehat {e\,m}\)</span>
+</p>
+</div>
+<div class="center">
+
+<p>
+met
+</p>
+</div>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(\cos (\widehat {e\,m})=\frac {|a \cdot u+b \cdot v+c \cdot w|}{\sqrt {a^2+b^2+c^2}\cdot \sqrt {u^2+v^2+w^2}}\)</span>
+</p>
+</div>
+
+<div class="oplossing">
+
+<p>
+Je kan de hoek ook in één stap berekenen met
+</p>
+
+<p>
+\[\sin (\widehat {e\,\alpha })=\frac {|a\cdot u+b\cdot v+c\cdot w|} {\sqrt {a^2+b^2+c^2}\cdot \sqrt {u^2+v^2+w^2}}\]
+</p>
+
+<p>
+maar controleer dan wel dat je de scherpe hoek overhoudt.
+</p>
+</div>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-88"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-88"></a>
+
+
+<p>
+Bepaal de hoek tussen de rechte \(e\leftrightarrow \frac {x}{2}=\frac {y+6}{3}=2-z\) en het vlak \(\alpha \leftrightarrow x+4y+z-4=0\).<br />
+
+</p>
+<div class="oplossing">
+
+<p>
+Een stel richtingsgetallen van \(e\) is \((a,b,c)=(2,3,-1)\), een normaalvector van \(\alpha \) is \(\overrightarrow {N}(1,4,1)\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                             |2 · 1 + 3 · 4 + (−1) · 1|      13      13
+                                                                                     e m) = √
+                                                                                 cos(d                     √            =√       √ = √
+                                                                                              4 + 9 + 1 · 1 + 16 + 1       14 · 3 2 6 7
+                                                                                 ⇒     m = 35◦ 1′ 22′′
+                                                                                      ed
+                                                                                  ⇒     α = 90◦ − 35◦ 1′ 22′′ = 54◦ 58′ 38′′
+                                                                                       ec
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\cos (\widehat {e\,m}) &amp;=\frac {|2\cdot 1+3\cdot 4+(-1)\cdot 1|} {\sqrt {4+9+1}\cdot \sqrt {1+16+1}} =\frac {13}{\sqrt {14}\cdot 3\sqrt {2}}=\frac {13}{6\sqrt {7}}\\ \Rightarrow \quad
+\widehat {e\,m}&amp;=35\degree 1&apos;22&apos;&apos;\\ \Rightarrow \quad \widehat {e\,\alpha }&amp;=90\degree -35\degree 1&apos;22&apos;&apos;=54\degree 58&apos;38&apos;&apos;
+\end{align*}
+
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-89"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-89"></a>
+
+
+<p>
+Zie handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nr. 23 p. 149.<br />
+
+</p>
+<!--
+...... subsection Oefening 6 ......
+-->
+<h5 id="autosec-90">Oefening 6</h5>
+<a id="mkpiweb-autopage-90"></a>
+
+
+<p>
+Bepaal telkens de gevraagde hoek. Van elke rechte is een richtingsvector gegeven, van elk vlak een normaalvector.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> De hoek tussen de rechten \(a\) en \(b\) met \(\overrightarrow {R_a}(6,6,-7)\) en \(\overrightarrow {S_b}(-2,1,-2)\).
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                           | − 12 + 6 + 14|         8       8
+                                                                                        cos(acb) = √                  √         =        =
+                                                                                                       36 + 36 + 49 · 4 + 1 + 4   11 · 3   33
+                                                                                        ⇒     acb = 75◦ 58′ 13′′
+
+
+-->
+
+<p>
+
+\begin{align*}
+\cos (\widehat {a\,b}) &amp;=\frac {|-12+6+14|}{\sqrt {36+36+49}\cdot \sqrt {4+1+4}} =\frac {8}{11\cdot 3}=\frac {8}{33}\\ \Rightarrow \quad \widehat {a\,b}&amp;=75\degree
+58&apos;13&apos;&apos;
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> De hoek tussen de vlakken \(\alpha \) en \(\beta \) met \(\overrightarrow {N}(0,1,1)\) en \(\overrightarrow {L}(1,1,0)\).
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                                 |0 + 1 + 0|   1
+                                                                                               cos(αcβ) = √             √    =
+                                                                                                               0+1+1· 1+1+0    2
+                                                                                               ⇒     αcβ = 60◦
+
+
+-->
+
+<p>
+
+\begin{align*}
+\cos (\widehat {\alpha \,\beta }) &amp;=\frac {|0+1+0|}{\sqrt {0+1+1}\cdot \sqrt {1+1+0}}=\frac {1}{2}\\ \Rightarrow \quad \widehat {\alpha \,\beta }&amp;=60\degree
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> De hoek tussen de rechte \(a\) met \(\overrightarrow {R_a}(2,0,0)\) en het \(yz\)-vlak.
+</p>
+<div class="oplossing">
+<p>
+Het \(yz\)-vlak heeft vergelijking \(x=0\) en dus normaalvector \(\overrightarrow {N}(1,0,0)\). Omdat \((2,0,0)=2\cdot (1,0,0)\) is \(a\bot \alpha \), waaruit \(\widehat {a\,\alpha }=90\degree \).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> De hoek tussen de rechte \(a\) met \(\overrightarrow {R_a}(0,1,1)\) en het vlak \(\alpha \) met \(\overrightarrow {N}(1,2,1)\).
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                          √
+                                                                                                         |0 + 2 + 1|   3    3
+                                                                                              a m) = √
+                                                                                          cos(d                √     =√ =
+                                                                                                       0+1+1· 1+4+1    12  2
+                                                                                         ⇒      m = 30◦
+                                                                                               ad
+                                                                                          ⇒     acα = 90◦ − 30◦ = 60◦
+
+
+-->
+
+<p>
+
+\begin{align*}
+\cos (\widehat {a\,m}) &amp;=\frac {|0+2+1|}{\sqrt {0+1+1}\cdot \sqrt {1+4+1}} =\frac {3}{\sqrt {12}}=\frac {\sqrt 3}{2}\\ \Rightarrow \quad \widehat {a\,m}&amp;=30\degree \\ \Rightarrow \quad
+\widehat {a\,\alpha }&amp;=90\degree -30\degree =60\degree
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... section Boloppervlak ......
+-->
+<h4 id="autosec-91"><span class="sectionnumber">VI&#x2003;</span>Boloppervlak</h4>
+<a id="mkpiweb-autopage-91"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-92"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-92"></a>
+
+
+<p>
+<i>Een boloppervlak is de verzameling van alle punten van de gepunte ruimte die op een gegeven afstand \(r\) (de straal) van een gegeven punt \(M\) (het middelpunt) gelegen zijn.</i><br />
+
+</p>
+
+<p>
+\[\text {Boloppervlak}=B(M;r)=\{P\in \Sigma _O|d(M,P)=r\}\]
+</p>
+
+<div class="oplossing">
+<div class="center">
+
+<p>
+<iframe src="./boloppervlak.html?v=6c3963f71cf0" style="display:block; width:48vw; height:34vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+<p>
+\(M(x_M,y_M,z_M)\) is het middelpunt, \(r\) de straal en \(P(x,y,z)\) een willekeurig punt van het boloppervlak.
+</p>
+</div>
+<!--
+...... subsection Opstellen vergelijking ......
+-->
+<h5 id="autosec-94"><span class="sectionnumber">2&#x2003;</span>Opstellen vergelijking</h5>
+<a id="mkpiweb-autopage-94"></a>
+
+
+<p>
+Stel \(P\) een willekeurig punt met coo&#x0308;rdinaat \(P(x,y,z)\) en \(M\) het middelpunt van het boloppervlak met \(M(x_M,y_M,z_M)\). Dan vinden we<br />
+
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                            P ∈ B(M ; r) ⇔ d(M, P ) = r
+                                                           p
+                                                         ⇔ (x − xM )2 + (y − yM )2 + (z − zM )2 = r                                            (Afstand tss twee punten)
+                                                         ⇔ (x − xM )2 + (y − yM )2 + (z − zM )2 = r2                                           (Controleer BV en KV)
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P\in B(M;r) &amp;\Leftrightarrow d(M,P)=r\\ &amp;\Leftrightarrow \sqrt {(x-x_M)^2+(y-y_M)^2+(z-z_M)^2}=r &amp;&amp; \text {\small (Afstand tss twee punten)}\\ &amp;\Leftrightarrow
+(x-x_M)^2+(y-y_M)^2+(z-z_M)^2=r^2 &amp;&amp; \text {\small (Controleer BV en KV)}
+\end{align*}
+
+</p>
+
+<p>
+<span class="underline">Besluit</span>:
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(B(M;r)\leftrightarrow (x-x_M)^2+(y-y_M)^2+(z-z_M)^2=r^2\)</span>
+</p>
+</div>
+<!--
+...... subsection Bijzonder geval ......
+-->
+<h5 id="autosec-96"><span class="sectionnumber">3&#x2003;</span>Bijzonder geval</h5>
+<a id="mkpiweb-autopage-96"></a>
+
+
+<p>
+Het boloppervlak met de oorsprong als middelpunt heeft vergelijking:
+</p>
+<div class="center">
+
+<p>
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
+>\(B(O;r)\leftrightarrow x^2+y^2+z^2=r^2\)</span>
+</p>
+</div>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-98"><span class="sectionnumber">4&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-98"></a>
+
+
+<p>
+Stel de vergelijking op van het boloppervlak met middelpunt \(M(2,3,-5)\) en straal \(r=4\).
+</p>
+<div class="oplossing">
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       B(M ; r) ↔ (x − 2)2 + (y − 3)2 + (z + 5)2 = 42
+                                                                                               ↔ x2 − 4x + y 2 − 6y + z 2 + 10z + 22 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+B(M;r) &amp;\leftrightarrow (x-2)^2+(y-3)^2+(z+5)^2=4^2\\ &amp;\leftrightarrow x^2-4x+y^2-6y+z^2+10z+22=0
+\end{align*}
+De tweede gedaante heet de <em>uitgewerkte</em> vergelijking; ze bevat \(x^2\), \(y^2\) en \(z^2\) met dezelfde coe&#x0308;fficie&#x0308;nt.
+</p>
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-99"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-99"></a>
+
+
+<p>
+Zie handboek <i>Van Basis tot Limiet, Ruimtemeetkunde</i>: nrs. 17 en 21 p. 177.<br />
+Extra oefeningen nrs. 18, 19 en 20 p. 177.<br />
+
+</p>
+<!--
+...... subsection Oefening 7 ......
+-->
+<h5 id="autosec-100">Oefening 7</h5>
+<a id="mkpiweb-autopage-100"></a>
+
+
+<p>
+Stel telkens de vergelijking op van het boloppervlak \(\mathcal {B}\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> met middelpunt \(M(1,2,-1)\) en straal \(r=\sqrt 3\).
+</p>
+<div class="oplossing">
+<p>
+\[\mathcal {B}\leftrightarrow (x-1)^2+(y-2)^2+(z+1)^2=3 \Leftrightarrow x^2-2x+y^2-4y+z^2+2z+3=0\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> met middelpunt \(M(1,0,-1)\) en gaand door \(P(3,4,3)\).
+</p>
+<div class="oplossing">
+<p>
+\[r=|MP|=\sqrt {(3-1)^2+(4-0)^2+(3+1)^2}=\sqrt {4+16+16}=6\]
+</p>
+<p>
+\[\mathcal {B}\leftrightarrow (x-1)^2+y^2+(z+1)^2=36 \Leftrightarrow x^2-2x+y^2+z^2+2z-34=0\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> met middellijn \([AB]\), waarbij \(A(2,-1,4)\) en \(B(-4,-3,1)\).
+</p>
+<div class="oplossing">
+<p>
+\[r=\tfrac 12|AB|=\tfrac 12\sqrt {(-4-2)^2+(-3+1)^2+(1-4)^2} =\tfrac 12\sqrt {36+4+9}=\frac {7}{2}\]
+</p>
+<p>
+\[M=\frac {A+B}{2}=\left (\frac {2-4}{2},\frac {-1-3}{2},\frac {4+1}{2}\right ) =\left (-1,-2,\frac 52\right )\]
+</p>
+<p>
+\[\mathcal {B}\leftrightarrow (x+1)^2+(y+2)^2+\left (z-\frac 52\right )^2=\frac {49}{4} \Leftrightarrow x^2+2x+y^2+4y+z^2-5z-1=0\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> met middelpunt \(M(-2,3,4)\) en met het \(xy\)-vlak als raakvlak.
+</p>
+<div class="oplossing">
+<p>
+Het \(xy\)-vlak heeft vergelijking \(z=0\), dus
+</p>
+<p>
+\[r=d(M,\mathrm {vl}(xy))=\frac {|0+0+1\cdot 4+0|}{\sqrt {0+0+1}}=4\]
+</p>
+<p>
+\[\mathcal {B}\leftrightarrow (x+2)^2+(y-3)^2+(z-4)^2=16 \Leftrightarrow x^2+4x+y^2-6y+z^2-8z+13=0\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> met middelpunt op de \(x\)-as, straal \(6\) en gaand door \(P(1,4,2)\).
+</p>
+<div class="oplossing">
+<p>
+Uit \(M\in x\text {-as}\) volgt \(M(x_M,0,0)\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                      P ∈ B ⇔ |P M | = 6
+                                                              p
+                                                            ⇔ (xM − 1)2 + 16 + 4 = 6
+                                                             ⇔ (xM − 1)2 + 20 = 36                                                               (BV en KV zijn voldaan)
+                                                             ⇔ x2M − 2xM − 15 = 0
+                                                             ⇔ xM = 5 ∨ xM = −3
+
+
+-->
+
+<p>
+
+\begin{align*}
+P\in \mathcal {B} &amp;\Leftrightarrow |PM|=6\\ &amp;\Leftrightarrow \sqrt {(x_M-1)^2+16+4}=6\\ &amp;\Leftrightarrow (x_M-1)^2+20=36 &amp;&amp; \text {\small (BV en KV zijn voldaan)}\\
+&amp;\Leftrightarrow x_M^2-2x_M-15=0\\ &amp;\Leftrightarrow x_M=5 \ \vee \ x_M=-3
+\end{align*}
+We vinden twee bollen:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                B1 ↔ (x − 5)2 + y 2 + z 2 = 36 ⇔ x2 + y 2 + z 2 − 10x − 11 = 0
+                                                                                B2 ↔ (x + 3)2 + y 2 + z 2 = 36 ⇔ x2 + y 2 + z 2 + 6x − 27 = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+\mathcal {B}_1&amp;\leftrightarrow (x-5)^2+y^2+z^2=36 \Leftrightarrow x^2+y^2+z^2-10x-11=0\\ \mathcal {B}_2&amp;\leftrightarrow (x+3)^2+y^2+z^2=36 \Leftrightarrow x^2+y^2+z^2+6x-27=0
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> gaand door \(A(1,1,1)\), \(B(2,3,0)\), \(C(2,0,-3)\) en \(D(4,-4,-1)\).
+</p>
+<div class="oplossing">
+<p>
+Stel \(\mathcal {B}\leftrightarrow (x-x_M)^2+(y-y_M)^2+(z-z_M)^2=r^2\). Invullen van de vier punten geeft vier vergelijkingen. Trek telkens de eerste van de overige af, dan vallen \(x_M^2\), \(y_M^2\), \(z_M^2\) en
+\(r^2\) weg:
+</p>
+<p>
+\[\begin {cases} -2x_M-4y_M+2z_M=-10\\ -2x_M+2y_M+8z_M=-10\\ -6x_M+10y_M+4z_M=-30 \end {cases}\]
+</p>
+<p>
+Los dit stelsel op met <span class="textsf">RREF</span> op het grafisch rekentoestel: \(x_M=5\), \(y_M=0\), \(z_M=0\) en dus \(r^2=(1-5)^2+1+1=18\).
+</p>
+<p>
+\[\mathcal {B}\leftrightarrow (x-5)^2+y^2+z^2=18 \Leftrightarrow x^2+y^2+z^2-10x+7=0\]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 8 ......
+-->
+<h5 id="autosec-101">Oefening 8</h5>
+<a id="mkpiweb-autopage-101"></a>
+
+
+<p>
+Onderzoek of de volgende vergelijkingen een boloppervlak voorstellen. Bepaal in dat geval het middelpunt en de straal.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(x^2+y^2+z^2-6z=0\)
+</p>
+<div class="oplossing">
+<p>
+\[(x-0)^2+(y-0)^2+\underbrace {z^2-2\cdot 3z+9}_{(z-3)^2}-9=0 \Leftrightarrow x^2+y^2+(z-3)^2=9\]
+</p>
+<p>
+Een bol met \(M(0,0,3)\) en \(r=3\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(x^2+y^2+z^2+6x-2y+4z+14=0\)
+</p>
+<div class="oplossing">
+<p>
+\[(x+3)^2+(y-1)^2+(z+2)^2=-14+9+1+4=0\]
+</p>
+<p>
+Hier is \(r=0\): het boloppervlak valt samen met één punt, \(B=\{M\}\) met \(M(-3,1,-2)\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(2x^2+2y^2+2z^2-2x+4y-6z-2=0\)
+</p>
+<div class="oplossing">
+<p>
+Deel eerst door \(2\):
+</p>
+<p>
+\[x^2+y^2+z^2-x+2y-3z-1=0\]
+</p>
+<p>
+\[\left (x-\frac 12\right )^2+(y+1)^2+\left (z-\frac 32\right )^2 =1+\frac 14+1+\frac 94=\frac 92\]
+</p>
+<p>
+Een bol met \(M\left (\frac 12,-1,\frac 32\right )\) en \(r=\frac {3}{\sqrt 2}=\frac {3\sqrt 2}{2}\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(x^2+y^2+4x-2y+4=0\)
+</p>
+<div class="oplossing">
+<p>
+Er komt geen \(z^2\) in voor, dus dit is geen boloppervlak.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(x^2+y^2+z^2+x+y+z+1=0\)
+</p>
+<div class="oplossing">
+<p>
+\[\left (x+\frac 12\right )^2+\left (y+\frac 12\right )^2+\left (z+\frac 12\right )^2 =-1+\frac 34=-\frac 14&lt;0\]
+</p>
+<p>
+Er is geen enkel punt dat hieraan voldoet: geen boloppervlak.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefening 9 ......
+-->
+<h5 id="autosec-102">Oefening 9</h5>
+<a id="mkpiweb-autopage-102"></a>
+
+
+<p>
+Bepaal de vergelijking van het boloppervlak door \(A(1,1,0)\), \(B(3,1,-2)\) en \(C(-3,3,-4)\) waarvan het middelpunt in het vlak \(\alpha \leftrightarrow 3x-y-z+3=0\) ligt.
+</p>
+<div class="oplossing">
+
+<p>
+Stel \(\mathcal {B}\leftrightarrow (x-x_M)^2+(y-y_M)^2+(z-z_M)^2=r^2\). Omdat \(A\), \(B\) en \(C\) op \(\mathcal {B}\) liggen en \(M\) in \(\alpha \), krijgen we een stelsel van vier vergelijkingen. Trek de
+vergelijking voor \(A\) af van die voor \(B\) en van die voor \(C\), dan blijven er lineaire vergelijkingen over:
+</p>
+
+<p>
+\[\begin {cases} x_M-z_M=3\\ 2x_M-y_M+2z_M=-8\\ 3x_M-y_M-z_M=-3 \end {cases} \Leftrightarrow \begin {cases} x_M=2\\ y_M=10\\ z_M=-1 \end {cases}\]
+</p>
+
+<p>
+Daarmee is \(r^2=(1-2)^2+(1-10)^2+(0+1)^2=1+81+1=83\) en
+</p>
+
+<p>
+\[\mathcal {B}\leftrightarrow (x-2)^2+(y-10)^2+(z+1)^2=83\]
+</p>
+
+<p>
+Controle: \(3\cdot 2-10-(-1)+3=0\), dus \(M\in \alpha \).
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=20737be75ee0"></script>
+</body>
+</html>

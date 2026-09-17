@@ -1,0 +1,25 @@
+{
+ "titel": "Euclidische ruimtemeetkunde",
+ "hoofdstuk": 4,
+ "code": "R04",
+ "vak": "Wiskunde",
+ "domein": "Ruimtemeetkunde",
+ "domeinnaam": "Ruimtemeetkunde",
+ "url": "ruimtemeetkunde/euclidische-ruimtemeetkunde",
+ "secties": [
+  "Inproduct",
+  "Loodrechte stand",
+  "Oefeningen",
+  "Afstanden",
+  "Hoeken",
+  "Boloppervlak"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.07",
+  "WD3_06.08.08",
+  "WD3_06.08.10"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": true
+}

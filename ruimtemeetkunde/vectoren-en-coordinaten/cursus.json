@@ -1,0 +1,25 @@
+{
+ "titel": "Vectoren en coördinaten in de ruimte",
+ "hoofdstuk": 2,
+ "code": "R02",
+ "vak": "Wiskunde",
+ "domein": "Ruimtemeetkunde",
+ "domeinnaam": "Ruimtemeetkunde",
+ "url": "ruimtemeetkunde/vectoren-en-coordinaten",
+ "secties": [
+  "Vectoren in de ruimte \\(\\Sigma \\)",
+  "Bewerkingen met vectoren",
+  "Gepunte ruimte of ruimte met oorsprong",
+  "Bijzondere plaatsvectoren",
+  "Geijkte ruimte",
+  "Coördinaten van bijzondere punten",
+  "Oefeningen"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.07",
+  "WD3_06.08.40"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}
