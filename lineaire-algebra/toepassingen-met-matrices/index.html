@@ -1,0 +1,1198 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Toepassingen met matrices</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=7dc81d234f56" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=7dc81d234f56" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=7dc81d234f56" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 2</p> <h1>Toepassingen met matrices</h1> </header>
+</p>
+<!--
+...... section Overgangsmatrices ......
+-->
+<h4 id="autosec-2"><span class="sectionnumber">I&#x2003;</span>Overgangsmatrices</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Opgave ......
+-->
+<h5 id="autosec-3">Opgave</h5>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<p>
+Thomas wil meteoroloog worden. Na bestudering van een groot aantal statistieken voor april komt hij tot de volgende resultaten.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Is het vandaag warm (\(W\)), dan zijn de kansen voor morgen:<br />
+\(W:0.6\qquad B:0.3\qquad R:0.1\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Is het vandaag bewolkt (\(B\)), dan:<br />
+\(W:0.3\qquad B:0.4\qquad R:0.3\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Is het vandaag regenachtig (\(R\)), dan:<br />
+\(W:0.1\qquad B:0.5\qquad R:0.4\)
+</p>
+</li>
+</ul>
+
+<p>
+Vandaag regent het. Maarten wil overmorgen een BBQ organiseren. Wat is de kans dat het mooi weer is?
+</p>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Kansboom ......
+-->
+<h5 id="autosec-4">Kansboom</h5>
+<a id="mkpiweb-autopage-4"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+vandaag         morgen         overmorgen
+
+
+                                  W
+                         0.6
+                         0.3
+                 W                B
+                         0.1
+                                   R
+          0.1
+
+                                  W
+                         0.3
+                         0.4
+  R       0.5     B               B
+                         0.3
+                                   R
+          0.4
+                                  W
+                         0.1
+                         0.5
+                  R               B
+                         0.4
+                                   R
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+\[ \begin {array}{rcl} 0.1\cdot 0.6 &amp;=&amp; 0.06\\ 0.5\cdot 0.3 &amp;=&amp; 0.15\\ 0.4\cdot 0.1 &amp;=&amp; 0.04\\ \hline \text {samen} &amp;=&amp; 0.25 \end {array} \]
+</p>
+
+<p>
+Er is dus \(25\,\%\) kans op mooi weer.
+</p>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Schematische voorstelling: ‘‘graaf’’ ......
+-->
+<h5 id="autosec-8">Schematische voorstelling: “graaf”</h5>
+<a id="mkpiweb-autopage-8"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+                                     0.4
+
+
+
+
+                                     R
+
+
+                      0.1                         0.5
+knooppunt
+                               0.3         0.3
+
+                                     0.3
+
+                  W                                     B
+                                     0.3
+            0.6                                             0.4
+
+   lus
+                            overgangen of wegen
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Een <b>gewogen graaf</b>: de knooppunten zijn de toestanden, de pijlen de overgangen, en het gewicht is de kans.
+</p>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Matrix: ‘‘overgangsmatrix’’ ......
+-->
+<h5 id="autosec-12">Matrix: “overgangsmatrix”</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+\[ A=\begin {array}{c|ccc} {} &amp; W &amp; B &amp; R\\\hline W &amp; 0.6 &amp; 0.3 &amp; 0.1\\ B &amp; 0.3 &amp; 0.4 &amp; 0.5\\ R &amp; 0.1 &amp; 0.3 &amp; 0.4 \end {array} \]
+</p>
+
+<p>
+De <em>kolommen</em> zeggen waar we van vertrekken (“van”), de <em>rijen</em> waar we aankomen (“naar”). Elke kolom telt op tot \(1\).
+</p>
+
+<p>
+Overmorgen:
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="overgangsmatrix" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ A^2=A\cdot A= \begin {pmatrix} 0.46 &amp; 0.33 &amp; 0.25\\ 0.35 &amp; 0.40 &amp; 0.43\\ 0.19 &amp; 0.27 &amp; 0.32 \end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">De drie kansen, dag na dag. Versleep <em>dag</em> of gebruik de knoppen; dag \(2\) geeft de \(0.25\) van de kansboom
+terug. Kies ook een ander weer voor vandaag: na een aantal dagen loopt alles naar hetzelfde evenwicht.</figcaption> </figure>
+</p>
+
+<p>
+Vandaag regent het, dus we lezen de kolom \(R\): de kans op \(W\) overmorgen is \(0.25\), dus \(25\,\%\). Dat is precies wat de kansboom gaf.
+</p>
+
+<p>
+Volgende dag: \(A^3=A^2\cdot A\), enzovoort.
+</p>
+<!--
+...... section Migratiematrices ......
+-->
+<h4 id="autosec-13"><span class="sectionnumber">II&#x2003;</span>Migratiematrices</h4>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Opgave ......
+-->
+<h5 id="autosec-14">Opgave</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+In een bepaald land verhuist elk jaar \(10\,\%\) van de stedelingen naar het platteland, en \(15\,\%\) van de plattelandsbewoners naar de stad. In \(2002\) woonden er \(68\,000\) mensen in de steden en \(82\,000\) op het
+platteland.
+</p>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Graaf ......
+-->
+<h5 id="autosec-15">Graaf</h5>
+<a id="mkpiweb-autopage-15"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+           0.15
+
+0.85   P          S   0.90
+
+           0.10
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Matrix: ‘‘migratiematrix’’ ......
+-->
+<h5 id="autosec-19">Matrix: “migratiematrix” \(M\)</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+\[ M=\begin {array}{c|cc} {} &amp; S &amp; P\\\hline S &amp; 0.90 &amp; 0.15\\ P &amp; 0.10 &amp; 0.85 \end {array} \]
+</p>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Bevolkingsevolutie ......
+-->
+<h5 id="autosec-20">Bevolkingsevolutie</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+De <b>bevolkingsmatrix</b> in \(2002\) is
+</p>
+
+<p>
+\[ B_{2002}= \begin {pmatrix}68\,000\\82\,000\end {pmatrix} \begin {matrix}S\\P\end {matrix} \]
+</p>
+
+<p>
+\(1\) jaar later:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                     0.90 · 68 000 + 0.15 · 82 000 = 73 500   in de stad
+                                                                                     0.10 · 68 000 + 0.85 · 82 000 = 76 500   op het platteland
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+0.90\cdot 68\,000+0.15\cdot 82\,000 &amp;= 73\,500 \quad \text {in de stad}\\ 0.10\cdot 68\,000+0.85\cdot 82\,000 &amp;= 76\,500 \quad \text {op het platteland}
+\end{align*}
+of korter:
+</p>
+
+<p>
+\[ B_{2003}=M\cdot B_{2002}=\begin {pmatrix}73\,500\\76\,500\end {pmatrix} \]
+</p>
+
+<p>
+\(2\) jaar later: \(B_{2004}=M^2\cdot B_{2002}=\cdots \)
+</p>
+
+<p>
+Komt er op een bepaald moment een evenwicht?
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="migratie-evenwicht" data-hoogte="27rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ B_{2012}=M^{10}\cdot B_{2002}=\begin {pmatrix}88\,761\\61\,239\end {pmatrix} \qquad M^{20}\cdot B_{2002}=\begin {pmatrix}89\,930\\60\,070\end {pmatrix} \]
+</p>
+
+<p>
+\[ M^{30}\cdot B_{2002}=\begin {pmatrix}89\,996\\60\,004\end {pmatrix} \qquad \cdots \qquad M^{50}\cdot B_{2002}=\begin {pmatrix}90\,000\\60\,000\end {pmatrix} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">De twee bevolkingsgroepen jaar na jaar. Versleep <em>start</em> langs de verticale as: waar je ook begint, beide krommen
+lopen naar \(90\,000\) en \(60\,000\). Met <em>jaar</em> lees je een bepaald jaar af.</figcaption> </figure>
+</p>
+
+<p>
+Op een bepaald ogenblik ontstaat er dus een <b>evenwicht</b>.
+</p>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Exacte berekening van de evenwichtstoestand ......
+-->
+<h5 id="autosec-21">Exacte berekening van de evenwichtstoestand</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+Stel \(s=\) het aantal stedelingen bij evenwicht en \(p=\) het aantal plattelandsbewoners bij evenwicht. Dan verandert de bevolkingsmatrix niet meer:
+</p>
+
+<p>
+\[ M\cdot \begin {pmatrix}s\\p\end {pmatrix}=\begin {pmatrix}s\\p\end {pmatrix} \qquad \text {met}\qquad s+p=150\,000 \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                              
+                                                                                                                        0.90s + 0.15p = s
+                                                                                                                                              −0.10s + 0.15p = 0
+                                                                                                                                               
+                                                           ⇔                                                              0.10s + 0.85p = p   ⇔ 0.10s − 0.15p = 0
+                                                                                                                                              
+                                                                                                                          s + p = 150 000       s + p = 150 000
+                                                                                                                                              
+
+                                                                                                                        
+                                                                                                                        s = 0.15 p = 1.5 p
+                                                                                                                                                (
+                                                                                                                                                 p = 60 000
+                                                           ⇔                                                                 0.10             ⇔
+                                                                                                                        s + p = 150 000         s = 90 000
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Leftrightarrow &amp; \begin{cases} 0.90s+0.15p=s\\ 0.10s+0.85p=p\\ s+p=150\,000 \end {cases} &amp;\Leftrightarrow \begin{cases} -0.10s+0.15p=0\\ 0.10s-0.15p=0\\ s+p=150\,000 \end
+{cases}\\[6pt] &amp;\Leftrightarrow &amp; \begin{cases} s=\dfrac {0.15}{0.10}\,p=1.5\,p\\ s+p=150\,000 \end {cases} &amp;\Leftrightarrow \begin{cases} p=60\,000\\ s=90\,000 \end {cases}
+\end{align*}
+
+</p>
+<!--
+...... section Populatie- of Lesliematrices ......
+-->
+<h4 id="autosec-22"><span class="sectionnumber">III&#x2003;</span>Populatie- of Lesliematrices</h4>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Opgave ......
+-->
+<h5 id="autosec-23">Opgave</h5>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+Een vogelsoort wordt hoogstens \(4\) jaar oud. We verdelen de populatie in leeftijdsklassen van \(1\) jaar: \(0j\) (de eieren), \(1j\), \(2j\), \(3j\) en \(4j\). Van de \(0\)-jarigen overleeft \(40\,\%\) het eerste jaar, van elke
+volgende klasse overleeft \(60\,\%\). Vogels van \(2j\) en \(3j\) leggen elk gemiddeld \(2\) eieren per jaar, vogels van \(4j\) gemiddeld \(1\) ei. Vandaag telt de populatie \(180\) eieren, \(80\) eenjarigen, \(50\) tweejarigen,
+\(30\) driejarigen en \(20\) vierjarigen.
+</p>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Graaf ......
+-->
+<h5 id="autosec-24">Graaf</h5>
+<a id="mkpiweb-autopage-24"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+                          1
+
+                    2
+
+               2
+
+
+ 0j            1j         2j         3j         4j
+         0.4        0.6        0.6        0.6
+
+eieren
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Matrix: ‘‘Lesliematrix’’ ......
+-->
+<h5 id="autosec-28">Matrix: “Lesliematrix” \(L\)</h5>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+\[ L=\begin {array}{c|ccccc} {} &amp; 0j &amp; 1j &amp; 2j &amp; 3j &amp; 4j\\\hline 0j &amp; 0 &amp; 0 &amp; 2 &amp; 2 &amp; 1\\ 1j &amp; 0.4 &amp; 0 &amp; 0 &amp; 0 &amp; 0\\ 2j &amp; 0 &amp;
+0.6 &amp; 0 &amp; 0 &amp; 0\\ 3j &amp; 0 &amp; 0 &amp; 0.6 &amp; 0 &amp; 0\\ 4j &amp; 0 &amp; 0 &amp; 0 &amp; 0.6 &amp; 0 \end {array} \]
+</p>
+
+<p>
+De eerste rij bevat de <b>geboortecijfers</b>, de onderdiagonaal de <b>overlevingskansen</b>, en alle andere plaatsen zijn onmogelijke overgangen. Een Lesliematrix is dus eigenlijk een bijzondere overgangsmatrix.
+</p>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Evolutie ......
+-->
+<h5 id="autosec-29">Evolutie</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="leslie-populatie" data-hoogte="27rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ P_0=\begin {pmatrix}180\\80\\50\\30\\20\end {pmatrix} =\text {&grave;&grave;populatiematrix&apos;&apos;} \qquad \text {na }1j:\ P_1=L\cdot P_0=\begin {pmatrix}180\\72\\48\\30\\18\end
+{pmatrix} \]
+</p>
+
+<p>
+\[ \text {na }16j:\ P_{16}=L^{16}\cdot P_0=\begin {pmatrix}92\\38\\24\\15\\9\end {pmatrix} \ \ \Bigl (\text {samen }178\Bigr ) \qquad \text {na }32j:\ P_{32}=L^{32}\cdot P_0=\begin
+{pmatrix}45\\19\\12\\7\\5\end {pmatrix} \ \ \Bigl (\text {samen }88\Bigr ) \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Het totaal en het aantal eieren jaar na jaar. Versleep <em>jaar</em> om een jaar af te lezen, en verzet de overlevingskans van
+de eieren: onder een bepaalde waarde sterft de soort uit, erboven groeit de populatie.</figcaption> </figure>
+</p>
+
+<p>
+<span class="cursus-buiten-inhoudstafel"></span>
+</p>
+<!--
+...... subsection Besluit ......
+-->
+<h5 id="autosec-30">Besluit</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+De populatie (samen \(360\) bij de start) halveert om de \(16\) jaar. De vogelsoort zal uitsterven.
+</p>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-31"><span class="sectionnumber">IV&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+p 35 e.v.
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=7dc81d234f56"></script>
+<script src="vendor/jsxgraphcore.js?v=7dc81d234f56"></script>
+<script src="interactieve-grafieken.js?v=7dc81d234f56"></script>
+<script src="hoofdstuk.interactief.js?v=7dc81d234f56"></script>
+</body>
+</html>

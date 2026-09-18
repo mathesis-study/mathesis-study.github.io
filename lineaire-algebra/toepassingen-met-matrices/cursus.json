@@ -1,0 +1,19 @@
+{
+ "titel": "Toepassingen met matrices",
+ "hoofdstuk": 2,
+ "code": "L02",
+ "vak": "Wiskunde",
+ "domein": "LineaireAlgebra",
+ "domeinnaam": "Lineaire algebra",
+ "url": "lineaire-algebra/toepassingen-met-matrices",
+ "secties": [
+  "Overgangsmatrices",
+  "Migratiematrices",
+  "Populatie- of Lesliematrices",
+  "Oefeningen"
+ ],
+ "leerplandoelen": [],
+ "interactief": true,
+ "python": false,
+ "oefeningen": false
+}

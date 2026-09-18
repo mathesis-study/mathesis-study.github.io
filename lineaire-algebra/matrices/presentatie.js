@@ -309,24 +309,33 @@
     var voorwerk = el("div", "pres-voorwerk");
     voorwerk.hidden = true;
 
-    // cursus.cls zet deze markering vlak voor elke \subsubsection*. Zo blijft
-    // de subtitel op de lopende slide en komt hij niet in de navigatie terecht.
-    stroom.querySelectorAll(".cursus-subtitel-op-slide").forEach(function (marker) {
-      // lwarp kan de lege span in een eigen, verder lege alinea wikkelen.
-      var drager = marker.parentElement;
-      var kop = marker.nextElementSibling || (drager && drager.nextElementSibling);
-      // Na een omgeving zoals oplossing belandt de markering buiten elke
-      // alinea, gevolgd door een lege <p> die lwarp's losse </p> achterlaat.
-      while (kop && kop.tagName === "P" && !kop.children.length && kop.textContent.trim() === "") {
-        kop = kop.nextElementSibling;
-      }
-      if (kop && kop.matches(KOPPEN)) kop.dataset.opLopendeSlide = "1";
-      if (drager && drager.tagName === "P" && drager.textContent.trim() === "") {
-        drager.remove();
-      } else {
-        marker.remove();
-      }
-    });
+    // cursus.cls zet zo'n lege markering vlak voor een ongenummerde kop; ze
+    // verhuist naar de kop erna als gegeven en verdwijnt daarna uit de stroom.
+    function merkKoppen(klasse, veld) {
+      stroom.querySelectorAll("." + klasse).forEach(function (marker) {
+        // lwarp kan de lege span in een eigen, verder lege alinea wikkelen.
+        var drager = marker.parentElement;
+        var kop = marker.nextElementSibling || (drager && drager.nextElementSibling);
+        // Na een omgeving zoals oplossing belandt de markering buiten elke
+        // alinea, gevolgd door een lege <p> die lwarp's losse </p> achterlaat.
+        while (kop && kop.tagName === "P" && !kop.children.length && kop.textContent.trim() === "") {
+          kop = kop.nextElementSibling;
+        }
+        if (kop && kop.matches(KOPPEN)) kop.dataset[veld] = "1";
+        if (drager && drager.tagName === "P" && drager.textContent.trim() === "") {
+          drager.remove();
+        } else {
+          marker.remove();
+        }
+      });
+    }
+
+    // Een \subsubsection* blijft als subtitel op de lopende slide staan en
+    // komt niet in de navigatie terecht.
+    merkKoppen("cursus-subtitel-op-slide", "opLopendeSlide");
+    // Een \subsection* krijgt wel haar eigen slide, maar blijft uit de
+    // inhoudstafel: een reeks oefeningen hoort de zijbalk niet vol te zetten.
+    merkKoppen("cursus-buiten-inhoudstafel", "buitenInhoudstafel");
 
     // De leerplandoelen zijn voor de leraar, niet voor de klas. Ze gaan niet
     // mee in de slides, maar wachten op het venster uit het overloopmenu.
@@ -351,7 +360,8 @@
         niveau: NIVEAU[kop.tagName] || 3,
         nummer: nummer,
         titel: titel,
-        id: naam
+        id: naam,
+        buitenInhoudstafel: kop.dataset.buitenInhoudstafel === "1"
       };
     }
 
@@ -1876,6 +1886,7 @@
 
     var lijst = el("ol");
     navigatie.forEach(function (item, j) {
+      if (item.buitenInhoudstafel) return;
       var s = item.slide;
       var i = item.slideIndex;
       var li = el("li", "pres-niveau-" + item.niveau);
