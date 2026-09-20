@@ -8,7 +8,13 @@
   --kleur-achtergrond: #eef1f5;
   --kleur-accent: #1d5fa8;
   --kleur-accent-zacht: #e8f0fa;
+  --kleur-actieve-regel: rgba(232, 240, 250, .68);
+  --kleur-selectie: #9fc3ea;
+  --kleur-zelfcontrole: #4d8fcb;
   --kleur-op-accent: #ffffff;
+  --kleur-goed: #27823b;
+  --kleur-fout: #c43535;
+  --kleur-traceback: #7f1d1d;
   --kleur-oplossing: #fafcfa;
   --kleur-oplossing-rand: #d6e4d6;
   --kleur-oplossing-streep: #f7faf7;
@@ -59,7 +65,13 @@
     --kleur-achtergrond: #0e141a;
     --kleur-accent: #7ab4f0;
     --kleur-accent-zacht: #1d2c3c;
+    --kleur-actieve-regel: rgba(29, 44, 60, .68);
+    --kleur-selectie: #365b80;
+    --kleur-zelfcontrole: #91c5f5;
     --kleur-op-accent: #0e141a;
+    --kleur-goed: #70c982;
+    --kleur-fout: #f08080;
+    --kleur-traceback: #cc6666;
     --kleur-oplossing: #1a2822;
     --kleur-oplossing-rand: #30483a;
     --kleur-oplossing-streep: #1d2c23;

@@ -1029,7 +1029,14 @@
   G.registreer("niet-afleidbaar", function (ctx) {
     var RAND = 1.6;                             // tot waar de kromme loopt
     var MINIMUM = 0.02;                         // de punten bereiken 0 nooit
-    var START = 1.2;
+    var START = 1.35;                           // enkel de eerste plaatsing
+
+    // L begint verder van 0 dan R. Bij $f(x) = \sqrt[3]{x}$ zouden twee even
+    // ver gelegen punten precies op één rechte door O liggen: de twee
+    // lijnstukken lezen dan als één koorde en je ziet niet dat het om twee
+    // afzonderlijke differentiequotiënten gaat.
+    var AFSTAND_L = [1.25, 1.45];
+    var AFSTAND_R = [0.85, 1.05];
 
     var GEVALLEN = [
       {
@@ -1137,6 +1144,25 @@
       punt.setPosition(window.JXG.COORDS_BY_USER, [x, f(x)]);
     }
 
+    // Elke beginstand ligt net wat anders dan de vorige, zodat het beeld niet
+    // als één vaste tekening blijft hangen.
+    var vorigeL = null;
+    var vorigeR = null;
+    function kiesAfstand(grenzen, vorige) {
+      var x;
+      do {
+        x = grenzen[0] + (grenzen[1] - grenzen[0]) * Math.random();
+      } while (vorige !== null && Math.abs(x - vorige) < 0.06);
+      return x;
+    }
+
+    function zetBegin() {
+      vorigeL = kiesAfstand(AFSTAND_L, vorigeL);
+      vorigeR = kiesAfstand(AFSTAND_R, vorigeR);
+      zet(L, -vorigeL);
+      zet(R, vorigeR);
+    }
+
     // L blijft links van 0, R rechts, en geen van beide bereikt 0 zelf.
     function begrens(punt, teken) {
       var x = punt.X();
@@ -1155,6 +1181,14 @@
 
     ctx.knop("Naar 0 laten gaan", function () {
       stopLoop();
+      // Staan de punten al tegen 0, dan zou er niets meer bewegen: zet ze
+      // eerst terug, zodat een tweede klik de beweging herbegint.
+      if (Math.abs(L.X()) < 10 * MINIMUM && Math.abs(R.X()) < 10 * MINIMUM) {
+        zetBegin();
+        bord.update();
+      }
+      // L en R hebben een eigen afstand, maar leggen die in dezelfde tijd af:
+      // ze komen samen in 0 aan.
       var beginL = Math.abs(L.X());
       var beginR = Math.abs(R.X());
       var start = null;
@@ -1180,8 +1214,7 @@
       stopLoop();
       bord.setBoundingBox(geval.venster, false);
       if (linkertak.label) linkertak.label.setAttribute({ offset: geval.naamplaats });
-      zet(L, -START);
-      zet(R, START);
+      zetBegin();
       knoppen.forEach(function (knop, i) {
         knop.setAttribute("aria-pressed", String(GEVALLEN[i] === geval));
       });
@@ -1189,11 +1222,526 @@
       werkBij();
     }
 
+    // Beginstand zet enkel L en R terug; het gekozen geval blijft.
+    function beginstand() {
+      stopLoop();
+      zetBegin();
+      bord.update();
+      werkBij();
+    }
+
+    // Reset brengt ook het knikpunt terug.
     function herstel() { kies(GEVALLEN[0]); }
 
-    ctx.knop("Beginstand", herstel);
+    ctx.knop("Beginstand", beginstand);
     herstel();
 
     return { reset: herstel, vernietig: stopLoop };
+  });
+
+  /* --- 6. Schetsoefeningen: teken zelf de grafiek van f' ----------------- */
+
+  // De vier oefeningen bij "De afgeleide functie" zijn op papier telkens een
+  // gegeven grafiek van f met een leeg rooster ernaast. Op de website tekent
+  // de leerling in dat rooster, met de vinger, de muis of het toetsenbord, en
+  // zegt Controleer wat er aan de schets klopt en wat niet.
+  //
+  // De beoordeling is met opzet een algoritme en geen taalmodel: de site moet
+  // statisch en offline blijven werken, en een leerling heeft meer aan een
+  // uitspraak over het teken, de nulpunten en de ligging dan aan een cijfer.
+  // Exact tekenen lukt met een vinger toch niet, dus alles wordt vergeleken
+  // in eenheden van de hoogte van het venster, met ruime marges.
+  //
+  // Zolang enkel dit hoofdstuk schetsoefeningen heeft, hoort deze machinerie
+  // hier en niet in de algemene runtime.
+  var Schets = (function () {
+    var N = 121;                 // roosterkolommen over het tekendomein
+    var GLAD = 2;                // halve breedte van het gladstrijkvenster
+    var PUNTEN = 5;              // sleepbare punten in de puntenstand
+
+    var num = window.JXG.Math.Numerics;
+
+    function maakRooster(a, b) {
+      var xs = [];
+      for (var i = 0; i < N; i++) xs.push(a + (b - a) * i / (N - 1));
+      return xs;
+    }
+
+    // Een voortschrijdend gemiddelde haalt de bibber van een vinger weg
+    // zonder de vorm te veranderen.
+    function glad(waarden) {
+      var uit = [];
+      for (var i = 0; i < waarden.length; i++) {
+        var som = 0, aantal = 0;
+        for (var k = -GLAD; k <= GLAD; k++) {
+          var j = i + k;
+          if (j >= 0 && j < waarden.length && !isNaN(waarden[j])) {
+            som += waarden[j];
+            aantal++;
+          }
+        }
+        uit.push(aantal ? som / aantal : NaN);
+      }
+      return uit;
+    }
+
+    function tekenVan(waarde, dood) {
+      if (waarde > dood) return 1;
+      if (waarde < -dood) return -1;
+      return 0;
+    }
+
+    // De x-waarden waar een rij van teken wisselt, lineair geschat.
+    function nulpunten(xs, ys) {
+      var lijst = [];
+      for (var i = 1; i < ys.length; i++) {
+        if (isNaN(ys[i - 1]) || isNaN(ys[i])) continue;
+        if (ys[i - 1] === 0) continue;
+        if ((ys[i - 1] < 0) !== (ys[i] < 0)) {
+          var deel = ys[i - 1] / (ys[i - 1] - ys[i]);
+          lijst.push(xs[i - 1] + deel * (xs[i] - xs[i - 1]));
+        }
+      }
+      return lijst;
+    }
+
+    function spreiding(ys, van, tot) {
+      var som = 0, somkw = 0, aantal = 0;
+      for (var i = van; i <= tot; i++) {
+        if (isNaN(ys[i])) continue;
+        som += ys[i];
+        somkw += ys[i] * ys[i];
+        aantal++;
+      }
+      if (!aantal) return 0;
+      var gem = som / aantal;
+      return Math.sqrt(Math.max(0, somkw / aantal - gem * gem));
+    }
+
+    function maak(ctx, opgave) {
+      var a = opgave.domein[0];
+      var b = opgave.domein[1];
+      var venster = opgave.venster;                 // [links, boven, rechts, onder]
+      var hoogte = venster[1] - venster[3];
+      var xs = maakRooster(a, b);
+      var juist = xs.map(opgave.fAccent);
+      var waarden = xs.map(function () { return NaN; });
+      var geschiedenis = [];
+      var stand = "teken";
+
+      var bord = ctx.maakBord({ begrenzing: venster, raster: true });
+
+      ctx.stijl(bord.create("functiongraph", [opgave.f, a, b], {
+        strokeWidth: 2.5, fixed: true, highlight: false,
+        name: "f", withLabel: true, label: { position: "rt", offset: [-8, -14] }
+      }), "kromme");
+
+      var schets = ctx.stijl(bord.create("curve", [[], []], {
+        strokeWidth: 3, fixed: true, highlight: false
+      }), "punt");
+
+      var oplossing = ctx.stijl(bord.create("functiongraph", [opgave.fAccent, a, b], {
+        strokeWidth: 2.5, dash: 2, fixed: true, highlight: false, visible: false,
+        name: "f'", withLabel: true, label: { position: "rt", offset: [-8, -14] }
+      }), "afgeleide");
+
+      /* --- de puntenstand: sleepbaar en met de pijltjestoetsen te zetten -- */
+
+      var punten = [];
+      for (var k = 0; k < PUNTEN; k++) {
+        var px = a + (b - a) * k / (PUNTEN - 1);
+        var spoor = bord.create("segment",
+          [[px, venster[3] + 0.2], [px, venster[1] - 0.2]],
+          { visible: false, fixed: true });
+        punten.push(ctx.stijl(bord.create("glider", [px, 0, spoor], {
+          withLabel: false, size: 4, showInfobox: false, visible: false,
+          precision: { touch: 30, mouse: 6 }
+        }), "punt"));
+      }
+
+      function puntenY(x) {
+        var px = punten.map(function (p) { return p.X(); });
+        var py = punten.map(function (p) { return p.Y(); });
+        return num.splineEval(x, px, py, num.splineDef(px, py));
+      }
+
+      var spline = ctx.stijl(bord.create("curve",
+        [function (t) { return t; }, function (t) { return puntenY(t); }, a, b],
+        { strokeWidth: 3, fixed: true, highlight: false, visible: false }), "punt");
+
+      /* --- tekenen met vinger of muis ------------------------------------ */
+
+      function kolomVan(x) {
+        return Math.round((x - a) / (b - a) * (N - 1));
+      }
+
+      function zet(i, y) {
+        if (i < 0 || i >= N) return;
+        waarden[i] = Math.min(venster[1], Math.max(venster[3], y));
+      }
+
+      // Tussen twee opeenvolgende posities van de vinger ligt vaak een hele
+      // reeks kolommen; die worden lineair opgevuld. De laatste haal telt,
+      // zodat terugkrabbelen de vorige poging overschrijft.
+      var vorige = null;
+      function trek(x, y) {
+        var i = kolomVan(x);
+        if (vorige === null) {
+          zet(i, y);
+        } else {
+          var i0 = vorige.i, y0 = vorige.y;
+          var stap = i >= i0 ? 1 : -1;
+          for (var j = i0; j !== i + stap; j += stap) {
+            var deel = i === i0 ? 1 : (j - i0) / (i - i0);
+            zet(j, y0 + (y - y0) * deel);
+          }
+        }
+        vorige = { i: i, y: y };
+        toonSchets();
+      }
+
+      function toonSchets() {
+        var dx = [], dy = [];
+        for (var i = 0; i < N; i++) {
+          dx.push(xs[i]);
+          dy.push(isNaN(waarden[i]) ? NaN : waarden[i]);
+        }
+        schets.dataX = dx;
+        schets.dataY = dy;
+        bord.update();
+      }
+
+      var houder = bord.containerObj;
+      var bezig = false;
+
+      function coords(e) {
+        return bord.getUsrCoordsOfMouse(e);
+      }
+
+      function omlaag(e) {
+        if (stand !== "teken" || e.button > 0) return;
+        bezig = true;
+        vorige = null;
+        geschiedenis.push(waarden.slice());
+        if (geschiedenis.length > 20) geschiedenis.shift();
+        if (houder.setPointerCapture && e.pointerId !== undefined) {
+          try { houder.setPointerCapture(e.pointerId); } catch (fout) { /* niet erg */ }
+        }
+        var p = coords(e);
+        trek(p[0], p[1]);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      function beweeg(e) {
+        if (!bezig) return;
+        var p = coords(e);
+        trek(p[0], p[1]);
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      function omhoog(e) {
+        if (!bezig) return;
+        bezig = false;
+        vorige = null;
+        e.preventDefault();
+      }
+
+      houder.style.touchAction = "none";
+      houder.addEventListener("pointerdown", omlaag, true);
+      houder.addEventListener("pointermove", beweeg, true);
+      houder.addEventListener("pointerup", omhoog, true);
+      houder.addEventListener("pointercancel", omhoog, true);
+
+      /* --- de beoordeling ------------------------------------------------ */
+
+      // De schets zoals ze beoordeeld wordt: gladgestreken, en in de
+      // puntenstand gewoon de spline op hetzelfde rooster.
+      function huidige() {
+        if (stand === "punten") return xs.map(puntenY);
+        return glad(waarden);
+      }
+
+      function grenzen(ys) {
+        var eerste = -1, laatste = -1;
+        for (var i = 0; i < ys.length; i++) {
+          if (isNaN(ys[i])) continue;
+          if (eerste < 0) eerste = i;
+          laatste = i;
+        }
+        return [eerste, laatste];
+      }
+
+      // De gemiddelde afstand tot een kandidaatfunctie, in eenheden van de
+      // vensterhoogte. Zo betekent dezelfde drempel in elke oefening
+      // hetzelfde, ook als de assen anders geschaald zijn.
+      function afstand(ys, van, tot, h, schuif) {
+        var som = 0, aantal = 0;
+        for (var i = van; i <= tot; i++) {
+          if (isNaN(ys[i])) continue;
+          som += Math.abs(ys[i] - h(xs[i] + (schuif || 0)));
+          aantal++;
+        }
+        return aantal ? som / aantal / hoogte : Infinity;
+      }
+
+      // Wie met de vinger tekent, zit gemakkelijk een paar pixels naast de
+      // juiste plaats; op een steil stuk geeft dat meteen een grote
+      // verticale afwijking. Daarom mag de vergelijking een beetje in de
+      // x-richting schuiven, te weinig om een andere vorm goed te keuren.
+      function beste(ys, van, tot, h) {
+        var speling = 0.06 * (b - a);
+        var klein = Infinity;
+        for (var k = -4; k <= 4; k++) {
+          klein = Math.min(klein, afstand(ys, van, tot, h, k * speling / 4));
+        }
+        return klein;
+      }
+
+      function kandidaten() {
+        var lijst = [
+          { functie: opgave.f,
+            tekst: "Dat is de grafiek van f zelf. Teken hoe steil f is, niet " +
+                   "hoe hoog f ligt." },
+          { functie: function (x) { return -opgave.fAccent(x); },
+            tekst: "Je tekening is gespiegeld om de x-as. Waar f stijgt, ligt " +
+                   "f' boven de x-as." }
+        ];
+        return lijst.concat(opgave.misvattingen || []);
+      }
+
+      function beoordeel() {
+        var ys = huidige();
+        var rand = grenzen(ys);
+        if (rand[0] < 0) {
+          return { goed: false, tekst: "Er staat nog niets. Teken de grafiek " +
+                                       "van f' van links naar rechts." };
+        }
+        if ((rand[1] - rand[0] + 1) / N < 0.7) {
+          return { goed: false, tekst: "Je tekening bedekt maar een deel van " +
+                                       "het venster. Teken f' over het hele bereik." };
+        }
+        var van = rand[0], tot = rand[1];
+        var dood = 0.05 * hoogte;
+
+        var d = beste(ys, van, tot, opgave.fAccent);
+        if (d <= 0.075) {
+          return { goed: true, tekst: "Juist. De streepjeslijn is de grafiek " +
+                                      "van f'; vergelijk ze met je schets." };
+        }
+
+        // Een herkenbare misvatting krijgt voorrang op algemene feedback.
+        var raak = null;
+        kandidaten().forEach(function (kandidaat) {
+          var dk = beste(ys, van, tot, kandidaat.functie);
+          if (dk <= 0.08 && dk < 0.6 * d && (!raak || dk < raak.d)) {
+            raak = { d: dk, tekst: kandidaat.tekst };
+          }
+        });
+        if (raak) return { goed: false, tekst: raak.tekst };
+
+        // Dezelfde vorm, maar een stuk te hoog of te laag: dat is een fout op
+        // zich, en ze verbergt anders de controle op de nulpunten.
+        var scheef = 0, geteld = 0;
+        for (var m = van; m <= tot; m++) {
+          if (isNaN(ys[m])) continue;
+          scheef += ys[m] - juist[m];
+          geteld++;
+        }
+        scheef = geteld ? scheef / geteld : 0;
+        var verschoven = beste(ys, van, tot, function (x) {
+          return opgave.fAccent(x) + scheef;
+        });
+        if (verschoven <= 0.07 && Math.abs(scheef) / hoogte > 0.09) {
+          return { goed: false, tekst: "De vorm klopt, maar je grafiek ligt " +
+                   (scheef > 0 ? "te hoog" : "te laag") + "." };
+        }
+
+        // Klopt het teken? Dat is de kern van de oefening.
+        var mis = 0, meetelt = 0;
+        for (var i = van; i <= tot; i++) {
+          if (isNaN(ys[i]) || Math.abs(juist[i]) < dood) continue;
+          meetelt++;
+          if (tekenVan(ys[i], dood) !== 0 &&
+              tekenVan(ys[i], dood) !== tekenVan(juist[i], dood)) mis++;
+        }
+        if (meetelt && mis / meetelt > 0.22) {
+          return { goed: false, tekst: "Het teken klopt niet overal: waar f " +
+                   "stijgt hoort f' boven de x-as, waar f daalt eronder." };
+        }
+
+        // Liggen de nulpunten goed? Daar heeft f een top of een dal.
+        var hoort = nulpunten(xs, juist);
+        var heeft = nulpunten(xs.slice(van, tot + 1), ys.slice(van, tot + 1));
+        var marge = 0.18 * (b - a);
+        for (var n = 0; n < hoort.length; n++) {
+          var dichtst = Infinity;
+          heeft.forEach(function (x) {
+            dichtst = Math.min(dichtst, Math.abs(x - hoort[n]));
+          });
+          if (dichtst > marge) {
+            return { goed: false, tekst: "Je grafiek snijdt de x-as niet bij " +
+                     "x = " + ctx.getal(hoort[n]) + ". Daar heeft f een " +
+                     "horizontale raaklijn, dus is f' daar nul." };
+          }
+        }
+        if (heeft.length > hoort.length + 1) {
+          return { goed: false, tekst: "Je grafiek snijdt de x-as vaker dan " +
+                   "f horizontale raaklijnen heeft." };
+        }
+
+        // Vorm goed, ligging niet: te hoog, te laag, te vlak of te steil.
+        if (Math.abs(scheef) / hoogte > 0.09) {
+          return { goed: false, tekst: "De vorm klopt, maar je grafiek ligt " +
+                   (scheef > 0 ? "te hoog" : "te laag") + "." };
+        }
+        var mijn = spreiding(ys, van, tot);
+        var hoort2 = spreiding(juist, van, tot);
+        if (hoort2 <= 0.02 * hoogte && mijn > 0.09 * hoogte) {
+          return { goed: false, tekst: "De raaklijn aan f heeft overal dezelfde " +
+                   "richtingscoëfficiënt, dus is f' een horizontale rechte." };
+        }
+        if (hoort2 > 0.02 * hoogte) {
+          var verhouding = mijn / hoort2;
+          if (verhouding < 0.5 || verhouding > 2) {
+            return { goed: false, tekst: "De vorm klopt, maar je grafiek loopt " +
+                     (verhouding < 1 ? "te vlak" : "te steil") +
+                     ". Kijk nog eens hoe steil de raaklijn aan f staat." };
+          }
+        }
+        if (d <= 0.14) {
+          return { goed: false, tekst: "Bijna. De vorm klopt, je zit er nog " +
+                                       "net naast." };
+        }
+        return { goed: false, tekst: "Nog niet juist. Lees in enkele punten de " +
+                 "richtingscoëfficiënt van de raaklijn aan f af en zet die " +
+                 "waarden uit." };
+      }
+
+      /* --- knoppen -------------------------------------------------------- */
+
+      function wis() {
+        geschiedenis.push(waarden.slice());
+        for (var i = 0; i < N; i++) waarden[i] = NaN;
+        punten.forEach(function (p) {
+          p.setPosition(window.JXG.COORDS_BY_USER, [p.X(), 0]);
+        });
+        oplossing.setAttribute({ visible: false });
+        toonSchets();
+        ctx.toon(opdrachttekst());
+      }
+
+      function ongedaan() {
+        if (!geschiedenis.length) return;
+        var vorigeStand = geschiedenis.pop();
+        for (var i = 0; i < N; i++) waarden[i] = vorigeStand[i];
+        toonSchets();
+      }
+
+      function opdrachttekst() {
+        return stand === "teken"
+          ? "Teken de grafiek van f' in het rooster en druk op Controleer."
+          : "Zet de vijf punten op hun plaats, met de muis of met de " +
+            "pijltjestoetsen, en druk op Controleer.";
+      }
+
+      function controleer() {
+        var uitslag = beoordeel();
+        if (uitslag.goed) oplossing.setAttribute({ visible: true });
+        bord.update();
+        ctx.toon(uitslag.tekst);
+      }
+
+      function toonOplossing() {
+        oplossing.setAttribute({ visible: !oplossing.getAttribute("visible") });
+        bord.update();
+        ctx.toon(oplossing.getAttribute("visible")
+          ? "De streepjeslijn is de grafiek van f'."
+          : opdrachttekst());
+      }
+
+      function zetStand(nieuw) {
+        stand = nieuw;
+        var punten_aan = stand === "punten";
+        punten.forEach(function (p) { p.setAttribute({ visible: punten_aan }); });
+        spline.setAttribute({ visible: punten_aan });
+        schets.setAttribute({ visible: !punten_aan });
+        standknop.textContent = punten_aan ? "Vrij tekenen" : "Met punten";
+        bord.update();
+        ctx.toon(opdrachttekst());
+      }
+
+      var standknop = ctx.knop("Met punten", function () {
+        zetStand(stand === "teken" ? "punten" : "teken");
+      });
+      ctx.knop("Ongedaan", ongedaan);
+      ctx.knop("Wis", wis);
+      ctx.knop("Controleer", controleer);
+      ctx.knop("Toon f'", toonOplossing);
+
+      function herstel() {
+        geschiedenis = [];
+        for (var i = 0; i < N; i++) waarden[i] = NaN;
+        punten.forEach(function (p) {
+          p.setPosition(window.JXG.COORDS_BY_USER, [p.X(), 0]);
+        });
+        oplossing.setAttribute({ visible: false });
+        zetStand("teken");
+        toonSchets();
+      }
+
+      function vernietig() {
+        houder.removeEventListener("pointerdown", omlaag, true);
+        houder.removeEventListener("pointermove", beweeg, true);
+        houder.removeEventListener("pointerup", omhoog, true);
+        houder.removeEventListener("pointercancel", omhoog, true);
+      }
+
+      herstel();
+      return { reset: herstel, vernietig: vernietig, beoordeel: beoordeel,
+               tekenOp: function (h) {                 // enkel voor de tests
+                 for (var i = 0; i < N; i++) waarden[i] = h(xs[i]);
+                 toonSchets();
+               } };
+    }
+
+    return { maak: maak };
+  })();
+
+  // De vier oefeningen. Venster en domein volgen de statische figuren in de
+  // cursus; het venster van de schets is het rechtse assenstelsel daar.
+  [
+    { naam: "schets-afgeleide-a",
+      f: function (x) { return 0.5 * x * x - 2; },
+      fAccent: function (x) { return x; },
+      domein: [-3.2, 3.2] },
+    { naam: "schets-afgeleide-b",
+      f: function (x) { return -2 * x + 1; },
+      fAccent: function () { return -2; },
+      domein: [-1.8, 2.4],
+      misvattingen: [
+        { functie: function () { return 0; },
+          tekst: "Een rechte is niet constant nul: haar richtingscoëfficiënt " +
+                 "is niet nul, maar wel overal dezelfde." }
+      ] },
+    { naam: "schets-afgeleide-c",
+      f: function (x) { return x * x * x / 3 - x; },
+      fAccent: function (x) { return x * x - 1; },
+      domein: [-2.1, 2.1] },
+    { naam: "schets-afgeleide-d",
+      f: function (x) { return -0.5 * x * x + x + 1; },
+      fAccent: function (x) { return -x + 1; },
+      domein: [-2.5, 3.2] }
+  ].forEach(function (opgave) {
+    G.registreer(opgave.naam, function (ctx) {
+      return Schets.maak(ctx, {
+        f: opgave.f,
+        fAccent: opgave.fAccent,
+        domein: opgave.domein,
+        venster: [-3.6, 4, 3.6, -4],
+        misvattingen: opgave.misvattingen
+      });
+    });
   });
 })();

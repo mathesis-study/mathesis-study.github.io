@@ -21,7 +21,13 @@
   --kleur-achtergrond: #eef1f5;
   --kleur-accent: #1d5fa8;
   --kleur-accent-zacht: #e8f0fa;
+  --kleur-actieve-regel: rgba(232, 240, 250, .68);
+  --kleur-selectie: #9fc3ea;
+  --kleur-zelfcontrole: #4d8fcb;
   --kleur-op-accent: #ffffff;
+  --kleur-goed: #27823b;
+  --kleur-fout: #c43535;
+  --kleur-traceback: #7f1d1d;
   --kleur-oplossing: #fafcfa;
   --kleur-oplossing-rand: #d6e4d6;
   --kleur-oplossing-streep: #f7faf7;
@@ -72,7 +78,13 @@
     --kleur-achtergrond: #0e141a;
     --kleur-accent: #7ab4f0;
     --kleur-accent-zacht: #1d2c3c;
+    --kleur-actieve-regel: rgba(29, 44, 60, .68);
+    --kleur-selectie: #365b80;
+    --kleur-zelfcontrole: #91c5f5;
     --kleur-op-accent: #0e141a;
+    --kleur-goed: #70c982;
+    --kleur-fout: #f08080;
+    --kleur-traceback: #cc6666;
     --kleur-oplossing: #1a2822;
     --kleur-oplossing-rand: #30483a;
     --kleur-oplossing-streep: #1d2c23;
@@ -687,7 +699,8 @@ body.pres-zijbalk-dicht .pres-sluier {
 /* Wie naar een slide of een kop springt, ziet ze met dezelfde ruimte erboven
  * als bovenaan het podium. */
 .slide,
-.slide > :is(h1, h2, h3, h4, h5, h6) {
+.slide > :is(h1, h2, h3, h4, h5, h6),
+.slide > .python-oefening-kop > :is(h1, h2, h3, h4, h5, h6) {
   scroll-margin-top: 1.5rem;
 }
 
@@ -750,7 +763,8 @@ html:not([data-bladeren="kort"]) .slide:not([data-titelslide]) > .pres-korteinho
 .slide > h3,
 .slide > h4,
 .slide > h5,
-.slide > h6 {
+.slide > h6,
+.slide > .python-oefening-kop > :is(h1, h2, h3, h4, h5, h6) {
   margin: 0 0 1rem;
   font-size: 1.6rem;
   line-height: 1.2;
@@ -760,6 +774,68 @@ html:not([data-bladeren="kort"]) .slide:not([data-titelslide]) > .pres-korteinho
 
 .slide p {
   margin: .55rem 0;
+}
+
+/* In Kort is een reeks oefeningen een kleine stapreeks binnen haar slide.
+ * Lang en Volledig houden bewust de vertrouwde doorlopende bundel. */
+.pres-oefening-navigatie {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin: -.35rem 0 1rem;
+  padding: .35rem .45rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-achtergrond);
+}
+
+html[data-bladeren="kort"] .pres-oefening-navigatie:not([hidden]) {
+  display: flex;
+}
+
+.pres-oefening-navigatie .pres-knop {
+  font-size: .82rem;
+}
+
+.pres-oefening-teller {
+  font-variant-numeric: tabular-nums;
+  color: var(--kleur-zwak);
+  white-space: nowrap;
+}
+
+/* Vult de reeks de hele slide, dan deelt haar balk de titelrij, zoals de
+ * download op een appendixslide. presentatie.js zet dan data-oefenkop en
+ * hangt de balk als rechtstreeks kind van de slide voor de reeks. De kruimel
+ * en de titel houden de eerste kolom; al wat volgt, krijgt weer de volle
+ * tekstbreedte. */
+html[data-bladeren="kort"] .slide[data-oefenkop].pres-actief {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1rem;
+  align-content: start;
+}
+
+html[data-bladeren="kort"] .slide[data-oefenkop] > * {
+  grid-column: 1 / -1;
+}
+
+html[data-bladeren="kort"] .slide[data-oefenkop] > .pres-kruimel {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+html[data-bladeren="kort"] .slide[data-oefenkop] > :is(h1, h2, h3, h4, h5, h6) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+html[data-bladeren="kort"] .slide[data-oefenkop] > .pres-oefening-navigatie {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  justify-self: end;
+  margin: 0 0 1rem;
 }
 
 /* De titelslide van het hoofdstuk. */
@@ -1787,6 +1863,24 @@ mjx-container .undefsign line {
  * zweven: een tablet en een telefoon in liggende stand hebben ruimte zat voor
  * "Oplossingen" en "Volgende". Enkel op een telefoon in staande stand blijft
  * er van de kopbalk anders niets over. */
+/* De balk met de oefeningen staat naast de titel, dus telt niet de breedte
+ * van het venster maar die van de kolom met het podium: een gedokte
+ * inhoudstafel eet er 20rem van op. Wordt die kolom te smal voor de titel
+ * naast de opschriften, dan blijven enkel de chevrons en de teller staan; de
+ * knoppen houden hun naam in aria-label en title. Onder 55rem zweeft de
+ * inhoudstafel over het podium en telt haar breedte niet mee. */
+@media (max-width: 44rem) {
+  .pres-verberg-smalle-kolom {
+    display: none;
+  }
+}
+
+@media (min-width: 55.01rem) and (max-width: 64rem) {
+  body:not(.pres-zijbalk-dicht) .pres-verberg-smalle-kolom {
+    display: none;
+  }
+}
+
 @media (max-width: 34rem) {
   .pres-verberg-smal {
     display: none;
@@ -1873,7 +1967,7 @@ mjx-container .undefsign line {
 
 .pres-tocnummer {
   display: inline-block;
-  min-width: 1.6em;
+  min-width: 2.2em;
   color: var(--kleur-zwak);
   font-variant-numeric: tabular-nums;
 }

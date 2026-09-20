@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Afgeleiden</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=2d7662c1c6c1" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=9b41f8702485" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -247,8 +247,9 @@ MathJax = {
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=2d7662c1c6c1" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=2d7662c1c6c1" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=9b41f8702485" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=9b41f8702485" />
+<link rel="stylesheet" href="python-oefeningen.css?v=9b41f8702485" />
 </head>
 <body>
 
@@ -1062,7 +1063,7 @@ Kies je in <span class="grm-schermtekst">L<sub>1</sub></span> kleinere stappen, 
 ...... subsubsection De tabel berekenen met Python ......
 -->
 <h6 id="autosec-17">De tabel berekenen met Python</h6>
-<p class="hulpmiddel-notebook"><a href="A16_Afgeleiden_Python.ipynb" download="A16_Afgeleiden_Python.ipynb" data-colab="mathesis-study/mathesis-study.github.io/main">Download notebook</a></p>
+<p class="hulpmiddel-notebook"><a href="A16_Afgeleiden_Python1.ipynb" download="A16_Afgeleiden_Python1.ipynb" data-colab="mathesis-study/mathesis-study.github.io/main">Download notebook</a></p>
 
 <a id="mkpiweb-autopage-17"></a>
 
@@ -1080,8 +1081,8 @@ Met een lus rekent Python alle intervallen van de tabel in één keer uit.
 </li>
 </ul>
 
-<pre class="pythoncode"><code>def h(x):
-    return 0.1 * (18*x - x**2)</code></pre>
+<div class="python-oefening python-codeblok" data-python="code-1"><div class="python-startcode"><pre class="pythoncode"><code>def h(x):
+    return 0.1 * (18*x - x**2)</code></pre></div></div>
 
 <ul class="itemize" style="list-style-type:none">
 
@@ -1106,7 +1107,7 @@ Met een lus rekent Python alle intervallen van de tabel in één keer uit.
 </li>
 </ul>
 
-<pre class="pythoncode"><code>from math import atan, degrees
+<div class="python-oefening python-codeblok" data-python="code-2"><div class="python-startcode"><pre class="pythoncode"><code>from math import atan, degrees
 
 grenzen = [0, 2, 4, 6, 8]
 for i in range(len(grenzen) - 1):
@@ -1114,7 +1115,7 @@ for i in range(len(grenzen) - 1):
     b = grenzen[i + 1]
     helling = (h(b) - h(a)) / (b - a)
     hoek = degrees(atan(helling))
-    print(a, b, round(helling, 1), round(hoek, 3))</code></pre>
+    print(a, b, round(helling, 1), round(hoek, 3))</code></pre></div></div>
 
 <pre class="pythonuitvoer"><code>0 2 1.6 57.995
 2 4 1.2 50.194
@@ -1130,13 +1131,13 @@ for i in range(len(grenzen) - 1):
 </li>
 </ul>
 
-<pre class="pythoncode"><code>def dms(hoek):
+<div class="python-oefening python-codeblok" data-python="code-3"><div class="python-startcode"><pre class="pythoncode"><code>def dms(hoek):
     graden = int(hoek)
     minuten = int((hoek - graden) * 60)
     seconden = (hoek - graden - minuten / 60) * 3600
     return graden, minuten, round(seconden, 2)
 
-print(dms(degrees(atan(1.6))))</code></pre>
+print(dms(degrees(atan(1.6))))</code></pre></div></div>
 
 <pre class="pythonuitvoer"><code>(57, 59, 40.62)</code></pre>
 
@@ -1396,17 +1397,182 @@ onderaan verschijnt <span class="grm-schermtekst">dy/dx=1.5</span>.
 
 </div>
 
+<div class="hulpmiddel" data-hulpmiddel="Python">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Het afgeleid getal met Python ......
+-->
+<h6 id="autosec-26">Het afgeleid getal met Python</h6>
+<p class="hulpmiddel-notebook"><a href="A16_Afgeleiden_Python2.ipynb" download="A16_Afgeleiden_Python2.ipynb" data-colab="mathesis-study/mathesis-study.github.io/main">Download notebook</a></p>
+
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+De bibliotheek <kbd>sympy</kbd> rekent met formules in plaats van met getallen. Ze kan een limiet uitrekenen, dus kan ze het afgeleid getal rechtstreeks uit de definitie bepalen. Dat is een goede controle van je berekening, maar
+geen vervanging ervan.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Schrijf het voorschrift als een functie, zoals hierboven. Dan mag je in Python net als op papier \(f(a)\) schrijven.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Zeg met <kbd>symbols</kbd> dat <kbd>x</kbd> een veranderlijke is. Zo mag ook \(f(x)\), met een formule als resultaat in plaats van een getal.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-4"><div class="python-startcode"><pre class="pythoncode"><code>from sympy import symbols, limit
+
+def f(x):
+    return x**2 / 4
+
+x = symbols('x')
+a = 3
+
+print(f(a))
+print((f(x) - f(a)) / (x - a))</code></pre></div></div>
+
+<pre class="pythonuitvoer"><code>2.25
+(x**2/4 - 2.25)/(x - 3)</code></pre>
+
+<p>
+Het differentiequotie&#x0308;nt \(\dfrac {f(x)-f(a)}{x-a}\) schrijf je dus letterlijk zo op.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <kbd>limit(uitdrukking, x, a)</kbd> berekent \(\lim _{x\to a}\) van die uitdrukking. Met <kbd>float</kbd> eromheen krijg je een kommagetal.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-5"><div class="python-startcode"><pre class="pythoncode"><code>m = float(limit((f(x) - f(a)) / (x - a), x, a))
+print(m)</code></pre></div></div>
+
+<pre class="pythonuitvoer"><code>1.5</code></pre>
+
+<p>
+Python vindt dus \(f&apos;(3) = 1.5\), hetzelfde als hierboven. Verander je <kbd>a</kbd>, dan krijg je het afgeleid getal in een ander punt.
+</p>
+
+</div>
+
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-28">Oefening 1</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+Bereken met de definitie het afgeleid getal.
+</p>
+<div class="multicols">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(f(x) = x^2\) in \(a=-1\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(f(x) = \sqrt {x+1}\) in \(a=3\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(f(x) = \dfrac {1}{x}\) in \(a=-2\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(f(x) = x^3\) in een willekeurige \(a\)
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<div class="oplossing">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\displaystyle f&apos;(-1) = \lim _{x\to -1}\frac {x^2-1}{x+1} = \lim _{x\to -1}(x-1) = -2\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\displaystyle f&apos;(3) = \lim _{x\to 3}\frac {\sqrt {x+1}-2}{x-3} = \lim _{x\to 3}\frac {x-3}{(x-3)\bigl (\sqrt {x+1}+2\bigr )} = \frac {1}{4}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\displaystyle f&apos;(-2) = \lim _{x\to -2}\frac {\frac {1}{x}+\frac {1}{2}}{x+2} = \lim _{x\to -2}\frac {2+x}{2x(x+2)} = \lim _{x\to -2}\frac {1}{2x} =
+-\frac {1}{4}\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\displaystyle f&apos;(a) = \lim _{x\to a}\frac {x^3-a^3}{x-a} = \lim _{x\to a}(x^2+ax+a^2) = 3a^2\).
+</p>
+</li>
+</ul>
+
 </div>
 <!--
 ...... section Meetkundige betekenis ......
 -->
-<h4 id="autosec-26"><span class="sectionnumber">III&#x2003;</span>Meetkundige betekenis</h4>
-<a id="mkpiweb-autopage-26"></a>
+<h4 id="autosec-30"><span class="sectionnumber">III&#x2003;</span>Meetkundige betekenis</h4>
+<a id="mkpiweb-autopage-30"></a>
 <!--
 ...... subsection Besluit ......
 -->
-<h5 id="autosec-27"><span class="sectionnumber">1&#x2003;</span>Besluit</h5>
-<a id="mkpiweb-autopage-27"></a>
+<h5 id="autosec-31"><span class="sectionnumber">1&#x2003;</span>Besluit</h5>
+<a id="mkpiweb-autopage-31"></a>
 
 
 <p>
@@ -1462,8 +1628,8 @@ secante \(PQ\) naar de raaklijn \(t\) toe draait.</figcaption> </figure>
 <!--
 ...... subsection Gevolgen ......
 -->
-<h5 id="autosec-31"><span class="sectionnumber">2&#x2003;</span>Gevolgen</h5>
-<a id="mkpiweb-autopage-31"></a>
+<h5 id="autosec-35"><span class="sectionnumber">2&#x2003;</span>Gevolgen</h5>
+<a id="mkpiweb-autopage-35"></a>
 
 
 <p>
@@ -1471,7 +1637,7 @@ De raaklijn in \(P\bigl (a,f(a)\bigr )\) heeft als vergelijking
 </p>
 
 <p>
-\[ \boxed {\; t:    y - f(a) = f&apos;(a)\,(x-a) \;} \]
+\[ \boxed {\; t \leftrightarrow y - f(a) = f&apos;(a)\,(x-a) \;} \]
 </p>
 
 <p>
@@ -1479,7 +1645,7 @@ De <b>normaal</b> in \(P\) is de rechte door \(P\) die loodrecht staat op \(t\).
 </p>
 
 <p>
-\[ \boxed {\; n:    y - f(a) = \frac {-1}{f&apos;(a)}\,(x-a) \;} \qquad \text {(op voorwaarde dat } f&apos;(a) \neq 0\text {)}.                \]
+\[ \boxed {\; n \leftrightarrow y - f(a) = \frac {-1}{f&apos;(a)}\,(x-a) \;} \qquad \text {(op voorwaarde dat } f&apos;(a) \neq 0\text {)}.        \]
 </p>
 
 <p>
@@ -1488,8 +1654,8 @@ Is \(f&apos;(a) = 0\), dan is \(t\) horizontaal en is de normaal de verticale re
 <!--
 ...... subsection Voorbeeld ......
 -->
-<h5 id="autosec-32"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
-<a id="mkpiweb-autopage-32"></a>
+<h5 id="autosec-36"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-36"></a>
 
 
 <p>
@@ -1499,106 +1665,56 @@ Bepaal de raaklijn en de normaal aan \(y = 2x^2-2x+5\) in het punt met \(x\)-coo
 <p>
 Eerst \(f(0) = 5\), daarna het afgeleid getal:
 </p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                            2x2 − 2x + 5 − 5
+                                                                                               f ′ (0) = lim
+                                                                                                       x→0        x−0
+                                                                                                            x(2x − 2)
+                                                                                                     = lim
+                                                                                                       x→0      x
+                                                                                                     = lim (2x − 2) = −2.
+                                                                                                         x→0
+
+
+
+
+-->
+
 
 <p>
-\[ f&apos;(0) = \lim _{x\to 0} \frac {2x^2-2x+5-5}{x-0} = \lim _{x\to 0} \frac {x(2x-2)}{x} = \lim _{x\to 0} (2x-2) = -2.   \]
-</p>
 
-<p>
+\begin{align*}
+f&apos;(0) &amp;= \lim _{x\to 0} \frac {2x^2-2x+5-5}{x-0} \\ &amp;= \lim _{x\to 0} \frac {x(2x-2)}{x} \\ &amp;= \lim _{x\to 0} (2x-2) = -2.
+\end{align*}
 Dus
 </p>
 
 <p>
-\[ t:   y - 5 = -2(x-0) \iff 2x+y-5 = 0, \qquad n:       y - 5 = \frac {1}{2}(x-0) \iff x-2y+10 = 0.     \]
+\[ \begin {aligned} t \leftrightarrow y - 5 &amp;= -2(x-0) \\ &amp;\iff 2x+y-5 = 0, \end {aligned} \qquad \begin {aligned} n \leftrightarrow y - 5 &amp;= \frac {1}{2}(x-0) \\ &amp;\iff x-2y+10
+= 0. \end {aligned} \]
 </p>
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-33"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-33"></a>
+<h5 id="autosec-37"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
 <!--
-...... subsection Oefening 1 ......
+...... subsubsection Oefening 2 ......
 -->
-<h5 id="autosec-34">Oefening 1</h5>
-<a id="mkpiweb-autopage-34"></a>
-
-
-<p>
-Bereken met de definitie het afgeleid getal.
-</p>
-<div class="multicols">
-
-<ul class="enumerate" style="list-style-type:none">
-
-<li>
-<p>
-<span class="listmarker">(a)</span> \(f(x) = x^2\) in \(a=-1\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(b)</span> \(f(x) = \sqrt {x+1}\) in \(a=3\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(c)</span> \(f(x) = \dfrac {1}{x}\) in \(a=-2\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(d)</span> \(f(x) = x^3\) in een willekeurige \(a\)
-</p>
-</li>
-</ul>
-
-</div>
-
-<div class="oplossing">
-
-<ul class="enumerate" style="list-style-type:none">
-
-<li>
-<p>
-<span class="listmarker">(a)</span> \(\displaystyle f&apos;(-1) = \lim _{x\to -1}\frac {x^2-1}{x+1} = \lim _{x\to -1}(x-1) = -2\).
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(b)</span> \(\displaystyle f&apos;(3) = \lim _{x\to 3}\frac {\sqrt {x+1}-2}{x-3} = \lim _{x\to 3}\frac {x-3}{(x-3)\bigl (\sqrt {x+1}+2\bigr )} = \frac {1}{4}\).
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(c)</span> \(\displaystyle f&apos;(-2) = \lim _{x\to -2}\frac {\frac {1}{x}+\frac {1}{2}}{x+2} = \lim _{x\to -2}\frac {2+x}{2x(x+2)} = \lim _{x\to -2}\frac {1}{2x} =
--\frac {1}{4}\).
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(d)</span> \(\displaystyle f&apos;(a) = \lim _{x\to a}\frac {x^3-a^3}{x-a} = \lim _{x\to a}(x^2+ax+a^2) = 3a^2\).
-</p>
-</li>
-</ul>
-
-</div>
-<!--
-...... subsection Oefening 2 ......
--->
-<h5 id="autosec-36">Oefening 2</h5>
-<a id="mkpiweb-autopage-36"></a>
+<h6 id="autosec-38">Oefening 2</h6>
+<a id="mkpiweb-autopage-38"></a>
 
 
 <p>
@@ -1620,6 +1736,8 @@ Bepaal telkens de vergelijking van de raaklijn en van de normaal.
 </li>
 </ul>
 
+</div>
+
 <div class="oplossing">
 
 <ul class="enumerate" style="list-style-type:none">
@@ -1632,7 +1750,7 @@ Bepaal telkens de vergelijking van de raaklijn en van de normaal.
 \[ f&apos;(2) = \lim _{x\to 2}\frac {\frac {4x-2}{x}-3}{x-2} = \lim _{x\to 2}\frac {4x-2-3x}{x(x-2)} = \lim _{x\to 2}\frac {1}{x} = \frac {1}{2}.   \]
 </p>
 <p>
-Dus \(t: x-2y+4 = 0\) en \(n: 2x+y-7 = 0\).
+Dus \(t \leftrightarrow x-2y+4 = 0\) en \(n \leftrightarrow 2x+y-7 = 0\).
 </p>
 
 </li>
@@ -1646,7 +1764,7 @@ Dus \(t: x-2y+4 = 0\) en \(n: 2x+y-7 = 0\).
 \frac {-3}{12} = -\frac {1}{4}. \end {aligned} \]
 </p>
 <p>
-Dus \(t: x+4y-9 = 0\) en \(n: 4x-y-2 = 0\).
+Dus \(t \leftrightarrow x+4y-9 = 0\) en \(n \leftrightarrow 4x-y-2 = 0\).
 </p>
 </li>
 </ul>
@@ -1655,13 +1773,13 @@ Dus \(t: x+4y-9 = 0\) en \(n: 4x-y-2 = 0\).
 <!--
 ...... section Afleidbaarheid en continuıteit ......
 -->
-<h4 id="autosec-37"><span class="sectionnumber">IV&#x2003;</span>Afleidbaarheid en continuı&#x0308;teit</h4>
-<a id="mkpiweb-autopage-37"></a>
+<h4 id="autosec-39"><span class="sectionnumber">IV&#x2003;</span>Afleidbaarheid en continuı&#x0308;teit</h4>
+<a id="mkpiweb-autopage-39"></a>
 <!--
 ...... subsection Stelling ......
 -->
-<h5 id="autosec-38"><span class="sectionnumber">1&#x2003;</span>Stelling</h5>
-<a id="mkpiweb-autopage-38"></a>
+<h5 id="autosec-40"><span class="sectionnumber">1&#x2003;</span>Stelling</h5>
+<a id="mkpiweb-autopage-40"></a>
 
 
 <p>
@@ -1674,8 +1792,8 @@ Dus \(t: x+4y-9 = 0\) en \(n: 4x-y-2 = 0\).
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-39">Bewijs.</h6>
-<a id="mkpiweb-autopage-39"></a>
+<h6 id="autosec-41">Bewijs.</h6>
+<a id="mkpiweb-autopage-41"></a>
 
 
 <p>
@@ -1711,8 +1829,8 @@ en dat is precies de hoofdeigenschap van de continuı&#x0308;teit van \(f\) in \
 <!--
 ...... subsection Gevolgen ......
 -->
-<h5 id="autosec-42"><span class="sectionnumber">2&#x2003;</span>Gevolgen</h5>
-<a id="mkpiweb-autopage-42"></a>
+<h5 id="autosec-44"><span class="sectionnumber">2&#x2003;</span>Gevolgen</h5>
+<a id="mkpiweb-autopage-44"></a>
 
 
 <ul class="itemize" style="list-style-type:none">
@@ -1790,8 +1908,8 @@ bij de verticale raaklijn groeien ze onbegrensd.</figcaption> </figure>
 <!--
 ...... subsection Voorbeeld ......
 -->
-<h5 id="autosec-48"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
-<a id="mkpiweb-autopage-48"></a>
+<h5 id="autosec-50"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-50"></a>
 
 
 <p>
@@ -1808,32 +1926,70 @@ De linker- en de rechterlimiet verschillen, dus bestaat de limiet niet en is \(f
 <!--
 ...... section De afgeleide functie ......
 -->
-<h4 id="autosec-49"><span class="sectionnumber">V&#x2003;</span>De afgeleide functie</h4>
-<a id="mkpiweb-autopage-49"></a>
+<h4 id="autosec-51"><span class="sectionnumber">V&#x2003;</span>De afgeleide functie</h4>
+<a id="mkpiweb-autopage-51"></a>
 <!--
 ...... subsection Inleiding ......
 -->
-<h5 id="autosec-50"><span class="sectionnumber">1&#x2003;</span>Inleiding</h5>
-<a id="mkpiweb-autopage-50"></a>
+<h5 id="autosec-52"><span class="sectionnumber">1&#x2003;</span>Inleiding</h5>
+<a id="mkpiweb-autopage-52"></a>
 
 
 <p>
 Neem \(f(x) = x^2+2x-3\) en bereken \(f&apos;(a)\) voor een willekeurige \(a\):
 </p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                              f (x) − f (a)
+                                                                                  f ′ (a) = lim
+                                                                                          x→a     x−a
+                                                                                              x + 2x − 3 − a2 − 2a + 3
+                                                                                                2
+                                                                                        = lim
+                                                                                          x→a             x−a
+                                                                                                2    2
+                                                                                              x − a + 2x − 2a
+                                                                                        = lim
+                                                                                          x→a        x−a
+                                                                                              (x − a)(x + a + 2)
+                                                                                        = lim
+                                                                                          x→a        x−a
+                                                                                        = 2a + 2.
+
+
+
+-->
+
 
 <p>
-\[ \begin {aligned} f&apos;(a) &amp;= \lim _{x\to a}\frac {f(x)-f(a)}{x-a} = \lim _{x\to a}\frac {x^2+2x-3-a^2-2a+3}{x-a} \\ &amp;= \lim _{x\to a}\frac {x^2-a^2+2x-2a}{x-a} = \lim _{x\to
-a}\frac {(x-a)(x+a+2)}{x-a} = 2a+2 . \end {aligned} \]
+
+\begin{align*}
+f&apos;(a) &amp;= \lim _{x\to a}\frac {f(x)-f(a)}{x-a} \\ &amp;= \lim _{x\to a}\frac {x^2+2x-3-a^2-2a+3}{x-a} \\ &amp;= \lim _{x\to a}\frac {x^2-a^2+2x-2a}{x-a} \\ &amp;= \lim _{x\to a}\frac
+{(x-a)(x+a+2)}{x-a} \\ &amp;= 2a+2.
+\end{align*}
+Die \(a\) was willekeurig in \(\dom f\), dus mag ze \(x\) heten:
 </p>
 
 <p>
-Met dat ene voorschrift berekenen we het afgeleid getal in elke waarde: \(f&apos;(3) = 8\), \(f&apos;(1) = 4\), &#x2026;
+\[f&apos;(x) = 2x + 2\]
+</p>
+
+<p>
+Zo wordt bereken van afgeleide waarde:
+</p>
+
+<p>
+\[f&apos;(3) = 8,\quad f&apos;(1) = 4,\quad \ldots \]
 </p>
 <!--
 ...... subsection Definitie ......
 -->
-<h5 id="autosec-51"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
-<a id="mkpiweb-autopage-51"></a>
+<h5 id="autosec-53"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-53"></a>
 
 
 <p>
@@ -1888,10 +2044,236 @@ want \(f&apos;(x) = 2x+2\).
 \(f&apos;\).</figcaption> </figure>
 </p>
 <!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-57"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-58">Oefening 3</h6>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<p>
+Links staat telkens de grafiek van een functie \(f\). Lees in enkele punten de richtingscoe&#x0308;fficie&#x0308;nt van de raaklijn af en schets daarmee rechts de grafiek van de afgeleide functie \(f&apos;\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(f(x) = \dfrac {1}{2}x^2-2\)
+</p>
+<p>
+<figure class="interactieve-grafiek" data-grafiek="schets-afgeleide-a" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval"> <span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+               y
+               4               f
+
+               2
+
+
+
+−3   −2   −1       1   2   3       x
+           −2
+--><img
+    src="mkpiweb-images/image-10.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span> <span
+    id="lateximage-mkpiweb-11"
+    class="lateximagesource"
+><!--
+               y
+               4
+
+               2
+
+
+−3   −2   −1       1   2   3   x
+           −2
+
+           −4
+--><img
+     src="mkpiweb-images/image-11.svg"
+     alt="(-tikz-&nbsp;diagram)"
+     style=""
+     class="lateximage"
+></span>
+</p>
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Teken met de vinger of de muis de grafiek van \(f&apos;\) in het rooster en druk daarna op Controleer.</figcaption>
+</figure>
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(f(x) = -2x+1\)
+</p>
+<p>
+<figure class="interactieve-grafiek" data-grafiek="schets-afgeleide-b" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval"> <span
+    id="lateximage-mkpiweb-12"
+    class="lateximagesource"
+><!--
+            y
+            4
+
+            2
+
+
+−3   −2   −1    1   2       3   x
+           −2
+                        f
+           −4
+--><img
+    src="mkpiweb-images/image-12.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span> <span
+    id="lateximage-mkpiweb-13"
+    class="lateximagesource"
+><!--
+               y
+               4
+
+               2
+
+
+−3   −2   −1       1   2   3   x
+           −2
+
+           −4
+--><img
+     src="mkpiweb-images/image-13.svg"
+     alt="(-tikz-&nbsp;diagram)"
+     style=""
+     class="lateximage"
+></span>
+</p>
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Teken met de vinger of de muis de grafiek van \(f&apos;\) in het rooster en druk daarna op Controleer.</figcaption>
+</figure>
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(f(x) = \dfrac {1}{3}x^3-x\)
+</p>
+<p>
+<figure class="interactieve-grafiek" data-grafiek="schets-afgeleide-c" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval"> <span
+    id="lateximage-mkpiweb-14"
+    class="lateximagesource"
+><!--
+               y
+
+               2
+                           f
+
+
+−3   −2   −1       1   2       3   x
+           −2
+--><img
+    src="mkpiweb-images/image-14.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span> <span
+    id="lateximage-mkpiweb-15"
+    class="lateximagesource"
+><!--
+               y
+               4
+
+               2
+
+
+−3   −2   −1       1   2   3   x
+           −2
+
+           −4
+--><img
+     src="mkpiweb-images/image-15.svg"
+     alt="(-tikz-&nbsp;diagram)"
+     style=""
+     class="lateximage"
+></span>
+</p>
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Teken met de vinger of de muis de grafiek van \(f&apos;\) in het rooster en druk daarna op Controleer.</figcaption>
+</figure>
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(f(x) = -\dfrac {1}{2}x^2+x+1\)
+</p>
+<p>
+<figure class="interactieve-grafiek" data-grafiek="schets-afgeleide-d" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval"> <span
+    id="lateximage-mkpiweb-16"
+    class="lateximagesource"
+><!--
+               y
+               2
+
+
+                               fx
+−3   −2   −1       1   2   3
+           −2
+
+           −4
+--><img
+    src="mkpiweb-images/image-16.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span> <span
+    id="lateximage-mkpiweb-17"
+    class="lateximagesource"
+><!--
+               y
+               4
+
+               2
+
+
+−3   −2   −1       1   2   3   x
+           −2
+
+           −4
+--><img
+     src="mkpiweb-images/image-17.svg"
+     alt="(-tikz-&nbsp;diagram)"
+     style=""
+     class="lateximage"
+></span>
+</p>
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Teken met de vinger of de muis de grafiek van \(f&apos;\) in het rooster en druk daarna op Controleer.</figcaption>
+</figure>
+</p>
+</li>
+</ul>
+
+</div>
+<!--
 ...... section Rekenregels ......
 -->
-<h4 id="autosec-55"><span class="sectionnumber">VI&#x2003;</span>Rekenregels</h4>
-<a id="mkpiweb-autopage-55"></a>
+<h4 id="autosec-75"><span class="sectionnumber">VI&#x2003;</span>Rekenregels</h4>
+<a id="mkpiweb-autopage-75"></a>
 
 
 <p>
@@ -1900,8 +2282,8 @@ Telkens \(f\) en \(g\) afleidbare functies, \(c \in \R \) en \(n \in \N _0\).
 <!--
 ...... subsection Afgeleide van een constante functie ......
 -->
-<h5 id="autosec-56"><span class="sectionnumber">1&#x2003;</span>Afgeleide van een constante functie</h5>
-<a id="mkpiweb-autopage-56"></a>
+<h5 id="autosec-76"><span class="sectionnumber">1&#x2003;</span>Afgeleide van een constante functie</h5>
+<a id="mkpiweb-autopage-76"></a>
 
 
 <p>
@@ -1914,8 +2296,8 @@ Voor \(f(x) = c\) met \(c \in \R \):
 <!--
 ...... subsection Afgeleide van de identieke functie ......
 -->
-<h5 id="autosec-57"><span class="sectionnumber">2&#x2003;</span>Afgeleide van de identieke functie</h5>
-<a id="mkpiweb-autopage-57"></a>
+<h5 id="autosec-77"><span class="sectionnumber">2&#x2003;</span>Afgeleide van de identieke functie</h5>
+<a id="mkpiweb-autopage-77"></a>
 
 
 <p>
@@ -1928,8 +2310,8 @@ Voor \(f(x) = x\):
 <!--
 ...... subsection Afgeleide van een som ......
 -->
-<h5 id="autosec-58"><span class="sectionnumber">3&#x2003;</span>Afgeleide van een som</h5>
-<a id="mkpiweb-autopage-58"></a>
+<h5 id="autosec-78"><span class="sectionnumber">3&#x2003;</span>Afgeleide van een som</h5>
+<a id="mkpiweb-autopage-78"></a>
 
 
 <p>
@@ -1943,8 +2325,8 @@ Voor \(f(x) = x\):
 <!--
 ...... subsection Afgeleide van een product ......
 -->
-<h5 id="autosec-59"><span class="sectionnumber">4&#x2003;</span>Afgeleide van een product</h5>
-<a id="mkpiweb-autopage-59"></a>
+<h5 id="autosec-79"><span class="sectionnumber">4&#x2003;</span>Afgeleide van een product</h5>
+<a id="mkpiweb-autopage-79"></a>
 
 
 <p>
@@ -1962,8 +2344,8 @@ In de derde stap gebruiken we \(\lim \limits _{x\to a} g(x) = g(a)\): dat mag, w
 <!--
 ...... subsection Afgeleide van een constante maal een functie ......
 -->
-<h5 id="autosec-60"><span class="sectionnumber">5&#x2003;</span>Afgeleide van een constante maal een functie</h5>
-<a id="mkpiweb-autopage-60"></a>
+<h5 id="autosec-80"><span class="sectionnumber">5&#x2003;</span>Afgeleide van een constante maal een functie</h5>
+<a id="mkpiweb-autopage-80"></a>
 
 
 <p>
@@ -1972,8 +2354,8 @@ In de derde stap gebruiken we \(\lim \limits _{x\to a} g(x) = g(a)\): dat mag, w
 <!--
 ...... subsection Afgeleide van een macht ......
 -->
-<h5 id="autosec-61"><span class="sectionnumber">6&#x2003;</span>Afgeleide van een macht</h5>
-<a id="mkpiweb-autopage-61"></a>
+<h5 id="autosec-81"><span class="sectionnumber">6&#x2003;</span>Afgeleide van een macht</h5>
+<a id="mkpiweb-autopage-81"></a>
 
 
 <p>
@@ -1991,8 +2373,8 @@ f^{n-2} + f\cdot \bigl (f^{n-2}\bigr )&apos;\Bigr ) \\ &amp;= \underbrace {f&apo
 <!--
 ...... subsubsection Bijzonder geval: een macht van ......
 -->
-<h6 id="autosec-62">Bijzonder geval: een macht van \(x\)</h6>
-<a id="mkpiweb-autopage-62"></a>
+<h6 id="autosec-82">Bijzonder geval: een macht van \(x\)</h6>
+<a id="mkpiweb-autopage-82"></a>
 
 
 <p>
@@ -2005,8 +2387,8 @@ Bijvoorbeeld \(\bigl (x^2\bigr )&apos; = 2x\), \(\bigl (x^3\bigr )&apos; = 3x^2\
 <!--
 ...... subsection Uitbreiding: rationale exponenten ......
 -->
-<h5 id="autosec-63"><span class="sectionnumber">7&#x2003;</span>Uitbreiding: rationale exponenten</h5>
-<a id="mkpiweb-autopage-63"></a>
+<h5 id="autosec-83"><span class="sectionnumber">7&#x2003;</span>Uitbreiding: rationale exponenten</h5>
+<a id="mkpiweb-autopage-83"></a>
 
 
 <p>
@@ -2041,8 +2423,8 @@ Ook hier klopt de machtsformule: \(\bigl (\sqrt {x}\bigr )&apos; = \bigl (x^{1/2
 <!--
 ...... subsection Afgeleide van een quotient ......
 -->
-<h5 id="autosec-64"><span class="sectionnumber">8&#x2003;</span>Afgeleide van een quotie&#x0308;nt</h5>
-<a id="mkpiweb-autopage-64"></a>
+<h5 id="autosec-84"><span class="sectionnumber">8&#x2003;</span>Afgeleide van een quotie&#x0308;nt</h5>
+<a id="mkpiweb-autopage-84"></a>
 
 
 <p>
@@ -2057,8 +2439,8 @@ f&apos;\cdot \frac {1}{g} + f\cdot \frac {-1}{g^2}\cdot g&apos; = \frac {f&apos;
 <!--
 ...... subsection Afgeleide van een samengestelde functie: de kettingregel ......
 -->
-<h5 id="autosec-65"><span class="sectionnumber">9&#x2003;</span>Afgeleide van een samengestelde functie: de kettingregel</h5>
-<a id="mkpiweb-autopage-65"></a>
+<h5 id="autosec-85"><span class="sectionnumber">9&#x2003;</span>Afgeleide van een samengestelde functie: de kettingregel</h5>
+<a id="mkpiweb-autopage-85"></a>
 
 
 <p>
@@ -2081,8 +2463,8 @@ Daarbij stelden we \(y = f(x)\) en \(b = f(a)\): als \(x \to a\), dan \(y \to b\
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-66">Voorbeeld</h6>
-<a id="mkpiweb-autopage-66"></a>
+<h6 id="autosec-86">Voorbeeld</h6>
+<a id="mkpiweb-autopage-86"></a>
 
 
 <p>
@@ -2095,8 +2477,8 @@ Met \(x \overset {f}{\mapsto } x^2-1 \overset {g}{\mapsto } \sqrt {x^2-1}\):
 <!--
 ...... subsection Overzicht van de rekenregels ......
 -->
-<h5 id="autosec-67"><span class="sectionnumber">10&#x2003;</span>Overzicht van de rekenregels</h5>
-<a id="mkpiweb-autopage-67"></a>
+<h5 id="autosec-87"><span class="sectionnumber">10&#x2003;</span>Overzicht van de rekenregels</h5>
+<a id="mkpiweb-autopage-87"></a>
 <div class="center">
 
 <p>
@@ -2115,13 +2497,20 @@ Met \(x \overset {f}{\mapsto } x^2-1 \overset {g}{\mapsto } \sqrt {x^2-1}\):
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-69"><span class="sectionnumber">11&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-69"></a>
+<h5 id="autosec-89"><span class="sectionnumber">11&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-89"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
 <!--
-...... subsection Oefening 3 ......
+...... subsubsection Oefening 4 ......
 -->
-<h5 id="autosec-70">Oefening 3</h5>
-<a id="mkpiweb-autopage-70"></a>
+<h6 id="autosec-90">Oefening 4</h6>
+<a id="mkpiweb-autopage-90"></a>
 
 
 <p>
@@ -2189,6 +2578,8 @@ Bereken de afgeleide functie.
 
 </div>
 
+</div>
+
 <div class="oplossing">
 <div class="multicols">
 
@@ -2253,11 +2644,17 @@ Bereken de afgeleide functie.
 </div>
 
 </div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
 <!--
-...... subsection Oefening 4 ......
+...... subsubsection Oefening 5 ......
 -->
-<h5 id="autosec-73">Oefening 4</h5>
-<a id="mkpiweb-autopage-73"></a>
+<h6 id="autosec-93">Oefening 5</h6>
+<a id="mkpiweb-autopage-93"></a>
 
 
 <p>
@@ -2320,6 +2717,8 @@ Bereken de afgeleide en vereenvoudig zo ver mogelijk.
 </p>
 </li>
 </ul>
+
+</div>
 
 <div class="oplossing">
 
@@ -2385,13 +2784,13 @@ Bereken de afgeleide en vereenvoudig zo ver mogelijk.
 <!--
 ...... section Hogere afgeleiden ......
 -->
-<h4 id="autosec-74"><span class="sectionnumber">VII&#x2003;</span>Hogere afgeleiden</h4>
-<a id="mkpiweb-autopage-74"></a>
+<h4 id="autosec-94"><span class="sectionnumber">VII&#x2003;</span>Hogere afgeleiden</h4>
+<a id="mkpiweb-autopage-94"></a>
 <!--
 ...... subsection Voorbeeld ......
 -->
-<h5 id="autosec-75"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
-<a id="mkpiweb-autopage-75"></a>
+<h5 id="autosec-95"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-95"></a>
 
 
 <p>
@@ -2418,13 +2817,20 @@ Vanaf de vierde afgeleide schrijven we \(f^{(4)}\), \(f^{(5)}\), &#x2026;met een
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-76"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-76"></a>
+<h5 id="autosec-96"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-96"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
 <!--
-...... subsection Oefening 5 ......
+...... subsubsection Oefening 6 ......
 -->
-<h5 id="autosec-77">Oefening 5</h5>
-<a id="mkpiweb-autopage-77"></a>
+<h6 id="autosec-97">Oefening 6</h6>
+<a id="mkpiweb-autopage-97"></a>
 
 
 <p>
@@ -2452,6 +2858,8 @@ Bereken de gevraagde hogere afgeleide.
 </p>
 </li>
 </ul>
+
+</div>
 
 <div class="oplossing">
 
@@ -2483,13 +2891,13 @@ Bereken de gevraagde hogere afgeleide.
 <!--
 ...... section De regel van de l’Hospital ......
 -->
-<h4 id="autosec-78"><span class="sectionnumber">VIII&#x2003;</span>De regel van de l’Hospital</h4>
-<a id="mkpiweb-autopage-78"></a>
+<h4 id="autosec-98"><span class="sectionnumber">VIII&#x2003;</span>De regel van de l’Hospital</h4>
+<a id="mkpiweb-autopage-98"></a>
 <!--
 ...... subsection De regel ......
 -->
-<h5 id="autosec-79"><span class="sectionnumber">1&#x2003;</span>De regel</h5>
-<a id="mkpiweb-autopage-79"></a>
+<h5 id="autosec-99"><span class="sectionnumber">1&#x2003;</span>De regel</h5>
+<a id="mkpiweb-autopage-99"></a>
 
 
 <p>
@@ -2548,8 +2956,8 @@ De regel geldt eveneens voor de onbepaalde vorm “\(\frac {\pm \infty }{\pm \in
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-80">Bewijs.</h6>
-<a id="mkpiweb-autopage-80"></a>
+<h6 id="autosec-100">Bewijs.</h6>
+<a id="mkpiweb-autopage-100"></a>
 
 
 <p>
@@ -2564,7 +2972,7 @@ We bewijzen enkel de eerste vorm. Omdat \(f(a) = g(a) = 0\) is
 
 <p>
 &#x2003;&#x2003;<span
-    id="lateximage-mkpiweb-10"
+    id="lateximage-mkpiweb-18"
     class="lateximagesource"
 ><!--
 □
@@ -2579,8 +2987,8 @@ We bewijzen enkel de eerste vorm. Omdat \(f(a) = g(a) = 0\) is
 <!--
 ...... subsection Voorbeelden ......
 -->
-<h5 id="autosec-83"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
-<a id="mkpiweb-autopage-83"></a>
+<h5 id="autosec-103"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-103"></a>
 
 
 <p>
@@ -2616,8 +3024,8 @@ We noteren met \(\overset {H}{=}\) de stap waarin we de regel toepassen.
 <!--
 ...... subsection Opgelet ......
 -->
-<h5 id="autosec-84"><span class="sectionnumber">3&#x2003;</span>Opgelet</h5>
-<a id="mkpiweb-autopage-84"></a>
+<h5 id="autosec-104"><span class="sectionnumber">3&#x2003;</span>Opgelet</h5>
+<a id="mkpiweb-autopage-104"></a>
 
 
 <p>
@@ -2638,13 +3046,20 @@ Andere onbepaalde vormen, zoals \(0\cdot \infty \) of \(\infty -\infty \), herle
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-85"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-85"></a>
+<h5 id="autosec-105"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-105"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
 <!--
-...... subsection Oefening 6 ......
+...... subsubsection Oefening 7 ......
 -->
-<h5 id="autosec-86">Oefening 6</h5>
-<a id="mkpiweb-autopage-86"></a>
+<h6 id="autosec-106">Oefening 7</h6>
+<a id="mkpiweb-autopage-106"></a>
 
 
 <p>
@@ -2699,6 +3114,8 @@ Bereken de volgende limieten met de regel van de l’Hospital.
 
 </div>
 
+</div>
+
 <div class="oplossing">
 <div class="multicols">
 
@@ -2749,11 +3166,17 @@ Bereken de volgende limieten met de regel van de l’Hospital.
 </div>
 
 </div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
 <!--
-...... subsection Oefening 7 ......
+...... subsubsection Oefening 8 ......
 -->
-<h5 id="autosec-89">Oefening 7</h5>
-<a id="mkpiweb-autopage-89"></a>
+<h6 id="autosec-109">Oefening 8</h6>
+<a id="mkpiweb-autopage-109"></a>
 
 
 <p>
@@ -2763,6 +3186,8 @@ Toon aan dat de regel van de l’Hospital hier niet zomaar twee keer na elkaar m
 <p>
 \[ \lim _{x\to \frac 12}\frac {12x^2-4x-1}{4x^2-2x}.           \]
 </p>
+
+</div>
 
 <div class="oplossing">
 
@@ -2778,9 +3203,12 @@ Na één toepassing is \(\displaystyle \lim _{x\to \frac 12}\frac {24x-4}{8x-2} 
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=2d7662c1c6c1"></script>
-<script src="vendor/jsxgraphcore.js?v=2d7662c1c6c1"></script>
-<script src="interactieve-grafieken.js?v=2d7662c1c6c1"></script>
-<script src="hoofdstuk.interactief.js?v=2d7662c1c6c1"></script>
+<script src="presentatie.js?v=9b41f8702485"></script>
+<script src="vendor/jsxgraphcore.js?v=9b41f8702485"></script>
+<script src="interactieve-grafieken.js?v=9b41f8702485"></script>
+<script src="hoofdstuk.interactief.js?v=9b41f8702485"></script>
+<script src="python-config.js?v=9b41f8702485"></script>
+<script src="codemirror-python.js?v=9b41f8702485"></script>
+<script src="python-oefeningen.js?v=9b41f8702485"></script>
 </body>
 </html>

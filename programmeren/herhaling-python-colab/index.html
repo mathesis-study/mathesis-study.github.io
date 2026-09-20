@@ -1,0 +1,2229 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Herhaling Python met Colab</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=7b36d970dbc0" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.css and presentatie.js):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax and every figure are served from this
+//    site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="stylesheet" href="python-oefeningen.css?v=7b36d970dbc0" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk"></p> <h1>Herhaling Python met Colab</h1> </header>
+</p>
+<!--
+...... section Starten met Python en Colab ......
+-->
+<h4 id="autosec-2"><span class="sectionnumber">I&#x2003;</span>Starten met Python en Colab</h4>
+<a id="mkpiweb-autopage-2"></a>
+<!--
+...... subsection Herhaling ......
+-->
+<h5 id="autosec-3"><span class="sectionnumber">1&#x2003;</span>Herhaling</h5>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Twee jaar geleden zag je een eerste inleiding tot Python.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> We frissen die basis terug op, in vijf stappen:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> expressies
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> variabelen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> eenvoudige functies
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> condities
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> iteraties
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Tegelijk leer je werken met <b>Google Colab</b>, de omgeving waarin we dit jaar programmeren.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Wat is Colab? ......
+-->
+<h5 id="autosec-4"><span class="sectionnumber">2&#x2003;</span>Wat is Colab?</h5>
+<a id="mkpiweb-autopage-4"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>Google Colab</b> is een <em>notebook</em> dat draait in je browser.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Je moet niets installeren.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Je code draait op een computer van Google, niet op je eigen toestel.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Je notebooks worden bewaard in je Google Drive, in de map <kbd>Colab Notebooks</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Een notebook heeft de extensie <kbd>.ipynb</kbd>.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Doe nu:</b>
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Surf naar <a href="https://colab.research.google.com" target="_blank" >https://colab.research.google.com</a>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Meld je aan met je schoolaccount.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Kies <em>Bestand \(\rightarrow \) Nieuw notitieblok</em>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Noem het notebook <kbd>Herhaling</kbd>.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Cellen uitvoeren ......
+-->
+<h5 id="autosec-5"><span class="sectionnumber">3&#x2003;</span>Cellen uitvoeren</h5>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een notebook is een lijst van <b>cellen</b>: <em>codecellen</em> (Python) en <em>tekstcellen</em> (uitleg).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Nieuwe cel maken met de knoppen <kbd>+ Code</kbd> en <kbd>+ Tekst</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Een codecel uitvoeren:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> <kbd>Shift+Enter</kbd>: uitvoeren en naar de volgende cel
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> <kbd>Ctrl+Enter</kbd>: uitvoeren en in dezelfde cel blijven
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Links van de cel staat <kbd>[ ]</kbd>. Na het uitvoeren wordt dat <kbd>[1]</kbd>, <kbd>[2]</kbd>, &#x2026;: het volgnummer van de uitvoering.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Een draaiend rondje betekent: de cel is nog bezig.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Doe nu:</b>
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Typ de regel hieronder in de eerste cel.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Druk <kbd>Shift+Enter</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Kijk of links van de cel <kbd>[1]</kbd> verschijnt.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-1"><div class="python-startcode"><pre class="pythoncode"><code>print("Hallo, ik ben er terug!")</code></pre></div></div>
+<!--
+...... subsection AI uitschakelen ......
+-->
+<h5 id="autosec-6"><span class="sectionnumber">4&#x2003;</span>AI uitschakelen</h5>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> AI is niet weg te denken uit de informatica: ze schrijft in enkele seconden code, legt foutmeldingen uit, zet je idee om in een eerste versie en helpt bij het opzoeken van functies.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Later leren we die hulp bewust gebruiken. Wie het vak kent, wint er veel tijd mee.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Maar niet nu.</b> We leren hier programmeren, en dat leer je enkel door zelf te typen, zelf vast te lopen en zelf te herstellen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Laat je de AI het werk doen, dan lees je een correcte oplossing zonder er iets van te onthouden. Op de toets, en straks in je job, heb je die basis wel nodig.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Bovendien: AI vergist zich, en enkel wie het zelf kan, ziet dat.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Doe nu:</b>
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Kies <em>Extra \(\rightarrow \) Instellingen \(\rightarrow \) AI-assistentie</em>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Vink <em>Generatieve AI-functies verbergen</em> aan.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Zet de AI-codeaanvullingen af.
+</p>
+</li>
+</ul>
+
+<p>
+Het Gemini-icoon verdwijnt uit je cellen.
+</p>
+<!--
+...... section Expressies ......
+-->
+<h4 id="autosec-7"><span class="sectionnumber">II&#x2003;</span>Expressies</h4>
+<a id="mkpiweb-autopage-7"></a>
+<!--
+...... subsection Uitleg ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">1&#x2003;</span>Uitleg</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een <b>expressie</b> is een berekening die één waarde oplevert.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Types: <kbd>int</kbd> (geheel), <kbd>float</kbd> (kommagetal, met een punt), <kbd>str</kbd> (tekst tussen aanhalingstekens).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Operatoren: <kbd>+ - * / // ** &percnt;</kbd>&#x2003;(<kbd>//</kbd> gehele deling, <kbd>&percnt;</kbd> rest, <kbd>**</kbd> macht).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Haakjes eerst, dan machten, dan <kbd>*</kbd> en <kbd>/</kbd>, dan <kbd>+</kbd> en <kbd>-</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Tekst plakken met <kbd>+</kbd>, herhalen met <kbd>*</kbd>; omzetten met <kbd>int()</kbd>, <kbd>float()</kbd> en <kbd>str()</kbd>.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-2"><div class="python-startcode"><pre class="pythoncode" data-stappen="1"><code>print(15 / 4)
+print(15 // 4, 15 % 4)
+print("ha " * 3)
+print("Ik heb " + str(3) + " appels")</code></pre></div></div>
+<!--
+...... subsection De laatste regel wordt vanzelf getoond ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">2&#x2003;</span>De laatste regel wordt vanzelf getoond</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> In een codecel toont Colab automatisch de waarde van de <b>laatste expressie</b>, ook zonder <kbd>print()</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Wil je meerdere resultaten zien, dan heb je wél <kbd>print()</kbd> nodig.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Toont enkel <kbd>9</kbd>:</b>
+</p>
+<div class="python-oefening python-codeblok" data-python="code-3"><div class="python-startcode"><pre class="pythoncode"><code>2 + 3
+4 + 5</code></pre></div></div>
+
+<p>
+<b>Toont <kbd>5</kbd> en <kbd>9</kbd>:</b>
+</p>
+<div class="python-oefening python-codeblok" data-python="code-4"><div class="python-startcode"><pre class="pythoncode"><code>print(2 + 3)
+print(4 + 5)</code></pre></div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> In een <kbd>.py</kbd>-bestand is er geen automatische uitvoer: daar is <kbd>print()</kbd> altijd nodig. Wen er dus aan.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<div class="python-oefening-kop"><h6 id="autosec-11">Oefening 1</h6><a class="pres-knop python-notebook-link" href="N00_Herhaling_Oefeningen.ipynb" download="N00_Herhaling_Oefeningen.ipynb" data-colab="mathesis-study/mathesis-study.github.io/main"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download oefennotebook</a></div>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<div class="python-oefening" data-python="pizza">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Een pizza kost \(12.50\) euro. Bereken wat \(7\) pizza’s kosten met \(10\%\) korting, en toon het bedrag afgerond op \(2\) cijfers na de komma. Gebruik e&#x0301;e&#x0301;n enkele expressie.
+</p>
+
+</div>
+
+<div class="hint">
+
+<p>
+Welke uitkomst verwacht je?
+</p>
+</div>
+
+<div class="hint">
+
+<p>
+Bereken eerst de prijs zonder korting. Met \(10\%\) korting betaal je nog \(90\%\).
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>round(12.50 * ... * (1 - ...), 2)</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>round(12.50 * 7 * (1 - 0.10), 2)</code></pre></div>
+
+</div>
+
+</div>
+<!--
+...... section Variabelen ......
+-->
+<h4 id="autosec-12"><span class="sectionnumber">III&#x2003;</span>Variabelen</h4>
+<a id="mkpiweb-autopage-12"></a>
+<!--
+...... subsection Uitleg ......
+-->
+<h5 id="autosec-13"><span class="sectionnumber">1&#x2003;</span>Uitleg</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> In <kbd>round(12.50 * 7 * (1 - 0.10), 2)</kbd> zie je niet meer wat elk getal betekent, en bij \(9\) pizza’s moet je zoeken welk getal je moet aanpassen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Geef de getallen dus een <b>naam</b>, en reken daarna met die namen.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-5"><div class="python-startcode"><pre class="pythoncode"><code>prijs = 12.50
+aantal = 7
+korting = 0.10
+totaal = prijs * aantal * (1 - korting)
+print("Totaal:", round(totaal, 2), "euro")</code></pre></div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Zelfde berekening, zelfde resultaat, maar nu leesbaar: je verandert <kbd>aantal</kbd> op e&#x0301;e&#x0301;n plaats en de rest volgt.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Zo’n naam voor een waarde heet een <b>variabele</b>.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Waarden bewaren ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">2&#x2003;</span>Waarden bewaren</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een <b>variabele</b> is een naam voor een waarde die je bewaart.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Toewijzen met <kbd>=</kbd>: links de naam, rechts de waarde.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Namen: letters, cijfers en underscores, niet beginnen met een cijfer, geen Python-woorden.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Een variabele mag van waarde <em>en</em> van type veranderen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Verkorte operatoren: <kbd>+=</kbd>, <kbd>-=</kbd>, <kbd>*=</kbd>, <kbd>/=</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <kbd>rekening += 3.50</kbd> is hetzelfde als <kbd>rekening = rekening + 3.50</kbd>: je past een bestaande waarde aan.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Commentaar met <kbd>#</kbd>: wordt niet uitgevoerd.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-6"><div class="python-startcode"><pre class="pythoncode"><code>rekening = 0                # een int
+rekening += 12.50 * 2       # twee pizza's erbij
+rekening += 3.50            # een drankje erbij
+rekening -= 5               # waardebon eraf
+print(rekening, type(rekening))</code></pre></div></div>
+<!--
+...... subsection De runtime onthoudt je variabelen ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">3&#x2003;</span>De runtime onthoudt je variabelen</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Alle cellen delen hetzelfde geheugen, de <b>runtime</b>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Een variabele uit cel 1 bestaat dus nog in cel 5.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Wat telt is de <em>volgorde waarin je uitvoert</em>, niet de volgorde op het scherm. Dat is een klassieke valkuil.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-7"><div class="python-startcode"><pre class="pythoncode" data-namespace="cellen"><code># cel 1
+x = 5
+print(x)</code></pre></div></div>
+
+<div class="python-oefening python-codeblok" data-python="code-8"><div class="python-startcode"><pre class="pythoncode" data-namespace="cellen"><code># cel 2
+x += 1
+print(x)   # 6, maar enkel als cel 1 al uitgevoerd is</code></pre></div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <em>Runtime \(\rightarrow \) Runtime herstarten</em>: alle variabelen zijn weg. Met <em>Reset</em> zet je ook de oorspronkelijke code van een cel terug.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <em>Runtime \(\rightarrow \) Alles uitvoeren</em>: alles opnieuw, netjes van boven naar onder. Doe dit voor je je werk indient.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-17">Oefening 2</h6>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<div class="python-oefening" data-python="wisselen">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Je hebt <kbd>x = 3</kbd> en <kbd>y = 8</kbd>. Wissel de waarden om, zodat <kbd>x</kbd> gelijk is aan \(8\) en <kbd>y</kbd> aan \(3\). Je mag de getallen niet opnieuw intypen.
+</p>
+
+</div>
+
+<div class="hint">
+
+<p>
+Wat gebeurt er als je enkel <kbd>x = y</kbd> en daarna <kbd>y = x</kbd> schrijft?
+</p>
+</div>
+
+<div class="hint">
+
+<p>
+Bewaar de oorspronkelijke waarde van <kbd>x</kbd> voordat je <kbd>x</kbd> een nieuwe waarde geeft.
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>x = 3
+y = 8
+# wissel hier de waarden om
+...
+print(x, y)   # moet 8 3 tonen</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>x = 3
+y = 8
+hulp = x      # bewaar de oude x
+x = y
+y = hulp
+print(x, y)   # 8 3</code></pre></div>
+
+</div>
+
+</div>
+<!--
+...... section Eenvoudige functies ......
+-->
+<h4 id="autosec-18"><span class="sectionnumber">IV&#x2003;</span>Eenvoudige functies</h4>
+<a id="mkpiweb-autopage-18"></a>
+<!--
+...... subsection Uitleg ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">1&#x2003;</span>Uitleg</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een <b>functie</b> is een zwarte doos: je geeft er <em>parameters</em> in en krijgt een <em>retourwaarde</em> terug.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Schrijfwijze: <kbd>naam(parameter1, parameter2)</kbd>, altijd met haakjes.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De volgorde van de parameters is belangrijk.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Enkele functies die je al kent: <kbd>print()</kbd>, <kbd>input()</kbd>, <kbd>len()</kbd>, <kbd>round()</kbd>, <kbd>abs()</kbd>, <kbd>max()</kbd>, <kbd>min()</kbd>,
+<kbd>int()</kbd>, <kbd>float()</kbd>, <kbd>str()</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Let op: <kbd>input()</kbd> geeft <em>altijd</em> een string terug. Reken je ermee, zet dan om met <kbd>int()</kbd> of <kbd>float()</kbd>.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-9"><div class="python-startcode"><pre class="pythoncode"><code>naam = input("Je naam: ")
+print("Hallo", naam, ", je naam heeft", len(naam), "tekens")
+leeftijd = int(input("Je leeftijd: "))
+print("Volgend jaar:", leeftijd + 1)</code></pre></div></div>
+<!--
+...... subsection Hulp bij functies ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">2&#x2003;</span>Hulp bij functies</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Typ de eerste letters en druk <kbd>Tab</kbd>: Colab vult de naam aan en toont de mogelijkheden.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Zet de cursor in een functienaam en druk <kbd>Shift+Tab</kbd>: je ziet welke parameters de functie verwacht.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Of vraag het expliciet met <kbd>help()</kbd>.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-10"><div class="python-startcode"><pre class="pythoncode"><code>help(round)
+# round(number, ndigits=None)
+#   Round a number to a given precision in decimal digits.</code></pre></div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Zo zie je meteen dat <kbd>round(3.14159, 2)</kbd> kan, en wat het tweede getal betekent.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Dit is de gewone aanvulling uit de documentatie, geen AI: ze verzint niets, ze toont wat er echt bestaat.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-22">Oefening 3</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<div class="python-oefening" data-python="grootste-getal" data-input="5,6">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Vraag de gebruiker twee kommagetallen en toon het grootste van de twee, afgerond op \(1\) cijfer na de komma.
+</p>
+
+</div>
+
+<div class="hint">
+
+<p>
+Welke functie geeft het grootste van twee getallen terug?
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>a = float(input("Eerste getal: "))
+b = ...
+grootste = ...
+print("Het grootste is", round(..., 1))</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>a = float(input("Eerste getal: "))
+b = float(input("Tweede getal: "))
+grootste = max(a, b)
+print("Het grootste is", round(grootste, 1))</code></pre></div>
+
+</div>
+
+</div>
+<!--
+...... section Condities ......
+-->
+<h4 id="autosec-23"><span class="sectionnumber">V&#x2003;</span>Condities</h4>
+<a id="mkpiweb-autopage-23"></a>
+<!--
+...... subsection Uitleg ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">1&#x2003;</span>Uitleg</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een <b>booleaanse expressie</b> is waar (<kbd>True</kbd>) of vals (<kbd>False</kbd>).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Vergelijken met <kbd><</kbd>, <kbd><=</kbd>, <kbd>==</kbd>, <kbd>>=</kbd>, <kbd>></kbd>, <kbd>!=</kbd>. Let op: <kbd>==</kbd> vergelijkt, <kbd>=</kbd> wijst toe.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Combineren met <kbd>and</kbd>, <kbd>or</kbd>, <kbd>not</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Kiezen met <kbd>if</kbd> &#x2026;<kbd>elif</kbd> &#x2026;<kbd>else</kbd>: de dubbele punt en het <b>inspringen</b> horen erbij.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-11"><div class="python-startcode"><pre class="pythoncode" data-stappen="regel"><code>temp = 12
+if temp &lt; 0:
+    print("Vriezen")
+elif temp &lt; 15:
+    print("Fris")
+else:
+    print("Aangenaam")</code></pre></div></div>
+<!--
+...... subsection Invoer en foutmeldingen ......
+-->
+<h5 id="autosec-25"><span class="sectionnumber">2&#x2003;</span>Invoer en foutmeldingen</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Bij <kbd>input()</kbd> verschijnt een invoervakje <em>onder</em> de cel. Typ je antwoord en druk <kbd>Enter</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Zolang je niets typt blijft de cel wachten; je ziet het rondje draaien.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Loopt er iets mis, dan toont Colab een <b>traceback</b> in het rood. Lees altijd de <em>laatste</em> regel: daar staat wat er fout is.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-12"><div class="python-startcode"><pre class="pythoncode"><code>getal = int(input("Getal: "))   # je typt: drie
+# ValueError: invalid literal for int()
+#             with base 10: 'drie'</code></pre></div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> De regel met het pijltje toont <em>waar</em> het misging.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Twijfel je over een waarde? Zet er een <kbd>print()</kbd> bij.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-26"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-27">Oefening 4</h6>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<div class="python-oefening" data-python="punten">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Vraag een punt op \(20\). Toon <em>niet geslaagd</em> onder \(10\), <em>geslaagd</em> vanaf \(10\), en <em>geslaagd met onderscheiding</em> vanaf \(14\).
+</p>
+
+</div>
+
+<div class="hint">
+
+<p>
+Welke boodschap verwacht je bij \(9\), \(10\), \(13\) en \(14\) punten?
+</p>
+</div>
+
+<div class="hint">
+
+<p>
+Probeer ook de grenswaarden \(10\) en \(14\). Welke voorwaarde controleer je eerst?
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>punt = int(input("Punt op 20: "))
+if ...:
+    print(...)
+elif ...:
+    print(...)
+else:
+    print(...)</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>punt = int(input("Punt op 20: "))
+if punt &gt;= 14:
+    print("Geslaagd met onderscheiding")
+elif punt &gt;= 10:
+    print("Geslaagd")
+else:
+    print("Niet geslaagd")</code></pre></div>
+
+</div>
+
+</div>
+<!--
+...... section Iteraties ......
+-->
+<h4 id="autosec-28"><span class="sectionnumber">VI&#x2003;</span>Iteraties</h4>
+<a id="mkpiweb-autopage-28"></a>
+<!--
+...... subsection Uitleg ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">1&#x2003;</span>Uitleg</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een <b>lus</b> herhaalt een stuk code.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <kbd>for</kbd>: je weet op voorhand hoeveel keer, of je overloopt een collectie.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <kbd>while</kbd>: herhalen zolang een conditie waar is. Vergeet de <em>update</em> niet, anders stopt de lus nooit.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <kbd>range(start, stop, stap)</kbd> stopt <em>vlak voor</em> <kbd>stop</kbd>.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-13"><div class="python-startcode"><pre class="pythoncode" data-stappen="regel"><code>for i in range(1, 4):
+    print(i)</code></pre></div></div>
+
+<div class="python-oefening python-codeblok" data-python="code-14"><div class="python-startcode"><pre class="pythoncode" data-stappen="regel"><code>i = 1
+while i &lt; 4:
+    print(i)
+    i += 1</code></pre></div></div>
+<!--
+...... subsection Een lus onderbreken ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">2&#x2003;</span>Een lus onderbreken</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een <kbd>while</kbd> zonder update blijft eeuwig draaien: het volgnummer blijft leeg en het rondje blijft draaien.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Klik dan op de <b>stopknop</b> van de cel, of <em>Runtime \(\rightarrow \) Uitvoering onderbreken</em>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Je krijgt een <kbd>KeyboardInterrupt</kbd>: dat is geen fout in je code, dat is jij die stopt.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-15"><div class="python-startcode"><pre class="pythoncode" data-output-delay="400" data-output-max="30"><code>i = 1
+while i &lt; 10:
+  print(i)</code></pre></div></div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>Tip:</b> schrijf bij een <kbd>while i < &#x2026;:</kbd> meteen de regel <kbd>i += 1</kbd>, en vul pas daarna de rest van de lus in.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Helpt niets meer? <em>Runtime \(\rightarrow \) Runtime herstarten</em>.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-31"><span class="sectionnumber">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<div class="cursus-oefenbalk"></div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 5 ......
+-->
+<h6 id="autosec-32">Oefening 5</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<div class="python-oefening" data-python="tafel-van-7">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Toon de tafel van \(7\), van \(7 \times 1\) tot en met \(7 \times 10\), in de vorm <kbd>7 x 3 = 21</kbd>.
+</p>
+
+</div>
+
+<div class="hint">
+
+<p>
+Welk eindgetal geef je aan <kbd>range()</kbd> zodat \(10\) nog meegeteld wordt?
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>for i in range(...):
+    print(7, "x", i, "=", ...)</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>for i in range(1, 11):      # 11 wordt niet meegeteld
+    print(7, "x", i, "=", 7 * i)
+
+# Uitbreiding: toon enkel de even veelvouden.
+for i in range(2, 11, 2):
+    print(7, "x", i, "=", 7 * i)</code></pre></div>
+
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 6 ......
+-->
+<h6 id="autosec-33">Oefening 6</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<div class="python-oefening" data-python="som-tot-nul">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Vraag getallen aan de gebruiker tot die <kbd>0</kbd> intypt. Toon daarna de som van alle ingegeven getallen.
+</p>
+
+</div>
+
+<div class="hint">
+
+<p>
+Welke voorwaarde moet waar zijn om de lus te blijven herhalen?
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>totaal = 0
+getal = int(input("Getal (0 = stoppen): "))
+while ...:
+    totaal ...
+    getal = ...
+print("Som:", totaal)</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>totaal = 0
+getal = int(input("Getal (0 = stoppen): "))
+while getal != 0:
+    totaal += getal
+    getal = int(input("Getal (0 = stoppen): "))
+print("Som:", totaal)</code></pre></div>
+
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 7 ......
+-->
+<h6 id="autosec-34">Oefening 7</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<div class="python-oefening" data-python="raad-het-getal">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> De computer denkt aan het getal \(7\). Laat de gebruiker raden tot het juist is, zeg telkens <em>te hoog</em> of <em>te laag</em>, en toon op het einde het aantal pogingen.
+</p>
+
+</div>
+
+<div class="hint">
+
+<p>
+Herhaal zolang de gok verschillend is van het geheime getal.
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>geheim = 7
+pogingen = 1
+gok = int(input("Raad: "))
+while ...:
+    if ...:
+        print("Te hoog")
+    else:
+        print("Te laag")
+    gok = ...
+    pogingen ...
+print("Juist na", pogingen)</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>geheim = 7
+pogingen = 1
+gok = int(input("Raad: "))
+while gok != geheim:
+    if gok &gt; geheim:
+        print("Te hoog")
+    else:
+        print("Te laag")
+    gok = int(input("Raad: "))
+    pogingen += 1
+print("Juist na", pogingen)</code></pre></div>
+
+</div>
+
+</div>
+<!--
+...... section Bewaren en indienen ......
+-->
+<h4 id="autosec-35"><span class="sectionnumber">VII&#x2003;</span>Bewaren en indienen</h4>
+<a id="mkpiweb-autopage-35"></a>
+<!--
+...... subsection Uitleg ......
+-->
+<h5 id="autosec-36"><span class="sectionnumber">1&#x2003;</span>Uitleg</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Colab bewaart automatisch in je Drive, maar sla zelf op met <kbd>Ctrl+S</kbd> (<em>Bestand \(\rightarrow \) Opslaan</em>).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Klik bovenaan op de naam om je notebook te hernoemen, bijvoorbeeld <kbd>Herhaling_Mijn_Naam</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Voeg met <kbd>+ Tekst</kbd> een tekstcel toe boven elke oefening, met de vraag erin. Zo blijft je notebook leesbaar.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Indienen:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> eerst <em>Runtime \(\rightarrow \) Alles uitvoeren</em> (zo staat alle uitvoer erin),
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> dan <em>Delen</em> en de link doorsturen, of <em>Bestand \(\rightarrow \) Downloaden \(\rightarrow \) .ipynb</em>.
+</p>
+</li>
+</ul>
+</li>
+</ul>
+<!--
+...... subsection Samenwerken ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">2&#x2003;</span>Samenwerken</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Colab is een Google-product, net als Documenten en Spreadsheets: het delen werkt er op dezelfde manier.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Knop <em>Delen</em> rechtsboven: voeg mensen toe met hun schooladres of maak een link, en kies hun recht: <em>Kijker</em>, <em>Reageerder</em> of <em>Bewerker</em>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Je kan met meerdere tegelijk in hetzelfde notebook werken: je ziet elkaars cursor en de aanpassingen komen er meteen bij.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Vraag stellen bij een cel: een <em>reactie</em> (<kbd>Ctrl+Alt+M</kbd>). Iets stukgemaakt: <em>Bestand \(\rightarrow \) Revisiegeschiedenis</em>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Let op:</b> de code wordt gedeeld, de <b>runtime</b> niet. Ieder voert uit op zijn eigen machine, dus jouw variabelen bestaan niet bij de anderen. En typ nooit met twee tegelijk in
+dezelfde cel.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Doe nu:</b>
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Maak groepjes van drie.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> E&#x0301;e&#x0301;n van jullie maakt een notebook <em>Samen</em>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Deel dat notebook met de twee anderen als <em>Bewerker</em>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Verdeel een aantal onderstaande oefening: ieder lost er e&#x0301;e&#x0301;n op in een eigen cel.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Zet boven je eigen cel een tekstcel met je naam.
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-38">Oefeningen</h6>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 8 ......
+-->
+<h6 id="autosec-39">Oefening 8</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+Bereken in e&#x0301;e&#x0301;n enkele expressie het gemiddelde van \(12\), \(15\) en \(18\), afgerond op \(1\) cijfer na de komma.
+</p>
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 9 ......
+-->
+<h6 id="autosec-40">Oefening 9</h6>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+Je spaarpot bevat \(25\) euro. Leg er tweemaal \(5\) euro bij, haal er daarna \(12.50\) euro uit en toon wat er overblijft. Gebruik de verkorte operatoren.
+</p>
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 10 ......
+-->
+<h6 id="autosec-41">Oefening 10</h6>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+Vraag de gebruiker twee gehele getallen en toon het verschil tussen de twee, altijd als een positief getal.
+</p>
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 11 ......
+-->
+<h6 id="autosec-42">Oefening 11</h6>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+Vraag een geheel getal en toon of het even of oneven is.
+</p>
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 12 ......
+-->
+<h6 id="autosec-43">Oefening 12</h6>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+Tel af van \(10\) tot en met \(1\), elk getal op een eigen regel, en toon daarna <kbd>Start!</kbd>.
+</p>
+</div>
+<!--
+...... section Samenvatting ......
+-->
+<h4 id="autosec-44"><span class="sectionnumber">VIII&#x2003;</span>Samenvatting</h4>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>Expressies</b>: types <kbd>int</kbd>, <kbd>float</kbd>, <kbd>str</kbd>; operatoren en haakjes; omzetten met <kbd>int()</kbd>, <kbd>str()</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Variabelen</b>: toewijzen met <kbd>=</kbd>, hergebruiken, <kbd>+=</kbd>, commentaar met <kbd>#</kbd>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Functies</b>: <kbd>print()</kbd>, <kbd>input()</kbd>, <kbd>len()</kbd>, <kbd>round()</kbd>, <kbd>max()</kbd>; <kbd>input()</kbd> geeft een string.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Condities</b>: vergelijken, <kbd>and</kbd>/<kbd>or</kbd>/<kbd>not</kbd>, <kbd>if</kbd>/<kbd>elif</kbd>/<kbd>else</kbd> met inspringen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Iteraties</b>: <kbd>for</kbd> met <kbd>range()</kbd>, <kbd>while</kbd> met een update.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Colab</b>: cellen uitvoeren, gedeelde runtime, AI uit, hulp met <kbd>Tab</kbd> en <kbd>help()</kbd>, tracebacks lezen, onderbreken, opslaan, delen en samenwerken.
+</p>
+</li>
+</ul>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=7b36d970dbc0"></script>
+<script src="python-config.js?v=7b36d970dbc0"></script>
+<script src="codemirror-python.js?v=7b36d970dbc0"></script>
+<script src="python-oefeningen.js?v=7b36d970dbc0"></script>
+</body>
+</html>

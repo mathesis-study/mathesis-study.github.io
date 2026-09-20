@@ -196,6 +196,7 @@
     Object.keys(knoppenBladeren).forEach(function (k) {
       knoppenBladeren[k].setAttribute("aria-pressed", String(k === naam));
     });
+    zetAlleOefenreeksen();
     // De lezer blijft bij de slide waar hij stond, ook als die nu midden in
     // een langere pagina staat.
     if (zichtbaar.length) toon(index, { forceer: true });
@@ -509,6 +510,136 @@
       secties[secties.length - 1].push(i);
       sectieVan[i] = secties.length - 1;
     });
+  }
+
+  /* --- Reeksen oefeningen --------------------------------------------- */
+
+  // Een reeks oefeningen staat gewoon onder elkaar, ook in Kort. Wil de auteur
+  // ze daar een voor een tonen, dan zet hij \oefeningenbalk voor de reeks;
+  // cursus.cls laat daar een merkteken achter. Van de oefeningen die er meteen
+  // op volgen maken we hier een kleine, lokale bladerreeks.
+  function bereidOefeningenVoor() {
+    slides.forEach(function (slide) {
+      var kinderen = Array.prototype.slice.call(slide.children);
+      var groep = [];
+      var gevraagd = false;
+
+      function sluitGroep() {
+        if (groep.length < 2 || !gevraagd) { groep = []; gevraagd = false; return; }
+        var reeks = el("div", "pres-oefeningen");
+        var balk = el("nav", "pres-oefening-navigatie");
+        balk.setAttribute("aria-label", "Oefeningen in deze reeks");
+        var vorige = el("button", "pres-knop");
+        vorige.type = "button";
+        vorige.setAttribute("aria-label", "Vorige oefening");
+        vorige.title = "Vorige oefening";
+        vorige.appendChild(icoon(ICOON.links));
+        vorige.appendChild(el("span", "pres-verberg-smalle-kolom", "Vorige oefening"));
+        var tellerOefeningen = el("span", "pres-oefening-teller");
+        var volgende = el("button", "pres-knop");
+        volgende.type = "button";
+        volgende.setAttribute("aria-label", "Volgende oefening");
+        volgende.title = "Volgende oefening";
+        volgende.appendChild(el("span", "pres-verberg-smalle-kolom", "Volgende oefening"));
+        volgende.appendChild(icoon(ICOON.rechts));
+        balk.appendChild(vorige);
+        balk.appendChild(tellerOefeningen);
+        balk.appendChild(volgende);
+        slide.insertBefore(reeks, groep[0]);
+        reeks.appendChild(balk);
+        groep.forEach(function (oefening, i) {
+          oefening.id = slide.id + "-oefening-" + (i + 1);
+          reeks.appendChild(oefening);
+        });
+        reeks._oefeningen = groep.slice();
+        reeks._index = 0;
+        reeks._balk = balk;
+        reeks._vorige = vorige;
+        reeks._volgende = volgende;
+        reeks._teller = tellerOefeningen;
+        vorige.addEventListener("click", function () { zetOefening(reeks, reeks._index - 1); });
+        volgende.addEventListener("click", function () { zetOefening(reeks, reeks._index + 1); });
+        (slide._oefenreeksen || (slide._oefenreeksen = [])).push(reeks);
+        groep = [];
+        gevraagd = false;
+      }
+
+      kinderen.forEach(function (kind) {
+        if (kind.classList && kind.classList.contains("cursus-oefening")) {
+          groep.push(kind);
+          return;
+        }
+        sluitGroep();
+        // Het merkteken zelf hoort niet in de slide te blijven staan.
+        if (kind.classList && kind.classList.contains("cursus-oefenbalk")) {
+          gevraagd = true;
+          kind.remove();
+        }
+      });
+      sluitGroep();
+      zetBalkNaastTitel(slide);
+    });
+    zetAlleOefenreeksen();
+  }
+
+  // Vult de reeks de hele slide, dan hoort haar balk bij de titel: ze bedient
+  // dan immers alles wat eronder staat, en de slide wint een rij. Staat er
+  // nog tekst voor de oefeningen, of vallen ze door een tussenstuk in twee
+  // reeksen uiteen, dan blijft elke balk boven haar eigen reeks staan.
+  function zetBalkNaastTitel(slide) {
+    var reeksen = slide._oefenreeksen || [];
+    if (reeksen.length !== 1) return;
+    var reeks = reeksen[0];
+    var kind = slide.firstElementChild;
+    while (kind && kind !== reeks) {
+      var aanloop = kind.matches(KOPPEN) ||
+        kind.classList.contains("pres-kruimel") ||
+        !kind.textContent.trim();
+      if (!aanloop) return;
+      kind = kind.nextElementSibling;
+    }
+    slide.insertBefore(reeks._balk, reeks);
+    slide.dataset.oefenkop = "1";
+  }
+
+  function zetOefening(reeks, nieuw, opties) {
+    opties = opties || {};
+    nieuw = Math.max(0, Math.min(reeks._oefeningen.length - 1, nieuw));
+    reeks._index = nieuw;
+    var kort = bladeren === "kort";
+    reeks._balk.hidden = !kort;
+    reeks._oefeningen.forEach(function (oefening, i) {
+      oefening.hidden = kort && i !== nieuw;
+    });
+    reeks._vorige.disabled = nieuw === 0;
+    reeks._volgende.disabled = nieuw === reeks._oefeningen.length - 1;
+    reeks._teller.textContent = (nieuw + 1) + " / " + reeks._oefeningen.length;
+    if (kort && !opties.zonderHash) history.replaceState(null, "", "#" + reeks._oefeningen[nieuw].id);
+    toonHintknop();
+    zetBladerknoppen();
+    planRanden();
+  }
+
+  function zetAlleOefenreeksen() {
+    slides.forEach(function (slide) {
+      (slide._oefenreeksen || []).forEach(function (reeks) {
+        zetOefening(reeks, reeks._index, { zonderHash: true });
+      });
+    });
+  }
+
+  function reeksVanHuidigeSlide() {
+    var reeksen = slides[index] && slides[index]._oefenreeksen;
+    return reeksen && reeksen.length === 1 ? reeksen[0] : null;
+  }
+
+  function zetBladerknoppen() {
+    if (!knopVorige || !knopVolgende) return;
+    var p = positie(), n = aantalPosities();
+    var reeks = reeksVanHuidigeSlide();
+    knopVorige.disabled = p === 0 && !(bladeren === "kort" && reeks && reeks._index > 0);
+    knopVolgende.disabled = p === n - 1 && !(bladeren === "kort" && reeks &&
+      reeks._index < reeks._oefeningen.length - 1);
   }
 
   function paginaVan(i) {
@@ -833,15 +964,26 @@
   }
 
   // Alle stappen op de pagina in documentvolgorde. Vooruit: een verborgen
-  // oplossing die opengaat, of een figuur in een open oplossing die een
+  // oplossing die opengaat, een stap van een Pythoncodeblok met stappen
+  // die uitgevoerd wordt, of een figuur in een open oplossing die een
   // figuurstap verder kan. Terug: een figuur die een figuurstap terug kan,
   // anders sluit haar oplossing weer. Openen en sluiten enkel zolang o (alle
   // oplossingen) uit staat.
   function stappenOpPagina(richting) {
     var stappen = [];
     zichtbaar.forEach(function (j) {
-      slides[j].querySelectorAll(".oplossing, .opl, .opl-math").forEach(function (element) {
+      slides[j].querySelectorAll(".oplossing, .opl, .opl-math, .python-stapblok").forEach(function (element) {
         if (!element.getClientRects().length) return;
+        // Een Pythoncodeblok met stappen (pythoncode[step-by-step]) beheert
+        // zijn eigen stand; python-oefeningen.js zegt of er een stap is.
+        if (element._codestappen) {
+          if (element._codestappen.kan(richting)) {
+            stappen.push({ doel: element, doe: function () {
+              element._codestappen.doe(richting);
+            } });
+          }
+          return;
+        }
         if (element.classList.contains("pres-verborgen")) {
           if (richting > 0 && !oplossingenZichtbaar) {
             stappen.push({ doel: element, doe: function () {
@@ -1243,6 +1385,9 @@
     }
     index = nieuw;
     var slide = slides[index];
+    (slide._oefenreeksen || []).forEach(function (reeks) {
+      zetOefening(reeks, reeks._index, { zonderHash: true });
+    });
     toonHintknop();
 
     if (!opties.vanScroll) {
@@ -1254,8 +1399,7 @@
     }
 
     var p = positie(), n = aantalPosities();
-    knopVorige.disabled = p === 0;
-    knopVolgende.disabled = p === n - 1;
+    zetBladerknoppen();
     teller.textContent = (p + 1) + " / " + n;
     voortgang.style.width = ((p + 1) / n * 100) + "%";
     voortgangbalk.setAttribute("aria-valuemax", String(n));
@@ -1301,6 +1445,13 @@
   // Vorige en volgende gaan in elke bladerstand per slide, zoals bij kort.
   // Bij lang en volledig scrolt dat naar de slide, of opent de sectie ernaast.
   function blader(richting) {
+    var reeks = reeksVanHuidigeSlide();
+    if (bladeren === "kort" && reeks &&
+        reeks._index + richting >= 0 && reeks._index + richting < reeks._oefeningen.length) {
+      zetOefening(reeks, reeks._index + richting);
+      scrollNaar(reeks, "instant");
+      return;
+    }
     var nieuw = index + richting;
     if (nieuw >= 0 && nieuw < slides.length) toon(nieuw);
   }
@@ -1425,8 +1576,18 @@
       return true;
     }
     var i = slides.findIndex(function (s) { return s.id === id; });
-    if (i < 0) return false;
-    toon(i, { vanHash: true });
+    if (i >= 0) {
+      toon(i, { vanHash: true });
+      return true;
+    }
+    var oefening = document.getElementById(id);
+    if (!oefening || !oefening.classList.contains("cursus-oefening")) return false;
+    var reeks = oefening.parentElement;
+    var oefeningIndex = reeks._oefeningen.indexOf(oefening);
+    var slideIndex = slides.indexOf(reeks.closest(".slide"));
+    if (oefeningIndex < 0 || slideIndex < 0) return false;
+    toon(slideIndex, { vanHash: true });
+    zetOefening(reeks, oefeningIndex, { zonderHash: true });
     return true;
   }
 
@@ -1983,8 +2144,8 @@
     var rijen = [
       ["→ · spatie", "volgende slide"],
       ["←", "vorige slide"],
-      ["↓ · Page Down", "scrollen tot de volgende stap in beeld is, dan volgende figuurstap, oplossing of slide"],
-      ["↑ · Page Up", "scrollen tot de vorige stap in beeld is, dan vorige figuurstap, oplossing of slide"],
+      ["↓ · Page Down", "scrollen tot de volgende stap in beeld is, dan voorbeeldinvoer, figuurstap, oplossing, coderegel of slide"],
+      ["↑ · Page Up", "scrollen tot de vorige stap in beeld is, dan vorige figuurstap, oplossing, coderegel of slide"],
       ["Home · End", "eerste of laatste slide"],
       ["k · l · v", "bladeren: kort, lang of volledig"],
       ["o", "alle oplossingen tonen of verbergen"],
@@ -2081,7 +2242,8 @@
     document.addEventListener("keydown", function (e) {
       if (e.ctrlKey || e.altKey || e.metaKey) return;
       var doel = e.target;
-      if (doel && (doel.tagName === "INPUT" || doel.tagName === "TEXTAREA")) return;
+      if (doel && (doel.tagName === "INPUT" || doel.tagName === "TEXTAREA" ||
+                   (doel.closest && doel.closest(".cm-editor, .cm-tooltip")))) return;
 
       // Staan de leerplandoelen open, dan scrollen de toetsen in dat venster;
       // enkel g en Escape doen iets anders: ze sluiten het.
@@ -2197,6 +2359,7 @@
 
     maakSlides(stroom);
     if (!slides.length) return;
+    bereidOefeningenVoor();
     maakSecties();
     zetKruimels();
     bereidHulpmiddelenVoor();

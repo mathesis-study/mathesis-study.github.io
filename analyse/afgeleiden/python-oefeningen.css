@@ -1,0 +1,268 @@
+.python-editor { margin: 1rem 0; min-width: 0; }
+.python-editor label { display: block; margin: .5rem 0; font-weight: 600; }
+.python-codekop {
+  display: flex; align-items: end; justify-content: space-between; gap: .75rem;
+  margin-bottom: .35rem;
+}
+.python-codekop label { margin-bottom: 0; }
+.python-codekeuzes { display: flex; flex-wrap: wrap; justify-content: end; }
+.python-editor .python-codekeuzes button {
+  padding: .3rem .6rem; border-radius: 0; margin-left: -1px;
+  background: var(--kleur-vlak);
+}
+.python-editor .python-codekeuzes button:first-child {
+  margin-left: 0; border-radius: .35rem 0 0 .35rem;
+}
+.python-editor .python-codekeuzes button:last-child { border-radius: 0 .35rem .35rem 0; }
+.python-editor .python-codekeuzes button[aria-pressed="true"] {
+  position: relative; background: var(--kleur-accent-zacht); border-color: var(--kleur-accent);
+}
+.python-editor textarea {
+  display: block; box-sizing: border-box; width: 100%; max-width: 100%;
+  padding: .7rem; border: 1px solid var(--kleur-lijn); border-radius: 0;
+  background: var(--kleur-vlak); color: var(--kleur-tekst);
+  font: .9rem/1.55 monospace; tab-size: 4; resize: vertical;
+}
+.python-codemirror { min-width: 0; grid-column: 2; }
+.python-codemirror .cm-editor {
+  min-height: 6.2rem; max-height: 25rem; overflow: auto; resize: vertical;
+  border: 1px solid var(--kleur-lijn); border-radius: 0;
+  background: var(--kleur-vlak); color: var(--kleur-tekst); font: .9rem/1.55 monospace;
+}
+.python-codemirror .cm-scroller { font-family: inherit; line-height: inherit; overflow: auto; }
+.python-codemirror .cm-content { caret-color: var(--kleur-tekst); }
+.python-codemirror .cm-gutters { background: var(--kleur-achtergrond); color: var(--kleur-zwak); border-right-color: var(--kleur-lijn); }
+.python-codemirror .cm-activeLine, .python-codemirror .cm-activeLineGutter { background: var(--kleur-actieve-regel); }
+.python-codemirror .cm-selectionBackground,
+.python-codemirror .cm-editor.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground {
+  background: var(--kleur-selectie);
+}
+/* De actieve regel ligt boven de selectielaag. Zodra er tekst geselecteerd
+ * is, laten we die markering weg zodat elke geselecteerde regel dezelfde
+ * achtergrond behoudt. */
+.python-codemirror .cm-editor:has(.cm-selectionBackground) .cm-activeLine,
+.python-codemirror .cm-editor:has(.cm-selectionBackground) .cm-activeLineGutter {
+  background: transparent;
+}
+.python-codemirror .cm-content ::selection { background: var(--kleur-selectie); color: var(--kleur-tekst); }
+.python-codemirror .cm-tooltip { background: var(--kleur-vlak); color: var(--kleur-tekst); border-color: var(--kleur-lijn); }
+.python-codemirror .cm-tooltip-autocomplete > ul > li[aria-selected] { background: var(--kleur-accent-zacht); color: var(--kleur-tekst); }
+.python-codemirror .cm-diagnostic { background: var(--kleur-vlak); border-color: var(--kleur-fout); }
+.python-codemirror .cm-diagnosticText { color: var(--kleur-fout); }
+.python-codemirror .cm-editor.cm-focused { outline: 2px solid var(--kleur-accent); outline-offset: 2px; }
+.python-codevak { position: relative; display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: .5rem; }
+.python-codevak > .python-resetbalk {
+  position: absolute; top: .4rem; right: .4rem; display: flex; gap: .3rem; z-index: 1;
+}
+.python-codevak > .python-resetbalk[hidden] { display: none; }
+.python-codegutter { display: flex; flex-direction: column; align-items: center; gap: .4rem; padding-top: .55rem; }
+.python-editor .python-uitvoerknop, .python-editor .python-stapknop,
+.python-editor .python-bugknop {
+  display: grid; place-items: center; width: 2rem; height: 2rem; padding: 0;
+  border: 2px solid currentColor; border-radius: 50%;
+  background: transparent; color: var(--kleur-accent);
+}
+.python-uitvoerknop::before {
+  content: ""; width: 0; height: 0; margin-left: .15rem;
+  border-top: .38rem solid transparent; border-bottom: .38rem solid transparent;
+  border-left: .62rem solid var(--kleur-accent);
+}
+.python-uitvoerknop.bezig::before {
+  width: .68rem; height: .68rem; margin-left: 0; border: 0;
+  background: var(--kleur-accent);
+}
+.python-uitvoerknop.laden::before {
+  width: .82rem; height: .82rem; margin-left: 0;
+  border: .18rem solid var(--kleur-lijn); border-top-color: var(--kleur-accent);
+  border-radius: 50%; animation: python-draaien .8s linear infinite;
+}
+/* Stapknoppen: als masker, zodat ze de accentkleur volgen. Vorige en volgende
+   zijn gewone driehoekjes, begin en einde dragen het streepje, net als in de
+   knoppenbalk van een figuur met constructiestappen. */
+.python-stapknop::before {
+  content: ""; width: .95rem; height: .95rem; background: var(--kleur-accent);
+  -webkit-mask: var(--stapvorm) center / contain no-repeat;
+  mask: var(--stapvorm) center / contain no-repeat;
+}
+.python-stapvooruit { --stapvorm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9.4 4.6L16.8 12l-7.4 7.4-2.2-2.2L12.4 12 7.2 6.8z'/%3E%3C/svg%3E"); }
+.python-stapterug { --stapvorm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M14.6 4.6L7.2 12l7.4 7.4 2.2-2.2L11.6 12l5.2-5.2z'/%3E%3C/svg%3E"); }
+.python-stapeinde { --stapvorm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M4 4l12 8-12 8z M18 4h3v16h-3z'/%3E%3C/svg%3E"); }
+.python-stapbegin { --stapvorm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 4L8 12l12 8z M3 4h3v16H3z'/%3E%3C/svg%3E"); }
+.python-stapspeel { --stapvorm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 3l14 9-14 9z'/%3E%3C/svg%3E"); }
+.python-stappauze { --stapvorm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 4h4v16H6z M14 4h4v16h-4z'/%3E%3C/svg%3E"); }
+/* De sprong naar de volgende ronde is een getekende boog, geen masker. */
+.python-stapronde::before { content: none; }
+.python-stapronde svg { width: 1.15rem; height: 1.15rem; }
+.python-stapknop.laden::before {
+  width: .82rem; height: .82rem; -webkit-mask: none; mask: none; background: none;
+  border: .18rem solid var(--kleur-lijn); border-top-color: var(--kleur-accent);
+  border-radius: 50%; animation: python-draaien .8s linear infinite;
+}
+/* De bugknop bij pythoncode[stap-per-regel] opent en sluit de stapinterface;
+   ingedrukt blijft ze gevuld staan zolang die interface open is. */
+.python-bugknop svg { width: 1.1rem; height: 1.1rem; }
+.python-bugknop[aria-pressed="true"] {
+  background: var(--kleur-accent); color: var(--kleur-op-accent);
+}
+.python-bugknop.laden svg { display: none; }
+.python-bugknop.laden::before {
+  content: ""; width: .82rem; height: .82rem;
+  border: .18rem solid var(--kleur-lijn); border-top-color: var(--kleur-accent);
+  border-radius: 50%; animation: python-draaien .8s linear infinite;
+}
+/* De instructie die als volgende aan de beurt is, en de uitvoer van de laatst
+   uitgevoerde. Tijdens het stappen zou de actieve regel daar tegenin gaan. */
+.python-codemirror .cm-volgende-regel {
+  background: var(--kleur-accent-zacht); box-shadow: inset 3px 0 0 var(--kleur-accent);
+}
+.python-stappend .cm-activeLine, .python-stappend .cm-activeLineGutter { background: transparent; }
+.python-stappend .cm-volgende-regel { background: var(--kleur-accent-zacht); }
+.python-codemirror .cm-python-invoer {
+  background: var(--kleur-accent-zacht); box-shadow: inset 0 -2px 0 var(--kleur-accent);
+}
+.python-uitvoer .python-nieuw { background: var(--kleur-vlak); box-shadow: 0 0 0 .25rem var(--kleur-vlak); }
+.python-uitvoer .python-traceback { color: var(--kleur-traceback); }
+.python-uitvoer .python-foutregel,
+.python-uitvoer .python-foutboodschap { color: var(--kleur-fout); font-weight: 700; }
+@keyframes python-draaien { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .python-uitvoerknop.laden::before, .python-stapknop.laden::before,
+  .python-bugknop.laden::before, .python-markering.python-uitvoer-draaien::before { animation-duration: 1.8s; }
+}
+.python-editor textarea:focus-visible, .python-editor button:focus-visible {
+  outline: 2px solid var(--kleur-accent); outline-offset: 2px;
+}
+.python-knoppen { display: flex; flex-wrap: wrap; gap: .45rem; margin: .7rem 0; }
+.python-editor button {
+  padding: .5rem .75rem; border: 1px solid var(--kleur-lijn); border-radius: .35rem;
+  background: var(--kleur-accent-zacht); color: var(--kleur-tekst); font: inherit; cursor: pointer;
+}
+.python-editor button:disabled { opacity: .55; cursor: default; }
+.python-editor .python-uitvoer {
+  white-space: pre-wrap; overflow-wrap: anywhere; max-height: 20rem; overflow: auto;
+  padding: .7rem; background: var(--kleur-achtergrond); color: var(--kleur-tekst);
+  font: .9rem/1.5 monospace; border-left: 3px solid var(--kleur-accent);
+}
+.python-invoer { display: inline-flex; align-items: stretch; gap: 0; white-space: normal; }
+.python-invoerveld {
+  min-width: 12rem; max-width: 100%; padding: .1rem .3rem; border: 0;
+  border-bottom: 1px solid var(--kleur-accent); border-radius: 0;
+  background: var(--kleur-vlak); color: var(--kleur-tekst); font: inherit;
+}
+.python-invoer .python-verzendknop {
+  display: grid; place-items: center; width: 2rem; height: auto; padding: .2rem;
+  font-size: 1.25rem; line-height: 1;
+}
+.python-voorbeeldinvoer { color: var(--kleur-zwak); font-size: .85rem; }
+.python-invoerveld:focus-visible { outline: 2px solid var(--kleur-accent); outline-offset: -2px; }
+.python-resultaat {
+  display: grid; grid-template-columns: 2.5rem minmax(0, 1fr); gap: .5rem; margin-top: .6rem;
+  align-items: start;
+}
+.python-resultaat[hidden] { display: none; }
+.python-markering[hidden] { display: none; }
+.python-markering {
+  display: grid; place-items: center; width: 2rem; height: 2rem; margin: .7rem auto 0;
+  border: 2px solid currentColor; border-radius: 50%; font-weight: 700; line-height: 1;
+}
+.python-markering.python-uitvoer-draaien { border-color: var(--kleur-lijn); }
+.python-markering.python-uitvoer-draaien::before {
+  content: ""; width: .82rem; height: .82rem;
+  border: .18rem solid var(--kleur-lijn); border-top-color: var(--kleur-accent);
+  border-radius: 50%; animation: python-uitvoer-stappen var(--python-spinner-duur) steps(12, end) infinite;
+}
+.python-resultaat.goed .python-markering { color: var(--kleur-goed); }
+.python-resultaat.fout .python-markering { color: var(--kleur-fout); }
+.python-resultaat.zelfcontrole .python-markering { color: var(--kleur-zelfcontrole); }
+.python-resultaatinhoud { min-width: 0; grid-column: 2; }
+.python-status, .python-bewaren { color: var(--kleur-zwak); font-size: .85rem; }
+.python-feedback { padding: .7rem; background: var(--kleur-accent-zacht); }
+.python-hint { margin: .7rem 0; }
+:root[data-hints="zichtbaar"] .hint.python-hint { display: block; }
+.python-hint summary { cursor: pointer; color: var(--kleur-accent); }
+@keyframes python-uitvoer-stappen { to { transform: rotate(360deg); } }
+/* De stapinterface bij pythoncode[stap-per-regel]: bovenaan de stapknoppen met
+   waar we staan, daaronder het bandje van de range, geteste voorwaarden en de
+   waarden van de variabelen. */
+.python-toestand {
+  /* Dezelfde linkerkant als de code en de uitvoer: die staan in de tweede
+     kolom van python-codevak en python-resultaat, naast de knoppengutter. */
+  margin-top: .6rem; margin-left: calc(2.5rem + .5rem); padding: .55rem .7rem;
+  border: 1px solid var(--kleur-lijn); border-left: 3px solid var(--kleur-accent);
+  border-radius: .25rem; background: var(--kleur-vlak);
+}
+.python-toestand[hidden] { display: none; }
+.python-toestandbalk { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; }
+.python-toestandinhoud:not(:empty) { margin-top: .5rem; }
+.python-toestandkop {
+  /* Blijft naast de knoppen staan en breekt liever binnen zichzelf af. */
+  flex: 1 1 9rem; margin: 0 0 0 .2rem; color: var(--kleur-zwak); font-size: .85rem;
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem;
+}
+.python-afgekapt { margin: .45rem 0 0; color: var(--kleur-zwak); font-size: .85rem; }
+.python-toestandinhoud > :last-child { margin-bottom: 0; }
+.python-ronde {
+  padding: 0 .4rem; border-radius: .8rem;
+  background: var(--kleur-accent-zacht); color: var(--kleur-accent); font-weight: 700;
+}
+.python-lusband {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .3rem; margin-bottom: .45rem;
+}
+/* Een lus van het nest die nu niet aan de beurt is, blijft staan zodat er niets
+   verspringt, maar treedt op de achtergrond. */
+.python-lusband.slapend { opacity: .5; }
+.python-lusnaam { margin-right: .15rem; font: .95rem/1 monospace; color: var(--kleur-zwak); }
+.python-luswaarde, .python-lusstop {
+  display: grid; place-items: center; min-width: 1.9rem; padding: .2rem .35rem;
+  border: 1px solid var(--kleur-lijn); border-radius: .25rem;
+  background: var(--kleur-achtergrond); color: var(--kleur-tekst);
+  font: .95rem/1.2 monospace;
+}
+.python-luswaarde.gehad { color: var(--kleur-zwak); opacity: .7; }
+.python-luswaarde.actief {
+  border-color: var(--kleur-accent); background: var(--kleur-accent);
+  color: var(--kleur-op-accent); font-weight: 700;
+}
+.python-lusstop {
+  border-style: dashed; background: transparent; color: var(--kleur-zwak);
+  text-decoration: line-through;
+}
+.python-lusuitleg { color: var(--kleur-zwak); font-size: .85rem; font-style: italic; }
+.python-conditie {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .55rem;
+  margin-bottom: .45rem; padding: .4rem .5rem; border-radius: .25rem;
+  background: var(--kleur-achtergrond); font-size: .95rem;
+}
+.python-conditie-label { color: var(--kleur-zwak); font-size: .8rem; }
+.python-conditie-uitkomst { padding: .12rem .45rem; border-radius: .8rem; }
+.python-conditie .python-waar { background: var(--kleur-goed); color: var(--kleur-op-accent); }
+.python-conditie .python-onwaar { background: var(--kleur-fout); color: var(--kleur-op-accent); }
+.python-waarden { display: flex; flex-wrap: wrap; gap: .35rem; }
+.python-waarde {
+  padding: .15rem .45rem; border: 1px solid var(--kleur-lijn); border-radius: .25rem;
+  background: var(--kleur-achtergrond); font-size: .9rem;
+}
+.python-waarde code { font-family: monospace; }
+.python-leeg { color: var(--kleur-zwak); font-size: .85rem; }
+.python-stappen table { width: 100%; border-collapse: collapse; }
+.python-stappen th, .python-stappen td {
+  text-align: left; padding: .3rem .6rem; border-bottom: 1px solid var(--kleur-lijn);
+  overflow-wrap: anywhere;
+}
+.python-stappen code { white-space: pre-wrap; overflow-wrap: anywhere; }
+.python-oefening-kop {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: .75rem; flex-wrap: wrap;
+}
+.python-oefening-kop > :first-child { margin-top: 0; }
+.python-notebook-link { color: var(--kleur-accent); white-space: nowrap; }
+@media (max-width: 34rem) {
+  .python-codekop { align-items: stretch; flex-direction: column; gap: .2rem; }
+  .python-codekeuzes { justify-content: start; }
+}
+@media screen {
+  .python-oefening.python-actief .python-startcode { display: none; }
+}
+@media print {
+  .python-editor, .python-notebook, .python-notebook-link { display: none; }
+}

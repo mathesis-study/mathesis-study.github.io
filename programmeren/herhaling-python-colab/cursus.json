@@ -1,0 +1,23 @@
+{
+ "titel": "Herhaling Python met Colab",
+ "hoofdstuk": 0,
+ "code": "N00",
+ "vak": "Informatica",
+ "domein": "Programmeren",
+ "domeinnaam": "Programmeren",
+ "url": "programmeren/herhaling-python-colab",
+ "secties": [
+  "Starten met Python en Colab",
+  "Expressies",
+  "Variabelen",
+  "Eenvoudige functies",
+  "Condities",
+  "Iteraties",
+  "Bewaren en indienen",
+  "Samenvatting"
+ ],
+ "leerplandoelen": [],
+ "interactief": true,
+ "python": true,
+ "oefeningen": true
+}
