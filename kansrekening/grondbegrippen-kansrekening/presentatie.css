@@ -1128,6 +1128,49 @@ html[data-bladeren="kort"] .slide[data-oefenkop] > .pres-oefening-navigatie {
   margin: 0 auto;
 }
 
+/* Lwarp geeft zo'n blok bovenaan een marge en een opvulling, waardoor de
+ * figuur ruim een regel lager begint dan de tekst ernaast. Op papier staat ze
+ * net gelijk met de eerste regel, dus halen we die twee er bovenaan af. */
+div.marginblock,
+div.marginparblock {
+  /* Op papier tilt een \vspace de figuur nog een eind boven de eerste regel;
+   * die ene regel voorsprong nemen we hier ook, ze oogt rustiger. Op een smal
+   * scherm staat het blok boven de tekst en geldt de marge verderop. */
+  margin-top: -1.25rem;
+  padding-top: 0;
+}
+
+/* De figuur zelf staat bij lwarp in een alinea en blijft daar een inline
+ * element, dus houdt de regel waarin ze staat nog plaats vrij boven haar.
+ * Als blok valt die regelhoogte weg en begint ze echt bovenaan. */
+div.marginblock > p:first-child,
+div.marginparblock > p:first-child {
+  margin-top: 0;
+}
+
+div.marginblock img,
+div.marginparblock img {
+  display: block;
+  margin-inline: auto;
+}
+
+/* Lwarp maakt van een wrapfigure een div.marginblock die rechts naast de
+ * tekst zweeft. Op een smal scherm blijft daar te weinig over voor een figuur
+ * en voor de tekst ernaast, dus zetten we ze daar onder elkaar. De breedte en
+ * de zweving komen bij lwarp uit een style-attribuut op het blok zelf, dus is
+ * !important hier de enige manier om ze te overstemmen. */
+@media (max-width: 44rem) {
+  div.marginblock,
+  div.marginparblock {
+    float: none !important;
+    width: auto !important;
+    max-width: 100%;
+    margin: 1rem 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
 .pres-figuur {
   position: relative;
   margin: 1rem auto;

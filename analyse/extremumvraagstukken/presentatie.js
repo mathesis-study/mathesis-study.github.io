@@ -29,6 +29,10 @@
   // venster waarin het op vraag verschijnt.
   var leerplan = null, leerplanvenster = null, leerplanTerug = null;
   var LEERPLAN_ANKER = "leerplandoelen";
+  // De matrixrekenmachine: een markering uit cursus.cls zet de knop in de
+  // kopbalk, het venster zelf wordt pas bij de eerste opening gebouwd.
+  var rekenmachine = false, rekenmachinevenster = null, rekenmachineTerug = null,
+      rekenmachineWerk = null;
   var kopbalk, knopVorige, knopVolgende, knopOplossingen, knopHints,
       knopZijbalk, knopPresentatie;
   var slides = [];
@@ -107,7 +111,9 @@
     doel: "M12 3a9 9 0 100 18 9 9 0 000-18zM12 8a4 4 0 100 8 4 4 0 000-8zM12 12h.01",
     kruis: "M6 6l12 12M18 6L6 18",
     meer: "M12 4.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM12 10.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" +
-          "M12 16.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z"
+          "M12 16.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z",
+    rekenmachine: "M5 3h14v18H5zM8 7h8M8 12h.01M12 12h.01M16 12h.01" +
+                  "M8 16h.01M12 16h.01M16 16h.01"
   };
 
   // Hierin gaat wat een leerling tussen twee keer kijken wil terugvinden: de
@@ -343,6 +349,13 @@
     stroom.querySelectorAll(".cursusleerplan").forEach(function (blok) {
       if (!leerplan) leerplan = el("div", "pres-leerplan-inhoud");
       leerplan.appendChild(blok);
+    });
+
+    // \matrixrekenmachine laat enkel een lege markering achter: ze hoort niet
+    // in de slides, maar zet de knop in de kopbalk.
+    stroom.querySelectorAll(".cursusrekenmachine").forEach(function (blok) {
+      rekenmachine = true;
+      blok.remove();
     });
     kinderen = Array.prototype.slice.call(stroom.children);
 
@@ -1079,6 +1092,15 @@
       frame.style.cssText = "";
       frame.style.height = hoogte;
       doos.style.maxWidth = "100%";
+
+      // Geeft de figuur zelf haar verhouding op (data-verhouding="7/5"), dan
+      // volgt de hoogte uit de breedte die ze krijgt. Zo blijft een figuur
+      // naast de tekst even goed in beeld als een die de kolom vult, zonder
+      // dat de bron een hoogte in vh moet raden.
+      if (frame.dataset.verhouding) {
+        frame.style.aspectRatio = frame.dataset.verhouding;
+        frame.style.height = "auto";
+      }
 
       // Een vaste figuur bevat één SVG-afbeelding. Gebruik haar intrinsieke
       // verhouding, zodat het iframe geen cameraruimte reserveert die alleen
@@ -1823,6 +1845,89 @@
     }
   }
 
+  /* --- Venster met de matrixrekenmachine -------------------------------- */
+
+  // De rekenmachine hangt niet aan een slide: ze staat in een venster dat over
+  // de cursus heen komt, zodat een leerling ze kan openen waar hij ook staat.
+  // Het venster wordt pas bij de eerste opening gebouwd; matrixrekenmachine.js
+  // laadt immers na dit script.
+  function bouwRekenmachine() {
+    if (rekenmachinevenster) return true;
+    if (!window.Matrixrekenmachine) return false;
+    rekenmachinevenster = el("div", "pres-hulp pres-rekenmachine");
+    var kader = el("div");
+    kader.tabIndex = -1;
+    kader.setAttribute("role", "dialog");
+    kader.setAttribute("aria-modal", "true");
+    kader.setAttribute("aria-labelledby", "pres-rekenmachine-titel");
+    var titel = el("h2", null, "Matrixrekenmachine");
+    titel.id = "pres-rekenmachine-titel";
+
+    var herstel = el("button", "pres-knop");
+    herstel.type = "button";
+    herstel.title = "Terug naar de beginstand";
+    herstel.setAttribute("aria-label", "Terug naar de beginstand");
+    herstel.appendChild(icoon(ICOON.herstel));
+    herstel.addEventListener("click", function () {
+      if (rekenmachineWerk) rekenmachineWerk.herstel();
+    });
+
+    var sluit = el("button", "pres-knop");
+    sluit.type = "button";
+    sluit.title = "Sluiten (Escape)";
+    sluit.setAttribute("aria-label", "Sluiten");
+    sluit.appendChild(icoon(ICOON.kruis));
+    sluit.addEventListener("click", function () { wisselRekenmachine(false); });
+
+    var kop = el("div", "pres-leerplan-kop");
+    kop.appendChild(titel);
+    var knoppen = el("div", "pres-rekenmachine-knoppen");
+    knoppen.appendChild(herstel);
+    knoppen.appendChild(sluit);
+    kop.appendChild(knoppen);
+    kader.appendChild(kop);
+
+    var houder = el("div", "pres-rekenmachine-inhoud");
+    kader.appendChild(houder);
+    rekenmachinevenster.appendChild(kader);
+    rekenmachinevenster.addEventListener("click", function (e) {
+      if (e.target === rekenmachinevenster) wisselRekenmachine(false);
+    });
+    document.body.appendChild(rekenmachinevenster);
+    rekenmachineWerk = window.Matrixrekenmachine.maak(houder);
+    return true;
+  }
+
+  // Zoals het venster met de leerplandoelen: het onthoudt niets en geeft de
+  // focus terug waar ze vandaan kwam.
+  function wisselRekenmachine(open) {
+    if (!rekenmachine) return;
+    if (open !== false && !bouwRekenmachine()) return;
+    if (!rekenmachinevenster) return;
+    var nu = rekenmachinevenster.hasAttribute("open");
+    if (open === undefined) open = !nu;
+    if (open === nu) return;
+    var kader = rekenmachinevenster.firstChild;
+    if (open) {
+      rekenmachineTerug = document.activeElement;
+      if (menuKop.contains(rekenmachineTerug)) rekenmachineTerug = knopMeer;
+      wisselMenu(false);
+      hulpvenster.removeAttribute("open");
+      wisselLeerplan(false);
+      rekenmachinevenster.setAttribute("open", "");
+      kader.scrollTop = 0;
+      kader.focus();
+      return;
+    }
+    rekenmachinevenster.removeAttribute("open");
+    var terug = rekenmachineTerug;
+    rekenmachineTerug = null;
+    if (kader.contains(document.activeElement)) {
+      if (terug && terug !== document.body && terug.focus) terug.focus();
+      else kader.blur();
+    }
+  }
+
   /* --- Chroom rond het podium ------------------------------------------ */
 
   // lwarp schrijft <title> bij \begin{document}; staat \title pas daarna, dan
@@ -1896,6 +2001,21 @@
     knopHints.addEventListener("click", wisselHints);
     toonHintknop();
     kop.appendChild(knopHints);
+
+    // De rekenmachine hoort bij de cursus die erom vraagt, en staat daarom in
+    // de kopbalk zelf: een leerling moet ze kunnen openen zonder te zoeken.
+    var knopRekenmachine = null;
+    if (rekenmachine) {
+      knopRekenmachine = el("button", "pres-knop");
+      knopRekenmachine.type = "button";
+      knopRekenmachine.title = "Matrixrekenmachine (m)";
+      knopRekenmachine.setAttribute("aria-label", "Matrixrekenmachine");
+      knopRekenmachine.setAttribute("aria-haspopup", "dialog");
+      knopRekenmachine.appendChild(icoon(ICOON.rekenmachine));
+      knopRekenmachine.appendChild(el("span", "pres-verberg-kop", "Rekenmachine"));
+      knopRekenmachine.addEventListener("click", function () { wisselRekenmachine(true); });
+      kop.appendChild(knopRekenmachine);
+    }
 
     // Geen resetknop in de balk: elke figuur krijgt er zelf een naast zich,
     // en de sneltoets r blijft alles op deze slide herstellen.
@@ -1975,6 +2095,7 @@
     // Sneltoetsen en leerplandoelen staan er altijd: die zijn voor wie de site
     // bedient, niet voor wie meekijkt.
     acties = [knopOplossingen, knopHints, groep, knopPresentatie, knopThema];
+    if (knopRekenmachine) acties.unshift(knopRekenmachine);
     var meer = el("div", "pres-meer");
     knopMeer = el("button", "pres-knop");
     knopMeer.type = "button";
@@ -2157,6 +2278,7 @@
       ["Escape", "sluit een venster, een grote figuur, het zoekveld of de presentatiestand"],
       ["?", "dit venster"]
     ];
+    if (rekenmachine) rijen.splice(rijen.length - 2, 0, ["m", "de matrixrekenmachine openen of sluiten"]);
     if (leerplan) rijen.splice(rijen.length - 2, 0, ["g", "leerplandoelen tonen of verbergen"]);
     rijen.forEach(function (rij) {
       var dt = el("dt");
@@ -2245,6 +2367,16 @@
       if (doel && (doel.tagName === "INPUT" || doel.tagName === "TEXTAREA" ||
                    (doel.closest && doel.closest(".cm-editor, .cm-tooltip")))) return;
 
+      // In de rekenmachine typt de leerling getallen; enkel m en Escape doen
+      // daar nog iets, en dan enkel buiten een invoerveld (zie hierboven).
+      if (rekenmachinevenster && rekenmachinevenster.hasAttribute("open")) {
+        if (e.key === "m" || e.key === "M" || e.key === "Escape") {
+          wisselRekenmachine(false);
+          e.preventDefault();
+        }
+        return;
+      }
+
       // Staan de leerplandoelen open, dan scrollen de toetsen in dat venster;
       // enkel g en Escape doen iets anders: ze sluiten het.
       if (leerplanvenster && leerplanvenster.hasAttribute("open")) {
@@ -2293,11 +2425,17 @@
           if (!leerplanvenster) return;
           wisselLeerplan(true);
           break;
+        case "m": case "M":
+          if (!rekenmachine) return;
+          wisselRekenmachine(true);
+          break;
         // Escape ruimt op wat er openstaat, van het bovenste naar het
         // onderste laagje, en zet je uiteindelijk uit de presentatiestand.
         case "Escape":
           if (hulpvenster.hasAttribute("open")) hulpvenster.removeAttribute("open");
-          else if (!menuKop.hidden) wisselMenu(false);
+          else if (rekenmachinevenster && rekenmachinevenster.hasAttribute("open")) {
+            wisselRekenmachine(false);
+          } else if (!menuKop.hidden) wisselMenu(false);
           else if (groteFiguur) zetGroteFiguur(groteFiguur, false);
           else if (!wisZoek()) zetPresentatiestand(false);
           break;

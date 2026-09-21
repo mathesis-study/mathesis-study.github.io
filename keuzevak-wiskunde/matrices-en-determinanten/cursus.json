@@ -1,0 +1,18 @@
+{
+ "titel": "Matrices en determinanten",
+ "hoofdstuk": null,
+ "code": null,
+ "vak": "Keuze",
+ "domein": "KeuzevakWiskunde",
+ "domeinnaam": "Keuzevak Wiskunde",
+ "url": "keuzevak-wiskunde/matrices-en-determinanten",
+ "secties": [
+  "Matrices",
+  "Determinanten",
+  "Meetkundige toepassingen"
+ ],
+ "leerplandoelen": [],
+ "interactief": true,
+ "python": false,
+ "oefeningen": false
+}
