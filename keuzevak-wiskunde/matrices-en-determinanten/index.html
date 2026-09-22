@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Matrices en determinanten</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=bd6ad6e10982" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=257add3388a0" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -247,9 +247,9 @@ MathJax = {
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=bd6ad6e10982" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=bd6ad6e10982" />
-<link rel="stylesheet" href="matrixrekenmachine.css?v=bd6ad6e10982" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=257add3388a0" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=257add3388a0" />
+<link rel="stylesheet" href="matrixrekenmachine.css?v=257add3388a0" />
 </head>
 <body>
 
@@ -862,27 +862,67 @@ Uit (1) volgt \(x=\pm 2\).
 </p>
 
 <p>
-<b>Geval \(x=2\).</b> Uit (3): \(y^2=2\cdot 2+5=9\Rightarrow y=\pm 3\). Uit (2) en (4) halen we \(z=\dfrac {2-y}{5}\) en \(z=-2-y\). Gelijkstellen geeft
+<b>Geval \(x=2\).</b> Uit (3): \(y^2=2\cdot 2+5=9\Rightarrow y=\pm 3\). We proberen beide waarden. Telkens halen we \(z\) uit (4) en kijken we of ook (2) klopt.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(y=3\): uit (4) volgt \(2+3+z=0\), dus \(z=-5\). In (2) staat dan \(3+5\cdot (-5)=-22\), maar dat moet \(x=2\) zijn. Fout.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(y=-3\): uit (4) volgt \(2-3+z=0\), dus \(z=1\). In (2) staat dan \(-3+5\cdot 1=2\), en dat is inderdaad \(x=2\). Klopt.
+</p>
+</li>
+</ul>
+
+<p>
+Voor \(x=2\) vinden we dus één oplossing: \(y=-3\) en \(z=1\).
 </p>
 
 <p>
-\[ \frac {2-y}{5}=-2-y\ \Longrightarrow \ 2-y=-10-5y\ \Longrightarrow \ 12+4y=0\ \Longrightarrow \ y=-3.            \]
+<b>Geval \(x=-2\).</b> Uit (3): \(y^2=2(-2)+5=1\Rightarrow y=\pm 1\). We proberen beide waarden. Telkens halen we \(z\) uit (4) en kijken we of ook (2) klopt.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(y=1\): uit (4) volgt \(-2+1+z=0\), dus \(z=1\). In (2) staat dan \(1+5\cdot 1=6\), maar dat moet \(x=-2\) zijn. Fout.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(y=-1\): uit (4) volgt \(-2-1+z=0\), dus \(z=3\). In (2) staat dan \(-1+5\cdot 3=14\), maar dat moet \(x=-2\) zijn. Fout.
+</p>
+</li>
+</ul>
+
+<p>
+Geen enkele keuze voldoet aan de vier vergelijkingen tegelijk. Voor \(x=-2\) is er dus geen oplossing.
 </p>
 
 <p>
-Dan \(z=-2-(-3)=1\).
+Samengevat: (1), (3) en (4) kloppen voor elke kandidaat, enkel (2) beslist.
 </p>
 
 <p>
-<b>Geval \(x=-2\).</b> Uit (3): \(y^2=2(-2)+5=1\Rightarrow y=\pm 1\). Uit (2) en (4): \(z=\dfrac {-2-y}{5}=2-y\). Gelijkstellen geeft
+<figure class="interactieve-grafiek" data-grafiek="gelijke-matrices-xyz" data-hoogte="11rem"> <div class="interactieve-grafiek-terugval">
 </p>
 
 <p>
-\[ \frac {-2-y}{5}=2-y \ \Longrightarrow \ -2-y=10-5y \ \Longrightarrow \ -12+4y=0 \ \Longrightarrow \ y=3, \]
+\[ \begin {array}{rrr|c|c} x &amp; y &amp; z &amp; y+5z &amp; y+5z=x\,?\\ \hline 2 &amp; 3 &amp; -5 &amp; -22 &amp; \text {nee}\\ 2 &amp; -3 &amp; 1 &amp; 2 &amp; \text {ja}\\ -2 &amp; 1 &amp;
+1 &amp; 6 &amp; \text {nee}\\ -2 &amp; -1 &amp; 3 &amp; 14 &amp; \text {nee} \end {array} \]
 </p>
 
 <p>
-in tegenspraak met \(y=\pm 1\). Dus geen oplossing in dit geval.
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Kies een kandidaat: ze wordt in beide matrices ingevuld. Een paar overeenkomstige elementen dat klopt, kleurt groen en
+krijgt een vinkje; een paar dat verschilt, kleurt rood en toont met \(\neq \) ook de waarde links. Klik op een element voor de uitwerking van dat paar.</figcaption> </figure>
 </p>
 
 <p>
@@ -4921,13 +4961,14 @@ De oppervlakte van parallellogram \(ABCD\) met aangrenzende hoekpunten \(A(x_1,y
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=bd6ad6e10982"></script>
-<script src="vendor/jsxgraphcore.js?v=bd6ad6e10982"></script>
-<script src="interactieve-grafieken.js?v=bd6ad6e10982"></script>
-<script src="matrixbord.js?v=bd6ad6e10982"></script>
-<script src="hoofdstuk.interactief.js?v=bd6ad6e10982"></script>
-<script src="hoofdstuk.interactief.determinanten.js?v=bd6ad6e10982"></script>
-<script src="hoofdstuk.interactief.transformaties.js?v=bd6ad6e10982"></script>
-<script src="matrixrekenmachine.js?v=bd6ad6e10982"></script>
+<script src="presentatie.js?v=257add3388a0"></script>
+<script src="vendor/jsxgraphcore.js?v=257add3388a0"></script>
+<script src="interactieve-grafieken.js?v=257add3388a0"></script>
+<script src="matrixbord.js?v=257add3388a0"></script>
+<script src="hoofdstuk.interactief.js?v=257add3388a0"></script>
+<script src="hoofdstuk.interactief.determinanten.js?v=257add3388a0"></script>
+<script src="hoofdstuk.interactief.oefeningen.js?v=257add3388a0"></script>
+<script src="hoofdstuk.interactief.transformaties.js?v=257add3388a0"></script>
+<script src="matrixrekenmachine.js?v=257add3388a0"></script>
 </body>
 </html>

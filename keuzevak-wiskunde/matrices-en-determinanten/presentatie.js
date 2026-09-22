@@ -769,7 +769,7 @@
         zetOplossing(blok, blok.classList.contains("pres-verborgen"));
       });
       blok.addEventListener("click", function (e) {
-        if (e.target.closest("button, a, input, select, textarea, iframe, [role='button']")) return;
+        if (e.target.closest("button, a, input, select, textarea, iframe, [role='button'], .interactieve-grafiek")) return;
         zetOplossing(blok, blok.classList.contains("pres-verborgen"));
       });
       blok.appendChild(knop);
