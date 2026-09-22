@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Determinanten</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=d4bd0766d384" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=ef798e899e76" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -24,20 +24,31 @@
 //
 
 // Further improved by Pieter Pareit, who turned the lwarp output into an
-// interactive course (see presentatie.css and presentatie.js):
+// interactive course (see presentatie.js and the other files in web/):
 //
 //  * every \section, \subsection and \subsubsection becomes a slide, with
 //    keyboard, swipe and progress-bar navigation and a searchable contents;
 //  * read it short (one slide at a time), long (one section at a time) or
 //    full (the whole chapter on one page);
-//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
 //  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
 //    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
 //  * a light and a dark theme, plus a presentation mode with larger type for
 //    use in front of a class;
 //  * the layout follows the screen, from a 320 px phone up to a projector;
-//  * nothing comes from a CDN: MathJax and every figure are served from this
-//    site, so it works offline as well.
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
 //
 
 MathJax = {
@@ -247,8 +258,8 @@ MathJax = {
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=d4bd0766d384" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=d4bd0766d384" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=ef798e899e76" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=ef798e899e76" />
 </head>
 <body>
 
@@ -371,6 +382,8 @@ MathJax = {
 \(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
 
 \(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
 
 \(\newcommand {\N }{\mathbb {N}}\)
 
@@ -918,6 +931,9 @@ is de <b>determinant</b> het ree&#x0308;el getal \(a_{11}a_{22}-a_{12}a_{21}\).
 <a id="mkpiweb-autopage-11"></a>
 
 
+
+<div class="aside">
+
 <p>
 De absolute waarde van de determinant van een \(2\times 2\)-matrix is de <b>oppervlakte</b> van het parallellogram opgespannen door de kolomvectoren (of rijvectoren).
 </p>
@@ -958,6 +974,8 @@ Een negatieve determinant betekent dat de orie&#x0308;ntatie van \((\vec {v}_1, 
 <p>
 Analoog is de absolute waarde van de determinant van een \(3\times 3\)-matrix het <b>volume</b> van het parallellepipedum opgespannen door de drie kolomvectoren.
 </p>
+
+</div>
 
 <p>
 <figure class="interactieve-grafiek" data-grafiek="det-oppervlakte" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
@@ -1797,7 +1815,7 @@ Als we de elementen van één rij (of kolom) van een matrix met een getal \(k\) 
 
 
 <p>
-<span class="hint">Zij \(A&apos; \) verkregen uit \(A\) door rij \(i\) met \(k\) te vermenigvuldigen. Laplace-ontwikkeling volgens die rij \(i\) (hier als vb. R2):</span>
+<span class="aside">Zij \(A&apos; \) verkregen uit \(A\) door rij \(i\) met \(k\) te vermenigvuldigen. Laplace-ontwikkeling volgens die rij \(i\) (hier als vb. R2):</span>
 </p>
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
@@ -1925,7 +1943,7 @@ Als in twee \(n\times n\)-determinanten \(n-1\) rijen (resp. kolommen) gelijk zi
 
 
 <p>
-<span class="hint">We bewijzen de eigenschap voor kolommen (bv. de 3<sup>e</sup> kolom) door het linkerlid te ontwikkelen. We ontwikkelen beide determinanten naar de kolom die verschilt:</span>
+<span class="aside">We bewijzen de eigenschap voor kolommen (bv. de 3<sup>e</sup> kolom) door het linkerlid te ontwikkelen. We ontwikkelen beide determinanten naar de kolom die verschilt:</span>
 </p>
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
@@ -1960,7 +1978,7 @@ Als in twee \(n\times n\)-determinanten \(n-1\) rijen (resp. kolommen) gelijk zi
 (a_{13}+a&apos;_{13})A_{13}+(a_{23}+a&apos;_{23})A_{23}+(a_{33}+a&apos;_{33})A_{33} \\ &amp;\weq [\text {K3}]{=} \begin{vNiceMatrix} a_{11}&amp;a_{12}&amp;a_{13}+a&apos;_{13}\\
 a_{21}&amp;a_{22}&amp;a_{23}+a&apos;_{23}\\ a_{31}&amp;a_{32}&amp;a_{33}+a&apos;_{33} \CodeAfter \markeercellen {colc}{1-3}{3-3} \end {vNiceMatrix}
 \end{align*}
-<span class="hint">De cofactoren \(A_{13},A_{23},A_{33}\) zijn in beide determinanten dezelfde, omdat de andere kolommen identiek zijn. De rij-versie is volstrekt analoog.</span>
+<span class="aside">De cofactoren \(A_{13},A_{23},A_{33}\) zijn in beide determinanten dezelfde, omdat de andere kolommen identiek zijn. De rij-versie is volstrekt analoog.</span>
 </p>
 <!--
 ...... subsection Hoofdeigenschap VI ......
@@ -1984,7 +2002,7 @@ Als we bij één rij (of kolom) een veelvoud van een andere rij (of kolom) optel
 
 
 <p>
-<span class="hint">Voor het kolom-geval (\(K_1 \leftarrow K_1+kK_2\); analoog voor rijen):</span>
+<span class="aside">Voor het kolom-geval (\(K_1 \leftarrow K_1+kK_2\); analoog voor rijen):</span>
 </p>
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
@@ -2025,7 +2043,7 @@ a_{21} &amp; a_{22} &amp; a_{23}\\ a_{31} &amp; a_{32} &amp; a_{33} \end {vmatri
 </p>
 
 <p>
-<span class="hint">(*) Twee gelijke kolommen</span>
+<span class="aside">(*) Twee gelijke kolommen</span>
 </p>
 
 <p>
@@ -2517,6 +2535,9 @@ Voor alle \(A,B\in \mathbb {R}^{n\times n}\): \(\;\det (A\,B)=\det A\cdot \det B
 p143 e.v. nr 7
 </p>
 
+
+<div class="aside">
+
 <p>
 In het algemeen \(A\,B\neq B\,A\), maar
 </p>
@@ -2524,6 +2545,8 @@ In het algemeen \(A\,B\neq B\,A\), maar
 <p>
 \[ \det (A\,B)=\det A\,\det B=\det B\,\det A=\det (B\,A). \]
 </p>
+
+</div>
 <!--
 ...... section Omgekeerde van een -matrix ......
 -->
@@ -2852,11 +2875,11 @@ De verzameling van alle reguliere \(n\times n\)-matrices:
 </p>
 
 <p>
-\[ GL_n(\mathbb {R})=\{A\in \mathbb {R}^{n\times n}\mid \det A\neq 0\}.    \]
+\[ GL_n(\mathbb {R})=\{A\in \mathbb {R}^{n\times n}\mid \det A\neq 0\}.            \]
 </p>
 
 <p>
-<span class="hint">GL: General Lineair Group</span>
+<span class="aside">GL: de algemene lineaire groep (general linear group)</span>
 </p>
 
 <p>
@@ -2869,11 +2892,11 @@ Groepseigenschappen:
 
 
 
-                                                                          I: (geslotenheid)   A, B ∈ GLn (R) ⇒ AB ∈ GLn (R),
-                                                                      A: (associativiteit)    (AB)C = A(BC),
-                                                                   N: (neutraal element)      In ∈ GLn (R) en In A = AIn = A,
-                                                                      S: (invers element)     Voor elke A ∈ GLn (R) bestaat A−1 ∈ GLn (R)
-                                                                                                met AA−1 = A−1 A = In .
+                                                                               I: (geslotenheid)    A, B ∈ GLn (R) ⇒ AB ∈ GLn (R),
+                                                                             A: (associativiteit)   (AB)C = A(BC),
+                                                                          N: (neutraal element)     In ∈ GLn (R) en In A = AIn = A,
+                                                                             S: (invers element)    Voor elke A ∈ GLn (R) bestaat A−1 ∈ GLn (R)
+                                                                                                      met AA−1 = A−1 A = In .
 
 
 
@@ -4625,10 +4648,10 @@ Bereken \(k\) als de oppervlakte van een driehoek \(\Delta ABC\) met \(A(2,0)\),
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=d4bd0766d384"></script>
-<script src="vendor/jsxgraphcore.js?v=d4bd0766d384"></script>
-<script src="interactieve-grafieken.js?v=d4bd0766d384"></script>
-<script src="matrixbord.js?v=d4bd0766d384"></script>
-<script src="hoofdstuk.interactief.js?v=d4bd0766d384"></script>
+<script src="presentatie.js?v=ef798e899e76"></script>
+<script src="vendor/jsxgraphcore.js?v=ef798e899e76"></script>
+<script src="interactieve-grafieken.js?v=ef798e899e76"></script>
+<script src="matrixbord.js?v=ef798e899e76"></script>
+<script src="hoofdstuk.interactief.js?v=ef798e899e76"></script>
 </body>
 </html>

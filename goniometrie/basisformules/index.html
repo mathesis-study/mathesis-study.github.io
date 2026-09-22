@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Basisformules</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=78fee9dae128" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=597a68263b3c" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -24,20 +24,31 @@
 //
 
 // Further improved by Pieter Pareit, who turned the lwarp output into an
-// interactive course (see presentatie.css and presentatie.js):
+// interactive course (see presentatie.js and the other files in web/):
 //
 //  * every \section, \subsection and \subsubsection becomes a slide, with
 //    keyboard, swipe and progress-bar navigation and a searchable contents;
 //  * read it short (one slide at a time), long (one section at a time) or
 //    full (the whole chapter on one page);
-//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
 //  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
 //    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
 //  * a light and a dark theme, plus a presentation mode with larger type for
 //    use in front of a class;
 //  * the layout follows the screen, from a 320 px phone up to a projector;
-//  * nothing comes from a CDN: MathJax and every figure are served from this
-//    site, so it works offline as well.
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
 //
 
 MathJax = {
@@ -247,8 +258,8 @@ MathJax = {
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=78fee9dae128" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=78fee9dae128" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=597a68263b3c" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=597a68263b3c" />
 </head>
 <body>
 
@@ -371,6 +382,8 @@ MathJax = {
 \(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
 
 \(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
 
 \(\newcommand {\N }{\mathbb {N}}\)
 
@@ -2069,7 +2082,7 @@ Gegeven dat de volgende vormen zinvol zijn. Schrijf zo eenvoudig mogelijk:
 \sin ^2\beta \\ &amp;= \sin ^2\alpha \cos ^2\beta + \cos ^2\alpha \cos ^2\beta + \cos ^2\alpha \sin ^2\beta + \sin ^2\alpha \sin ^2\beta \\ &amp;= \cos ^2\beta \left (\sin ^2\alpha + \cos
 ^2\alpha \right ) + \sin ^2\beta \left (\cos ^2\alpha + \sin ^2\alpha \right )\\ &amp;\overset {\text {grondf.}}{=} \cos ^2\beta + \sin ^2\beta \\ &amp;\overset {\text {grondf.}}{=} 1
 \end{align*}
-<span class="hint">Opmerking: in het volgende hoofdstuk zullen we extra formules zien. Maak deze oefening dan nog eens opnieuw, ze is dan op te lossen in 2 stappen!</span>
+<span class="aside">Opmerking: in het volgende hoofdstuk zullen we extra formules zien. Maak deze oefening dan nog eens opnieuw, ze is dan op te lossen in 2 stappen!</span>
 </p>
 </li>
 </ul>
@@ -3329,7 +3342,7 @@ Bepaal \(\sin \alpha \) en \(\cos \alpha \) als
 <div class="oplossing">
 
 <p>
-<span class="hint">(Moeilijkere oefening.)</span>
+<span class="aside">(Moeilijkere oefening.)</span>
 </p>
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
@@ -3785,7 +3798,7 @@ vinden we
 \frac {\cos \left (\frac {\pi }{2} + \alpha \right )\tan \left (\frac {3\pi }{2} + \alpha \right )} {\sin \left (\frac {3\pi }{2} - \alpha \right )\sin \left (\frac {35\pi }{2}\right )} &amp;=
 \frac {\left (-\sin \alpha \right )\cdot \left (-\cot \alpha \right )} {\left (-\cos \alpha \right )\cdot \left (-1\right )}\\ &amp;= 1
 \end{align*}
-<span class="hint">Opmerking: het antwoord in het handboek is fout. Vul maar eens een willekeurige hoek in voor \(\alpha \).</span>
+<span class="aside">Opmerking: het antwoord in het handboek is fout. Vul maar eens een willekeurige hoek in voor \(\alpha \).</span>
 </p>
 </li>
 </ul>
@@ -3938,9 +3951,9 @@ dus
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=78fee9dae128"></script>
-<script src="vendor/jsxgraphcore.js?v=78fee9dae128"></script>
-<script src="interactieve-grafieken.js?v=78fee9dae128"></script>
-<script src="hoofdstuk.interactief.js?v=78fee9dae128"></script>
+<script src="presentatie.js?v=597a68263b3c"></script>
+<script src="vendor/jsxgraphcore.js?v=597a68263b3c"></script>
+<script src="interactieve-grafieken.js?v=597a68263b3c"></script>
+<script src="hoofdstuk.interactief.js?v=597a68263b3c"></script>
 </body>
 </html>

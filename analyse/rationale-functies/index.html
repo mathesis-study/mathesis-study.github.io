@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Rationale functies</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=10e60b25b04d" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=ef97c567bb42" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -24,20 +24,31 @@
 //
 
 // Further improved by Pieter Pareit, who turned the lwarp output into an
-// interactive course (see presentatie.css and presentatie.js):
+// interactive course (see presentatie.js and the other files in web/):
 //
 //  * every \section, \subsection and \subsubsection becomes a slide, with
 //    keyboard, swipe and progress-bar navigation and a searchable contents;
 //  * read it short (one slide at a time), long (one section at a time) or
 //    full (the whole chapter on one page);
-//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
 //  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
 //    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
 //  * a light and a dark theme, plus a presentation mode with larger type for
 //    use in front of a class;
 //  * the layout follows the screen, from a 320 px phone up to a projector;
-//  * nothing comes from a CDN: MathJax and every figure are served from this
-//    site, so it works offline as well.
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
 //
 
 MathJax = {
@@ -369,6 +380,8 @@ MathJax = {
 \(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
 
 \(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
 
 \(\newcommand {\N }{\mathbb {N}}\)
 
@@ -952,9 +965,14 @@ Beide oplossingen voldoen aan de bestaansvoorwaarden (\(x\neq -2\) en \(x\neq \f
 \(Y_2=1\)
 </p>
 
+
+<div class="aside">
+
 <p>
 De oplossingen zijn de <b>x-coo&#x0308;rdinaten</b> van de <b>snijpunten</b> van de grafieken van \(y_1\) en \(y_2\).
 </p>
+
+</div>
 
 <span
     class="fbox"
@@ -977,6 +995,9 @@ De oplossingen zijn de <b>x-coo&#x0308;rdinaten</b> van de <b>snijpunten</b> van
 ><kbd>5:intersect</kbd></span></span>
 </p>
 
+
+<div class="aside">
+
 <p>
 <b>Controle:</b> de snijpunten liggen bij
 </p>
@@ -984,6 +1005,8 @@ De oplossingen zijn de <b>x-coo&#x0308;rdinaten</b> van de <b>snijpunten</b> van
 <p>
 \[ x=-\frac {4}{3}\quad \text {en}\quad x=3.      \]
 </p>
+
+</div>
 <!--
 ...... subsection Extra voorbeelden ......
 -->
@@ -1193,9 +1216,14 @@ Nul komt voor bij \(x=\dfrac {1}{3}\) (mag), polen \(x=-\dfrac {1}{2}\) en \(x=1
 
 </p>
 
+
+<div class="aside">
+
 <p>
 We zoeken waar \(Y_1\ge 0\). Dat zijn de <b>x-waarden</b> waarvoor de grafiek van \(Y_1\) <b>boven</b> (of <b>op</b>) de \(x\)-as ligt.
 </p>
+
+</div>
 
 <span
     class="fbox"
@@ -1218,6 +1246,9 @@ We zoeken waar \(Y_1\ge 0\). Dat zijn de <b>x-waarden</b> waarvoor de grafiek va
 ><kbd>2:zero</kbd></span></span>
 </p>
 
+
+<div class="aside">
+
 <p>
 Bepaal eerst het <b>nulpunt</b> van \(Y_1\) (snijpunt met de \(x\)-as):
 </p>
@@ -1225,6 +1256,11 @@ Bepaal eerst het <b>nulpunt</b> van \(Y_1\) (snijpunt met de \(x\)-as):
 <p>
 \[ x=\frac {1}{3}.    \]
 </p>
+
+</div>
+
+
+<div class="aside">
 
 <p>
 De grafiek heeft <b>verticale asymptoten</b> (polen) bij
@@ -1238,6 +1274,8 @@ De grafiek heeft <b>verticale asymptoten</b> (polen) bij
 want daar is de noemer nul. Die waarden horen <b>niet</b> bij de oplossing.
 </p>
 
+</div>
+
 <span
     class="fbox"
     style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
@@ -1247,6 +1285,9 @@ want daar is de noemer nul. Die waarden horen <b>niet</b> bij de oplossing.
 ><kbd>trace</kbd></span></span> &#x2003;(gebruik de pijltjestoetsen om \(X\) te laten lopen)
 </p>
 
+
+<div class="aside">
+
 <p>
 Je ziet dat \(Y_1\ge 0\) op
 </p>
@@ -1254,6 +1295,8 @@ Je ziet dat \(Y_1\ge 0\) op
 <p>
 \[ V=\left ]-\frac {1}{2},\,\frac {1}{3}\right ]\cup \left ]1,\,+\infty \right [.          \]
 </p>
+
+</div>
 <!--
 ...... subsection Extra voorbeeld ......
 -->
@@ -2376,6 +2419,9 @@ dus
 
 </div>
 
+
+<div class="aside">
+
 <p>
 Voor grote \(|x|\) is \(\dfrac {2x-1}{x^2+1}\) heel klein, dus
 </p>
@@ -2383,6 +2429,8 @@ Voor grote \(|x|\) is \(\dfrac {2x-1}{x^2+1}\) heel klein, dus
 <p>
 \[ f(x)\approx x^2-2x \quad \text {voor grote } |x|.         \]
 </p>
+
+</div>
 <!--
 ...... subsection Grafisch controleren m.b.v. GRM ......
 -->
@@ -2407,9 +2455,14 @@ Voor grote \(|x|\) is \(\dfrac {2x-1}{x^2+1}\) heel klein, dus
 \(Y_2=X^2-2X\)
 </p>
 
+
+<div class="aside">
+
 <p>
 Voor grote \(|X|\) liggen de grafieken van \(Y_1\) en \(Y_2\) bijna op elkaar.
 </p>
+
+</div>
 <!--
 ...... subsection Oefeningen ......
 -->
@@ -2466,10 +2519,10 @@ Als de grafiek van een functie punten bevat die <b>oneindig ver</b> gelegen zijn
 <!--
 
 
-                                                               X 3 − 3X 2 + 2X + 5
-                                                        Y1 =
-                                                                 (X + 1)(X − 2)
-                                                        Y2 = X − 2                            (Schuine asymptoot)
+                                                                   X 3 − 3X 2 + 2X + 5
+                                                            Y1 =
+                                                                     (X + 1)(X − 2)
+                                                            Y2 = X − 2                        (Schuine asymptoot)
 
 
 
@@ -2543,8 +2596,17 @@ Y_1&amp;=\dfrac {X^3-3X^2+2X+5}{(X+1)(X-2)}\\ Y_2&amp;=X-2 &amp;\text {(Schuine 
     class="makebox"
     style="display:inline-block ; width:84pt ; text-align:center ; "
 ><kbd>enter</kbd></span></span><br />
-  Voor grote \(|X|\) liggen de grafieken van \(Y_1\) en \(Y_2\) bijna op elkaar.
+
 </p>
+
+
+<div class="aside">
+
+<p>
+Voor grote \(|X|\) liggen de grafieken van \(Y_1\) en \(Y_2\) bijna op elkaar.
+</p>
+
+</div>
 <div class="center">
 
 <p>
@@ -2593,14 +2655,24 @@ box-shadow: none ;
 
 </div>
 
+
+<div class="aside">
+
 <p>
 <b>Tip:</b> Dit verkrijg je als de <b>noemer</b> naar \(0\) nadert en de <b>teller niet</b>.
 </p>
+
+</div>
+
+
+<div class="aside">
 
 <p>
 <b>Opmerking:</b> Bij een <b>verwijderbaar</b> punt (gat) wordt zowel teller als noemer \(0\). Dan heeft de grafiek <b>geen</b> verticale asymptoot op die \(x\)-waarde. Je kan dit herkennen door in \(T\) en \(N\) een
 <b>gemeenschappelijke factor</b> weg te delen.
 </p>
+
+</div>
 <!--
 ...... subsection Voorbeeld: verwijderbare discontinuıteit (geen VA) ......
 -->
@@ -2636,10 +2708,15 @@ x^2+x-2 &amp;= (x-1)(x+2)\\ \Rightarrow \quad f(x) &amp;= \frac {(x-1)(x+2)}{x-1
 
 </p>
 
+
+<div class="aside">
+
 <p>
 <b>Domein:</b>&#x2003;\(D_f=\mathbb {R}\setminus \{1\}\).<br />
 De grafiek is de rechte \(y=x+2\), maar met een <b>gat</b> bij \(x=1\). Dus er is <b>geen</b> verticale asymptoot.
 </p>
+
+</div>
 <div class="center">
 
 <p>
@@ -2998,6 +3075,6 @@ extra uitdagingen p94 nr23-26
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=10e60b25b04d"></script>
+<script src="presentatie.js?v=ef97c567bb42"></script>
 </body>
 </html>

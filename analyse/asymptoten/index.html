@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Asymptoten</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=cded9756cf69" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=4a77022c80ac" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -24,20 +24,31 @@
 //
 
 // Further improved by Pieter Pareit, who turned the lwarp output into an
-// interactive course (see presentatie.css and presentatie.js):
+// interactive course (see presentatie.js and the other files in web/):
 //
 //  * every \section, \subsection and \subsubsection becomes a slide, with
 //    keyboard, swipe and progress-bar navigation and a searchable contents;
 //  * read it short (one slide at a time), long (one section at a time) or
 //    full (the whole chapter on one page);
-//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
 //  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
 //    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
 //  * a light and a dark theme, plus a presentation mode with larger type for
 //    use in front of a class;
 //  * the layout follows the screen, from a 320 px phone up to a projector;
-//  * nothing comes from a CDN: MathJax and every figure are served from this
-//    site, so it works offline as well.
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
 //
 
 MathJax = {
@@ -247,8 +258,8 @@ MathJax = {
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=cded9756cf69" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=cded9756cf69" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=4a77022c80ac" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=4a77022c80ac" />
 </head>
 <body>
 
@@ -371,6 +382,8 @@ MathJax = {
 \(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
 
 \(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
 
 \(\newcommand {\N }{\mathbb {N}}\)
 
@@ -775,13 +788,22 @@ class="leerplan-grijs">amplitude</span>, asymptotisch gedrag, gedrag op oneindig
 Een rechte \(a\) is een <b>asymptoot</b> van de grafiek van \(y=f(x)\) als de grafiek steeds dichter tegen de rechte aankruipt wanneer we de grafiek onbegrensd ver volgen.
 </p>
 
+
+<div class="aside">
+
 <p>
-<span class="hint">Formeel: de afstand tussen een punt \(P\) van de grafiek en de rechte \(a\) nadert naar \(0\) wanneer \(P\) zich onbegrensd ver van de oorsprong verwijdert langs de grafiek:<br />
-
-\[ \lim _{P\to \infty } d(P,a)=0 .       \]<br />
-
-De grafiek hoeft de asymptoot daarbij niet te bereiken.</span>
+Formeel: de afstand tussen een punt \(P\) van de grafiek en de rechte \(a\) nadert naar \(0\) wanneer \(P\) zich onbegrensd ver van de oorsprong verwijdert langs de grafiek:
 </p>
+
+<p>
+\[ \lim _{P\to \infty } d(P,a)=0 .        \]
+</p>
+
+<p>
+De grafiek hoeft de asymptoot daarbij niet te bereiken.
+</p>
+
+</div>
 
 <p>
 <figure class="interactieve-grafiek" data-grafiek="asymptoot-afstand" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
@@ -838,28 +860,28 @@ Naargelang de richting van de rechte \(a\) onderscheiden we:
 
 <li>
 <p>
-<span class="listmarker">•</span> een <b>verticale asymptoot</b> \(x=a\); <span class="hint">Hierbij vertrekt \(P\) naar \(\pm \infty \) in de \(y\)-richting terwijl \(x\) naar \(a\) nadert.</span>
+<span class="listmarker">•</span> een <b>verticale asymptoot</b> \(x=a\); <span class="aside">Hierbij vertrekt \(P\) naar \(\pm \infty \) in de \(y\)-richting terwijl \(x\) naar \(a\) nadert.</span>
 </p>
 
 </li>
 <li>
 
 <p>
-<span class="listmarker">•</span> een <b>horizontale asymptoot</b> \(y=b\); <span class="hint">Hierbij vertrekt \(P\) naar \(\pm \infty \) in de \(x\)-richting en nadert \(f(x)\) naar \(b\).</span>
+<span class="listmarker">•</span> een <b>horizontale asymptoot</b> \(y=b\); <span class="aside">Hierbij vertrekt \(P\) naar \(\pm \infty \) in de \(x\)-richting en nadert \(f(x)\) naar \(b\).</span>
 </p>
 
 </li>
 <li>
 
 <p>
-<span class="listmarker">•</span> een <b>schuine asymptoot</b> \(y=mx+q\) met \(m\ne 0\). <span class="hint">Hierbij vertrekt \(P\) naar \(\pm \infty \) in de \(x\)-richting en nadert het verschil met de rechte
+<span class="listmarker">•</span> een <b>schuine asymptoot</b> \(y=mx+q\) met \(m\ne 0\). <span class="aside">Hierbij vertrekt \(P\) naar \(\pm \infty \) in de \(x\)-richting en nadert het verschil met de rechte
 naar \(0\).</span>
 </p>
 </li>
 </ul>
 
 <p>
-<span class="hint">Alle drie de soorten staan samen op de figuur bij de titel van dit hoofdstuk.</span>
+<span class="aside">Alle drie de soorten staan samen op de figuur bij de titel van dit hoofdstuk.</span>
 </p>
 <!--
 ...... section Verticale asymptoten ......
@@ -918,7 +940,7 @@ x→a                  x→a                  x→a                  x→a
 
 
 <p>
-\[ f(x)=\frac {x^2-4x+5}{(x-2)^2}, \qquad \hint {\dom f=\R \setminus \{2\}}.   \]
+\[ f(x)=\frac {x^2-4x+5}{(x-2)^2}, \qquad \aside {\dom f=\R \setminus \{2\}}.     \]
 </p>
 
 <p>
@@ -949,6 +971,9 @@ Dus \(f(x)\to +\infty \) langs beide zijden van \(x=2\).
 <p>
 Voor \(f(x)=\tan x\) geldt
 </p>
+
+
+<div class="aside">
 <div class="center">
 <table>
 
@@ -957,7 +982,7 @@ Voor \(f(x)=\tan x\) geldt
 <tr>
 <td class="tdr">met <span
     class="fbox"
-    style="display:inline-block ; border:1pt solid #808080; padding:3pt ; color:#808080"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
 ><span
     class="makebox"
     style="display:inline-block ; width:73pt ; text-align:center ; "
@@ -965,7 +990,7 @@ Voor \(f(x)=\tan x\) geldt
 <td class="tdat"> </td>
 <td class="tdl"><span
     class="fbox"
-    style="display:inline-block ; border:1pt solid #808080; padding:3pt ; color:#808080"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
 ><span
     class="makebox"
     style="display:inline-block ; width:79pt ; text-align:center ; "
@@ -979,7 +1004,7 @@ Voor \(f(x)=\tan x\) geldt
 <td class="tdat"> </td>
 <td class="tdl"><span
     class="fbox"
-    style="display:inline-block ; border:1pt solid #808080; padding:3pt ; color:#808080"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000"
 ><span
     class="makebox"
     style="display:inline-block ; width:89pt ; text-align:center ; "
@@ -996,6 +1021,8 @@ Voor \(f(x)=\tan x\) geldt
 <td class="tdl">\(-10\leq y\leq 10\), \(\texttt {Yscl}=2\)</td>
 </tr>
 </table>
+
+</div>
 
 </div>
 
@@ -2521,7 +2548,7 @@ Bepaal telkens de vergelijking van die horizontale asymptoot.
 </p>
 
 <p>
-<span class="hint">Vraag uit de toenmalige toelatingsexamens burgerlijk ingenieur.</span>
+<span class="aside">Vraag uit de toenmalige toelatingsexamens burgerlijk ingenieur.</span>
 </p>
 <div class="oplossing">
 
@@ -2576,7 +2603,7 @@ Beschouw de functie \(f\) gedefinieerd in \(]0,+\infty [\) door \(f(x)=\dfrac {x
 </p>
 
 <p>
-<span class="hint">Vraag uit de toenmalige toelatingsexamens burgerlijk ingenieur.</span>
+<span class="aside">Vraag uit de toenmalige toelatingsexamens burgerlijk ingenieur.</span>
 </p>
 <ul class="enumerate" style="list-style-type:none">
 
@@ -2758,7 +2785,7 @@ Beschouw de functie met voorschrift \(f(x)=\dfrac {x^2+3}{x-1}\). De schuine asy
 </div>
 
 <p>
-<span class="hint">IJkingstoets basiskennis wiskunde handelsingenieur 2020, vraag 18.</span>
+<span class="aside">IJkingstoets basiskennis wiskunde handelsingenieur 2020, vraag 18.</span>
 </p>
 <div class="oplossing">
 
@@ -2801,7 +2828,7 @@ vergelijking \(y=-1\) en juist één verticale asymptoot heeft met vergelijking 
 </div>
 
 <p>
-<span class="hint">IJkingstoets burgerlijk ingenieur juli 2023, vraag 15.</span>
+<span class="aside">IJkingstoets burgerlijk ingenieur juli 2023, vraag 15.</span>
 </p>
 <div class="oplossing">
 
@@ -2810,7 +2837,7 @@ Uit \(\dom f=\R \setminus \{-2,2\}\) volgt \(x^2+d=x^2-4\), dus \(d=-4\). Een ho
 </p>
 
 <p>
-\[ \lim _{x\to \pm \infty }\frac {bx^2+cx}{x^2-4}=b=-1 .          \]
+\[ \lim _{x\to \pm \infty }\frac {bx^2+cx}{x^2-4}=b=-1 .         \]
 </p>
 
 <p>
@@ -2834,9 +2861,9 @@ met perforatie in \(x=-2\), VA \(x=2\) en HA \(y=-1\). Dus \(a+b+c+d=0-1-2-4=-7\
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=cded9756cf69"></script>
-<script src="vendor/jsxgraphcore.js?v=cded9756cf69"></script>
-<script src="interactieve-grafieken.js?v=cded9756cf69"></script>
-<script src="hoofdstuk.interactief.js?v=cded9756cf69"></script>
+<script src="presentatie.js?v=4a77022c80ac"></script>
+<script src="vendor/jsxgraphcore.js?v=4a77022c80ac"></script>
+<script src="interactieve-grafieken.js?v=4a77022c80ac"></script>
+<script src="hoofdstuk.interactief.js?v=4a77022c80ac"></script>
 </body>
 </html>

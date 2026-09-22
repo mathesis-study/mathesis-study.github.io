@@ -12,7 +12,9 @@
   "Populatie- of Lesliematrices",
   "Oefeningen"
  ],
- "leerplandoelen": [],
+ "leerplandoelen": [
+  "WD3_06.08.13"
+ ],
  "interactief": true,
  "python": false,
  "oefeningen": false

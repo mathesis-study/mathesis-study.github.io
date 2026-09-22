@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>De cirkel</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=10e60b25b04d" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=ef97c567bb42" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -24,20 +24,31 @@
 //
 
 // Further improved by Pieter Pareit, who turned the lwarp output into an
-// interactive course (see presentatie.css and presentatie.js):
+// interactive course (see presentatie.js and the other files in web/):
 //
 //  * every \section, \subsection and \subsubsection becomes a slide, with
 //    keyboard, swipe and progress-bar navigation and a searchable contents;
 //  * read it short (one slide at a time), long (one section at a time) or
 //    full (the whole chapter on one page);
-//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
 //  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
 //    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
 //  * a light and a dark theme, plus a presentation mode with larger type for
 //    use in front of a class;
 //  * the layout follows the screen, from a 320 px phone up to a projector;
-//  * nothing comes from a CDN: MathJax and every figure are served from this
-//    site, so it works offline as well.
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
 //
 
 MathJax = {
@@ -369,6 +380,8 @@ MathJax = {
 \(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
 
 \(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
 
 \(\newcommand {\N }{\mathbb {N}}\)
 
@@ -849,9 +862,14 @@ M (xM , yM )
 </p>
 </div>
 
+
+<div class="aside">
+
 <p>
 Een punt behoort tot de cirkel als en slechts als zijn afstand tot het middelpunt gelijk is aan de straal.
 </p>
+
+</div>
 <!--
 ...... section Cartesische vergelijking ......
 -->
@@ -2006,9 +2024,14 @@ is de raaklijn:
 \[ \boxed {(x_1-x_M)(x-x_M)+(y_1-y_M)(y-y_M)=r^2} \]
 </p>
 
+
+<div class="aside">
+
 <p>
 Deze formule zegt in feite opnieuw dat de normaalvector van de raaklijn de richting van de straal \(MD\) heeft.
 </p>
+
+</div>
 <!--
 ...... section Functioneel verloop van de cirkel ......
 -->
@@ -2672,9 +2695,14 @@ Een rechte \(a\) is raaklijn aan een cirkel \(\mathcal {C}(M,r)\) als en slechts
 \[ d(M,a)=r \]
 </p>
 
+
+<div class="aside">
+
 <p>
 Dit criterium is vaak de snelste manier om te controleren of een rechte raaklijn is.
 </p>
+
+</div>
 <!--
 ...... subsubsection Voorbeeld ......
 -->
@@ -3504,6 +3532,6 @@ Gegeven: \(A(5,6)\), \(B(-2,-1)\) en \(C(5,0)\)
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=10e60b25b04d"></script>
+<script src="presentatie.js?v=ef97c567bb42"></script>
 </body>
 </html>

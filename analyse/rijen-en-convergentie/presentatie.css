@@ -538,6 +538,12 @@ body.pres-klaar {
   display: block;
 }
 
+/* Een terzijde (omgeving aside in cursus.cls) staat altijd in beeld, maar
+ * gedempt, zoals op papier. */
+.aside {
+  color: var(--kleur-zwak);
+}
+
 /* Een grijs deel van een leerplandoel komt in dit hoofdstuk niet aan bod
  * (omgeving leerplandoelen in cursus.cls). */
 .leerplan-grijs {

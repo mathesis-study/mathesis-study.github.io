@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Toepassingen met matrices</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=61538b0cbf8a" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=e8b0a094fb46" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -24,20 +24,31 @@
 //
 
 // Further improved by Pieter Pareit, who turned the lwarp output into an
-// interactive course (see presentatie.css and presentatie.js):
+// interactive course (see presentatie.js and the other files in web/):
 //
 //  * every \section, \subsection and \subsubsection becomes a slide, with
 //    keyboard, swipe and progress-bar navigation and a searchable contents;
 //  * read it short (one slide at a time), long (one section at a time) or
 //    full (the whole chapter on one page);
-//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
 //  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
 //    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
 //  * a light and a dark theme, plus a presentation mode with larger type for
 //    use in front of a class;
 //  * the layout follows the screen, from a 320 px phone up to a projector;
-//  * nothing comes from a CDN: MathJax and every figure are served from this
-//    site, so it works offline as well.
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
 //
 
 MathJax = {
@@ -247,8 +258,8 @@ MathJax = {
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=61538b0cbf8a" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=61538b0cbf8a" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=e8b0a094fb46" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=e8b0a094fb46" />
 </head>
 <body>
 
@@ -371,6 +382,8 @@ MathJax = {
 \(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
 
 \(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
 
 \(\newcommand {\N }{\mathbb {N}}\)
 
@@ -664,21 +677,92 @@ MathJax = {
 <p>
 <header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 2</p> <h1>Toepassingen met matrices</h1> </header>
 </p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                                                    Bn+1 = M · Bn
+                    
+           0.90 0.15
+       M=                                                                       90 000
+           0.10 0.85
+                                        P
+                0.10
+
+0.90      S             P        0.85
+                                        S
+                0.15
+
+                                                                                60 000
+
+                                                                             jaar
+ verhuizen tussen stad en platteland        de evolutie naar een evenwicht
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
 <!--
-...... section Overgangsmatrices ......
+...... section Leerplandoelstellingen (GO! Navigator) ......
 -->
-<h4 id="autosec-2"><span class="sectionnumber">I&#x2003;</span>Overgangsmatrices</h4>
-<a id="mkpiweb-autopage-2"></a>
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
 
 
 <p>
-<span class="cursus-buiten-inhoudstafel"></span>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
 </p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.13</b> (MD 06.08.02) De leerlingen gebruiken matrixmodellen om evoluties te beschrijven.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: migratiematrices, Lesliematrices, matrixvoorstelling van een graaf
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: evenwichtstoestand
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> overgangsmatrices met hun graaf, migratiematrices en de evolutie van een bevolking, de exacte berekening van de evenwichtstoestand, en Lesliematrices voor de evolutie van een populatie in
+leeftijdsklassen.
+</p>
+
+</div>
+<!--
+...... section Overgangsmatrices ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Overgangsmatrices</h4>
+<a id="mkpiweb-autopage-6"></a>
 <!--
 ...... subsection Opgave ......
 -->
-<h5 id="autosec-3">Opgave</h5>
-<a id="mkpiweb-autopage-3"></a>
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Opgave</h5>
+<a id="mkpiweb-autopage-7"></a>
 
 
 <p>
@@ -713,48 +797,45 @@ Thomas wil meteoroloog worden. Na bestudering van een groot aantal statistieken 
 <p>
 Vandaag regent het. Maarten wil overmorgen een BBQ organiseren. Wat is de kans dat het mooi weer is?
 </p>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
 <!--
 ...... subsection Kansboom ......
 -->
-<h5 id="autosec-4">Kansboom</h5>
-<a id="mkpiweb-autopage-4"></a>
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Kansboom</h5>
+<a id="mkpiweb-autopage-8"></a>
 <div class="center">
 
 <p>
 <span
-    id="lateximage-mkpiweb-1"
+    id="lateximage-mkpiweb-2"
     class="lateximagesource"
 ><!--
-vandaag         morgen         overmorgen
+vandaag          morgen          overmorgen
 
-
-                                  W
-                         0.6
-                         0.3
-                 W                B
-                         0.1
-                                   R
+                                    W    0.1 · 0.6 = 0.06
+                          0.6
+                           0.3
+                  W                  B
+                          0.1
           0.1
+                                     R
 
-                                  W
-                         0.3
-                         0.4
-  R       0.5     B               B
-                         0.3
-                                   R
+                                    W    0.5 · 0.3 = 0.15
+                          0.3
+           0.5             0.4
+  R                B                 B
+                          0.3
+                                     R
+
           0.4
-                                  W
-                         0.1
-                         0.5
-                  R               B
-                         0.4
-                                   R
+                                    W    0.4 · 0.1 = 0.04
+                          0.1
+                           0.5
+                   R                 B
+                          0.4
+                                     R         +
+                                                    0.25
 --><img
-    src="mkpiweb-images/image-1.svg"
+    src="mkpiweb-images/image-2.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
@@ -763,26 +844,18 @@ vandaag         morgen         overmorgen
 </div>
 
 <p>
-\[ \begin {array}{rcl} 0.1\cdot 0.6 &amp;=&amp; 0.06\\ 0.5\cdot 0.3 &amp;=&amp; 0.15\\ 0.4\cdot 0.1 &amp;=&amp; 0.04\\ \hline \text {samen} &amp;=&amp; 0.25 \end {array} \]
-</p>
-
-<p>
 Er is dus \(25\,\%\) kans op mooi weer.
-</p>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
 </p>
 <!--
 ...... subsection Schematische voorstelling: ‘‘graaf’’ ......
 -->
-<h5 id="autosec-8">Schematische voorstelling: “graaf”</h5>
-<a id="mkpiweb-autopage-8"></a>
+<h5 id="autosec-12"><span class="sectionnumber">3&#x2003;</span>Schematische voorstelling: “graaf”</h5>
+<a id="mkpiweb-autopage-12"></a>
 <div class="center">
 
 <p>
 <span
-    id="lateximage-mkpiweb-2"
+    id="lateximage-mkpiweb-3"
     class="lateximagesource"
 ><!--
                                      0.4
@@ -806,7 +879,7 @@ knooppunt
    lus
                             overgangen of wegen
 --><img
-    src="mkpiweb-images/image-2.svg"
+    src="mkpiweb-images/image-3.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
@@ -817,15 +890,11 @@ knooppunt
 <p>
 Een <b>gewogen graaf</b>: de knooppunten zijn de toestanden, de pijlen de overgangen, en het gewicht is de kans.
 </p>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
 <!--
 ...... subsection Matrix: ‘‘overgangsmatrix’’ ......
 -->
-<h5 id="autosec-12">Matrix: “overgangsmatrix”</h5>
-<a id="mkpiweb-autopage-12"></a>
+<h5 id="autosec-16"><span class="sectionnumber">4&#x2003;</span>Matrix: “overgangsmatrix”</h5>
+<a id="mkpiweb-autopage-16"></a>
 
 
 <p>
@@ -841,16 +910,7 @@ Overmorgen:
 </p>
 
 <p>
-<figure class="interactieve-grafiek" data-grafiek="overgangsmatrix" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
-</p>
-
-<p>
 \[ A^2=A\cdot A= \begin {pmatrix} 0.46 &amp; 0.33 &amp; 0.25\\ 0.35 &amp; 0.40 &amp; 0.43\\ 0.19 &amp; 0.27 &amp; 0.32 \end {pmatrix} \]
-</p>
-
-<p>
-</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">De drie kansen, dag na dag. Versleep <em>dag</em> of gebruik de knoppen; dag \(2\) geeft de \(0.25\) van de kansboom
-terug. Kies ook een ander weer voor vandaag: na een aantal dagen loopt alles naar hetzelfde evenwicht.</figcaption> </figure>
 </p>
 
 <p>
@@ -860,41 +920,41 @@ Vandaag regent het, dus we lezen de kolom \(R\): de kans op \(W\) overmorgen is 
 <p>
 Volgende dag: \(A^3=A^2\cdot A\), enzovoort.
 </p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="overgangsmatrix" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">De drie kansen, dag na dag. Versleep <em>dag</em> of gebruik de knoppen; dag \(2\) geeft de \(0.25\) van de kansboom
+terug. Kies ook een ander weer voor vandaag: na een aantal dagen loopt alles naar hetzelfde evenwicht.</figcaption> </figure>
+</p>
 <!--
 ...... section Migratiematrices ......
 -->
-<h4 id="autosec-13"><span class="sectionnumber">II&#x2003;</span>Migratiematrices</h4>
-<a id="mkpiweb-autopage-13"></a>
-
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
+<h4 id="autosec-17"><span class="sectionnumber">II&#x2003;</span>Migratiematrices</h4>
+<a id="mkpiweb-autopage-17"></a>
 <!--
 ...... subsection Opgave ......
 -->
-<h5 id="autosec-14">Opgave</h5>
-<a id="mkpiweb-autopage-14"></a>
+<h5 id="autosec-18"><span class="sectionnumber">1&#x2003;</span>Opgave</h5>
+<a id="mkpiweb-autopage-18"></a>
 
 
 <p>
 In een bepaald land verhuist elk jaar \(10\,\%\) van de stedelingen naar het platteland, en \(15\,\%\) van de plattelandsbewoners naar de stad. In \(2002\) woonden er \(68\,000\) mensen in de steden en \(82\,000\) op het
 platteland.
 </p>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
 <!--
 ...... subsection Graaf ......
 -->
-<h5 id="autosec-15">Graaf</h5>
-<a id="mkpiweb-autopage-15"></a>
+<h5 id="autosec-19"><span class="sectionnumber">2&#x2003;</span>Graaf</h5>
+<a id="mkpiweb-autopage-19"></a>
 <div class="center">
 
 <p>
 <span
-    id="lateximage-mkpiweb-3"
+    id="lateximage-mkpiweb-4"
     class="lateximagesource"
 ><!--
            0.15
@@ -903,36 +963,28 @@ platteland.
 
            0.10
 --><img
-    src="mkpiweb-images/image-3.svg"
+    src="mkpiweb-images/image-4.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
 ></span>
 </p>
 </div>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
 <!--
 ...... subsection Matrix: ‘‘migratiematrix’’ ......
 -->
-<h5 id="autosec-19">Matrix: “migratiematrix” \(M\)</h5>
-<a id="mkpiweb-autopage-19"></a>
+<h5 id="autosec-23"><span class="sectionnumber">3&#x2003;</span>Matrix: “migratiematrix” \(M\)</h5>
+<a id="mkpiweb-autopage-23"></a>
 
 
 <p>
 \[ M=\begin {array}{c|cc} {} &amp; S &amp; P\\\hline S &amp; 0.90 &amp; 0.15\\ P &amp; 0.10 &amp; 0.85 \end {array} \]
 </p>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
 <!--
 ...... subsection Bevolkingsevolutie ......
 -->
-<h5 id="autosec-20">Bevolkingsevolutie</h5>
-<a id="mkpiweb-autopage-20"></a>
+<h5 id="autosec-24"><span class="sectionnumber">4&#x2003;</span>Bevolkingsevolutie</h5>
+<a id="mkpiweb-autopage-24"></a>
 
 
 <p>
@@ -1001,15 +1053,11 @@ lopen naar \(90\,000\) en \(60\,000\). Met <em>jaar</em> lees je een bepaald jaa
 <p>
 Op een bepaald ogenblik ontstaat er dus een <b>evenwicht</b>.
 </p>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
 <!--
 ...... subsection Exacte berekening van de evenwichtstoestand ......
 -->
-<h5 id="autosec-21">Exacte berekening van de evenwichtstoestand</h5>
-<a id="mkpiweb-autopage-21"></a>
+<h5 id="autosec-25"><span class="sectionnumber">5&#x2003;</span>Exacte berekening van de evenwichtstoestand</h5>
+<a id="mkpiweb-autopage-25"></a>
 
 
 <p>
@@ -1057,18 +1105,13 @@ Stel \(s=\) het aantal stedelingen bij evenwicht en \(p=\) het aantal platteland
 <!--
 ...... section Populatie- of Lesliematrices ......
 -->
-<h4 id="autosec-22"><span class="sectionnumber">III&#x2003;</span>Populatie- of Lesliematrices</h4>
-<a id="mkpiweb-autopage-22"></a>
-
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
+<h4 id="autosec-26"><span class="sectionnumber">III&#x2003;</span>Populatie- of Lesliematrices</h4>
+<a id="mkpiweb-autopage-26"></a>
 <!--
 ...... subsection Opgave ......
 -->
-<h5 id="autosec-23">Opgave</h5>
-<a id="mkpiweb-autopage-23"></a>
+<h5 id="autosec-27"><span class="sectionnumber">1&#x2003;</span>Opgave</h5>
+<a id="mkpiweb-autopage-27"></a>
 
 
 <p>
@@ -1076,20 +1119,16 @@ Een vogelsoort wordt hoogstens \(4\) jaar oud. We verdelen de populatie in leeft
 volgende klasse overleeft \(60\,\%\). Vogels van \(2j\) en \(3j\) leggen elk gemiddeld \(2\) eieren per jaar, vogels van \(4j\) gemiddeld \(1\) ei. Vandaag telt de populatie \(180\) eieren, \(80\) eenjarigen, \(50\) tweejarigen,
 \(30\) driejarigen en \(20\) vierjarigen.
 </p>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
 <!--
 ...... subsection Graaf ......
 -->
-<h5 id="autosec-24">Graaf</h5>
-<a id="mkpiweb-autopage-24"></a>
+<h5 id="autosec-28"><span class="sectionnumber">2&#x2003;</span>Graaf</h5>
+<a id="mkpiweb-autopage-28"></a>
 <div class="center">
 
 <p>
 <span
-    id="lateximage-mkpiweb-4"
+    id="lateximage-mkpiweb-5"
     class="lateximagesource"
 ><!--
                           1
@@ -1104,22 +1143,18 @@ volgende klasse overleeft \(60\,\%\). Vogels van \(2j\) en \(3j\) leggen elk gem
 
 eieren
 --><img
-    src="mkpiweb-images/image-4.svg"
+    src="mkpiweb-images/image-5.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
 ></span>
 </p>
 </div>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
 <!--
 ...... subsection Matrix: ‘‘Lesliematrix’’ ......
 -->
-<h5 id="autosec-28">Matrix: “Lesliematrix” \(L\)</h5>
-<a id="mkpiweb-autopage-28"></a>
+<h5 id="autosec-32"><span class="sectionnumber">3&#x2003;</span>Matrix: “Lesliematrix” \(L\)</h5>
+<a id="mkpiweb-autopage-32"></a>
 
 
 <p>
@@ -1130,15 +1165,11 @@ eieren
 <p>
 De eerste rij bevat de <b>geboortecijfers</b>, de onderdiagonaal de <b>overlevingskansen</b>, en alle andere plaatsen zijn onmogelijke overgangen. Een Lesliematrix is dus eigenlijk een bijzondere overgangsmatrix.
 </p>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
 <!--
 ...... subsection Evolutie ......
 -->
-<h5 id="autosec-29">Evolutie</h5>
-<a id="mkpiweb-autopage-29"></a>
+<h5 id="autosec-33"><span class="sectionnumber">4&#x2003;</span>Evolutie</h5>
+<a id="mkpiweb-autopage-33"></a>
 
 
 <p>
@@ -1159,15 +1190,11 @@ De eerste rij bevat de <b>geboortecijfers</b>, de onderdiagonaal de <b>overlevin
 </div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Het totaal en het aantal eieren jaar na jaar. Versleep <em>jaar</em> om een jaar af te lezen, en verzet de overlevingskans van
 de eieren: onder een bepaalde waarde sterft de soort uit, erboven groeit de populatie.</figcaption> </figure>
 </p>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
 <!--
 ...... subsection Besluit ......
 -->
-<h5 id="autosec-30">Besluit</h5>
-<a id="mkpiweb-autopage-30"></a>
+<h5 id="autosec-34"><span class="sectionnumber">5&#x2003;</span>Besluit</h5>
+<a id="mkpiweb-autopage-34"></a>
 
 
 <p>
@@ -1176,8 +1203,8 @@ De populatie (samen \(360\) bij de start) halveert om de \(16\) jaar. De vogelso
 <!--
 ...... section Oefeningen ......
 -->
-<h4 id="autosec-31"><span class="sectionnumber">IV&#x2003;</span>Oefeningen</h4>
-<a id="mkpiweb-autopage-31"></a>
+<h4 id="autosec-35"><span class="sectionnumber">IV&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-35"></a>
 
 
 <p>
@@ -1190,9 +1217,9 @@ p 35 e.v.
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=61538b0cbf8a"></script>
-<script src="vendor/jsxgraphcore.js?v=61538b0cbf8a"></script>
-<script src="interactieve-grafieken.js?v=61538b0cbf8a"></script>
-<script src="hoofdstuk.interactief.js?v=61538b0cbf8a"></script>
+<script src="presentatie.js?v=e8b0a094fb46"></script>
+<script src="vendor/jsxgraphcore.js?v=e8b0a094fb46"></script>
+<script src="interactieve-grafieken.js?v=e8b0a094fb46"></script>
+<script src="hoofdstuk.interactief.js?v=e8b0a094fb46"></script>
 </body>
 </html>

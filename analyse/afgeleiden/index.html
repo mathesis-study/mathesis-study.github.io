@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Afgeleiden</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=ee7dcff26a35" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=42520516c73d" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -24,20 +24,31 @@
 //
 
 // Further improved by Pieter Pareit, who turned the lwarp output into an
-// interactive course (see presentatie.css and presentatie.js):
+// interactive course (see presentatie.js and the other files in web/):
 //
 //  * every \section, \subsection and \subsubsection becomes a slide, with
 //    keyboard, swipe and progress-bar navigation and a searchable contents;
 //  * read it short (one slide at a time), long (one section at a time) or
 //    full (the whole chapter on one page);
-//  * answers stay hidden until you ask for them, one at a time or all at once;
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
 //  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
 //    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
 //  * a light and a dark theme, plus a presentation mode with larger type for
 //    use in front of a class;
 //  * the layout follows the screen, from a 320 px phone up to a projector;
-//  * nothing comes from a CDN: MathJax and every figure are served from this
-//    site, so it works offline as well.
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
 //
 
 MathJax = {
@@ -247,10 +258,10 @@ MathJax = {
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=ee7dcff26a35" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=ee7dcff26a35" />
-<link rel="stylesheet" href="functierekenmachine.css?v=ee7dcff26a35" />
-<link rel="stylesheet" href="python-oefeningen.css?v=ee7dcff26a35" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=42520516c73d" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=42520516c73d" />
+<link rel="stylesheet" href="functierekenmachine.css?v=42520516c73d" />
+<link rel="stylesheet" href="python-oefeningen.css?v=42520516c73d" />
 </head>
 <body>
 
@@ -373,6 +384,8 @@ MathJax = {
 \(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
 
 \(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
 
 \(\newcommand {\N }{\mathbb {N}}\)
 
@@ -1222,6 +1235,9 @@ We zeggen dan dat \(f\) <b>afleidbaar</b> is in \(a\). Andere notaties voor hetz
 \[ f&apos;(a) = Df(a) = \frac {df}{dx}(a) \qquad \text {(die laatste vooral in de fysica)}.                 \]
 </p>
 
+
+<div class="aside">
+
 <p>
 Met \(x = a + \Delta x\) krijg je de even gebruikelijke schrijfwijze
 </p>
@@ -1229,6 +1245,8 @@ Met \(x = a + \Delta x\) krijg je de even gebruikelijke schrijfwijze
 <p>
 \[ f&apos;(a) = \lim _{\Delta x \to 0} \frac {f(a+\Delta x)-f(a)}{\Delta x}.              \]
 </p>
+
+</div>
 <!--
 ...... subsection Voorbeeld ......
 -->
@@ -1651,9 +1669,14 @@ De <b>normaal</b> in \(P\) is de rechte door \(P\) die loodrecht staat op \(t\).
 \[ \boxed {\; n \leftrightarrow y - f(a) = \frac {-1}{f&apos;(a)}\,(x-a) \;} \qquad \text {(op voorwaarde dat } f&apos;(a) \neq 0\text {)}.        \]
 </p>
 
+
+<div class="aside">
+
 <p>
 Is \(f&apos;(a) = 0\), dan is \(t\) horizontaal en is de normaal de verticale rechte \(x = a\).
 </p>
+
+</div>
 <!--
 ...... subsection Voorbeeld ......
 -->
@@ -2370,9 +2393,14 @@ Voor \(f(x) = x\):
 \[ \boxed {\;(f\cdot g)&apos; = f&apos;\cdot g + f\cdot g&apos;\;} \]
 </p>
 
+
+<div class="aside">
+
 <p>
 In de derde stap gebruiken we \(\lim \limits _{x\to a} g(x) = g(a)\): dat mag, want \(g\) is afleidbaar en dus continu in \(a\).
 </p>
+
+</div>
 <!--
 ...... subsection Afgeleide van een constante maal een functie ......
 -->
@@ -3072,9 +3100,14 @@ De regel mag enkel toegepast worden op een onbepaalde vorm. Controleer dus telke
 Na de eerste stap is de vorm \(\frac {8}{2}\) en niet langer “\(\frac {0}{0}\)”: de regel een tweede keer toepassen zou hier een fout antwoord geven.
 </p>
 
+
+<div class="aside">
+
 <p>
 Andere onbepaalde vormen, zoals \(0\cdot \infty \) of \(\infty -\infty \), herleid je eerst tot \(\frac {0}{0}\) of \(\frac {\infty }{\infty }\) voor je de regel gebruikt.
 </p>
+
+</div>
 <!--
 ...... subsection Oefeningen ......
 -->
@@ -3235,14 +3268,14 @@ Na één toepassing is \(\displaystyle \lim _{x\to \frac 12}\frac {24x-4}{8x-2} 
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=ee7dcff26a35"></script>
-<script src="vendor/jsxgraphcore.js?v=ee7dcff26a35"></script>
-<script src="interactieve-grafieken.js?v=ee7dcff26a35"></script>
-<script src="hoofdstuk.interactief.js?v=ee7dcff26a35"></script>
-<script src="functiecas.js?v=ee7dcff26a35"></script>
-<script src="functierekenmachine.js?v=ee7dcff26a35"></script>
-<script src="python-config.js?v=ee7dcff26a35"></script>
-<script src="codemirror-python.js?v=ee7dcff26a35"></script>
-<script src="python-oefeningen.js?v=ee7dcff26a35"></script>
+<script src="presentatie.js?v=42520516c73d"></script>
+<script src="vendor/jsxgraphcore.js?v=42520516c73d"></script>
+<script src="interactieve-grafieken.js?v=42520516c73d"></script>
+<script src="hoofdstuk.interactief.js?v=42520516c73d"></script>
+<script src="functiecas.js?v=42520516c73d"></script>
+<script src="functierekenmachine.js?v=42520516c73d"></script>
+<script src="python-config.js?v=42520516c73d"></script>
+<script src="codemirror-python.js?v=42520516c73d"></script>
+<script src="python-oefeningen.js?v=42520516c73d"></script>
 </body>
 </html>

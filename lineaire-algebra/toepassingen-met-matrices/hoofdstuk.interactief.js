@@ -54,14 +54,14 @@
     var NAMEN = ["warm (W)", "bewolkt (B)", "regen (R)"];
     var KORT = ["W", "B", "R"];
     var ROLLEN = ["secante", "punt", "afgeleide"];
-    var DAGEN = 12;
+    var DAGEN = 8;
     var START = [
-      { naam: "Vandaag regen", v: [0, 0, 1] },
-      { naam: "Vandaag warm", v: [1, 0, 0] },
-      { naam: "Vandaag bewolkt", v: [0, 1, 0] },
-      { naam: "Alles even waarschijnlijk", v: [1 / 3, 1 / 3, 1 / 3] }
+      { naam: "Warm", v: [1, 0, 0] },
+      { naam: "Bewolkt", v: [0, 1, 0] },
+      { naam: "Regen", v: [0, 0, 1] }
     ];
-    var st = { keuze: 0, dag: 2 };
+    var REGEN = 2;
+    var st = { keuze: REGEN, dag: 2 };
 
     // De rij toestanden vanaf de gekozen begintoestand.
     function verloop() {
@@ -80,7 +80,7 @@
     var rijen = verloop();
 
     var bord = ctx.maakBord({
-      begrenzing: [-1.4, 1.16, DAGEN + 1.6, -0.16],
+      begrenzing: [-0.8, 1.16, DAGEN + 0.9, -0.16],
       assen: false
     });
     assenMet(ctx, bord, "dag", "kans");
@@ -93,7 +93,7 @@
         strokeWidth: 2.5, fixed: true, highlight: false
       }), ROLLEN[i]);
       ctx.stijl(bord.create("text",
-        [DAGEN - 4.6, 0.93 - i * 0.1, NAMEN[i]], {
+        [DAGEN - 3, 0.93 - i * 0.1, NAMEN[i]], {
           anchorX: "left", anchorY: "middle", fixed: true, highlight: false,
           fontSize: 14, cssStyle: "font-weight:600"
         }), ROLLEN[i]);
@@ -142,16 +142,80 @@
       });
     }
 
+    // De matrix bij de gekozen dag: A^n maal de begintoestand geeft de
+    // kansen van die dag. Omdat het weer van vandaag zeker is, is dat
+    // precies een kolom van A^n, en die staat vet.
+    function machten() {
+      var I = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+      var rij = [I];
+      for (var n = 1; n <= DAGEN; n++) {
+        var P = rij[n - 1];
+        var Q = [[0, 0, 0], [0, 0, 0], [0, 0, 0]];
+        for (var i = 0; i < 3; i++) {
+          for (var j = 0; j < 3; j++) {
+            for (var k = 0; k < 3; k++) Q[i][j] += P[i][k] * A[k][j];
+          }
+        }
+        rij.push(Q);
+      }
+      return rij;
+    }
+    var AN = machten();
+
+    var formule = document.createElement("div");
+    formule.className = "overgang-formule";
+    formule.style.cssText = "text-align:center;overflow-x:auto;margin:0.4rem 0";
+    ctx.element.parentNode.insertBefore(formule, ctx.element.nextSibling);
+
+    // A^n heeft precies n decimalen, zoals A en A^2 in de cursus; vanaf A^3
+    // houden we het bij drie. Een vaste lengte houdt de kolommen recht.
+    function matrixTex(M, vet, decimalen) {
+      return "\\begin{pmatrix}" + M.map(function (rij) {
+        return rij.map(function (x, j) {
+          var t = decimalen === undefined ? ctx.getal(x, 3) : x.toFixed(decimalen);
+          return j === vet ? "\\mathbf{" + t + "}" : t;
+        }).join(" & ");
+      }).join("\\\\") + "\\end{pmatrix}";
+    }
+
+    function kolomTex(v, decimalen) {
+      return matrixTex(v.map(function (x) { return [x]; }), -1, decimalen);
+    }
+
+    var vorigeTex = null;
+
+    function toonFormule() {
+      var n = dag();
+      var v0 = START[st.keuze].v;
+      var vet = v0.indexOf(1);
+      var macht = n === 1 ? "A" : "A^{" + n + "}";
+      var tex = macht + "\\cdot" + kolomTex(v0) + "=" +
+        matrixTex(AN[n], vet, Math.min(n, 3)) + kolomTex(v0) + "=" +
+        kolomTex(rijen[n], Math.min(n, 3));
+      if (tex === vorigeTex) return;
+      vorigeTex = tex;
+      var mj = window.MathJax;
+      try {
+        if (!mj || typeof mj.tex2svg !== "function") throw new Error("geen MathJax");
+        formule.replaceChildren(mj.tex2svg(tex, { display: true }));
+      } catch (e) {
+        formule.textContent = "A^" + n + " = " + AN[n].map(function (rij) {
+          return "(" + rij.map(function (x) { return ctx.getal(x, 3); }).join("  ") + ")";
+        }).join(" ");
+      }
+    }
+
     function werkBij() {
       var n = dag();
       var v = rijen[n];
+      toonFormule();
       var tekst = "Dag " + n + ": " + KORT.map(function (naam, i) {
         return naam + " = " + ctx.getal(v[i], 3);
       }).join(", ") + ".";
-      if (n === 2 && st.keuze === 0) {
+      if (n === 2 && st.keuze === REGEN) {
         tekst += " Vandaag regent het, dus overmorgen is de kans op mooi weer " +
           "0.25, ofwel 25 %: precies wat de kansboom en de kolom R van A² geven.";
-      } else if (n >= 8) {
+      } else if (n >= 6) {
         tekst += " Na een aantal dagen verandert er nog nauwelijks iets: de " +
           "kansen naderen een evenwicht dat niet meer van het weer van vandaag afhangt.";
       }
@@ -160,18 +224,37 @@
 
     bord.on("update", werkBij);
 
+    // Het weer van vandaag is een schakelaar: Vandaag: [Warm|Bewolkt|Regen].
+    var groep = document.createElement("span");
+    groep.className = "interactieve-grafiek-schakelaar";
+    groep.setAttribute("role", "group");
+    groep.setAttribute("aria-label", "Vandaag");
+    groep.style.marginRight = "1.2rem";
+    var vandaag = document.createElement("span");
+    vandaag.textContent = "Vandaag:";
+    vandaag.style.cssText = "align-self:center;font-size:.82rem;margin-right:-0.1rem";
+
+    function kiesStart(i) {
+      st.keuze = i;
+      rijen = verloop();
+      tekenKrommen();
+      keuzeknoppen.forEach(function (knop, k) {
+        knop.setAttribute("aria-pressed", String(k === i));
+      });
+    }
+
     var keuzeknoppen = START.map(function (keuze, i) {
       var knop = ctx.knop(keuze.naam, function () {
-        st.keuze = i;
-        rijen = verloop();
-        tekenKrommen();
-        keuzeknoppen.forEach(function (ander, k) {
-          ander.setAttribute("aria-pressed", String(k === i));
-        });
+        kiesStart(i);
         bord.fullUpdate();
         werkBij();
       });
-      knop.setAttribute("aria-pressed", String(i === 0));
+      if (!i) {
+        knop.parentNode.insertBefore(vandaag, knop);
+        knop.parentNode.insertBefore(groep, knop);
+      }
+      groep.appendChild(knop);
+      knop.setAttribute("aria-pressed", String(i === REGEN));
       return knop;
     });
 
@@ -181,16 +264,11 @@
       werkBij();
     }
 
-    ctx.knop("Volgende dag", function () { zetDag(Math.min(DAGEN, dag() + 1)); });
     ctx.knop("Vorige dag", function () { zetDag(Math.max(0, dag() - 1)); });
+    ctx.knop("Volgende dag", function () { zetDag(Math.min(DAGEN, dag() + 1)); });
 
     function herstel() {
-      st.keuze = 0;
-      rijen = verloop();
-      tekenKrommen();
-      keuzeknoppen.forEach(function (knop, k) {
-        knop.setAttribute("aria-pressed", String(k === 0));
-      });
+      kiesStart(REGEN);
       zetDag(2);
     }
 
