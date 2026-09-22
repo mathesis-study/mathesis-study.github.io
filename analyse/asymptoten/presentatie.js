@@ -29,10 +29,15 @@
   // venster waarin het op vraag verschijnt.
   var leerplan = null, leerplanvenster = null, leerplanTerug = null;
   var LEERPLAN_ANKER = "leerplandoelen";
-  // De matrixrekenmachine: een markering uit cursus.cls zet de knop in de
-  // kopbalk, het venster zelf wordt pas bij de eerste opening gebouwd.
-  var rekenmachine = false, rekenmachinevenster = null, rekenmachineTerug = null,
+  // De rekenmachine: een markering uit cursus.cls zet de knop in de kopbalk,
+  // het venster zelf wordt pas bij de eerste opening gebouwd. De soort zegt
+  // welke: de matrixrekenmachine of de functierekenmachine.
+  var rekenmachine = null, rekenmachinevenster = null, rekenmachineTerug = null,
       rekenmachineWerk = null;
+  var REKENMACHINES = {
+    matrix: { titel: "Matrixrekenmachine", script: "Matrixrekenmachine" },
+    functie: { titel: "Functierekenmachine", script: "Functierekenmachine" }
+  };
   var kopbalk, knopVorige, knopVolgende, knopOplossingen, knopHints,
       knopZijbalk, knopPresentatie;
   var slides = [];
@@ -351,10 +356,11 @@
       leerplan.appendChild(blok);
     });
 
-    // \matrixrekenmachine laat enkel een lege markering achter: ze hoort niet
-    // in de slides, maar zet de knop in de kopbalk.
+    // \matrixrekenmachine en \functierekenmachine laten enkel een lege
+    // markering achter: ze hoort niet in de slides, maar zet de knop in de
+    // kopbalk.
     stroom.querySelectorAll(".cursusrekenmachine").forEach(function (blok) {
-      rekenmachine = true;
+      rekenmachine = REKENMACHINES[blok.getAttribute("data-soort")] || REKENMACHINES.matrix;
       blok.remove();
     });
     kinderen = Array.prototype.slice.call(stroom.children);
@@ -769,7 +775,7 @@
         zetOplossing(blok, blok.classList.contains("pres-verborgen"));
       });
       blok.addEventListener("click", function (e) {
-        if (e.target.closest("button, a, input, select, textarea, iframe, [role='button']")) return;
+        if (e.target.closest("button, a, input, select, textarea, iframe, [role='button'], .interactieve-grafiek")) return;
         zetOplossing(blok, blok.classList.contains("pres-verborgen"));
       });
       blok.appendChild(knop);
@@ -1845,22 +1851,22 @@
     }
   }
 
-  /* --- Venster met de matrixrekenmachine -------------------------------- */
+  /* --- Venster met de rekenmachine -------------------------------------- */
 
   // De rekenmachine hangt niet aan een slide: ze staat in een venster dat over
   // de cursus heen komt, zodat een leerling ze kan openen waar hij ook staat.
-  // Het venster wordt pas bij de eerste opening gebouwd; matrixrekenmachine.js
-  // laadt immers na dit script.
+  // Het venster wordt pas bij de eerste opening gebouwd; het script van de
+  // rekenmachine laadt immers na dit script.
   function bouwRekenmachine() {
     if (rekenmachinevenster) return true;
-    if (!window.Matrixrekenmachine) return false;
+    if (!window[rekenmachine.script]) return false;
     rekenmachinevenster = el("div", "pres-hulp pres-rekenmachine");
     var kader = el("div");
     kader.tabIndex = -1;
     kader.setAttribute("role", "dialog");
     kader.setAttribute("aria-modal", "true");
     kader.setAttribute("aria-labelledby", "pres-rekenmachine-titel");
-    var titel = el("h2", null, "Matrixrekenmachine");
+    var titel = el("h2", null, rekenmachine.titel);
     titel.id = "pres-rekenmachine-titel";
 
     var herstel = el("button", "pres-knop");
@@ -1894,7 +1900,7 @@
       if (e.target === rekenmachinevenster) wisselRekenmachine(false);
     });
     document.body.appendChild(rekenmachinevenster);
-    rekenmachineWerk = window.Matrixrekenmachine.maak(houder);
+    rekenmachineWerk = window[rekenmachine.script].maak(houder);
     return true;
   }
 
@@ -2008,8 +2014,8 @@
     if (rekenmachine) {
       knopRekenmachine = el("button", "pres-knop");
       knopRekenmachine.type = "button";
-      knopRekenmachine.title = "Matrixrekenmachine (m)";
-      knopRekenmachine.setAttribute("aria-label", "Matrixrekenmachine");
+      knopRekenmachine.title = rekenmachine.titel + " (m)";
+      knopRekenmachine.setAttribute("aria-label", rekenmachine.titel);
       knopRekenmachine.setAttribute("aria-haspopup", "dialog");
       knopRekenmachine.appendChild(icoon(ICOON.rekenmachine));
       knopRekenmachine.appendChild(el("span", "pres-verberg-kop", "Rekenmachine"));
@@ -2278,7 +2284,7 @@
       ["Escape", "sluit een venster, een grote figuur, het zoekveld of de presentatiestand"],
       ["?", "dit venster"]
     ];
-    if (rekenmachine) rijen.splice(rijen.length - 2, 0, ["m", "de matrixrekenmachine openen of sluiten"]);
+    if (rekenmachine) rijen.splice(rijen.length - 2, 0, ["m", "de " + rekenmachine.titel.toLowerCase() + " openen of sluiten"]);
     if (leerplan) rijen.splice(rijen.length - 2, 0, ["g", "leerplandoelen tonen of verbergen"]);
     rijen.forEach(function (rij) {
       var dt = el("dt");
@@ -2367,7 +2373,7 @@
       if (doel && (doel.tagName === "INPUT" || doel.tagName === "TEXTAREA" ||
                    (doel.closest && doel.closest(".cm-editor, .cm-tooltip")))) return;
 
-      // In de rekenmachine typt de leerling getallen; enkel m en Escape doen
+      // In de rekenmachine typt de leerling; enkel m en Escape doen
       // daar nog iets, en dan enkel buiten een invoerveld (zie hierboven).
       if (rekenmachinevenster && rekenmachinevenster.hasAttribute("open")) {
         if (e.key === "m" || e.key === "M" || e.key === "Escape") {
