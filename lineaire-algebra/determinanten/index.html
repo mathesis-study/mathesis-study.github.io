@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Determinanten</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=1c21141d07d6" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=2b8ade0c6c6b" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -247,6 +247,8 @@ MathJax = {
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=2b8ade0c6c6b" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=2b8ade0c6c6b" />
 </head>
 <body>
 
@@ -956,6 +958,15 @@ Een negatieve determinant betekent dat de orie&#x0308;ntatie van \((\vec {v}_1, 
 <p>
 Analoog is de absolute waarde van de determinant van een \(3\times 3\)-matrix het <b>volume</b> van het parallellepipedum opgespannen door de drie kolomvectoren.
 </p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-oppervlakte" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep de eindpunten van \(\vec v_1\) en \(\vec v_2\). De determinant en de oppervlakte van het parallellogram
+veranderen mee. Wanneer wordt de determinant negatief, en wanneer nul?</figcaption> </figure>
+</p>
 <!--
 ...... subsection Determinant van orde (=-matrix) ......
 -->
@@ -1053,17 +1064,17 @@ Voor \(A=\begin {pmatrix} 1&amp;2&amp;3\\ 4&amp;5&amp;6\\ 7&amp;8&amp;9 \end {pm
 
 
 
-                                                                                        5   6
-                                                                            A11 = (+)         = 5 · 9 − 6 · 8 = 45 − 48 = −3,
-                                                                                        8   9
+                                                                                                 5   6
+                                                                                     A11 = (+)         = 5 · 9 − 6 · 8 = 45 − 48 = −3,
+                                                                                                 8   9
 
-                                                                                        4   6
-                                                                            A12 = (−)         = −(4 · 9 − 6 · 7) = −(36 − 42) = +6,
-                                                                                        7   9
+                                                                                                 4   6
+                                                                                     A12 = (−)         = −(4 · 9 − 6 · 7) = −(36 − 42) = +6,
+                                                                                                 7   9
 
-                                                                                        1   3
-                                                                            A22 = (+)         = 1 · 9 − 3 · 7 = 9 − 21 = −12.
-                                                                                        7   9
+                                                                                                 1   3
+                                                                                     A22 = (+)         = 1 · 9 − 3 · 7 = 9 − 21 = −12.
+                                                                                                 7   9
 
 
 -->
@@ -1076,6 +1087,15 @@ A_{11}&amp;=(+)\,\begin{vmatrix}5&amp;6\\ 8&amp;9\end {vmatrix}=5\cdot 9-6\cdot 
 7)=-(36-42)=+6,\\[4pt] A_{22}&amp;=(+)\,\begin{vmatrix}1&amp;3\\ 7&amp;9\end {vmatrix}=1\cdot 9-3\cdot 7=9-21=-12.
 \end{align*}
 (Analoge berekeningen geven \(A_{13}=-3\), \(A_{21}=+6\), \(A_{23}=+6\), \(A_{31}=-3\), \(A_{32}=+6\), \(A_{33}=-3\).)
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-cofactor" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element van \(A\). Zijn rij en kolom worden geschrapt, de minor staat ernaast en eronder het teken van de
+cofactor. Met <em>Tekenpatroon</em> verschijnt het schaakbord van tekens.</figcaption> </figure>
 </p>
 
 <p>
@@ -1230,6 +1250,15 @@ Het resultaat van \(\det A\) hangt niet af van de gebruikte rij of kolom.
 </p>
 
 <p>
+<figure class="interactieve-grafiek" data-grafiek="det-laplace" data-hoogte="27rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element: we ontwikkelen naar zijn rij. Met <em>Volgende term</em> licht telkens één element op, met zijn minor
+en zijn cofactor. Ontwikkel daarna naar een andere rij of kolom en vergelijk. Welke keuze vraagt het minste rekenwerk?</figcaption> </figure>
+</p>
+
+<p>
 <span class="cursus-subtitel-op-slide"></span>
 </p>
 <!--
@@ -1266,6 +1295,15 @@ a_{31}&amp;a_{32}&amp;a_{33}&amp;a_{31}&amp;a_{32} \CodeAfter \celpijl {plusc}{1
 
 <p>
 \[ \boxed {\; \det A = \bigl (a_{11}a_{22}a_{33}+a_{12}a_{23}a_{31}+a_{13}a_{21}a_{32}\bigr ) - \bigl (a_{13}a_{22}a_{31}+a_{11}a_{23}a_{32}+a_{12}a_{21}a_{33}\bigr ) \;} \]
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-sarrus" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op <em>Volgende diagonaal</em>. Eerst lichten de drie dalende diagonalen op (met een plus), daarna de drie stijgende
+(met een min). Eronder groeit de berekening mee.</figcaption> </figure>
 </p>
 
 <p>
@@ -1370,6 +1408,16 @@ p 130 nr 4, n 5 <b> a, f</b>
 -->
 <h4 id="autosec-31"><span class="sectionnumber">II&#x2003;</span>Eigenschappen van determinanten</h4>
 <a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-rijbewerkingen" data-hoogte="27rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Onderzoek eerst zelf wat een bewerking met de determinant doet. Klik op een rij (blauw) en eventueel een tweede rij (oranje),
+en kies een bewerking. Denk vooraf na over de nieuwe determinant, en klik pas dan op <em>Toon det</em>. Met <em>Kolommen</em> werk je met kolommen.</figcaption> </figure>
+</p>
 <!--
 ...... subsection Hoofdeigenschap I ......
 -->
@@ -1945,19 +1993,19 @@ Als we bij één rij (of kolom) een veelvoud van een andere rij (of kolom) optel
 
 
 
-                                                                          a11 + ka12   a12   a13               a11      a12   a13   ka12      a12    a13
-                                                                                                   (H.E. V)
-                                                                          a21 + ka22   a22   a23      =        a21      a22   a23 + ka22      a22    a23
-                                                                          a31 + ka32   a32   a33               a31      a32   a33   ka32      a32    a33
+                                                                               a11 + ka12   a12   a13               a11      a12   a13   ka12      a12    a13
+                                                                                                        (H.E. V)
+                                                                               a21 + ka22   a22   a23      =        a21      a22   a23 + ka22      a22    a23
+                                                                               a31 + ka32   a32   a33               a31      a32   a33   ka32      a32    a33
 
-                                                                                                                a11     a12   a13       a12    a12      a13
-                                                                                                   (H.E. IV)
-                                                                                                      =         a21     a22   a23 + k · a22    a22      a23
-                                                                                                                a31     a32   a33       a32    a32      a33
-                                                                                                               |        {z       }     |       {z          }
-                                                                                                                      det A                   = 0 (*)
+                                                                                                                     a11     a12   a13       a12    a12      a13
+                                                                                                        (H.E. IV)
+                                                                                                           =         a21     a22   a23 + k · a22    a22      a23
+                                                                                                                     a31     a32   a33       a32    a32      a33
+                                                                                                                    |        {z       }     |       {z          }
+                                                                                                                           det A                   = 0 (*)
 
-                                                                                                      =        det A.
+                                                                                                           =        det A.
 
 
 
@@ -1978,6 +2026,15 @@ a_{21} &amp; a_{22} &amp; a_{23}\\ a_{31} &amp; a_{32} &amp; a_{33} \end {vmatri
 
 <p>
 <span class="hint">(*) Twee gelijke kolommen</span>
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-eigenschappen-meetkundig" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Voor orde 2 zie je de hoofdeigenschappen ook meetkundig. De knoppen doen een kolombewerking op \(A=(\vec v_1\ \vec
+v_2)\): wisselen keert de draaizin om, een kolom maal 2 maakt het parallellogram twee keer zo lang, en een veelvoud van de andere kolom optellen schuift het scheef zonder dat de oppervlakte verandert.</figcaption> </figure>
 </p>
 
 <p>
@@ -2066,6 +2123,15 @@ p 142 nr 1
 </p>
 </li>
 </ul>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-verlaging" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een spil, dan op <em>Maak nullen</em> en op <em>Ontwikkel</em>. De figuur schrijft bij elke stap de bewerking uit,
+zodat je ze zo op papier kan overnemen. Kies ook eens een spil die geen \(1\) is. <em>Tip</em> stelt een goede spil voor.</figcaption> </figure>
+</p>
 
 <p>
 <span class="cursus-subtitel-op-slide"></span>
@@ -2612,6 +2678,15 @@ De adjunctmatrix \(\operatorname {adj}A\) van een gegeven \(n\times n\)-matrix \
 <p>
 \[ A=\begin {pmatrix} 1&amp;0&amp;2\\ 3&amp;-1&amp;5\\ 2&amp;6&amp;1 \end {pmatrix} \quad \Longrightarrow \quad \operatorname {adj}A= \begin {pmatrix} -31&amp;12&amp;2\\ 7&amp;-3&amp;1\\
 20&amp;-6&amp;-1 \end {pmatrix}. \]
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-adjunct" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op de elementen van \(A\) en verzamel hun cofactoren. Met <em>Transponeer</em> wordt de matrix van cofactoren de
+adjunctmatrix.</figcaption> </figure>
 </p>
 
 <p>
@@ -3865,9 +3940,9 @@ Uitwerken (ontwikkeling naar de eerste rij):
 
 
 
-                                                                                                x (3 · 1 − 1 · 7) − y (2 · 1 − 1 · (−4)) + 1 (2 · 7 − 3 · (−4)) = 0
-                                                     ⇔                                                                                        −4x − 6y + 26 = 0
-                                                     ⇔                                                                                          2x + 3y − 13 = 0
+                                                                                                               x (3 · 1 − 1 · 7) − y (2 · 1 − 1 · (−4)) + 1 (2 · 7 − 3 · (−4)) = 0
+                                                     ⇔                                                                                                       −4x − 6y + 26 = 0
+                                                     ⇔                                                                                                         2x + 3y − 13 = 0
 
 
 
@@ -3881,6 +3956,15 @@ Uitwerken (ontwikkeling naar de eerste rij):
 &amp; 2x+3y-13 &amp;= 0
 \end{align*}
 
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-rechte" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\), \(P_1\) of \(P_2\). Rechts staat de vergelijking van de rechte \(P_1P_2\) en de determinant met de
+coo&#x0308;rdinaten van \(P\) ingevuld. Wanneer is die nul?</figcaption> </figure>
 </p>
 
 <p>
@@ -4013,17 +4097,17 @@ Stel de cartesische vergelijking op van de rechte door \(P_1\) en \(P_2\)
 
 
 
-                                                                                                                                                            3      2    1
-                                                                                                                                                                              ?
-                                                                                                                                                            −2    −1    1     =   0
-                                                                                                                                                            8      5    1
-                                                                                                                                                                            ?
-                                                 ⇔                                      3 · (−1) · 1 + 2 · 1 · 8 + 1 · (−2) · 5 − 1 · (−1) · 8 + 3 · 1 · 5 + 2 · (−2) · 1     =   0
-                                                                                                                                                                            ?
-                                                 ⇔                                                                                    −3 + 16 − 10 − −8 + 15 − 4              =   0
-                                                                                                                                                                              ?
-                                                 ⇔                                                                                                                   3−3      =   0
-                                                 ⇔                                                                                                                       0    =   0
+                                                                                                                                                                       3      2    1
+                                                                                                                                                                                         ?
+                                                                                                                                                                       −2    −1    1     =   0
+                                                                                                                                                                       8      5    1
+                                                                                                                                                                                       ?
+                                                 ⇔                                                 3 · (−1) · 1 + 2 · 1 · 8 + 1 · (−2) · 5 − 1 · (−1) · 8 + 3 · 1 · 5 + 2 · (−2) · 1     =   0
+                                                                                                                                                                                       ?
+                                                 ⇔                                                                                               −3 + 16 − 10 − −8 + 15 − 4              =   0
+                                                                                                                                                                                         ?
+                                                 ⇔                                                                                                                              3−3      =   0
+                                                 ⇔                                                                                                                                  0    =   0
 
 
 
@@ -4042,6 +4126,15 @@ Stel de cartesische vergelijking op van de rechte door \(P_1\) en \(P_2\)
 
 <p>
 <i>Besluit:</i> ja, de drie punten zijn collineair.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-collineair" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(A\), \(B\) en \(C\) over het rooster. De determinant is nul precies wanneer de drie punten op één rechte
+liggen.</figcaption> </figure>
 </p>
 
 <p>
@@ -4346,21 +4439,21 @@ Gegeven \(A(1,0)\), \(B(7,2)\), \(C(4,2)\). Bepaal \(\operatorname {Opp}\triangl
 
 
 
-                                                                                        1   0   1
-                                                                                    1
-                                                                     Opp △ABC =       | 7   2   1 |
-                                                                                    2
-                                                                                        4   2   1
-                                                                                  1
-                                                                                =   (1 · 2 · 1 + 0 · 1 · 4 + 1 · 7 · 2) − (1 · 2 · 4 + 1 · 1 · 1 + 0 · 7 · 1)
-                                                                                  2
-                                                                                  1
-                                                                                =   (2 + 14) − (8 + 0 + 2)
-                                                                                  2
-                                                                                  1
-                                                                                = |16 − 10|
-                                                                                  2
-                                                                                = 3.
+                                                                                              1   0   1
+                                                                                          1
+                                                                          Opp △ABC =        | 7   2   1 |
+                                                                                          2
+                                                                                              4   2   1
+                                                                                        1
+                                                                                      =   (1 · 2 · 1 + 0 · 1 · 4 + 1 · 7 · 2) − (1 · 2 · 4 + 1 · 1 · 2 + 0 · 7 · 1)
+                                                                                        2
+                                                                                        1
+                                                                                      =   (2 + 0 + 14) − (8 + 2 + 0)
+                                                                                        2
+                                                                                        1
+                                                                                      = |16 − 10|
+                                                                                        2
+                                                                                      = 3.
 
 
 
@@ -4371,9 +4464,18 @@ Gegeven \(A(1,0)\), \(B(7,2)\), \(C(4,2)\). Bepaal \(\operatorname {Opp}\triangl
 
 \begin{align*}
 \operatorname {Opp}\triangle ABC &amp;=\frac 12 | \begin{vmatrix} 1&amp;0&amp;1\\ 7&amp;2&amp;1\\ 4&amp;2&amp;1 \end {vmatrix} |\\ &amp;=\frac 12\,\bigl |\,(1\cdot 2\cdot 1+0\cdot 1\cdot
-4+1\cdot 7\cdot 2) -(1\cdot 2\cdot 4+1\cdot 1\cdot 1+0\cdot 7\cdot 1)\,\bigr |\\ &amp;=\frac 12\,\bigl |\,(2+14)-(8+0+2)\,\bigr |\\ &amp; =\frac 12\,|16-10|\\ &amp; =\boxed {3}.
+4+1\cdot 7\cdot 2) -(1\cdot 2\cdot 4+1\cdot 1\cdot 2+0\cdot 7\cdot 1)\,\bigr |\\ &amp;=\frac 12\,\bigl |\,(2+0+14)-(8+2+0)\,\bigr |\\ &amp; =\frac 12\,|16-10|\\ &amp; =\boxed {3}.
 \end{align*}
 
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-driehoek" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep de hoekpunten. De oppervlakte is de helft van de absolute waarde van de determinant. Wat gebeurt er met het
+teken van de determinant als je \(B\) en \(C\) van plaats wisselt?</figcaption> </figure>
 </p>
 
 <p>
@@ -4523,6 +4625,10 @@ Bereken \(k\) als de oppervlakte van een driehoek \(\Delta ABC\) met \(A(2,0)\),
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=1c21141d07d6"></script>
+<script src="presentatie.js?v=2b8ade0c6c6b"></script>
+<script src="vendor/jsxgraphcore.js?v=2b8ade0c6c6b"></script>
+<script src="interactieve-grafieken.js?v=2b8ade0c6c6b"></script>
+<script src="matrixbord.js?v=2b8ade0c6c6b"></script>
+<script src="hoofdstuk.interactief.js?v=2b8ade0c6c6b"></script>
 </body>
 </html>

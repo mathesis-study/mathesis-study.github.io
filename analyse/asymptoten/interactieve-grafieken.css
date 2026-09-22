@@ -197,6 +197,35 @@
   color: var(--kleur-op-accent);
 }
 
+/* Een schakelaar: knoppen die samen één keuze vormen, aaneengesloten zoals
+ * Kort, Lang en Volledig in de kopbalk. De gekozen knop staat ingedrukt. */
+.interactieve-grafiek-schakelaar {
+  display: inline-flex;
+}
+
+.interactieve-grafiek-schakelaar button {
+  border-radius: 0;
+}
+
+.interactieve-grafiek-schakelaar button + button {
+  margin-left: -1px;
+}
+
+.interactieve-grafiek-schakelaar button:first-child {
+  border-radius: var(--straal) 0 0 var(--straal);
+}
+
+.interactieve-grafiek-schakelaar button:last-child {
+  border-radius: 0 var(--straal) var(--straal) 0;
+}
+
+/* Zo valt de gekleurde rand niet half onder de buurknop. */
+.interactieve-grafiek-schakelaar button:hover,
+.interactieve-grafiek-schakelaar button[aria-pressed="true"] {
+  position: relative;
+  z-index: 1;
+}
+
 /* Diagonaalknoppen houden hun betekenisvolle kleur ook in de actieve stand;
  * zo ontstaat er geen blauwe achtergrond met een contrasterende accentkleur. */
 .interactieve-grafiek-knoppen button.diagonaal-knop[aria-pressed="true"] {

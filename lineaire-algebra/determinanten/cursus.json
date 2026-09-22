@@ -20,7 +20,7 @@
   "WD3_06.08.12",
   "WD3_06.08.14"
  ],
- "interactief": false,
+ "interactief": true,
  "python": false,
  "oefeningen": true
 }
