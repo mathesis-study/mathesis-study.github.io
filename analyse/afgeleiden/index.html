@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Afgeleiden</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=42520516c73d" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=ee9bcda8cb3a" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -258,10 +258,10 @@ MathJax = {
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=42520516c73d" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=42520516c73d" />
-<link rel="stylesheet" href="functierekenmachine.css?v=42520516c73d" />
-<link rel="stylesheet" href="python-oefeningen.css?v=42520516c73d" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=ee9bcda8cb3a" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=ee9bcda8cb3a" />
+<link rel="stylesheet" href="functierekenmachine.css?v=ee9bcda8cb3a" />
+<link rel="stylesheet" href="python-oefeningen.css?v=ee9bcda8cb3a" />
 </head>
 <body>
 
@@ -671,6 +671,8 @@ MathJax = {
 \(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
 
 \(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+\(\newcommand {\vov }[1]{\aside {{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text {&grave;}}}\mkern -1mu#1\mkern -1mu{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text {&apos;}}}}}\)
 
 </div>
 
@@ -1290,7 +1292,7 @@ Voor \(f(x) = \dfrac {x^2}{4}\) en \(a = 3\) is \(f(3) = \dfrac {9}{4}\), zodat
 f&apos;(3) &amp;= \lim _{x\to 3} \frac {f(x)-f(3)}{x-3} \\ &amp;= \lim _{x\to 3} \frac {\frac {x^2}{4}-\frac {9}{4}}{x-3} \\ &amp;= \lim _{x\to 3} \frac {(x-3)(x+3)}{4(x-3)} \\ &amp;= \lim
 _{x\to 3} \frac {x+3}{4} \\ &amp;= \frac {6}{4} = 1.5.
 \end{align*}
-Merk op dat het differentiequotie&#x0308;nt de onbepaalde vorm “\(\frac {0}{0}\)” oplevert: dat is bij een afgeleide altijd zo, en juist daarom moeten we eerst vereenvoudigen.
+Merk op dat het differentiequotie&#x0308;nt de onbepaalde vorm \(\vov {\frac {0}{0}}\) oplevert: dat is bij een afgeleide altijd zo, en juist daarom moeten we eerst vereenvoudigen.
 </p>
 
 <p>
@@ -1754,10 +1756,10 @@ Bepaal telkens de vergelijking van de raaklijn en van de normaal.
 </p>
 <div class="oplossing">
 <p>
-\(f(2) = 3\) en
+<span class="oplantwoord">\(t \leftrightarrow x-2y+4 = 0\) en \(n \leftrightarrow 2x+y-7 = 0\)</span> \(f(2) = 3\) en
 </p>
 <p>
-\[ f&apos;(2) = \lim _{x\to 2}\frac {\frac {4x-2}{x}-3}{x-2} = \lim _{x\to 2}\frac {4x-2-3x}{x(x-2)} = \lim _{x\to 2}\frac {1}{x} = \frac {1}{2}.   \]
+\[ f&apos;(2) = \lim _{x\to 2}\frac {\frac {4x-2}{x}-3}{x-2} = \lim _{x\to 2}\frac {4x-2-3x}{x(x-2)} = \lim _{x\to 2}\frac {1}{x} = \frac {1}{2}.        \]
 </p>
 <p>
 Dus \(t \leftrightarrow x-2y+4 = 0\) en \(n \leftrightarrow 2x+y-7 = 0\).
@@ -1771,7 +1773,7 @@ Dus \(t \leftrightarrow x-2y+4 = 0\) en \(n \leftrightarrow 2x+y-7 = 0\).
 </p>
 <div class="oplossing">
 <p>
-Uit \(\sqrt [3]{9-a^3} = 2\) volgt \(a = 1\). Met de worteltoegevoegde van een derdemachtswortel,
+<span class="oplantwoord">\(t \leftrightarrow x+4y-9 = 0\) en \(n \leftrightarrow 4x-y-2 = 0\)</span> Uit \(\sqrt [3]{9-a^3} = 2\) volgt \(a = 1\). Met de worteltoegevoegde van een derdemachtswortel,
 </p>
 <p>
 \[ \begin {aligned} f&apos;(1) &amp;= \lim _{x\to 1}\frac {\sqrt [3]{9-x^3}-2}{x-1} \\ &amp;= \lim _{x\to 1}\frac {9-x^3-8}{(x-1)\Bigl (\sqrt [3]{(9-x^3)^2} + 2\sqrt [3]{9-x^3} + 4\Bigr )} =
@@ -1819,15 +1821,15 @@ Dus \(t \leftrightarrow x+4y-9 = 0\) en \(n \leftrightarrow 4x-y-2 = 0\).
 <!--
 
 
-                                                                                                           f (x) − f (a)
-                                                                                  ⇒         f ′ (a) = lim
-                                                                                                       x→a     x−a
-                                                                                                                        
-                                                                                                       lim f (x) − f (a)
-                                                                                                       x→a
-                                                                                                   =                           ∈ R.
-                                                                                                            lim (x − a)
-                                                                                                            x→a
+                                                                                                                   f (x) − f (a)
+                                                                                          ⇒         f ′ (a) = lim
+                                                                                                               x→a     x−a
+                                                                                                                                
+                                                                                                               lim f (x) − f (a)
+                                                                                                               x→a
+                                                                                                           =                           ∈ R.
+                                                                                                                    lim (x − a)
+                                                                                                                    x→a
 
 
 
@@ -1848,24 +1850,24 @@ Dus \(t \leftrightarrow x+4y-9 = 0\) en \(n \leftrightarrow 4x-y-2 = 0\).
 
 
 
-                                                                               N = lim (x − a) = 0
-                                                                                      x→a
+                                                                                        N = lim (x − a) = 0
+                                                                                              x→a
 
-                                                                   Veronderstel T = lim f (x) − f (a) ̸= 0
-                                                                                                     
-                                                                                      x→a
-                                                                                            T                  k
-                                                                                  ⇒            is van de vorm = ±∞ ∈
-                                                                                                                   /R                 f ′ (a) ∈ R
-                                                                                            N                  0
+                                                                           Veronderstel T = lim f (x) − f (a) ̸= 0
                                                                                                              
-                                                                                  ⇒         lim f (x) − f (a) = 0
-                                                                                            x→a
+                                                                                              x→a
+                                                                                                    T                  k
+                                                                                          ⇒            is van de vorm = ±∞ ∈
+                                                                                                                           /R                 f ′ (a) ∈ R
+                                                                                                    N                  0
+                                                                                                                     
+                                                                                          ⇒         lim f (x) − f (a) = 0
+                                                                                                    x→a
 
-                                                                                  ⇒             lim f (x) = f (a)          □
-                                                                                                x→a
-                                                                                                |      {z       }
-                                                                                            hoofdeigenschap continuïteit
+                                                                                          ⇒             lim f (x) = f (a)          □
+                                                                                                        x→a
+                                                                                                        |      {z       }
+                                                                                                    hoofdeigenschap continuïteit
 
 
 
@@ -1881,6 +1883,16 @@ f(a)}_{\text {hoofdeigenschap continuïteit}} \qed
 \end{align*}
 
 </p>
+
+
+<div class="aside">
+
+<p>
+Omgekeerd werkt dit niet. Is \(f\) continu in \(a\), dan is \(T = 0\), en \(\frac {T}{N}\) wordt de onbepaalde vorm \(\vov {\frac {0}{0}}\). Die kan een ree&#x0308;el getal opleveren, maar ook \(\pm \infty \) of een
+linker- en rechterlimiet die verschillen.
+</p>
+
+</div>
 <!--
 ...... subsection Gevolgen ......
 -->
@@ -2576,132 +2588,273 @@ Met \(x \overset {f}{\mapsto } x^2-1 \overset {g}{\mapsto } \sqrt {x^2-1}\):
 <p>
 Bereken de afgeleide functie.
 </p>
-<div class="multicols">
-
 <ul class="enumerate" style="list-style-type:none">
 
 <li>
 <p>
 <span class="listmarker">(a)</span> \(f(x) = 2x^3-5x+1\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(f&apos;(x) = 6x^2-5\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                              ′
+                                                                                        f ′ (x) = 2x3 − 5x + 1
+                                                                                                 = 2 · 3x2 − 5 · 1 + 0
+                                                                                                 = 6x2 − 5
+
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;(x) &amp;= \bigl (2x^3-5x+1\bigr )&apos;\\ &amp;= 2\cdot 3x^2-5\cdot 1+0\\ &amp;= 6x^2-5
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(b)</span> \(f(x) = -4x^3 + 2\sqrt {3}\,x\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(f&apos;(x) = -12x^2+2\sqrt {3}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                            √ ′
+                                                                                        f ′ (x) = −4x3 + 2 3 x
+                                                                                                              √
+                                                                                                = −4 · 3x2 + 2 3 · 1
+                                                                                                            √
+                                                                                                = −12x2 + 2 3
+
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;(x) &amp;= \bigl (-4x^3+2\sqrt {3}\,x\bigr )&apos;\\ &amp;= -4\cdot 3x^2+2\sqrt {3}\cdot 1\\ &amp;= -12x^2+2\sqrt {3}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(c)</span> \(f(x) = (5-x)(x+3)\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(f&apos;(x) = 2-2x\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                          ′
+                                                                                  f ′ (x) = (5 − x)(x + 3)
+                                                                                          = −1 · (x + 3) + (5 − x) · 1
+                                                                                          = −x − 3 + 5 − x
+                                                                                          = 2 − 2x
+
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;(x) &amp;= \bigl ((5-x)(x+3)\bigr )&apos;\\ &amp;= -1\cdot (x+3)+(5-x)\cdot 1\\ &amp;= -x-3+5-x\\ &amp;= 2-2x
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(d)</span> \(f(x) = 7x\,(3-x^2)\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(f&apos;(x) = 21-21x^2\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                         ′
+                                                                                   f ′ (x) = 7x (3 − x2 )
+                                                                                          = 7 · (3 − x2 ) + 7x · (−2x)
+                                                                                          = 21 − 7x2 − 14x2
+                                                                                          = 21 − 21x2
+
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;(x) &amp;= \bigl (7x\,(3-x^2)\bigr )&apos;\\ &amp;= 7\cdot (3-x^2)+7x\cdot (-2x)\\ &amp;= 21-7x^2-14x^2\\ &amp;= 21-21x^2
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(e)</span> \(f(x) = (x^2-2x)(2x-4)\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(f&apos;(x) = 6x^2-16x+8\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                          ′
+                                                                               f ′ (x) = (x2 − 2x)(2x − 4)
+                                                                                     = (2x − 2)(2x − 4) + (x2 − 2x) · 2
+                                                                                     = 4x2 − 12x + 8 + 2x2 − 4x
+                                                                                     = 6x2 − 16x + 8
+
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;(x) &amp;= \bigl ((x^2-2x)(2x-4)\bigr )&apos;\\ &amp;= (2x-2)(2x-4)+(x^2-2x)\cdot 2\\ &amp;= 4x^2-12x+8+2x^2-4x\\ &amp;= 6x^2-16x+8
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(f)</span> \(f(x) = \dfrac {x-2}{3-x}\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(f&apos;(x) = \dfrac {1}{(3-x)^2}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                      ′
+                                                                                                 x−2
+                                                                                 f ′ (x) =
+                                                                                                 3−x
+                                                                                           1 · (3 − x) − (x − 2) · (−1)
+                                                                                         =
+                                                                                                     (3 − x)2
+                                                                                           3−x+x−2
+                                                                                         =
+                                                                                               (3 − x)2
+                                                                                                1
+                                                                                         =
+                                                                                           (3 − x)2
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;(x) &amp;= \left (\frac {x-2}{3-x}\right )&apos;\\ &amp;= \frac {1\cdot (3-x)-(x-2)\cdot (-1)}{(3-x)^2}\\ &amp;= \frac {3-x+x-2}{(3-x)^2}\\ &amp;= \frac {1}{(3-x)^2}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(g)</span> \(f(x) = \dfrac {x^3-2}{x^2}\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(f&apos;(x) = \dfrac {x^3+4}{x^3}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                            3   ′
+                                                                                    ′       x −2
+                                                                                   f (x) =
+                                                                                              x2
+                                                                                               3x2 · x2 − (x3 − 2) · 2x
+                                                                                             =
+                                                                                                          x4
+                                                                                               x4 + 4x
+                                                                                             =
+                                                                                                  x4
+                                                                                               x3 + 4
+                                                                                             =
+                                                                                                 x3
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;(x) &amp;= \left (\frac {x^3-2}{x^2}\right )&apos;\\ &amp;= \frac {3x^2\cdot x^2-(x^3-2)\cdot 2x}{x^4}\\ &amp;= \frac {x^4+4x}{x^4}\\ &amp;= \frac {x^3+4}{x^3}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(h)</span> \(f(x) = \dfrac {-3}{4x^2}\)
 </p>
-</li>
-</ul>
-
-</div>
-
-</div>
-
 <div class="oplossing">
-<div class="multicols">
-
-<ul class="enumerate" style="list-style-type:none">
-
-<li>
 <p>
-<span class="listmarker">(a)</span> \(f&apos;(x) = \opl {6x^2-5}\)
+<span class="oplantwoord">\(f&apos;(x) = \dfrac {3}{2x^3}\)</span>
 </p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
-</li>
-<li>
+<!--
+
+                                                                                                               ′
+                                                                                          f ′ (x) = − 34 x−2
+                                                                                                  = − 34 · (−2)x−3
+                                                                                                       3
+                                                                                                  =
+                                                                                                      2x3
+
+-->
 
 <p>
-<span class="listmarker">(b)</span> \(f&apos;(x) = \opl {-12x^2+2\sqrt {3}}\)
+
+\begin{align*}
+f&apos;(x) &amp;= \bigl (-\tfrac 34x^{-2}\bigr )&apos;\\ &amp;= -\tfrac 34\cdot (-2)x^{-3}\\ &amp;= \frac {3}{2x^3}
+\end{align*}
+
 </p>
-
-</li>
-<li>
-
+</div>
 <p>
-<span class="listmarker">(c)</span> \(f&apos;(x) = \opl {2-2x}\)
-</p>
 
-</li>
-<li>
-
-<p>
-<span class="listmarker">(d)</span> \(f&apos;(x) = \opl {21-21x^2}\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(e)</span> \(f&apos;(x) = \opl {6x^2-16x+8}\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(f)</span> \(f&apos;(x) = \opl {\dfrac {1}{(3-x)^2}}\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(g)</span> \(f&apos;(x) = \opl {\dfrac {x^3+4}{x^3}}\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(h)</span> \(f&apos;(x) = \opl {\dfrac {3}{2x^3}}\)
 </p>
 </li>
 </ul>
-
-</div>
 
 </div>
 
@@ -2713,8 +2866,8 @@ Bereken de afgeleide functie.
 <!--
 ...... subsubsection Oefening 5 ......
 -->
-<h6 id="autosec-91">Oefening 5</h6>
-<a id="mkpiweb-autopage-91"></a>
+<h6 id="autosec-89">Oefening 5</h6>
+<a id="mkpiweb-autopage-89"></a>
 
 
 <p>
@@ -2726,116 +2879,284 @@ Bereken de afgeleide en vereenvoudig zo ver mogelijk.
 <p>
 <span class="listmarker">(a)</span> \(\bigl ((x^2-2x)^3\bigr )&apos;\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(6x^2(x-1)(x-2)^2\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                              ′
+                                                                                             (x2 − 2x)3            = 3(x2 − 2x)2 · (x2 − 2x)′
+                                                                                                                   = 3(x2 − 2x)2 (2x − 2)
+                                                                                                                   = 3x2 (x − 2)2 · 2(x − 1)
+                                                                                                                   = 6x2 (x − 1)(x − 2)2
+
+
+-->
+
+<p>
+
+\begin{align*}
+\bigl ((x^2-2x)^3\bigr )&apos; &amp;= 3(x^2-2x)^2\cdot (x^2-2x)&apos;\\ &amp;= 3(x^2-2x)^2(2x-2)\\ &amp;= 3x^2(x-2)^2\cdot 2(x-1)\\ &amp;= 6x^2(x-1)(x-2)^2
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(b)</span> \(\left (\sqrt {x^2-2x+5}\right )&apos;\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dfrac {x-1}{\sqrt {x^2-2x+5}}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                 p                ′         1
+                                                                                        x2 − 2x + 5 = √              · (x2 − 2x + 5)′
+                                                                                                            2
+                                                                                                       2 x − 2x + 5
+                                                                                                           2x − 2
+                                                                                                      = √
+                                                                                                       2 x2 − 2x + 5
+                                                                                                           x−1
+                                                                                                      =√
+                                                                                                          2
+                                                                                                         x − 2x + 5
+
+-->
+
+<p>
+
+\begin{align*}
+\left (\sqrt {x^2-2x+5}\right )&apos; &amp;= \frac {1}{2\sqrt {x^2-2x+5}}\cdot (x^2-2x+5)&apos;\\ &amp;= \frac {2x-2}{2\sqrt {x^2-2x+5}}\\ &amp;= \frac {x-1}{\sqrt {x^2-2x+5}}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(c)</span> \(\left (\dfrac {(x+1)^3}{(x-2)^2}\right )&apos;\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dfrac {(x+1)^2(x-8)}{(x-2)^3}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                               ′
+                                                                                    (x + 1)3          3(x + 1)2 (x − 2)2 − (x + 1)3 · 2(x − 2)
+                                                                                
+                                                                                                    =
+                                                                                    (x − 2)2                          (x − 2)4
+                                                                                                                                           
+                                                                                                      (x + 1)2 (x − 2) 3(x − 2) − 2(x + 1)
+                                                                                                    =
+                                                                                                                     (x − 2)4
+                                                                                                        (x + 1)2 (x − 8)
+                                                                                                    =
+                                                                                                           (x − 2)3
+
+-->
+
+<p>
+
+\begin{align*}
+\left (\frac {(x+1)^3}{(x-2)^2}\right )&apos; &amp;= \frac {3(x+1)^2(x-2)^2-(x+1)^3\cdot 2(x-2)}{(x-2)^4}\\ &amp;= \frac {(x+1)^2(x-2)\bigl (3(x-2)-2(x+1)\bigr )}{(x-2)^4}\\ &amp;= \frac
+{(x+1)^2(x-8)}{(x-2)^3}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(d)</span> \(\left (\dfrac {-7}{(2-x)^3}\right )&apos;\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dfrac {-21}{(2-x)^4}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                        ′
+                                                                                                −7                                    ′
+                                                                                                               = −7(2 − x)−3
+                                                                                             (2 − x)3
+                                                                                                               = −7 · (−3)(2 − x)−4 · (−1)
+                                                                                                                      −21
+                                                                                                               =
+                                                                                                                    (2 − x)4
+
+-->
+
+<p>
+
+\begin{align*}
+\left (\frac {-7}{(2-x)^3}\right )&apos; &amp;= \bigl (-7(2-x)^{-3}\bigr )&apos;\\ &amp;= -7\cdot (-3)(2-x)^{-4}\cdot (-1)\\ &amp;= \frac {-21}{(2-x)^4}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(e)</span> \(\bigl ((3x^2-2x-5)^4\bigr )&apos;\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(8(3x-1)(3x^2-2x-5)^3\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                         ′
+                                                                                (3x2 − 2x − 5)4               = 4(3x2 − 2x − 5)3 · (3x2 − 2x − 5)′
+                                                                                                              = 4(3x2 − 2x − 5)3 (6x − 2)
+                                                                                                              = 8(3x − 1)(3x2 − 2x − 5)3
+
+
+-->
+
+<p>
+
+\begin{align*}
+\bigl ((3x^2-2x-5)^4\bigr )&apos; &amp;= 4(3x^2-2x-5)^3\cdot (3x^2-2x-5)&apos;\\ &amp;= 4(3x^2-2x-5)^3(6x-2)\\ &amp;= 8(3x-1)(3x^2-2x-5)^3
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(f)</span> \(\left (\sqrt [4]{3x^2-x+2}\right )&apos;\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dfrac {6x-1}{4\sqrt [4]{(3x^2-x+2)^3}}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                     p            ′              1
+                                                                                                                      ′
+                                                                                        3x2 − x + 2 = (3x2 − x + 2) 4
+                                                                                      4
+
+
+
+                                                                                                                                             3
+                                                                                                                   = 14 (3x2 − x + 2)− 4 · (6x − 1)
+                                                                                                                        6x − 1
+                                                                                                                   = p
+                                                                                                                    4 (3x2 − x + 2)3
+                                                                                                                     4
+
+
+
+
+-->
+
+<p>
+
+\begin{align*}
+\left (\sqrt [4]{3x^2-x+2}\right )&apos; &amp;= \Bigl ((3x^2-x+2)^{\frac 14}\Bigr )&apos;\\ &amp;= \tfrac 14(3x^2-x+2)^{-\frac 34}\cdot (6x-1)\\ &amp;= \frac {6x-1}{4\sqrt [4]{(3x^2-x+2)^3}}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(g)</span> \(\left (\dfrac {x^2+5}{\sqrt {x^2+5}}\right )&apos;\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dfrac {x}{\sqrt {x^2+5}}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                                     ′
+                                                                                                         x2 + 5
+                                                                                                                             p            ′
+                                                                                                        √                 =        x2 + 5
+                                                                                                          x2 + 5
+                                                                                                                              2x
+                                                                                                                          = √
+                                                                                                                           2 x2 + 5
+                                                                                                                              x
+                                                                                                                          =√
+                                                                                                                              2
+                                                                                                                             x +5
+
+-->
+
+<p>
+
+\begin{align*}
+\left (\frac {x^2+5}{\sqrt {x^2+5}}\right )&apos; &amp;= \left (\sqrt {x^2+5}\right )&apos;\\ &amp;= \frac {2x}{2\sqrt {x^2+5}}\\ &amp;= \frac {x}{\sqrt {x^2+5}}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(h)</span> \(\left ((3x-5)\sqrt {(1+2x)^3}\right )&apos;\)
 </p>
-</li>
-</ul>
-
-</div>
-
 <div class="oplossing">
-
-<ul class="enumerate" style="list-style-type:none">
-
-<li>
 <p>
-<span class="listmarker">(a)</span> \(3(x^2-2x)^2(2x-2) = 6x^2(x-1)(x-2)^2\)
+<span class="oplantwoord">\(3\sqrt {1+2x}\,(5x-4)\)</span>
 </p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
-</li>
-<li>
+<!--
+
+                                                                                       p         ′                 3
+                                                                                                                        ′
+                                                                             (3x − 5)    (1 + 2x)3 = (3x − 5)(1 + 2x) 2
+                                                                                                                               3                      1
+                                                                                                              = 3(1 + 2x) 2 + (3x − 5) · 32 (1 + 2x) 2 · 2
+                                                                                                                          1                       
+                                                                                                              = 3(1 + 2x) 2 (1 + 2x) + (3x − 5)
+                                                                                                                 √
+                                                                                                              = 3 1 + 2x (5x − 4)
+
+
+-->
 
 <p>
-<span class="listmarker">(b)</span> \(\dfrac {2x-2}{2\sqrt {x^2-2x+5}} = \dfrac {x-1}{\sqrt {x^2-2x+5}}\)
+
+\begin{align*}
+\left ((3x-5)\sqrt {(1+2x)^3}\right )&apos; &amp;= \Bigl ((3x-5)(1+2x)^{\frac 32}\Bigr )&apos;\\ &amp;= 3(1+2x)^{\frac 32} + (3x-5)\cdot \tfrac 32(1+2x)^{\frac 12}\cdot 2\\ &amp;=
+3(1+2x)^{\frac 12}\bigl ((1+2x)+(3x-5)\bigr )\\ &amp;= 3\sqrt {1+2x}\,(5x-4)
+\end{align*}
+
 </p>
-
-</li>
-<li>
-
+</div>
 <p>
-<span class="listmarker">(c)</span> \(\dfrac {3(x+1)^2(x-2)^2 - (x+1)^3\cdot 2(x-2)}{(x-2)^4} = \dfrac {(x+1)^2(x-8)}{(x-2)^3}\)
-</p>
 
-</li>
-<li>
-
-<p>
-<span class="listmarker">(d)</span> \(-7\cdot (-3)(2-x)^{-4}\cdot (-1) = \dfrac {-21}{(2-x)^4}\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(e)</span> \(4(3x^2-2x-5)^3(6x-2) = 8(3x-1)(3x^2-2x-5)^3\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(f)</span> \(\dfrac {1}{4}\cdot \dfrac {6x-1}{\sqrt [4]{(3x^2-x+2)^3}}\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(g)</span> \(\left (\sqrt {x^2+5}\right )&apos; = \dfrac {x}{\sqrt {x^2+5}}\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(h)</span> \(3(1+2x)^{3/2} + (3x-5)\cdot \dfrac {3}{2}(1+2x)^{1/2}\cdot 2 = 3\sqrt {1+2x}\,(5x-4)\)
 </p>
 </li>
 </ul>
@@ -2844,13 +3165,13 @@ Bereken de afgeleide en vereenvoudig zo ver mogelijk.
 <!--
 ...... section Hogere afgeleiden ......
 -->
-<h4 id="autosec-92"><span class="sectionnumber">VII&#x2003;</span>Hogere afgeleiden</h4>
-<a id="mkpiweb-autopage-92"></a>
+<h4 id="autosec-90"><span class="sectionnumber">VII&#x2003;</span>Hogere afgeleiden</h4>
+<a id="mkpiweb-autopage-90"></a>
 <!--
 ...... subsection Voorbeeld ......
 -->
-<h5 id="autosec-93"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
-<a id="mkpiweb-autopage-93"></a>
+<h5 id="autosec-91"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-91"></a>
 
 
 <p>
@@ -2877,8 +3198,8 @@ Vanaf de vierde afgeleide schrijven we \(f^{(4)}\), \(f^{(5)}\), &#x2026;met een
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-94"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-94"></a>
+<h5 id="autosec-92"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-92"></a>
 
 
 <div class="cursus-oefening">
@@ -2889,8 +3210,8 @@ Vanaf de vierde afgeleide schrijven we \(f^{(4)}\), \(f^{(5)}\), &#x2026;met een
 <!--
 ...... subsubsection Oefening 6 ......
 -->
-<h6 id="autosec-95">Oefening 6</h6>
-<a id="mkpiweb-autopage-95"></a>
+<h6 id="autosec-93">Oefening 6</h6>
+<a id="mkpiweb-autopage-93"></a>
 
 
 <p>
@@ -2902,47 +3223,145 @@ Bereken de gevraagde hogere afgeleide.
 <p>
 <span class="listmarker">(a)</span> \(\bigl (6x^3-3x^2+1\bigr )&apos;&apos;&apos;\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(36\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                                  ′′′                  ′′
+                                                                                              6x3 − 3x2 + 1              = 18x2 − 6x
+                                                                                                                                   ′
+                                                                                                                         = 36x − 6
+                                                                                                                         = 36
+
+
+-->
+
+<p>
+
+\begin{align*}
+\bigl (6x^3-3x^2+1\bigr )&apos;&apos;&apos; &amp;= \bigl (18x^2-6x\bigr )&apos;&apos;\\ &amp;= \bigl (36x-6\bigr )&apos;\\ &amp;= 36
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(b)</span> \(\bigl (\sqrt [3]{x}\bigr )&apos;&apos;\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dfrac {-2}{9\,x\sqrt [3]{x^2}}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                         √
+                                                                                                         3
+                                                                                                            ′′ 1 ′′
+                                                                                                           x = x3
+                                                                                                                    1 − 23 ′
+                                                                                                                          
+                                                                                                              =     3x
+                                                                                                                          5
+                                                                                                              = 31 · − 23 x− 3
+                                                                                                                            5
+                                                                                                              = − 29 x− 3
+
+                                                                                                                     −2
+                                                                                                              =       √
+                                                                                                                      3
+                                                                                                                   9 x x2
+
+-->
+
+<p>
+
+\begin{align*}
+\bigl (\sqrt [3]{x}\bigr )&apos;&apos; &amp;= \bigl (x^{\frac 13}\bigr )&apos;&apos;\\ &amp;= \bigl (\tfrac 13 x^{-\frac 23}\bigr )&apos;\\ &amp;= \tfrac 13\cdot \left (-\tfrac 23\right
+)x^{-\frac 53}\\ &amp;= -\tfrac 29\,x^{-\frac 53}\\[1ex] &amp;= \frac {-2}{9\,x\sqrt [3]{x^2}}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(c)</span> \(f&apos;&apos;(x)\) met \(f(x) = \dfrac {x^3}{x^2-4}\)
 </p>
-</li>
-</ul>
-
-</div>
-
 <div class="oplossing">
-
-<ul class="enumerate" style="list-style-type:none">
-
-<li>
 <p>
-<span class="listmarker">(a)</span> \(\bigl (18x^2-6x\bigr )&apos;&apos; = \bigl (36x-6\bigr )&apos; = 36\).
+<span class="oplantwoord">\(f&apos;&apos;(x) = \dfrac {8x(x^2+12)}{(x^2-4)^3}\)</span>
 </p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
-</li>
-<li>
+<!--
+
+                                                                                                    ′
+                                                                                             x3
+                                                                                       
+                                                                          f ′ (x) =
+                                                                                           x2 − 4
+
+                                                                                       3x2 (x2 − 4) − x3 · 2x
+                                                                                 =
+                                                                                             (x2 − 4)2
+
+                                                                                       3x4 − 12x2 − 2x4
+                                                                                 =
+                                                                                           (x2 − 4)2
+
+                                                                                       x4 − 12x2
+                                                                                 =
+                                                                                       (x2 − 4)2
+
+                                                                                        4        ′
+                                                                                        x − 12x2
+                                                                          f ′′ (x) =
+                                                                                        (x2 − 4)2
+
+                                                                                       (4x3 − 24x)(x2 − 4)2 − (x4 − 12x2 ) · 2(x2 − 4) · 2x
+                                                                                 =
+                                                                                                           (x2 − 4)4
+
+                                                                                       (4x3 − 24x)(x2 − 4) − 4x(x4 − 12x2 )
+                                                                                 =
+                                                                                                    (x2 − 4)3
+
+                                                                                       4x5 − 40x3 + 96x − 4x5 + 48x3
+                                                                                 =
+                                                                                                 (x2 − 4)3
+
+                                                                                       8x3 + 96x
+                                                                                 =
+                                                                                       (x2 − 4)3
+
+                                                                                       8x(x2 + 12)
+                                                                                 =
+                                                                                        (x2 − 4)3
+
+-->
 
 <p>
-<span class="listmarker">(b)</span> \(\bigl (\tfrac 13 x^{-2/3}\bigr )&apos; = \tfrac 13\cdot \left (-\tfrac 23\right )x^{-5/3} = \dfrac {-2}{9\,x\sqrt [3]{x^2}}\).
+
+\begin{align*}
+f&apos;(x) &amp;= \left (\frac {x^3}{x^2-4}\right )&apos;\\[1ex] &amp;= \frac {3x^2(x^2-4)-x^3\cdot 2x}{(x^2-4)^2}\\[1ex] &amp;= \frac {3x^4-12x^2-2x^4}{(x^2-4)^2}\\[1ex] &amp;= \frac
+{x^4-12x^2}{(x^2-4)^2}\\[3ex] f&apos;&apos;(x) &amp;= \left (\frac {x^4-12x^2}{(x^2-4)^2}\right )&apos;\\[1ex] &amp;= \frac {(4x^3-24x)(x^2-4)^2-(x^4-12x^2)\cdot 2(x^2-4)\cdot
+2x}{(x^2-4)^4}\\[1ex] &amp;= \frac {(4x^3-24x)(x^2-4)-4x(x^4-12x^2)}{(x^2-4)^3}\\[1ex] &amp;= \frac {4x^5-40x^3+96x-4x^5+48x^3}{(x^2-4)^3}\\[1ex] &amp;= \frac {8x^3+96x}{(x^2-4)^3}\\[1ex]
+&amp;= \frac {8x(x^2+12)}{(x^2-4)^3}
+\end{align*}
+
 </p>
-
-</li>
-<li>
-
+</div>
 <p>
-<span class="listmarker">(c)</span> \(f&apos;(x) = \dfrac {3x^2(x^2-4)-x^3\cdot 2x}{(x^2-4)^2} = \dfrac {x^4-12x^2}{(x^2-4)^2}\) en na afleiden en vereenvoudigen \(f&apos;&apos;(x) = \dfrac
-{8x(x^2+12)}{(x^2-4)^3}\).
+
 </p>
 </li>
 </ul>
@@ -2951,13 +3370,13 @@ Bereken de gevraagde hogere afgeleide.
 <!--
 ...... section De regel van de l’Hospital ......
 -->
-<h4 id="autosec-96"><span class="sectionnumber">VIII&#x2003;</span>De regel van de l’Hospital</h4>
-<a id="mkpiweb-autopage-96"></a>
+<h4 id="autosec-94"><span class="sectionnumber">VIII&#x2003;</span>De regel van de l’Hospital</h4>
+<a id="mkpiweb-autopage-94"></a>
 <!--
 ...... subsection De regel ......
 -->
-<h5 id="autosec-97"><span class="sectionnumber">1&#x2003;</span>De regel</h5>
-<a id="mkpiweb-autopage-97"></a>
+<h5 id="autosec-95"><span class="sectionnumber">1&#x2003;</span>De regel</h5>
+<a id="mkpiweb-autopage-95"></a>
 
 
 <p>
@@ -2994,20 +3413,21 @@ Onderstel dat
 </ul>
 
 <p>
-Dan is
+Dan is, met \(H\) van l’Hospital,
 </p>
 
 <p>
-\[ \boxed {\;\lim _{x\to a}\frac {f(x)}{g(x)} \overset {&grave;&grave;\frac {0}{0}&apos;&apos;}{=} \lim _{x\to a}\frac {f&apos;(x)}{g&apos;(x)} = \frac {f&apos;(a)}{g&apos;(a)}\;} \]
+\[ \boxed {\; \begin {aligned} \lim _{x\to a}\frac {f(x)}{g(x)} &amp;= \vov {\dfrac {0}{0}}\\ &amp;\overset {H}{=} \lim _{x\to a}\frac {f&apos;(x)}{g&apos;(x)} = \frac {f&apos;(a)}{g&apos;(a)}
+\end {aligned}\;} \]
 </p>
 
 <p>
-De regel geldt eveneens voor de onbepaalde vorm “\(\frac {\pm \infty }{\pm \infty }\)” en ook wanneer \(x \to \pm \infty \):
+De regel geldt eveneens voor de onbepaalde vorm \(\vov {\frac {\pm \infty }{\pm \infty }}\) en ook wanneer \(x \to \pm \infty \):
 </p>
 
 <p>
-\[ \lim _{x\to a}\frac {f(x)}{g(x)} \overset {&grave;&grave;\frac {\infty }{\infty }&apos;&apos;}{=} \lim _{x\to a}\frac {f&apos;(x)}{g&apos;(x)}, \qquad \lim _{x\to \pm \infty }\frac
-{f(x)}{g(x)} \overset {&grave;&grave;\frac {\infty }{\infty }&apos;&apos;}{=} \lim _{x\to \pm \infty }\frac {f&apos;(x)}{g&apos;(x)} . \]
+\[ \begin {aligned} \lim _{x\to a}\frac {f(x)}{g(x)} &amp;= \vov {\dfrac {\infty }{\infty }}\\ &amp;\overset {H}{=} \lim _{x\to a}\frac {f&apos;(x)}{g&apos;(x)}, \end {aligned} \qquad \begin
+{aligned} \lim _{x\to \pm \infty }\frac {f(x)}{g(x)} &amp;= \vov {\dfrac {\infty }{\infty }}\\ &amp;\overset {H}{=} \lim _{x\to \pm \infty }\frac {f&apos;(x)}{g&apos;(x)} . \end {aligned} \]
 </p>
 
 <p>
@@ -3016,8 +3436,8 @@ De regel geldt eveneens voor de onbepaalde vorm “\(\frac {\pm \infty }{\pm \in
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-98">Bewijs.</h6>
-<a id="mkpiweb-autopage-98"></a>
+<h6 id="autosec-96">Bewijs.</h6>
+<a id="mkpiweb-autopage-96"></a>
 
 
 <p>
@@ -3047,72 +3467,171 @@ We bewijzen enkel de eerste vorm. Omdat \(f(a) = g(a) = 0\) is
 <!--
 ...... subsection Voorbeelden ......
 -->
-<h5 id="autosec-101"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
-<a id="mkpiweb-autopage-101"></a>
+<h5 id="autosec-99"><span class="sectionnumber">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-99"></a>
 
 
 <p>
-We noteren met \(\overset {H}{=}\) de stap waarin we de regel toepassen.
+We gaan eerst na welke vorm de limiet heeft. Pas als dat \(\vov {\frac {0}{0}}\) of \(\vov {\frac {\infty }{\infty }}\) is, passen we de regel toe. We noteren met \(\overset {H}{=}\) de stap waarin we dat doen.
 </p>
 
 <ul class="enumerate" style="list-style-type:none">
 
 <li>
 <p>
-<span class="listmarker">(a)</span> \(\displaystyle \lim _{x\to 1}\frac {x^3-1}{x^3-3x^2+3x-1} \overset {&grave;&grave;\frac {0}{0}&apos;&apos;}{\underset {H}{=}} \lim _{x\to 1}\frac
-{3x^2}{3x^2-6x+3} = \lim _{x\to 1}\frac {x^2}{(x-1)^2} = +\infty \)
+<span class="listmarker">(a)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                               x3 − 1       ‘ 0’
+                                                                                       lim 3     2
+                                                                                                          =
+                                                                                      x→1 x − 3x + 3x − 1     0
+                                                                                                               H             3x2
+                                                                                                               = lim
+                                                                                                                    x→1 3x2 − 6x + 3
+
+                                                                                                                           x2
+                                                                                                               = lim             = +∞
+                                                                                                                    x→1 (x − 1)2
+
+
+-->
+
+<p>
+
+\begin{align*}
+\lim _{x\to 1}\frac {x^3-1}{x^3-3x^2+3x-1} &amp;= \vov {\dfrac {0}{0}}\\ &amp;\overset {H}{=} \lim _{x\to 1}\frac {3x^2}{3x^2-6x+3}\\ &amp;= \lim _{x\to 1}\frac {x^2}{(x-1)^2} = +\infty
+\end{align*}
+
 </p>
 
 </li>
 <li>
 
 <p>
-<span class="listmarker">(b)</span> \(\displaystyle \lim _{x\to a}\frac {x^m-a^m}{x^n-a^n} \overset {&grave;&grave;\frac {0}{0}&apos;&apos;}{\underset {H}{=}} \lim _{x\to a}\frac
-{m\,x^{m-1}}{n\,x^{n-1}} = \frac {m}{n}\,a^{m-n} = \frac {m\,a^m}{n\,a^n}\)
+<span class="listmarker">(b)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                 xm − a m   ‘ 0’
+                                                                                             lim          =
+                                                                                             x→a xn − an      0
+                                                                                                          H      m xm−1
+                                                                                                          = lim
+                                                                                                            x→a n xn−1
+                                                                                                            m m−n      m am
+                                                                                                          =    a     =
+                                                                                                             n          n an
+
+-->
+
+<p>
+
+\begin{align*}
+\lim _{x\to a}\frac {x^m-a^m}{x^n-a^n} &amp;= \vov {\dfrac {0}{0}}\\ &amp;\overset {H}{=} \lim _{x\to a}\frac {m\,x^{m-1}}{n\,x^{n-1}}\\ &amp;= \frac {m}{n}\,a^{m-n} = \frac {m\,a^m}{n\,a^n}
+\end{align*}
+
 </p>
 
 </li>
 <li>
 
 <p>
-<span class="listmarker">(c)</span> \(\displaystyle \lim _{x\to +\infty }\frac {4x\sqrt {2x}+5}{\bigl (\sqrt {2x}+1\bigr )^3} \overset {&grave;&grave;\frac {\infty }{\infty
-}&apos;&apos;}{\underset {H}{=}} \lim _{x\to +\infty } \frac {4\sqrt {2x}+\frac {4x}{\sqrt {2x}}} {3\bigl (\sqrt {2x}+1\bigr )^2\cdot \frac {1}{\sqrt {2x}}} = \lim _{x\to +\infty }\frac
-{4x}{2x+2\sqrt {2x}+1} \overset {&grave;&grave;\frac {\infty }{\infty }&apos;&apos;}{\underset {H}{=}} 2\)
+<span class="listmarker">(c)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                             √
+                                                                                           4x 2x + 5     ‘ ∞’
+                                                                                       lim √        3 =
+                                                                                      x→+∞   2x + 1        ∞
+                                                                                                                   √
+                                                                                                         H
+                                                                                                                 4 2x + √4x 2x
+                                                                                                         = lim   √       2
+                                                                                                          x→+∞ 3   2x + 1 · √12x
+                                                                                                                             4x
+                                                                                                         = lim               √
+                                                                                                             x→+∞ 2x + 2       2x + 1
+                                                                                                             ‘ ∞’
+                                                                                                         =
+                                                                                                               ∞
+                                                                                                         H               4         4
+                                                                                                         = lim                 =     =2
+                                                                                                             x→+∞ 2 + √2           2
+                                                                                                                       2x
+
+
+-->
+
+<p>
+
+\begin{align*}
+\lim _{x\to +\infty }\frac {4x\sqrt {2x}+5}{\bigl (\sqrt {2x}+1\bigr )^3} &amp;= \vov {\dfrac {\infty }{\infty }}\\ &amp;\overset {H}{=} \lim _{x\to +\infty } \frac {4\sqrt {2x}+\frac
+{4x}{\sqrt {2x}}} {3\bigl (\sqrt {2x}+1\bigr )^2\cdot \frac {1}{\sqrt {2x}}}\\ &amp;= \lim _{x\to +\infty }\frac {4x}{2x+2\sqrt {2x}+1}\\ &amp;= \vov {\dfrac {\infty }{\infty }}\\
+&amp;\overset {H}{=} \lim _{x\to +\infty }\frac {4}{2+\frac {2}{\sqrt {2x}}} = \frac {4}{2} = 2
+\end{align*}
+
 </p>
 </li>
 </ul>
 <!--
 ...... subsection Opgelet ......
 -->
-<h5 id="autosec-102"><span class="sectionnumber">3&#x2003;</span>Opgelet</h5>
-<a id="mkpiweb-autopage-102"></a>
+<h5 id="autosec-100"><span class="sectionnumber">3&#x2003;</span>Opgelet</h5>
+<a id="mkpiweb-autopage-100"></a>
 
 
 <p>
 De regel mag enkel toegepast worden op een onbepaalde vorm. Controleer dus telkens opnieuw of de vorm nog onbepaald is:
 </p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                              12x2 − 4x − 1 ‘ 0 ’
+                                                                                         lim1              =
+                                                                                         x→ 2   4x2 − 2x      0
+                                                                                                            H        24x − 4  8
+                                                                                                           = lim1            = = 4.
+                                                                                                                x→ 2  8x − 2  2
+
+
+-->
+
 
 <p>
-\[ \lim _{x\to \frac 12}\frac {12x^2-4x-1}{4x^2-2x} \overset {&grave;&grave;\frac {0}{0}&apos;&apos;}{\underset {H}{=}} \lim _{x\to \frac 12}\frac {24x-4}{8x-2} = \frac {8}{2} = 4 .   \]
-</p>
 
-<p>
-Na de eerste stap is de vorm \(\frac {8}{2}\) en niet langer “\(\frac {0}{0}\)”: de regel een tweede keer toepassen zou hier een fout antwoord geven.
+\begin{align*}
+\lim _{x\to \frac 12}\frac {12x^2-4x-1}{4x^2-2x} &amp;= \vov {\dfrac {0}{0}}\\ &amp;\overset {H}{=} \lim _{x\to \frac 12}\frac {24x-4}{8x-2} = \frac {8}{2} = 4 .
+\end{align*}
+Na de eerste stap is de vorm \(\frac {8}{2}\) en niet langer \(\vov {\frac {0}{0}}\): de regel een tweede keer toepassen zou hier een fout antwoord geven.
 </p>
 
 
 <div class="aside">
 
 <p>
-Andere onbepaalde vormen, zoals \(0\cdot \infty \) of \(\infty -\infty \), herleid je eerst tot \(\frac {0}{0}\) of \(\frac {\infty }{\infty }\) voor je de regel gebruikt.
+Andere onbepaalde vormen, zoals \(\vov {0\cdot \infty }\) of \(\vov {\infty -\infty }\), herleid je eerst tot \(\vov {\frac {0}{0}}\) of \(\vov {\frac {\infty }{\infty }}\) voor je de regel gebruikt.
 </p>
 
 </div>
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-103"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-103"></a>
+<h5 id="autosec-101"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-101"></a>
 
 
 <div class="cursus-oefening">
@@ -3123,112 +3642,233 @@ Andere onbepaalde vormen, zoals \(0\cdot \infty \) of \(\infty -\infty \), herle
 <!--
 ...... subsubsection Oefening 7 ......
 -->
-<h6 id="autosec-104">Oefening 7</h6>
-<a id="mkpiweb-autopage-104"></a>
+<h6 id="autosec-102">Oefening 7</h6>
+<a id="mkpiweb-autopage-102"></a>
 
 
 <p>
 Bereken de volgende limieten met de regel van de l’Hospital.
 </p>
-<div class="multicols">
-
 <ul class="enumerate" style="list-style-type:none">
 
 <li>
 <p>
 <span class="listmarker">(a)</span> \(\displaystyle \lim _{x\to 0}\frac {\sqrt {1+x}-1}{x}\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dfrac {1}{2}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                            √
+                                                                                                1 + x − 1 ‘ 0’
+                                                                                     lim                 =
+                                                                                     x→0           x        0
+                                                                                                                        √1
+                                                                                                            H          2 1+x            1
+                                                                                                            = lim               =
+                                                                                                                x→0       1             2
+
+-->
+
+<p>
+
+\begin{align*}
+\lim _{x\to 0}\frac {\sqrt {1+x}-1}{x} &amp;= \vov {\dfrac {0}{0}}\\ &amp;\overset {H}{=} \lim _{x\to 0}\frac {\frac {1}{2\sqrt {1+x}}}{1} = \frac {1}{2}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(b)</span> \(\displaystyle \lim _{x\to 2}\frac {x^3-8}{x^2-4}\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(3\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+
+                                                                                            x3 − 8 ‘ 0 ’
+                                                                                        lim        =
+                                                                                        x→2 x2 − 4   0
+                                                                                                       H       3x2   12
+                                                                                                       = lim       =    =3
+                                                                                                           x→2 2x     4
+
+-->
+
+<p>
+
+\begin{align*}
+\lim _{x\to 2}\frac {x^3-8}{x^2-4} &amp;= \vov {\dfrac {0}{0}}\\ &amp;\overset {H}{=} \lim _{x\to 2}\frac {3x^2}{2x} = \frac {12}{4} = 3
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(c)</span> \(\displaystyle \lim _{x\to 1}\frac {x^4-1}{x^3-1}\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dfrac {4}{3}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+
+                                                                                               x4 − 1 ‘ 0 ’
+                                                                                            lim       =
+                                                                                           x→1 x3 − 1   0
+                                                                                                           H       4x3   4
+                                                                                                           = lim       =
+                                                                                                               x→1 3x2   3
+
+-->
+
+<p>
+
+\begin{align*}
+\lim _{x\to 1}\frac {x^4-1}{x^3-1} &amp;= \vov {\dfrac {0}{0}}\\ &amp;\overset {H}{=} \lim _{x\to 1}\frac {4x^3}{3x^2} = \frac {4}{3}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(d)</span> \(\displaystyle \lim _{x\to 0}\frac {\sqrt [3]{1+x}-1}{x}\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dfrac {1}{3}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                        √
+                                                                                        3
+                                                                                            1 + x − 1 ‘ 0’
+                                                                                  lim                =
+                                                                                  x→0          x        0
+                                                                                                                    1         − 23
+                                                                                                        H           3 (1 + x)               1
+                                                                                                        = lim                           =
+                                                                                                            x→0           1                 3
+
+-->
+
+<p>
+
+\begin{align*}
+\lim _{x\to 0}\frac {\sqrt [3]{1+x}-1}{x} &amp;= \vov {\dfrac {0}{0}}\\ &amp;\overset {H}{=} \lim _{x\to 0}\frac {\tfrac 13(1+x)^{-\frac 23}}{1} = \frac {1}{3}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(e)</span> \(\displaystyle \lim _{x\to +\infty }\frac {x^2+1}{2x^2-3x}\)
 </p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(f)</span> \(\displaystyle \lim _{x\to 2}\frac {\sqrt
-[3]{x^2+4}-2}{\sqrt [4]{3x+250}-4}\)
-</p>
-</li>
-</ul>
-
-</div>
-
-</div>
-
 <div class="oplossing">
-<div class="multicols">
-
-<ul class="enumerate" style="list-style-type:none">
-
-<li>
 <p>
-<span class="listmarker">(a)</span> \(\opl {\dfrac {1}{2}}\)
+<span class="oplantwoord">\(\dfrac {1}{2}\)</span>
 </p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+
+                                                                                              x2 + 1    ‘ ∞’
+                                                                                         lim          =
+                                                                                        x→+∞ 2x2 − 3x     ∞
+                                                                                                               H               2x
+                                                                                                               = lim
+                                                                                                                   x→+∞ 4x − 3
+
+                                                                                                                   ‘ ∞’
+                                                                                                               =
+                                                                                                                     ∞
+                                                                                                               H           2        1
+                                                                                                               = lim           =
+                                                                                                                   x→+∞ 4           2
+
+-->
+
+<p>
+
+\begin{align*}
+\lim _{x\to +\infty }\frac {x^2+1}{2x^2-3x} &amp;= \vov {\dfrac {\infty }{\infty }}\\ &amp;\overset {H}{=} \lim _{x\to +\infty }\frac {2x}{4x-3}\\ &amp;= \vov {\dfrac {\infty }{\infty }}\\
+&amp;\overset {H}{=} \lim _{x\to +\infty }\frac {2}{4} = \frac {1}{2}
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
-<span class="listmarker">(b)</span> \(\opl {3}\)
+<span class="listmarker">(f)</span> \(\displaystyle \lim _{x\to 2}\frac {\sqrt [3]{x^2+4}-2}{\sqrt [4]{3x+250}-4}\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dfrac {256}{9}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
-</li>
-<li>
+<!--
+
+                                                                             √3
+                                                                                x2 + 4 − 2   ‘ 0’
+                                                                        lim √              =
+                                                                        x→2 4 3x + 250 − 4     0
+                                                                                                       1   2     − 23
+                                                                                                H      3 (x + 4)      · 2x
+                                                                                                = lim 1               3
+                                                                                                  x→2 (3x + 250)− 4 · 3
+                                                                                                      4
+                                                                                                      1    − 23        1 1          1
+                                                                                                      3 ·8       ·4    3 · 4 ·4     3               256
+                                                                                                =   1           3
+                                                                                                            −4 · 3
+                                                                                                                    = 1    1     =  3           =
+                                                                                                                      4 · 64 · 3
+                                                                                                    4 · 256                        256
+                                                                                                                                                     9
+
+-->
 
 <p>
-<span class="listmarker">(c)</span> \(\opl {\dfrac {4}{3}}\)
+
+\begin{align*}
+\lim _{x\to 2}\frac {\sqrt [3]{x^2+4}-2}{\sqrt [4]{3x+250}-4} &amp;= \vov {\dfrac {0}{0}}\\ &amp;\overset {H}{=} \lim _{x\to 2} \frac {\tfrac 13(x^2+4)^{-\frac 23}\cdot 2x} {\tfrac
+14(3x+250)^{-\frac 34}\cdot 3}\\ &amp;= \frac {\tfrac 13\cdot 8^{-\frac 23}\cdot 4} {\tfrac 14\cdot 256^{-\frac 34}\cdot 3} = \frac {\tfrac 13\cdot \tfrac 14\cdot 4}{\tfrac 14\cdot \tfrac
+{1}{64}\cdot 3} = \frac {\tfrac 13}{\tfrac {3}{256}} = \frac {256}{9}
+\end{align*}
+
 </p>
-
-</li>
-<li>
-
+</div>
 <p>
-<span class="listmarker">(d)</span> \(\opl {\dfrac {1}{3}}\)
-</p>
 
-</li>
-<li>
-
-<p>
-<span class="listmarker">(e)</span> \(\opl {\dfrac {1}{2}}\)
-</p>
-
-</li>
-<li>
-
-<p>
-<span class="listmarker">(f)</span> \(\opl {\dfrac {256}{9}}\)
 </p>
 </li>
 </ul>
-
-</div>
 
 </div>
 
@@ -3240,8 +3880,8 @@ Bereken de volgende limieten met de regel van de l’Hospital.
 <!--
 ...... subsubsection Oefening 8 ......
 -->
-<h6 id="autosec-107">Oefening 8</h6>
-<a id="mkpiweb-autopage-107"></a>
+<h6 id="autosec-103">Oefening 8</h6>
+<a id="mkpiweb-autopage-103"></a>
 
 
 <p>
@@ -3252,14 +3892,49 @@ Toon aan dat de regel van de l’Hospital hier niet zomaar twee keer na elkaar m
 \[ \lim _{x\to \frac 12}\frac {12x^2-4x-1}{4x^2-2x}.           \]
 </p>
 
-</div>
-
 <div class="oplossing">
 
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                  12x2 − 4x − 1 ‘ 0 ’
+                                                                                              lim1             =
+                                                                                             x→ 2   4x2 − 2x      0
+                                                                                                                 H        24x − 4
+                                                                                                                 = lim1
+                                                                                                                     x→ 2 8x − 2
+
+                                                                                                                  8
+                                                                                                                 =         (geen VOV!)
+                                                                                                                  2
+                                                                                                                 =4
+
+
+
+-->
+
+
 <p>
-Na één toepassing is \(\displaystyle \lim _{x\to \frac 12}\frac {24x-4}{8x-2} = \frac {8}{2} = 4\). Die uitdrukking is niet meer van de vorm “\(\frac {0}{0}\)”, dus stopt het hier. Een tweede toepassing zou
-\(\frac {24}{8} = 3\) opleveren, en dat is fout. De limiet is dus \(4\).
+
+\begin{align*}
+\lim _{x\to \frac 12}\frac {12x^2-4x-1}{4x^2-2x} &amp;= \vov {\dfrac {0}{0}}\\ &amp;\overset {H}{=} \lim _{x\to \frac 12}\frac {24x-4}{8x-2}\\ &amp;= \frac {8}{2} \qquad \text {(geen VOV!)}\\
+&amp;= 4
+\end{align*}
+Wie de regel toch opnieuw toepast, vindt een fout antwoord:
 </p>
+
+<p>
+\[ \lim _{x\to \frac 12}\frac {24x-4}{8x-2} \overset {H}{=} \frac {24}{8} = 3 \neq 4 .                 \]
+</p>
+
+<p>
+De limiet is dus \(4\).
+</p>
+</div>
+
 </div>
 
 <a id="mkpiweb-autofile-last"></a>
@@ -3268,14 +3943,14 @@ Na één toepassing is \(\displaystyle \lim _{x\to \frac 12}\frac {24x-4}{8x-2} 
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=42520516c73d"></script>
-<script src="vendor/jsxgraphcore.js?v=42520516c73d"></script>
-<script src="interactieve-grafieken.js?v=42520516c73d"></script>
-<script src="hoofdstuk.interactief.js?v=42520516c73d"></script>
-<script src="functiecas.js?v=42520516c73d"></script>
-<script src="functierekenmachine.js?v=42520516c73d"></script>
-<script src="python-config.js?v=42520516c73d"></script>
-<script src="codemirror-python.js?v=42520516c73d"></script>
-<script src="python-oefeningen.js?v=42520516c73d"></script>
+<script src="presentatie.js?v=ee9bcda8cb3a"></script>
+<script src="vendor/jsxgraphcore.js?v=ee9bcda8cb3a"></script>
+<script src="interactieve-grafieken.js?v=ee9bcda8cb3a"></script>
+<script src="hoofdstuk.interactief.js?v=ee9bcda8cb3a"></script>
+<script src="functiecas.js?v=ee9bcda8cb3a"></script>
+<script src="functierekenmachine.js?v=ee9bcda8cb3a"></script>
+<script src="python-config.js?v=ee9bcda8cb3a"></script>
+<script src="codemirror-python.js?v=ee9bcda8cb3a"></script>
+<script src="python-oefeningen.js?v=ee9bcda8cb3a"></script>
 </body>
 </html>
