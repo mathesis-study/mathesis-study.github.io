@@ -1,0 +1,3961 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stelsels van lineaire vergelijkingen</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=c5d6364c0958" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=c5d6364c0958" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=c5d6364c0958" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+\(\newcommand {\rijop }[1]{\,\begin {array}{r}#1\end {array}\,}\)
+
+\(\newcommand {\op }[1]{\scriptstyle #1}\)
+
+\(\newcommand {\spil }[1]{\boxed {#1}}\)
+
+\(\newcommand {\controle }[1]{\;\aside {\begin {array}{r}#1\end {array}}}\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 4</p> <h1>Stelsels van lineaire vergelijkingen</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+  
+  2x − y + 3z = 5
+  
+    3x + 2y + 2z = 4
+  
+    5x + 3y − z = 7
+                                                           
+                           ∼        1     0      0  2 
+                                     0     1      0 −1 
+                                                    
+       2 −1  3 5               
+                                                      
+Ab =  3  2  2 4                    0     0      1  0
+        5 3 −1 7
+                                      V = {(2; −1; 0)}
+
+  een stelsel als matrix           de rij-canonieke matrix
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.15</b> (MD 06.08.04) De leerlingen lossen stelsels van eerstegraadsvergelijkingen op met behulp van de methode van Gauss-Jordan.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.16</b> De leerlingen bespreken de oplosbaarheid van stelsels van eerstegraadsvergelijkingen.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> de standaardvorm en de matrices van een stelsel, gelijkwaardige stelsels, elementaire rij-operaties, de rij-canonieke matrix en haar rang, de methode van Gauss-Jordan, het verband tussen
+oplosbaarheid en rang, homogene stelsels, vraagstukken, het bespreken van stelsels met een parameter en de coe&#x0308;xistentievoorwaarde.
+</p>
+
+</div>
+<!--
+...... section Stelsels van lineaire vergelijkingen met onbekenden ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Stelsels van \(m\) lineaire vergelijkingen met \(n\) onbekenden</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Standaardvorm ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Standaardvorm</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+\[ \begin {cases} a_{11}x_1+a_{12}x_2+a_{13}x_3+\cdots +a_{1n}x_n=b_1\\ a_{21}x_1+a_{22}x_2+a_{23}x_3+\cdots +a_{2n}x_n=b_2\\ \quad \vdots \\ a_{m1}x_1+a_{m2}x_2+a_{m3}x_3+\cdots +a_{mn}x_n=b_m
+\end {cases} \]
+</p>
+<!--
+...... subsection Definities ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Definities</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+Uit deze standaardvorm halen we vier matrices.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> De \(m\times n\)-matrix gevormd door de coe&#x0308;fficie&#x0308;nten \(a_{ij}\) is de <b>coe&#x0308;fficie&#x0308;ntenmatrix</b> van het stelsel:
+</p>
+<p>
+\[ A=\begin {pmatrix} a_{11}&amp;a_{12}&amp;\cdots &amp;a_{1n}\\ a_{21}&amp;a_{22}&amp;\cdots &amp;a_{2n}\\ \vdots &amp;\vdots &amp;&amp;\vdots \\ a_{m1}&amp;a_{m2}&amp;\cdots &amp;a_{mn} \end
+{pmatrix} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De \(n\times 1\)-matrix gevormd door de onbekenden \(x_j\) is de <b>kolommatrix van de onbekenden</b>:
+</p>
+<p>
+\[ X=\begin {pmatrix}x_1\\ x_2\\ \vdots \\ x_n\end {pmatrix} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De \(m\times 1\)-matrix gevormd door de constante termen \(b_i\) is de <b>kolommatrix met de bekende termen</b>:
+</p>
+<p>
+\[ B=\begin {pmatrix}b_1\\ b_2\\ \vdots \\ b_m\end {pmatrix} \]
+</p>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De \(m\times (n+1)\)-matrix gevormd door de coe&#x0308;fficie&#x0308;nten \(a_{ij}\) en de bekende termen \(b_i\) is de <b>uitgebreide matrix</b> of verhoogde matrix:
+</p>
+<p>
+\[ A_b=\left (\begin {array}{cccc|c} a_{11}&amp;a_{12}&amp;\cdots &amp;a_{1n}&amp;b_1\\ a_{21}&amp;a_{22}&amp;\cdots &amp;a_{2n}&amp;b_2\\ \vdots &amp;\vdots &amp;&amp;\vdots &amp;\vdots \\
+a_{m1}&amp;a_{m2}&amp;\cdots &amp;a_{mn}&amp;b_m \end {array}\right ) \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+Met deze matrices schrijven we het stelsel als één <b>matrixvergelijking</b>:
+</p>
+
+<p>
+\[ A\cdot X=B \]
+</p>
+
+<p>
+Is \(A\) vierkant en regulier (\(\det A\neq 0\)), dan bestaat \(A^{-1}\) en vinden we
+</p>
+
+<p>
+\[ X=A^{-1}\cdot B \]
+</p>
+
+<p>
+<span class="aside">Die inverse is vaak moeilijk te berekenen, zeker als \(m\) en \(n\) groot worden of als \(A\) parameters bevat. En voor een stelsel dat niet vierkant is, bestaat ze niet.</span>
+</p>
+<!--
+...... section Oplossingenverzameling van een stelsel ......
+-->
+<h4 id="autosec-9"><span class="sectionnumber">II&#x2003;</span>Oplossingenverzameling van een stelsel</h4>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p>
+Een <b>oplossing</b> van een \(m\times n\)-stelsel is elk geordend \(n\)-tal \((t_1;t_2;\ldots ;t_n)\) dat een oplossing is van elke vergelijking van het stelsel. Met andere woorden: \((t_1;t_2;\ldots ;t_n)\) voldoet aan
+elke vergelijking van het stelsel.
+</p>
+
+<p>
+\[ (t_1;t_2;\ldots ;t_n)\text { is een oplossing van }S \iff \begin {cases} a_{11}t_1+a_{12}t_2+\cdots +a_{1n}t_n=b_1\\ a_{21}t_1+a_{22}t_2+\cdots +a_{2n}t_n=b_2\\ \quad \vdots \\
+a_{m1}t_1+a_{m2}t_2+\cdots +a_{mn}t_n=b_m \end {cases} \]
+</p>
+
+<p>
+Alle oplossingen samen vormen de <b>oplossingenverzameling</b> \(V\).
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+We lossen op met de combinatiemethode. Naast het stelsel staan de factoren waarmee we de vergelijkingen vermenigvuldigen.
+</p>
+
+<p>
+\[ \begin {cases}x+y=7\\ 3x-y=1\end {cases} \left .\begin {array}{r}1\\ 1\end {array}\right | \begin {array}{r}3\\ -1\end {array} \iff \begin {cases}4x=8\\ 4y=20\end {cases} \iff \begin
+{cases}x=2\\ y=5\end {cases} \qquad V=\{(2;5)\} \]
+</p>
+
+<p>
+De uitgebreide matrix van dit stelsel is
+</p>
+
+<p>
+\[ A_b=\left (\begin {array}{rr|r}1&amp;1&amp;7\\ 3&amp;-1&amp;1\end {array}\right ) \]
+</p>
+<!--
+...... section Gelijkwaardige stelsels ......
+-->
+<h4 id="autosec-11"><span class="sectionnumber">III&#x2003;</span>Gelijkwaardige stelsels</h4>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+De oplossingenverzameling van een stelsel verandert niet als we
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> twee vergelijkingen van plaats verwisselen;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> beide leden van een vergelijking met eenzelfde getal \(k\neq 0\) vermenigvuldigen;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> bij een vergelijking een veelvoud van een andere vergelijking optellen.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+Twee stelsels \(S\) en \(S&apos;\) noemen we <b>gelijkwaardige stelsels</b> als hun oplossingenverzamelingen gelijk zijn. We noteren \(S\iff S&apos;\).
+</p>
+<!--
+...... subsection Eigenschappen ......
+-->
+<h5 id="autosec-13"><span class="sectionnumber">2&#x2003;</span>Eigenschappen</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+Het stelsel \(S&apos;\) dat we uit het stelsel \(S\) bekomen door
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> twee vergelijkingen om te wisselen,
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> een vergelijking met een getal \(k\neq 0\) te vermenigvuldigen,
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> een veelvoud van een vergelijking bij een andere vergelijking op te tellen,
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> \(l\) keer een vergelijking op te tellen bij \(k\) keer een andere vergelijking (\(k\neq 0\)),
+</p>
+</li>
+</ul>
+
+<p>
+is gelijkwaardig met \(S\).
+</p>
+
+<p>
+<span class="aside">Eigenschap 4 is eigenschap 2 gevolgd door eigenschap 3. Het is precies wat de combinatiemethode doet.</span>
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="gelijkwaardige-stelsels" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Elke vergelijking van het stelsel uit het voorbeeld is een rechte. Kies een bewerking: de vergelijkingen en de rechten
+veranderen, maar het snijpunt \((2;5)\) blijft staan. Met <em>Combinatiemethode</em> maak je de rechten evenwijdig met de assen, en dan lees je de oplossing af.</figcaption> </figure>
+</p>
+<!--
+...... section Elementaire rij-operaties op een matrix ......
+-->
+<h4 id="autosec-14"><span class="sectionnumber">IV&#x2003;</span>Elementaire rij-operaties op een matrix</h4>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+Vertalen we die eigenschappen naar bewerkingen op de uitgebreide matrix van het stelsel, dan blijft de oplossingenverzameling van het overeenkomstige stelsel behouden. We noemen deze bewerkingen <b>elementaire
+rij-operaties</b>.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Twee rijen met elkaar verwisselen: \(R_i\leftrightarrow R_j\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Een rij vermenigvuldigen met \(k\in \R _0\): \(R_i\to k\,R_i\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Bij een rij een veelvoud van een andere rij optellen: \(R_i\to R_i+l\,R_j\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Bij het \(k\)-voud van een rij het \(l\)-voud van een andere rij optellen (\(k\neq 0\)): \(R_i\to k\,R_i+l\,R_j\).
+</p>
+</li>
+</ul>
+
+<p>
+Kan een matrix \(A\) uit een matrix \(B\) bekomen worden door een eindig aantal elementaire rij-operaties toe te passen, dan noemen we de twee matrices <b>rij-equivalent</b>. We noteren \(A\sim B\).
+</p>
+<!--
+...... subsection Voorbeeld van rij-equivalente matrices ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">1&#x2003;</span>Voorbeeld van rij-equivalente matrices</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                       
+                                                                        1     2 3     6             7 8 9    24
+                                                                                          R1 ↔R3
+                                                                    A= 4     5 6  15 ∼           4 5 6  15
+                                                                        7     8 9    24             1 2 3     6
+                                                                                                                         
+                                                                                   7 8 9       24               4    2    0    6
+                                                                      ∼           8 10 12  30 ∼ R1 →R1 −3R3  8   10   12  30
+                                                                        R2 →2R2
+                                                                                   1 2 3        6               1    2    3    6
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A &amp;= \left (\begin{array}{rrr}1&amp;2&amp;3\\ 4&amp;5&amp;6\\ 7&amp;8&amp;9\end {array}\right )\controle {6\\ 15\\ 24} \sim \rijop {\op {R_1\leftrightarrow R_3}\\ \\ }\left
+(\begin{array}{rrr}7&amp;8&amp;9\\ 4&amp;5&amp;6\\ 1&amp;2&amp;3\end {array}\right )\controle {24\\ 15\\ 6}\\ &amp;\sim \rijop {\\ \op {R_2\to 2R_2}\\ }\left (\begin{array}{rrr}7&amp;8&amp;9\\
+8&amp;10&amp;12\\ 1&amp;2&amp;3\end {array}\right )\controle {24\\ 30\\ 6} \sim \rijop {\op {R_1\to R_1-3R_3}\\ \\ }\left (\begin{array}{rrr}4&amp;2&amp;0\\ 8&amp;10&amp;12\\ 1&amp;2&amp;3\end
+{array}\right )\controle {6\\ 30\\ 6}
+\end{align*}
+
+</p>
+<!--
+...... subsection Opmerking: controlekolom ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">2&#x2003;</span>Opmerking: controlekolom</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+Om rekenfouten te vermijden, voegen we een <b>controlekolom</b> toe aan de matrix: de grijze getallen in het voorbeeld. Per rij tellen we de elementen op; dat zijn de controlegetallen. Op die controlegetallen voeren we dezelfde
+elementaire rij-operaties uit. Na elke stap moet elk controlegetal weer de som van zijn rij zijn.
+</p>
+<!--
+...... subsection Elementaire rij-operaties op een determinant ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">3&#x2003;</span>Elementaire rij-operaties op een determinant</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+Wat doen de rij-operaties met de determinant van een vierkante matrix? Zie de eigenschappen van determinanten in het vorige hoofdstuk.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Operatie 1: de determinant verandert van teken.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Operatie 2: de determinant wordt vermenigvuldigd met \(k\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Operatie 3: de determinant blijft gelijk.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Operatie 4: de determinant wordt vermenigvuldigd met \(k\).
+</p>
+</li>
+</ul>
+
+<p>
+Of een determinant nul is of niet, verandert dus niet. Daarom geldt ook: elementaire rij-operaties bewaren de <b>rang</b> van een matrix.
+</p>
+
+<p>
+<span class="aside">Dat laatste volgt niet helemaal vanzelf. Een minor bevat niet altijd alle rijen die in een operatie meedoen. Bij \(R_i\to R_i+l\,R_j\) met \(R_i\) wel en \(R_j\) niet in de minor, wordt de minor een som
+van twee minoren. Toch blijft de rang gelijk; het volledige bewijs laten we hier achterwege.</span>
+</p>
+<!--
+...... section Rij-canonieke matrix ......
+-->
+<h4 id="autosec-18"><span class="sectionnumber">V&#x2003;</span>Rij-canonieke matrix</h4>
+<a id="mkpiweb-autopage-18"></a>
+<!--
+...... subsection Algemene voorstelling ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">1&#x2003;</span>Algemene voorstelling</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+\[ \begin {pmatrix} 1&amp;0&amp;a&amp;0&amp;c\\ 0&amp;1&amp;b&amp;0&amp;d\\ 0&amp;0&amp;0&amp;1&amp;e\\ 0&amp;0&amp;0&amp;0&amp;0 \end {pmatrix} \]
+</p>
+<!--
+...... subsection Eigenschappen ......
+-->
+<h5 id="autosec-20"><span class="sectionnumber">2&#x2003;</span>Eigenschappen</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Komen er <b>nulrijen</b> in de matrix voor, dan staan ze <b>onderaan</b>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> In een rij die geen nulrij is, is het <b>hoofdelement</b> altijd \(1\). Het hoofdelement of de <b>spil</b> is het eerste element van de rij dat niet nul is.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Boven en onder een hoofdelement staan enkel nullen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Elke rij, vanaf de tweede, begint met meer nullen dan de vorige. De hoofdelementen staan dus in <b>trapvorm</b>, de echelonvorm.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Stelling ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">3&#x2003;</span>Stelling</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+De rang van een rij-canonieke matrix is het aantal rijen dat geen nulrij is.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs. ......
+-->
+<h6 id="autosec-22">Bewijs.</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+Schrap uit de matrix de nulrijen en de kolommen die geen spil bevatten. Wat overblijft, is een eenheidsmatrix met evenveel rijen en kolommen als er niet-nulrijen zijn. Die minor is niet nul, want \(\det I=1\). Een minor van
+hogere orde bevat minstens één nulrij en is dus nul.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Met het GRM ......
+-->
+<h6 id="autosec-23">Met het GRM</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+Een matrix herleiden tot de rij-canonieke matrix: voer de matrix in als <span class="grm-schermtekst">[A]</span> via <span class="grm-combinatie"><kbd class="grm-toets grm-tweede">2nd</kbd><span
+class="grm-gelaagd"><span class="grm-boven grm-boven-2nd">matrix</span><kbd class="grm-toets grm-donker"><em>x</em>&#x207B;&#x00B9;</kbd></span></span> <span class="grm-schermtekst"><span
+class="grm-tab grm-actief">EDIT</span></span>. Kies daarna <span class="grm-combinatie"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd"><span class="grm-boven
+grm-boven-2nd">matrix</span><kbd class="grm-toets grm-donker"><em>x</em>&#x207B;&#x00B9;</kbd></span></span> <span class="grm-schermtekst"><span class="grm-tab grm-actief">MATH</span></span>
+<span class="grm-schermtekst"><span class="grm-tab grm-actief">B:</span>rref(</span> en typ <span class="grm-schermtekst">rref([A])</span>. De naam rref staat voor <em>row reduced echelon form</em>.
+</p>
+<!--
+...... section Stelsels oplossen met de methode van Gauss-Jordan ......
+-->
+<h4 id="autosec-24"><span class="sectionnumber">VI&#x2003;</span>Stelsels oplossen met de methode van Gauss-Jordan</h4>
+<a id="mkpiweb-autopage-24"></a>
+<!--
+...... subsection Voorbeeld 1 ......
+-->
+<h5 id="autosec-25"><span class="sectionnumber">1&#x2003;</span>Voorbeeld 1</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+Los op in \(\R ^3\):
+</p>
+
+<p>
+\[ \begin {cases}2x-y+3z=5\\ 3x+2y+2z=4\\ 5x+3y-z=7\end {cases} \]
+</p>
+
+<p>
+In het kadertje staat telkens de <b>spil</b>: met haar maken we de andere elementen van haar kolom nul. <span class="aside">De methode steunt op de combinatiemethode: zo vermijden we breuken.</span>
+</p>
+
+<p>
+<b>Nullen maken in \(K_1\)</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                         
+                                                                                2     −1    3   5                        2   −1     3     5
+                                                                         Ab =  3      2    2   4 ∼    R2 →2R2 −3R1    0    7    −5    −7 
+                                                                                 5     3   −1   7       R3 →2R3 −5R1     0   11   −17   −11
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}\spil {2}&amp;-1&amp;3&amp;5\\ 3&amp;2&amp;2&amp;4\\ 5&amp;3&amp;-1&amp;7\end {array}\right ) \sim \rijop {\\ \op {R_2\to 2R_2-3R_1}\vphantom {\spil
+{0}}\\ \op {R_3\to 2R_3-5R_1}}\left (\begin{array}{rrr|r}2&amp;-1&amp;3&amp;5\\ 0&amp;\spil {7}&amp;-5&amp;-7\\ 0&amp;11&amp;-17&amp;-11\end {array}\right )
+\end{align*}
+
+</p>
+
+<p>
+<b>Nullen maken in \(K_2\)</b>
+</p>
+
+<p>
+\[ \sim \rijop {\op {R_1\to 7R_1+R_2}\\ \\ \op {R_3\to 7R_3-11R_2}\vphantom {\spil {0}}}\left (\begin {array}{rrr|r}14&amp;0&amp;16&amp;28\\ 0&amp;7&amp;-5&amp;-7\\ 0&amp;0&amp;\spil
+{-64}&amp;0\end {array}\right ) \sim \rijop {\\ \\ \op {R_3/(-64)}\vphantom {\spil {0}}}\left (\begin {array}{rrr|r}14&amp;0&amp;16&amp;28\\ 0&amp;7&amp;-5&amp;-7\\ 0&amp;0&amp;\spil
+{1}&amp;0\end {array}\right ) \]
+</p>
+
+<p>
+<b>Nullen maken in \(K_3\)</b>
+</p>
+
+<p>
+\[ \sim \rijop {\op {R_1\to R_1-16R_3}\\ \op {R_2\to R_2+5R_3}\\ }\left (\begin {array}{rrr|r}14&amp;0&amp;0&amp;28\\ 0&amp;7&amp;0&amp;-7\\ 0&amp;0&amp;1&amp;0\end {array}\right ) \]
+</p>
+
+<p>
+<b>Spillen \(1\) maken</b>
+</p>
+
+<p>
+\[ \sim \rijop {\op {R_1/14}\\ \op {R_2/7}\\ }\left (\begin {array}{rrr|r}1&amp;0&amp;0&amp;2\\ 0&amp;1&amp;0&amp;-1\\ 0&amp;0&amp;1&amp;0\end {array}\right ) \]
+</p>
+
+<p>
+\[ \Rightarrow \begin {cases}x=2\\ y=-1\\ z=0\end {cases} \qquad V=\{(2;-1;0)\} \]
+</p>
+
+<p>
+Opmerking: \(r(A_b)=r(A)=3=n\).
+</p>
+<!--
+...... subsection Voorbeeld 2 ......
+-->
+<h5 id="autosec-26"><span class="sectionnumber">2&#x2003;</span>Voorbeeld 2</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+Los op in \(\R ^3\):
+</p>
+
+<p>
+\[ \begin {cases}2x+4y-z=-7\\ 3x+6y+2z=0\\ -2x+2y-3z=-17\\ 4x-3y+4z=26\end {cases} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                     
+                                                                  2      4 −1    −7      −2                         2      4 −1    −7     −2
+                                                              3         6   2     0    11      R2 →2R2 −3R1  0          0   7    21   28
+                                                        Ab = 
+                                                              −2
+                                                                                             ∼                                        
+                                                                         2 −3 −17  −20          R3 →2R3 +2R1  0        12 −8 −48  −44
+                                                                  4 −3       4   26      31      R4 →2R4 −4R1       0 −22 12        80    70
+                                                                                                                                          
+                                                                             2    4 −1     −7       −2         R1 →3R1 −4R2     6 0     5 27    38
+                                                              R2 →R3 /4  0       3  −2  −12    −11                          0 3 −2 −12  −11
+                                                           ∼                                          ∼                                   
+                                                              R3 →R2 /7  0       0    1    3       4                        0 0      1  3    4
+                                                                   R4 /2     0 −11     6   40       35        R4 →3R4 +11R2     0 0 −4 −12     −16
+                                                                                                                              
+                                                              R1 →R1 −5R3      6 0 0 12         18                 1 0 0       2       3
+                                                                                                        R1 /6
+                                                              R2 →R2 +2R3  0 3 0 −6  −3                        0 1 0 −2  −1
+                                                           ∼                                      ∼ R2 /3                     
+                                                                              0 0 1     3      4               0 0 1        3      4
+                                                              R4 →R4 +4R3      0 0 0     0       0                 0 0 0       0       0
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}2&amp;4&amp;-1&amp;-7\\ 3&amp;6&amp;2&amp;0\\ -2&amp;2&amp;-3&amp;-17\\ 4&amp;-3&amp;4&amp;26\end {array}\right )\controle {-2\\ 11\\ -20\\ 31} \sim
+\rijop {\\ \op {R_2\to 2R_2-3R_1}\\ \op {R_3\to 2R_3+2R_1}\\ \op {R_4\to 2R_4-4R_1}}\left (\begin{array}{rrr|r}2&amp;4&amp;-1&amp;-7\\ 0&amp;0&amp;7&amp;21\\ 0&amp;12&amp;-8&amp;-48\\
+0&amp;-22&amp;12&amp;80\end {array}\right )\controle {-2\\ 28\\ -44\\ 70}\\ &amp;\sim \rijop {\\ \op {R_2\to R_3/4}\\ \op {R_3\to R_2/7}\\ \op {R_4/2}}\left
+(\begin{array}{rrr|r}2&amp;4&amp;-1&amp;-7\\ 0&amp;3&amp;-2&amp;-12\\ 0&amp;0&amp;1&amp;3\\ 0&amp;-11&amp;6&amp;40\end {array}\right )\controle {-2\\ -11\\ 4\\ 35} \sim \rijop {\op {R_1\to
+3R_1-4R_2}\\ \\ \\ \op {R_4\to 3R_4+11R_2}}\left (\begin{array}{rrr|r}6&amp;0&amp;5&amp;27\\ 0&amp;3&amp;-2&amp;-12\\ 0&amp;0&amp;1&amp;3\\ 0&amp;0&amp;-4&amp;-12\end {array}\right )\controle
+{38\\ -11\\ 4\\ -16}\\ &amp;\sim \rijop {\op {R_1\to R_1-5R_3}\\ \op {R_2\to R_2+2R_3}\\ \\ \op {R_4\to R_4+4R_3}}\left (\begin{array}{rrr|r}6&amp;0&amp;0&amp;12\\ 0&amp;3&amp;0&amp;-6\\
+0&amp;0&amp;1&amp;3\\ 0&amp;0&amp;0&amp;0\end {array}\right )\controle {18\\ -3\\ 4\\ 0} \sim \rijop {\op {R_1/6}\\ \op {R_2/3}\\ \\ }\left (\begin{array}{rrr|r}1&amp;0&amp;0&amp;2\\
+0&amp;1&amp;0&amp;-2\\ 0&amp;0&amp;1&amp;3\\ 0&amp;0&amp;0&amp;0\end {array}\right )\controle {3\\ -1\\ 4\\ 0}
+\end{align*}
+
+</p>
+
+<p>
+\[ \Rightarrow \begin {cases}x=2\\ y=-2\\ z=3\end {cases} \qquad V=\{(2;-2;3)\} \]
+</p>
+
+<p>
+Opmerking: \(r(A_b)=3=r(A)=n\).
+</p>
+<!--
+...... subsection Voorbeeld 3 ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">3&#x2003;</span>Voorbeeld 3</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+Los op in \(\R ^3\):
+</p>
+
+<p>
+\[ \begin {cases}3x-7y+2z=2\\ -x+3y=-2\\ x-2y+z=0\end {cases} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                    
+                                                                            3 −7 2             2     0                     3 −7 2    2    0
+                                                                    Ab =  −1  3 0            −2    0 ∼    R2 →3R2 +R1  0     2 2 −4  0
+                                                                            1 −2 1             0     0      R3 →3R3 −R1    0    1 1 −2    0
+                                                                                                                                         
+                                                                           R1 →2R1 +7R2        6 0   18   −24      0             1 0 3 −4     0
+                                                                                                                         R1 /6
+                                                                       ∼                      0 2    2    −4  0 ∼             0 1 1 −2  0
+                                                                                                                         R2 /2
+                                                                               R3 →2R3 −R2     0 0    0      0     0             0 0 0   0    0
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}3&amp;-7&amp;2&amp;2\\ -1&amp;3&amp;0&amp;-2\\ 1&amp;-2&amp;1&amp;0\end {array}\right )\controle {0\\ 0\\ 0} \sim \rijop {\\ \op {R_2\to 3R_2+R_1}\\ \op
+{R_3\to 3R_3-R_1}}\left (\begin{array}{rrr|r}3&amp;-7&amp;2&amp;2\\ 0&amp;2&amp;2&amp;-4\\ 0&amp;1&amp;1&amp;-2\end {array}\right )\controle {0\\ 0\\ 0}\\ &amp;\sim \rijop {\op {R_1\to
+2R_1+7R_2}\\ \\ \op {R_3\to 2R_3-R_2}}\left (\begin{array}{rrr|r}6&amp;0&amp;18&amp;-24\\ 0&amp;2&amp;2&amp;-4\\ 0&amp;0&amp;0&amp;0\end {array}\right )\controle {0\\ 0\\ 0} \sim \rijop {\op
+{R_1/6}\\ \op {R_2/2}\\ }\left (\begin{array}{rrr|r}1&amp;0&amp;3&amp;-4\\ 0&amp;1&amp;1&amp;-2\\ 0&amp;0&amp;0&amp;0\end {array}\right )\controle {0\\ 0\\ 0}
+\end{align*}
+
+</p>
+
+<p>
+\[ \Rightarrow \begin {cases}x+3z=-4\\ y+z=-2\\ 0z=0\end {cases} \iff \begin {cases}x=-4-3t\\ y=-2-t\\ z=t\in \R \end {cases} \]
+</p>
+
+<p>
+\[ V=\{(-4-3t;-2-t;t)\mid t\in \R \} \]
+</p>
+
+<p>
+Opmerking: \(r(A_b)=r(A)=2&lt;n=3\), dus we kiezen \(1\) onbekende vrij.
+</p>
+<!--
+...... subsection Voorbeeld 4 ......
+-->
+<h5 id="autosec-28"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 4</h5>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+Los op in \(\R ^3\):
+</p>
+
+<p>
+\[ \begin {cases}x-3y-z=2\\ -2x+5y+3z=4\\ 4x-11y-5z=5\end {cases} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                       
+                                                                  1   −3 −1 2       −1                    1 −3 −1       2   −1
+                                                          Ab =  −2      5   3 4  10 ∼ R2 →R2 +2R1  0 −1          1   8   8
+                                                                  4  −11 −5 5       −7     R3 →R3 −4R1    0      1 −1 −3    −3
+                                                                                                                              
+                                                              R1 →−R1 +3R2     −1   0 4 22       25    R1 →−R1      1 0 −4 −22     −25
+                                                            ∼                0 −1 1      8  8 ∼ R2 →−R2  0 1 −1           −8  −8
+                                                                 R3 →R3 +R2     0   0 0   5       5        R3 /5    0 0   0    1     1
+                                                                                        
+                                                                              1 0 −4 0       −3
+                                                              R1 →R1 +22R3
+                                                            ∼                0 1 −1 0        0
+                                                               R2 →R2 +8R3
+                                                                              0 0    0 1       1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}1&amp;-3&amp;-1&amp;2\\ -2&amp;5&amp;3&amp;4\\ 4&amp;-11&amp;-5&amp;5\end {array}\right )\controle {-1\\ 10\\ -7} \sim \rijop {\\ \op {R_2\to R_2+2R_1}\\
+\op {R_3\to R_3-4R_1}}\left (\begin{array}{rrr|r}1&amp;-3&amp;-1&amp;2\\ 0&amp;-1&amp;1&amp;8\\ 0&amp;1&amp;-1&amp;-3\end {array}\right )\controle {-1\\ 8\\ -3}\\ &amp;\sim \rijop {\op {R_1\to
+-R_1+3R_2}\\ \\ \op {R_3\to R_3+R_2}}\left (\begin{array}{rrr|r}-1&amp;0&amp;4&amp;22\\ 0&amp;-1&amp;1&amp;8\\ 0&amp;0&amp;0&amp;5\end {array}\right )\controle {25\\ 8\\ 5} \sim \rijop {\op
+{R_1\to -R_1}\\ \op {R_2\to -R_2}\\ \op {R_3/5}}\left (\begin{array}{rrr|r}1&amp;0&amp;-4&amp;-22\\ 0&amp;1&amp;-1&amp;-8\\ 0&amp;0&amp;0&amp;1\end {array}\right )\controle {-25\\ -8\\ 1}\\
+&amp;\sim \rijop {\op {R_1\to R_1+22R_3}\\ \op {R_2\to R_2+8R_3}\\ }\left (\begin{array}{rrr|r}1&amp;0&amp;-4&amp;0\\ 0&amp;1&amp;-1&amp;0\\ 0&amp;0&amp;0&amp;1\end {array}\right )\controle
+{-3\\ 0\\ 1}
+\end{align*}
+
+</p>
+
+<p>
+\[ \Rightarrow \begin {cases}x-4z=0\\ y-z=0\\ 0z=1\quad \lightning \end {cases} \]
+</p>
+
+<p>
+Dit is een <b>strijdig stelsel</b>: \(V=\emptyset \).
+</p>
+
+<p>
+Opmerking: \(r(A_b)=3&gt;r(A)=2\), met \(n=3\).
+</p>
+<!--
+...... subsection Methode van Gauss-Jordan ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">5&#x2003;</span>Methode van Gauss-Jordan</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+We herleiden de uitgebreide matrix \(A_b\) van het stelsel tot de rij-canonieke matrix, uitsluitend met elementaire rij-operaties. Dat is de <b>methode van Gauss-Jordan</b> of de spilmethode.
+</p>
+
+<p>
+Praktisch:
+</p>
+<div class="mdframed"
+style="
+background: #FFFFFF ;
+border: 1pt solid #000000 ;
+border-radius: 0pt ;
+box-shadow: none ;
+">
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Zorg ervoor dat het eerste element van de eerste rij niet nul is: dat is de spil. Wissel daarvoor eventueel de eerste rij met een rij eronder.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Maak de elementen onder de spil nul met elementaire rij-operaties. Bekom je zo een nulrij, dan mag die onderaan.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Daal een rij en herhaal de stappen 1 en 2: \(a_{22}\) wordt de spil, en de elementen eronder en erboven worden nul.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Herhaal dit tot er geen spil meer te vinden is.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Zorg tot slot dat alle spillen \(1\) worden.
+</p>
+</li>
+</ul>
+
+</div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="gauss-jordan" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Voer de methode zelf uit. Klik op een element dat niet nul is: dat wordt de spil (blauw). Klik daarna op een andere rij
+(oranje) en kies <em>Maak nul</em> of <em>Wissel</em>, of deel de spilrij door de spil. De controlekolom rekent mee. Met <em>Volgende stap</em> doet de figuur één stap van de methode. Met <em>Ander stelsel</em> kies je een
+van de vier voorbeelden.</figcaption> </figure>
+</p>
+<!--
+...... subsection Verband tussen oplosbaarheid, rang en uitgebreide matrix ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">6&#x2003;</span>Verband tussen oplosbaarheid, rang en uitgebreide matrix</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+Voor een stelsel met \(n\) onbekenden geldt:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Eigenschap 1: \(r(A_b)&gt;r(A)\iff V=\emptyset \).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Eigenschap 2: \(r(A_b)=r(A)=n\iff \) het stelsel heeft juist één oplossing.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Eigenschap 3: \(r(A_b)=r(A)&lt;n\iff \) het stelsel heeft oneindig veel oplossingen. We kiezen dan \(n-r(A)\) onbekenden vrij!
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-31">Besluit</h6>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+\[ \boxed {\;\text {Een stelsel is oplosbaar}\iff r(A_b)=r(A)\;} \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-32"><span class="sectionnumber">7&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p>
+Handboek p 133 nr 1.
+</p>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-33">Oefening 1</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+Los op in \(\R ^3\) met de methode van Gauss-Jordan.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\begin {cases}x+2y-z=-4\\ 2x+3y+z=3\\ 5x-y+3z=1\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(-2;1;4)\}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                         
+                                                                      1          2 −4    −1               1      2 −1 −4
+                                                               Ab =  2          3   3  ∼ R2 →R2 −2R1  0 −1
+                                                                                          1                           3 11 
+                                                                      5         −1   1    3R3 →R3 −5R1    0 −11       8 21
+                                                                                                                                
+                                                                     R1 →R1 +2R2    1    0    5     18                 1   0  5 18
+                                                                  ∼               0 −1       3     11  ∼            0 −1   3 11 
+                                                                    R3 →R3 −11R2    0    0 −25 −100          R3 /25    0   0 −1 −4
+                                                                                                                             
+                                                                                   1    0  0 −2                       1 0 0 −2
+                                                                    R1 →R1 +5R3
+                                                                  ∼               0 −1    0 −1  ∼ R2 →−R2  0 1 0           1 
+                                                                    R2 →R2 +3R3
+                                                                                   0    0 −1 −4          R3 →−R3      0 0 1   4
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}1&amp;2&amp;-1&amp;-4\\ 2&amp;3&amp;1&amp;3\\ 5&amp;-1&amp;3&amp;1\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-2R_1}\\ \op {R_3\to R_3-5R_1}}\left
+(\begin{array}{rrr|r}1&amp;2&amp;-1&amp;-4\\ 0&amp;-1&amp;3&amp;11\\ 0&amp;-11&amp;8&amp;21\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to R_1+2R_2}\\ \\ \op {R_3\to R_3-11R_2}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;5&amp;18\\ 0&amp;-1&amp;3&amp;11\\ 0&amp;0&amp;-25&amp;-100\end {array}\right ) \sim \rijop {\\ \\ \op {R_3/25}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;5&amp;18\\ 0&amp;-1&amp;3&amp;11\\ 0&amp;0&amp;-1&amp;-4\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to R_1+5R_3}\\ \op {R_2\to R_2+3R_3}\\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;-2\\ 0&amp;-1&amp;0&amp;-1\\ 0&amp;0&amp;-1&amp;-4\end {array}\right ) \sim \rijop {\\ \op {R_2\to -R_2}\\ \op {R_3\to -R_3}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;-2\\ 0&amp;1&amp;0&amp;1\\ 0&amp;0&amp;1&amp;4\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(-2;1;4)\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\begin {cases}2x+3y+5z=9\\ x+2y+3z=4\\ x+z=5\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\emptyset \)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                                 
+                                                                                2             9
+                                                                                              3       5           2                     3  5      9
+                                                                         Ab =  1             4  ∼ R2 →2R2 −R1  0
+                                                                                              2       3                                 1  1     −1 
+                                                                                1             0
+                                                                                              5       1
+                                                                                                    R3 →2R3 −R1   0                    −3 −3      1
+                                                                                                             
+                                                                                  R1 →R1 −3R2    2 0 2 12
+                                                                                ∼               0 1 1 −1 
+                                                                                  R3 →R3 +3R2    0 0 0 −2
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}2&amp;3&amp;5&amp;9\\ 1&amp;2&amp;3&amp;4\\ 1&amp;0&amp;1&amp;5\end {array}\right ) \sim \rijop {\\ \op {R_2\to 2R_2-R_1}\\ \op {R_3\to 2R_3-R_1}}\left
+(\begin{array}{rrr|r}2&amp;3&amp;5&amp;9\\ 0&amp;1&amp;1&amp;-1\\ 0&amp;-3&amp;-3&amp;1\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to R_1-3R_2}\\ \\ \op {R_3\to R_3+3R_2}}\left
+(\begin{array}{rrr|r}2&amp;0&amp;2&amp;12\\ 0&amp;1&amp;1&amp;-1\\ 0&amp;0&amp;0&amp;-2\end {array}\right )
+\end{align*}
+De laatste rij geeft \(0z=-2\ \lightning \). Het stelsel is strijdig:
+</p>
+<p>
+\[V=\emptyset \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\begin {cases}x-y+2z=-1\\ 4x-3y+5z=18\\ -x+y+4z=-5\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(20;19;-1)\}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                                 
+                                                                            1 −1                  2       −1                       1   −1    2   −1
+                                                                  Ab =  4 −3                     5       18  ∼   R2 →R2 −4R1    0    1   −3   22 
+                                                                         −1     1                 4       −5       R3 →R3 +R1      0    0    6   −6
+                                                                                                                                                    
+                                                                                1                 −1        2   −1                   1 0 −1         21
+                                                                                                                        R1 →R1 +R2
+                                                                     ∼         0                  1       −3    22  ∼             0 1 −3         22 
+                                                                        R3 /6   0                  0        1   −1                   0 0  1         −1
+                                                                                                                     
+                                                                                                    1       0   0 20
+                                                                                R1 →R1 +R3
+                                                                     ∼                             0       1   0 19 
+                                                                             R2 →R2 +3R3
+                                                                                                    0       0   1 −1
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}1&amp;-1&amp;2&amp;-1\\ 4&amp;-3&amp;5&amp;18\\ -1&amp;1&amp;4&amp;-5\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-4R_1}\\ \op {R_3\to
+R_3+R_1}}\left (\begin{array}{rrr|r}1&amp;-1&amp;2&amp;-1\\ 0&amp;1&amp;-3&amp;22\\ 0&amp;0&amp;6&amp;-6\end {array}\right )\\ &amp;\sim \rijop {\\ \\ \op {R_3/6}}\left
+(\begin{array}{rrr|r}1&amp;-1&amp;2&amp;-1\\ 0&amp;1&amp;-3&amp;22\\ 0&amp;0&amp;1&amp;-1\end {array}\right ) \sim \rijop {\op {R_1\to R_1+R_2}\\ \\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;-1&amp;21\\ 0&amp;1&amp;-3&amp;22\\ 0&amp;0&amp;1&amp;-1\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to R_1+R_3}\\ \op {R_2\to R_2+3R_3}\\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;20\\ 0&amp;1&amp;0&amp;19\\ 0&amp;0&amp;1&amp;-1\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(20;19;-1)\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\begin {cases}-3x-7y+6z=6\\ x+3y-2z=0\\ 2x+y+4z=25\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(1;3;5)\}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                            
+                                                                        −3 −7       6  6                         −3 −7 6     6
+                                                                Ab =  1       3 −2    0  ∼ R2 →3R2 +R1  0           2 0   6 
+                                                                          2    1    4 25       R3 →3R3 +2R1        0 −11 24 87
+                                                                                                                                 
+                                                                               −3 −7 6        6          R1 →R1 +7R2   −3 0 6    27
+                                                                   ∼          0      1 0     3 ∼                    0 1 0      3 
+                                                                      R2 /2
+                                                                                 0 −11 24 87            R3 →R3 +11R2    0 0 24 120
+                                                                                                                            
+                                                                       R1 /3     −1 0 2 9                           −1 0 0 −1
+                                                                                                   R1 →R1 −2R3
+                                                                   ∼          0 1 0 3 ∼                         0 1 0     3 
+                                                                      R3 /24      0 0 1 5                            0 0 1   5
+                                                                                           
+                                                                                   1 0 0 1
+                                                                      R1 →−R1
+                                                                   ∼             0 1 0 3 
+                                                                                   0 0 1 5
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}-3&amp;-7&amp;6&amp;6\\ 1&amp;3&amp;-2&amp;0\\ 2&amp;1&amp;4&amp;25\end {array}\right ) \sim \rijop {\\ \op {R_2\to 3R_2+R_1}\\ \op {R_3\to
+3R_3+2R_1}}\left (\begin{array}{rrr|r}-3&amp;-7&amp;6&amp;6\\ 0&amp;2&amp;0&amp;6\\ 0&amp;-11&amp;24&amp;87\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2/2}\\ }\left
+(\begin{array}{rrr|r}-3&amp;-7&amp;6&amp;6\\ 0&amp;1&amp;0&amp;3\\ 0&amp;-11&amp;24&amp;87\end {array}\right ) \sim \rijop {\op {R_1\to R_1+7R_2}\\ \\ \op {R_3\to R_3+11R_2}}\left
+(\begin{array}{rrr|r}-3&amp;0&amp;6&amp;27\\ 0&amp;1&amp;0&amp;3\\ 0&amp;0&amp;24&amp;120\end {array}\right )\\ &amp;\sim \rijop {\op {R_1/3}\\ \\ \op {R_3/24}}\left
+(\begin{array}{rrr|r}-1&amp;0&amp;2&amp;9\\ 0&amp;1&amp;0&amp;3\\ 0&amp;0&amp;1&amp;5\end {array}\right ) \sim \rijop {\op {R_1\to R_1-2R_3}\\ \\ }\left
+(\begin{array}{rrr|r}-1&amp;0&amp;0&amp;-1\\ 0&amp;1&amp;0&amp;3\\ 0&amp;0&amp;1&amp;5\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to -R_1}\\ \\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;1\\ 0&amp;1&amp;0&amp;3\\ 0&amp;0&amp;1&amp;5\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(1;3;5)\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(\begin {cases}2x+y-2z=-2\\ 3x+2y-z=4\\ x+y+z=6\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(-8+3t;14-4t;t)\mid t\in \R \}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                             
+                                                                          2          1    −2       −2                      2           1 −2 −2
+                                                                   Ab =  3          2    −1        4  ∼ R2 →2R2 −3R1  0             1  4 14 
+                                                                          1          1     1        6       R3 →2R3 −R1    0           1  4 14
+                                                                                                                                                 
+                                                                             R1 →R1 −R2             2 0 −6 −16                           1 0 −3 −8
+                                                                                                                        R1 /2
+                                                                        ∼                          0 1   4     14  ∼                  0 1   4 14 
+                                                                             R3 →R3 −R2             0 0   0      0                       0 0   0  0
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}2&amp;1&amp;-2&amp;-2\\ 3&amp;2&amp;-1&amp;4\\ 1&amp;1&amp;1&amp;6\end {array}\right ) \sim \rijop {\\ \op {R_2\to 2R_2-3R_1}\\ \op {R_3\to
+2R_3-R_1}}\left (\begin{array}{rrr|r}2&amp;1&amp;-2&amp;-2\\ 0&amp;1&amp;4&amp;14\\ 0&amp;1&amp;4&amp;14\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to R_1-R_2}\\ \\ \op {R_3\to
+R_3-R_2}}\left (\begin{array}{rrr|r}2&amp;0&amp;-6&amp;-16\\ 0&amp;1&amp;4&amp;14\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \sim \rijop {\op {R_1/2}\\ \\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;-3&amp;-8\\ 0&amp;1&amp;4&amp;14\\ 0&amp;0&amp;0&amp;0\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[ \begin {cases}x-3z=-8\\ y+4z=14\\ 0z=0\end {cases} \iff \begin {cases}x=-8+3t\\ y=14-4t\\ z=t\in \R \end {cases} \qquad V=\{(-8+3t;14-4t;t)\mid t\in \R \} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(\begin {cases}3x+2y+4z=-4\\ x+y+z=1\\ 5x-4y+3z=-3\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(4;2;-5)\}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                           
+                                                                        3     2 4 −4                           3    2   4 −4
+                                                                 Ab =  1     1 1    1  ∼ R2 →3R2 −R1  0          1 −1    7 
+                                                                        5    −4 3 −3         R3 →3R3 −5R1      0 −22 −11 11
+                                                                                                                                
+                                                                                 3   2   4 −4           R1 →R1 −2R2   3 0   6 −18
+                                                                    ∼          0    1 −1     7 ∼                   0 1 −1     7 
+                                                                      R3 /11     0 −2 −1      1         R3 →R3 +2R2   0 0 −3    15
+                                                                                                                           
+                                                                      R1 /3     1 0    2 −6                         1 0   0 4
+                                                                                                     R1 →R1 +2R3
+                                                                    ∼          0 1 −1     7 ∼                    0 1   0 2 
+                                                                                                      R2 →R2 −R3
+                                                                      R3 /3     0 0 −1     5                        0 0 −1 5
+                                                                                               
+                                                                                   1 0 0     4
+                                                                    ∼            0 1 0      2 
+                                                                      R3 →−R3      0 0 1 −5
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}3&amp;2&amp;4&amp;-4\\ 1&amp;1&amp;1&amp;1\\ 5&amp;-4&amp;3&amp;-3\end {array}\right ) \sim \rijop {\\ \op {R_2\to 3R_2-R_1}\\ \op {R_3\to
+3R_3-5R_1}}\left (\begin{array}{rrr|r}3&amp;2&amp;4&amp;-4\\ 0&amp;1&amp;-1&amp;7\\ 0&amp;-22&amp;-11&amp;11\end {array}\right )\\ &amp;\sim \rijop {\\ \\ \op {R_3/11}}\left
+(\begin{array}{rrr|r}3&amp;2&amp;4&amp;-4\\ 0&amp;1&amp;-1&amp;7\\ 0&amp;-2&amp;-1&amp;1\end {array}\right ) \sim \rijop {\op {R_1\to R_1-2R_2}\\ \\ \op {R_3\to R_3+2R_2}}\left
+(\begin{array}{rrr|r}3&amp;0&amp;6&amp;-18\\ 0&amp;1&amp;-1&amp;7\\ 0&amp;0&amp;-3&amp;15\end {array}\right )\\ &amp;\sim \rijop {\op {R_1/3}\\ \\ \op {R_3/3}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;2&amp;-6\\ 0&amp;1&amp;-1&amp;7\\ 0&amp;0&amp;-1&amp;5\end {array}\right ) \sim \rijop {\op {R_1\to R_1+2R_3}\\ \op {R_2\to R_2-R_3}\\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;4\\ 0&amp;1&amp;0&amp;2\\ 0&amp;0&amp;-1&amp;5\end {array}\right )\\ &amp;\sim \rijop {\\ \\ \op {R_3\to -R_3}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;4\\ 0&amp;1&amp;0&amp;2\\ 0&amp;0&amp;1&amp;-5\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(4;2;-5)\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(g)</span> \(\begin {cases}x+3y+10z=31\\ x+4y+12z=39\\ x+y+6z=14\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\emptyset \)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                                  
+                                                                               1 3 10                     31                  1         3 10      31
+                                                                        Ab =  1 4 12                     39  ∼ R2 →R2 −R1  0         1  2       8 
+                                                                               1 1 6                      14     R3 →R3 −R1   0        −2 −4     −17
+                                                                                                                        
+                                                                                    R1 →R1 −3R2              1 0 4    7
+                                                                             ∼                             0 1 2     8 
+                                                                                    R3 →R3 +2R2              0 0 0 −1
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}1&amp;3&amp;10&amp;31\\ 1&amp;4&amp;12&amp;39\\ 1&amp;1&amp;6&amp;14\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-R_1}\\ \op {R_3\to R_3-R_1}}\left
+(\begin{array}{rrr|r}1&amp;3&amp;10&amp;31\\ 0&amp;1&amp;2&amp;8\\ 0&amp;-2&amp;-4&amp;-17\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to R_1-3R_2}\\ \\ \op {R_3\to R_3+2R_2}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;4&amp;7\\ 0&amp;1&amp;2&amp;8\\ 0&amp;0&amp;0&amp;-1\end {array}\right )
+\end{align*}
+De laatste rij geeft \(0z=-1\ \lightning \). Het stelsel is strijdig:
+</p>
+<p>
+\[V=\emptyset \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(h)</span> \(\begin {cases}2x-y-5z=-20\\ x+y-z=-4\\ 6x+5y-2z=2\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(4;-2;6)\}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                              
+                                                                        2 −1 −5 −20                               2 −1 −5 −20
+                                                                 Ab =  1    1 −1    −4  ∼ R2 →2R2 −R1  0            3   3  12 
+                                                                        6    5 −2      2         R3 →R3 −3R1      0    8 13   62
+                                                                                                                                   
+                                                                               2 −1 −5 −20                R1 →R1 +R2     2 0 −4 −16
+                                                                    ∼         0   1    1      4 ∼                    0 1   1     4 
+                                                                       R2 /3
+                                                                               0   8 13       62         R3 →R3 −8R2     0 0  5    30
+                                                                                                                              
+                                                                       R1 /2   1 0 −2 −8                              1 0 0    4
+                                                                                                     R1 →R1 +2R3
+                                                                    ∼         0 1    1     4 ∼                     0 1 0 −2 
+                                                                                                      R2 →R2 −R3
+                                                                       R3 /5   0 0    1     6                         0 0 1    6
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}2&amp;-1&amp;-5&amp;-20\\ 1&amp;1&amp;-1&amp;-4\\ 6&amp;5&amp;-2&amp;2\end {array}\right ) \sim \rijop {\\ \op {R_2\to 2R_2-R_1}\\ \op {R_3\to
+R_3-3R_1}}\left (\begin{array}{rrr|r}2&amp;-1&amp;-5&amp;-20\\ 0&amp;3&amp;3&amp;12\\ 0&amp;8&amp;13&amp;62\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2/3}\\ }\left
+(\begin{array}{rrr|r}2&amp;-1&amp;-5&amp;-20\\ 0&amp;1&amp;1&amp;4\\ 0&amp;8&amp;13&amp;62\end {array}\right ) \sim \rijop {\op {R_1\to R_1+R_2}\\ \\ \op {R_3\to R_3-8R_2}}\left
+(\begin{array}{rrr|r}2&amp;0&amp;-4&amp;-16\\ 0&amp;1&amp;1&amp;4\\ 0&amp;0&amp;5&amp;30\end {array}\right )\\ &amp;\sim \rijop {\op {R_1/2}\\ \\ \op {R_3/5}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;-2&amp;-8\\ 0&amp;1&amp;1&amp;4\\ 0&amp;0&amp;1&amp;6\end {array}\right ) \sim \rijop {\op {R_1\to R_1+2R_3}\\ \op {R_2\to R_2-R_3}\\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;4\\ 0&amp;1&amp;0&amp;-2\\ 0&amp;0&amp;1&amp;6\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(4;-2;6)\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(i)</span> \(\begin {cases}x+y-2z=-4\\ 2x+y-5z=9\\ -x+y+4z=-30\\ x-2y-3z=47\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(13;-17;0)\}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                          
+                                                                           1   1              −2           −4               1   1 −2    −4
+                                                                       2      1              −5           R2 →R2 −2R1  0 −1 −1
+                                                                                                            9 
+                                                                                                              ∼                         17 
+                                                                 Ab = 
+                                                                       −1
+                                                                                                                                            
+                                                                               1               4          −30 
+                                                                                                            R3 →R3 +R1     0   2   2 −34 
+                                                                           1 −2               −3           47
+                                                                                                            R4 →R4 −R1      0 −3 −1      51
+                                                                                                                                              
+                                                                               1               1 −2    −4         R1 →R1 +R2     1   0 −3 13
+                                                                              0              −1 −1     17                    0 −1 −1 17 
+                                                                    ∼                                     ∼                                   
+                                                                              0               1   1 −17         R3 →R3 +R2  0     0   0     0 
+                                                                       R3 /2
+                                                                               0              −3 −1     51       R4 →R4 −3R2     0   0   2     0
+                                                                                                                                       
+                                                                               1               0 −3 13                     1   0 −3 13
+                                                                              0              −1 −1 17  ∼
+                                                                                                                         0 −1 −1 17 
+                                                                    ∼        
+                                                                              0
+                                                                                                                                         
+                                                                                               0   0   0                0    0   1   0 
+                                                                                                               R3 ↔R4
+                                                                       R4 /2   0               0   1   0                   0   0   0   0
+                                                                                                                                             
+                                                                                                 1   0 0 13                      1 0 0      13
+                                                                            R1 →R1 +3R3
+                                                                                               0 −1 0 17 
+                                                                                                               ∼ R2 →−R2  0 1 0 −17 
+                                                                                                                                               
+                                                                    ∼       R2 →R2 +R3        
+                                                                                               0    0 1   0                  0 0 1        0 
+                                                                                                 0   0 0   0                     0 0 0       0
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}1&amp;1&amp;-2&amp;-4\\ 2&amp;1&amp;-5&amp;9\\ -1&amp;1&amp;4&amp;-30\\ 1&amp;-2&amp;-3&amp;47\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-2R_1}\\
+\op {R_3\to R_3+R_1}\\ \op {R_4\to R_4-R_1}}\left (\begin{array}{rrr|r}1&amp;1&amp;-2&amp;-4\\ 0&amp;-1&amp;-1&amp;17\\ 0&amp;2&amp;2&amp;-34\\ 0&amp;-3&amp;-1&amp;51\end {array}\right )\\
+&amp;\sim \rijop {\\ \\ \op {R_3/2}\\ }\left (\begin{array}{rrr|r}1&amp;1&amp;-2&amp;-4\\ 0&amp;-1&amp;-1&amp;17\\ 0&amp;1&amp;1&amp;-17\\ 0&amp;-3&amp;-1&amp;51\end {array}\right ) \sim
+\rijop {\op {R_1\to R_1+R_2}\\ \\ \op {R_3\to R_3+R_2}\\ \op {R_4\to R_4-3R_2}}\left (\begin{array}{rrr|r}1&amp;0&amp;-3&amp;13\\ 0&amp;-1&amp;-1&amp;17\\ 0&amp;0&amp;0&amp;0\\
+0&amp;0&amp;2&amp;0\end {array}\right )\\ &amp;\sim \rijop {\\ \\ \\ \op {R_4/2}}\left (\begin{array}{rrr|r}1&amp;0&amp;-3&amp;13\\ 0&amp;-1&amp;-1&amp;17\\ 0&amp;0&amp;0&amp;0\\
+0&amp;0&amp;1&amp;0\end {array}\right ) \sim \rijop {\\ \\ \op {R_3\leftrightarrow R_4}\\ }\left (\begin{array}{rrr|r}1&amp;0&amp;-3&amp;13\\ 0&amp;-1&amp;-1&amp;17\\ 0&amp;0&amp;1&amp;0\\
+0&amp;0&amp;0&amp;0\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to R_1+3R_3}\\ \op {R_2\to R_2+R_3}\\ \\ }\left (\begin{array}{rrr|r}1&amp;0&amp;0&amp;13\\ 0&amp;-1&amp;0&amp;17\\
+0&amp;0&amp;1&amp;0\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \sim \rijop {\\ \op {R_2\to -R_2}\\ \\ }\left (\begin{array}{rrr|r}1&amp;0&amp;0&amp;13\\ 0&amp;1&amp;0&amp;-17\\
+0&amp;0&amp;1&amp;0\\ 0&amp;0&amp;0&amp;0\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(13;-17;0)\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(j)</span> \(\begin {cases}x-y-z=1\\ x-3y+7z=11\\ 3x+2y-z=0\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(1;-1;1)\}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                            
+                                                                        1 −1 −1         1                     1 −1 −1        1
+                                                                 Ab =  1 −3       7 11  ∼ R2 →R2 −R1  0 −2            8 10 
+                                                                        3     2 −1      0     R3 →R3 −3R1     0    5     2 −3
+                                                                                                                                 
+                                                                                1 −1 −1      1         R1 →R1 −R2     1    0 −5 −4
+                                                                    ∼          0 −1      4  5 ∼                   0 −1      4  5 
+                                                                       R2 /2
+                                                                                0    5    2 −3        R3 →R3 +5R2     0    0 22 22
+                                                                                                                               
+                                                                                 1    0 −5 −4                          1    0 0 1
+                                                                                                       R1 →R1 +5R3
+                                                                    ∼          0 −1       4  5 ∼                   0 −1 0 1 
+                                                                                                       R2 →R2 −4R3
+                                                                       R3 /22    0    0    1  1                        0    0 1 1
+                                                                                               
+                                                                                    1 0 0    1
+                                                                    ∼            0 1 0 −1 
+                                                                       R2 →−R2
+                                                                                    0 0 1    1
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}1&amp;-1&amp;-1&amp;1\\ 1&amp;-3&amp;7&amp;11\\ 3&amp;2&amp;-1&amp;0\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-R_1}\\ \op {R_3\to
+R_3-3R_1}}\left (\begin{array}{rrr|r}1&amp;-1&amp;-1&amp;1\\ 0&amp;-2&amp;8&amp;10\\ 0&amp;5&amp;2&amp;-3\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2/2}\\ }\left
+(\begin{array}{rrr|r}1&amp;-1&amp;-1&amp;1\\ 0&amp;-1&amp;4&amp;5\\ 0&amp;5&amp;2&amp;-3\end {array}\right ) \sim \rijop {\op {R_1\to R_1-R_2}\\ \\ \op {R_3\to R_3+5R_2}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;-5&amp;-4\\ 0&amp;-1&amp;4&amp;5\\ 0&amp;0&amp;22&amp;22\end {array}\right )\\ &amp;\sim \rijop {\\ \\ \op {R_3/22}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;-5&amp;-4\\ 0&amp;-1&amp;4&amp;5\\ 0&amp;0&amp;1&amp;1\end {array}\right ) \sim \rijop {\op {R_1\to R_1+5R_3}\\ \op {R_2\to R_2-4R_3}\\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;1\\ 0&amp;-1&amp;0&amp;1\\ 0&amp;0&amp;1&amp;1\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2\to -R_2}\\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;1\\ 0&amp;1&amp;0&amp;-1\\ 0&amp;0&amp;1&amp;1\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(1;-1;1)\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(k)</span> \(\begin {cases}x+y+3z=20\\ x+2y+5z=31\\ 2x+y+5z=34\\ x+2y+6z=33\end {cases}\) &#x2003;(met het GRM)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\emptyset \)</span>
+</p>
+<p>
+\[ A_b=\left (\begin {array}{rrr|r}1&amp;1&amp;3&amp;20\\ 1&amp;2&amp;5&amp;31\\ 2&amp;1&amp;5&amp;34\\ 1&amp;2&amp;6&amp;33\end {array}\right )\overset {\text {rref}}{\sim }\left (\begin
+{array}{rrr|r}1&amp;0&amp;0&amp;0\\ 0&amp;1&amp;0&amp;0\\ 0&amp;0&amp;1&amp;0\\ 0&amp;0&amp;0&amp;1\end {array}\right ) \]
+</p>
+<p>
+\[r(A)=3&lt;r(A_b)=4\quad \Rightarrow \quad V=\emptyset \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(l)</span> \(\begin {cases}x+y+6z=9\\ 5x+7y+34z=59\\ x-2y+3z=-11\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\bigl \{\bigl (\frac {2}{3};\frac {19}{3};\frac {1}{3}\bigr )\bigr \}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                               
+                                                                          1      1 6      9                        1   1  6     9
+                                                                   Ab =  5      7 34    59  ∼ R2 →R2 −5R1  0        2  4   14 
+                                                                          1     −2 3 −11          R3 →R3 −R1       0 −3 −3 −20
+                                                                                                                                
+                                                                                    1  1    6   9          R1 →R1 −R2    1 0 4 2
+                                                                        ∼         0   1    2   7 ∼                    0 1 2 7 
+                                                                          R2 /2
+                                                                                    0 −3 −3 −20           R3 →R3 +3R2    0 0 3 1
+                                                                                                                              2
+                                                                                                                              
+                                                                                         3 0 0     2         R1 /3    1 0 0   3
+                                                                          R1 →3R1 −4R3
+                                                                        ∼               0 3 0 19  ∼ R2 /3  0 1 0 19 
+                                                                          R2 →3R2 −2R3                                       3
+                                                                                                                              1
+                                                                                         0 0 3     1         R3 /3    0 0 1   3
+
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}1&amp;1&amp;6&amp;9\\ 5&amp;7&amp;34&amp;59\\ 1&amp;-2&amp;3&amp;-11\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-5R_1}\\ \op {R_3\to
+R_3-R_1}}\left (\begin{array}{rrr|r}1&amp;1&amp;6&amp;9\\ 0&amp;2&amp;4&amp;14\\ 0&amp;-3&amp;-3&amp;-20\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2/2}\\ }\left
+(\begin{array}{rrr|r}1&amp;1&amp;6&amp;9\\ 0&amp;1&amp;2&amp;7\\ 0&amp;-3&amp;-3&amp;-20\end {array}\right ) \sim \rijop {\op {R_1\to R_1-R_2}\\ \\ \op {R_3\to R_3+3R_2}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;4&amp;2\\ 0&amp;1&amp;2&amp;7\\ 0&amp;0&amp;3&amp;1\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to 3R_1-4R_3}\\ \op {R_2\to 3R_2-2R_3}\\ }\left
+(\begin{array}{rrr|r}3&amp;0&amp;0&amp;2\\ 0&amp;3&amp;0&amp;19\\ 0&amp;0&amp;3&amp;1\end {array}\right ) \sim \rijop {\op {R_1/3}\vphantom {\frac {1}{2}}\\ \op {R_2/3}\vphantom {\frac
+{1}{2}}\\ \op {R_3/3}\vphantom {\frac {1}{2}}}\left (\begin{array}{rrr|r}1&amp;0&amp;0&amp;\frac {2}{3}\\ 0&amp;1&amp;0&amp;\frac {19}{3}\\ 0&amp;0&amp;1&amp;\frac {1}{3}\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\Bigl \{\Bigl (\frac {2}{3};\frac {19}{3};\frac {1}{3}\Bigr )\Bigr \}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(m)</span> \(\begin {cases}x+2y+z=8\\ 2x+3y+z=13\\ 3x+5y+2z=21\\ 4x+7y+3z=29\end {cases}\) &#x2003;(met het GRM)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(2+t;3-t;t)\mid t\in \R \}\)</span>
+</p>
+<p>
+\[ A_b=\left (\begin {array}{rrr|r}1&amp;2&amp;1&amp;8\\ 2&amp;3&amp;1&amp;13\\ 3&amp;5&amp;2&amp;21\\ 4&amp;7&amp;3&amp;29\end {array}\right )\overset {\text {rref}}{\sim }\left (\begin
+{array}{rrr|r}1&amp;0&amp;-1&amp;2\\ 0&amp;1&amp;1&amp;3\\ 0&amp;0&amp;0&amp;0\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \]
+</p>
+<p>
+\[ \begin {cases}x-z=2\\ y+z=3\\ z=t\in \R \end {cases} \qquad V=\{(2+t;3-t;t)\mid t\in \R \} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(n)</span> \(\begin {cases}x+2y+z=3\\ 2x+3y+4z=5\\ 4x+7y+7z=16\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(-24;11;5)\}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                  
+                                                                      1         23   1                1    2 1     3
+                                                               Ab =  2         35  ∼ R2 →R2 −2R1  0 −1 2 −1 
+                                                                                     4
+                                                                      4         16
+                                                                                7    7  R3 →R3 −4R1   0 −1 3       4
+                                                                                                                                                          
+                                                                    R1 →R1 +2R2    1   0 5      1                    1 0 0                               −24
+                                                                  ∼               0 −1 2 −1  ∼ R1 →R1 −5R3  0 −1 0                                    −11 
+                                                                                                       R2 →R2 −2R3
+                                                                     R3 →R3 −R2    0   0 1      5                    0 0 1                                 5
+                                                                                              
+                                                                                 1 0 0 −24
+                                                                  ∼            0 1 0      11 
+                                                                    R2 →−R2
+                                                                                 0 0 1      5
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}1&amp;2&amp;1&amp;3\\ 2&amp;3&amp;4&amp;5\\ 4&amp;7&amp;7&amp;16\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-2R_1}\\ \op {R_3\to R_3-4R_1}}\left
+(\begin{array}{rrr|r}1&amp;2&amp;1&amp;3\\ 0&amp;-1&amp;2&amp;-1\\ 0&amp;-1&amp;3&amp;4\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to R_1+2R_2}\\ \\ \op {R_3\to R_3-R_2}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;5&amp;1\\ 0&amp;-1&amp;2&amp;-1\\ 0&amp;0&amp;1&amp;5\end {array}\right ) \sim \rijop {\op {R_1\to R_1-5R_3}\\ \op {R_2\to R_2-2R_3}\\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;-24\\ 0&amp;-1&amp;0&amp;-11\\ 0&amp;0&amp;1&amp;5\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2\to -R_2}\\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;-24\\ 0&amp;1&amp;0&amp;11\\ 0&amp;0&amp;1&amp;5\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(-24;11;5)\}\]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-34">Oefening 2</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+Handboek p 134 nr 3. Los op met de methode van Gauss-Jordan.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\begin {cases}3x-2y=4x-8\\ 4x+y=3y+2\end {cases}\) in \(\R ^2\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(2;3)\}\)</span> We brengen het stelsel eerst in de standaardvorm.
+</p>
+<p>
+\[ \begin {cases}3x-2y=4x-8\\ 4x+y=3y+2\end {cases} \iff \begin {cases}x+2y=8\\ 4x-2y=2\end {cases} \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                    
+                                                                                   12 8                   1     2    8
+                                                                        Ab =              ∼
+                                                                                   −2 2
+                                                                                   4        R2 →R2 −4R1   0 −10 −30
+                                                                                                                        
+                                                                                      1   2  8                     1   0 2
+                                                                           ∼                      ∼ R1 →R1 +2R2
+                                                                             R2 /10   0 −1 −3                      0 −1 −3
+                                                                                               
+                                                                                        1 0 2
+                                                                           ∼
+                                                                             R2 →−R2    0 1 3
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rr|r}1&amp;2&amp;8\\ 4&amp;-2&amp;2\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-4R_1}}\left (\begin{array}{rr|r}1&amp;2&amp;8\\ 0&amp;-10&amp;-30\end
+{array}\right )\\ &amp;\sim \rijop {\\ \op {R_2/10}}\left (\begin{array}{rr|r}1&amp;2&amp;8\\ 0&amp;-1&amp;-3\end {array}\right ) \sim \rijop {\op {R_1\to R_1+2R_2}\\ }\left
+(\begin{array}{rr|r}1&amp;0&amp;2\\ 0&amp;-1&amp;-3\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2\to -R_2}}\left (\begin{array}{rr|r}1&amp;0&amp;2\\ 0&amp;1&amp;3\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(2;3)\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\begin {cases}-\dfrac {1}{x}+\dfrac {2}{y}+\dfrac {1}{z}=8\\[6pt] \dfrac {3}{x}-\dfrac {1}{y}+\dfrac {2}{z}=1\\[6pt] \dfrac {5}{x}+\dfrac {3}{y}-\dfrac
+{4}{z}=-11\end {cases}\) in \(\R _0^3\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\bigl \{\bigl (-1;\frac {1}{2};\frac {1}{3}\bigr )\bigr \}\)</span> We beschouwen het als een stelsel met de onbekenden \(\dfrac {1}{x}\), \(\dfrac {1}{y}\) en \(\dfrac
+{1}{z}\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                   
+                                                                        −1      2    1  8                          −1 2       1     8
+                                                                  Ab =  3    −1     2  1  ∼ R2 →R2 +3R1  0 5               5    25 
+                                                                         5      3 −4 −11          R3 →R3 +5R1       0 13      1    29
+                                                                                                                                           
+                                                                                −1 2 1      8          R1 →R1 −2R2    −1      0     −1    −2
+                                                                     ∼         0 1 1       5 ∼                     0       1      1      5 
+                                                                       R2 /5
+                                                                                  0 13 1 29           R3 →R3 −13R2     0      0    −12   −36
+                                                                                                                                         
+                                                                                  −1 0 −1 −2                          −1      0  0        1
+                                                                                                        R1 →R1 −R3
+                                                                     ∼         0 1      1     5 ∼                  0       1  0        2 
+                                                                                                        R2 →R2 +R3
+                                                                       R3 /12      0 0 −1 −3                           0      0 −1       −3
+                                                                                               
+                                                                       R1 →−R1      1 0 0 −1
+                                                                     ∼            0 1 0      2 
+                                                                       R3 →−R3      0 0 1     3
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}-1&amp;2&amp;1&amp;8\\ 3&amp;-1&amp;2&amp;1\\ 5&amp;3&amp;-4&amp;-11\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2+3R_1}\\ \op {R_3\to
+R_3+5R_1}}\left (\begin{array}{rrr|r}-1&amp;2&amp;1&amp;8\\ 0&amp;5&amp;5&amp;25\\ 0&amp;13&amp;1&amp;29\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2/5}\\ }\left
+(\begin{array}{rrr|r}-1&amp;2&amp;1&amp;8\\ 0&amp;1&amp;1&amp;5\\ 0&amp;13&amp;1&amp;29\end {array}\right ) \sim \rijop {\op {R_1\to R_1-2R_2}\\ \\ \op {R_3\to R_3-13R_2}}\left
+(\begin{array}{rrr|r}-1&amp;0&amp;-1&amp;-2\\ 0&amp;1&amp;1&amp;5\\ 0&amp;0&amp;-12&amp;-36\end {array}\right )\\ &amp;\sim \rijop {\\ \\ \op {R_3/12}}\left
+(\begin{array}{rrr|r}-1&amp;0&amp;-1&amp;-2\\ 0&amp;1&amp;1&amp;5\\ 0&amp;0&amp;-1&amp;-3\end {array}\right ) \sim \rijop {\op {R_1\to R_1-R_3}\\ \op {R_2\to R_2+R_3}\\ }\left
+(\begin{array}{rrr|r}-1&amp;0&amp;0&amp;1\\ 0&amp;1&amp;0&amp;2\\ 0&amp;0&amp;-1&amp;-3\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to -R_1}\\ \\ \op {R_3\to -R_3}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;-1\\ 0&amp;1&amp;0&amp;2\\ 0&amp;0&amp;1&amp;3\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[ \begin {cases}\dfrac {1}{x}=-1\\[6pt] \dfrac {1}{y}=2\\[6pt] \dfrac {1}{z}=3\end {cases} \iff \begin {cases}x=-1\\ y=\dfrac {1}{2}\\[6pt] z=\dfrac {1}{3}\end {cases} \qquad V=\Bigl \{\Bigl
+(-1;\frac {1}{2};\frac {1}{3}\Bigr )\Bigr \} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\begin {cases}p+q=0\\ 2p-3q=0\\ 4p+5q=0\end {cases}\) in \(\R ^2\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(0;0)\}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                            
+                                                                                  1     1   0                      1    1    0
+                                                                           Ab =  2    −3   0 ∼   R2 →R2 −2R1    0   −5    0 
+                                                                                  4     5   0      R3 →R3 −4R1     0    1    0
+                                                                                                                                  
+                                                                                         1  1 0           R1 →R1 +R2     1    0    0
+                                                                               ∼        0 −1 0  ∼                     0   −1    0 
+                                                                                 R2 /5
+                                                                                         0  1 0           R3 →R3 +R2     0    0    0
+                                                                                                
+                                                                                           1 0 0
+                                                                               ∼          0 1 0 
+                                                                                 R2 →−R2
+                                                                                           0 0 0
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rr|r}1&amp;1&amp;0\\ 2&amp;-3&amp;0\\ 4&amp;5&amp;0\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-2R_1}\\ \op {R_3\to R_3-4R_1}}\left
+(\begin{array}{rr|r}1&amp;1&amp;0\\ 0&amp;-5&amp;0\\ 0&amp;1&amp;0\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2/5}\\ }\left (\begin{array}{rr|r}1&amp;1&amp;0\\ 0&amp;-1&amp;0\\
+0&amp;1&amp;0\end {array}\right ) \sim \rijop {\op {R_1\to R_1+R_2}\\ \\ \op {R_3\to R_3+R_2}}\left (\begin{array}{rr|r}1&amp;0&amp;0\\ 0&amp;-1&amp;0\\ 0&amp;0&amp;0\end {array}\right )\\
+&amp;\sim \rijop {\\ \op {R_2\to -R_2}\\ }\left (\begin{array}{rr|r}1&amp;0&amp;0\\ 0&amp;1&amp;0\\ 0&amp;0&amp;0\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(0;0)\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\begin {cases}3x=y+z\\ 4y=2x-z\end {cases}\) in \(\R ^3\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\bigl \{\bigl (\frac {3t}{10};-\frac {t}{10};t\bigr )\mid t\in \R \bigr \}\)</span>
+</p>
+<p>
+\[ \begin {cases}3x=y+z\\ 4y=2x-z\end {cases} \iff \begin {cases}3x-y-z=0\\ -2x+4y+z=0\end {cases} \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                          
+                                                                              3 −1 −1 0                          3 −1 −1 0
+                                                                     Ab =                      ∼
+                                                                           −2      4   1 0        R2 →3R2 +2R1   0 10    1 0
+                                                                                                                                           
+                                                                                          30 0 −9 0                   10 0 −3             0
+                                                                        ∼ R1 →10R1 +R2                      ∼ R1 /3
+                                                                                           0 10     1 0                0 10   1           0
+                                                                                             3
+                                                                                                 
+                                                                          R1 /10     1 0 − 10 0
+                                                                        ∼                    1
+                                                                          R2 /10     0 1    10  0
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}3&amp;-1&amp;-1&amp;0\\ -2&amp;4&amp;1&amp;0\end {array}\right ) \sim \rijop {\\ \op {R_2\to 3R_2+2R_1}}\left (\begin{array}{rrr|r}3&amp;-1&amp;-1&amp;0\\
+0&amp;10&amp;1&amp;0\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to 10R_1+R_2}\\ }\left (\begin{array}{rrr|r}30&amp;0&amp;-9&amp;0\\ 0&amp;10&amp;1&amp;0\end {array}\right ) \sim \rijop
+{\op {R_1/3}\\ }\left (\begin{array}{rrr|r}10&amp;0&amp;-3&amp;0\\ 0&amp;10&amp;1&amp;0\end {array}\right )\\ &amp;\sim \rijop {\op {R_1/10}\vphantom {\frac {1}{2}}\\ \op {R_2/10}\vphantom
+{\frac {1}{2}}}\left (\begin{array}{rrr|r}1&amp;0&amp;-\frac {3}{10}&amp;0\\ 0&amp;1&amp;\frac {1}{10}&amp;0\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[ \begin {cases}x-\dfrac {3}{10}z=0\\[6pt] y+\dfrac {1}{10}z=0\end {cases} \iff \begin {cases}x=\dfrac {3}{10}t\\[6pt] y=-\dfrac {1}{10}t\\[6pt] z=t\in \R \end {cases} \qquad V=\Bigl \{\Bigl
+(\frac {3t}{10};-\frac {t}{10};t\Bigr )\Bigm | t\in \R \Bigr \} \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-35">Oefening 3</h6>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p>
+Handboek p 134 nr 4. Los op in \(\R ^4\) met de methode van Gauss-Jordan.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\begin {cases}w+x+z=12\\ w+2x+y+z=20\\ 2w+x+3z=28\\ 3w-y+6z=43\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(2;3;5;7)\}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                             
+                                                                               1        1    0 1       12                      1    1  0 1   12
+                                                                              1        2    1 1       20      R2 →R2 −R1    0    1  1 0    8 
+                                                                        Ab =                             ∼                                   
+                                                                              2        1    0 3       28     R3 →R3 −2R1    0   −1  0 1    4 
+                                                                               3        0   −1 6       43      R4 →R4 −3R1     0   −3 −1 3    7
+                                                                                                                        
+                                                                                    R1 →R1 −R2     1    0 −1 1        4
+                                                                                                  0    1  1 0        8 
+                                                                            ∼                    
+                                                                                                  0
+                                                                                                                         
+                                                                                    R3 →R3 +R2          0  1 1       12 
+                                                                                R4 →R4 +3R2        0    0  2 3       31
+                                                                                                                        
+                                                                                    R1 →R1 +R3     1    0 0     2     16
+                                                                                    R2 →R2 −R3    0    1 0    −1    −4 
+                                                                            ∼                    
+                                                                                                  0
+                                                                                                                         
+                                                                                                        0 1     1     12 
+                                                                                R4 →R4 −2R3        0    0 0     1      7
+                                                                                                                    
+                                                                                                   1    0 0 0       2
+                                                                                R1 →R1 −2R4
+                                                                                                  0    1 0 0       3 
+                                                                            ∼       R2 →R2 +R4   
+                                                                                                  0
+                                                                                                                      
+                                                                                                        0 1 0       5 
+                                                                                    R3 →R3 −R4
+                                                                                                   0    0 0 1       7
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrrr|r}1&amp;1&amp;0&amp;1&amp;12\\ 1&amp;2&amp;1&amp;1&amp;20\\ 2&amp;1&amp;0&amp;3&amp;28\\ 3&amp;0&amp;-1&amp;6&amp;43\end {array}\right ) \sim \rijop {\\
+\op {R_2\to R_2-R_1}\\ \op {R_3\to R_3-2R_1}\\ \op {R_4\to R_4-3R_1}}\left (\begin{array}{rrrr|r}1&amp;1&amp;0&amp;1&amp;12\\ 0&amp;1&amp;1&amp;0&amp;8\\ 0&amp;-1&amp;0&amp;1&amp;4\\
+0&amp;-3&amp;-1&amp;3&amp;7\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to R_1-R_2}\\ \\ \op {R_3\to R_3+R_2}\\ \op {R_4\to R_4+3R_2}}\left
+(\begin{array}{rrrr|r}1&amp;0&amp;-1&amp;1&amp;4\\ 0&amp;1&amp;1&amp;0&amp;8\\ 0&amp;0&amp;1&amp;1&amp;12\\ 0&amp;0&amp;2&amp;3&amp;31\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to
+R_1+R_3}\\ \op {R_2\to R_2-R_3}\\ \\ \op {R_4\to R_4-2R_3}}\left (\begin{array}{rrrr|r}1&amp;0&amp;0&amp;2&amp;16\\ 0&amp;1&amp;0&amp;-1&amp;-4\\ 0&amp;0&amp;1&amp;1&amp;12\\
+0&amp;0&amp;0&amp;1&amp;7\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to R_1-2R_4}\\ \op {R_2\to R_2+R_4}\\ \op {R_3\to R_3-R_4}\\ }\left (\begin{array}{rrrr|r}1&amp;0&amp;0&amp;0&amp;2\\
+0&amp;1&amp;0&amp;0&amp;3\\ 0&amp;0&amp;1&amp;0&amp;5\\ 0&amp;0&amp;0&amp;1&amp;7\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[V=\{(2;3;5;7)\}\]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\begin {cases}3w+x+2y+z=7\\ -9w+2x+5y+7z=5\\ -3w+4x+7y-2z=6\\ -9w+7x+14y+6z=17\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\emptyset \)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                              
+                                                                                 3 1 2        1   7                      3 1 2    1            7
+                                                                             −9 2 5          7   5     R2 →R2 +3R1  0    5 11 10           26 
+                                                                       Ab =                        ∼                                          
+                                                                             −3 4 7 −2           6      R3 →R3 +R1  0    5 9 −1            13 
+                                                                               −9 7 14        6 17       R4 →R4 +3R1     0 10 20  9           38
+                                                                                                                   
+                                                                             R1 →5R1 −R2     15 0 −1 −5           9
+                                                                                            0 5 11       10     26 
+                                                                          ∼                                        
+                                                                              R3 →R3 −R2  0 0 −2 −11 −13 
+                                                                             R4 →R4 −2R2      0 0 −2 −11 −14
+                                                                                                                       
+                                                                               R1 →2R1 −R3      30 0   0       1     31
+                                                                             R2 →2R2 +11R3  0 10      0 −101 −91 
+                                                                          ∼                 
+                                                                                             0 0 −2 −11 −13 
+                                                                                                                        
+
+                                                                                R4 →R4 −R3       0 0   0       0    −1
+
+-->
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrrr|r}3&amp;1&amp;2&amp;1&amp;7\\ -9&amp;2&amp;5&amp;7&amp;5\\ -3&amp;4&amp;7&amp;-2&amp;6\\ -9&amp;7&amp;14&amp;6&amp;17\end {array}\right ) \sim \rijop {\\
+\op {R_2\to R_2+3R_1}\\ \op {R_3\to R_3+R_1}\\ \op {R_4\to R_4+3R_1}}\left (\begin{array}{rrrr|r}3&amp;1&amp;2&amp;1&amp;7\\ 0&amp;5&amp;11&amp;10&amp;26\\ 0&amp;5&amp;9&amp;-1&amp;13\\
+0&amp;10&amp;20&amp;9&amp;38\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to 5R_1-R_2}\\ \\ \op {R_3\to R_3-R_2}\\ \op {R_4\to R_4-2R_2}}\left
+(\begin{array}{rrrr|r}15&amp;0&amp;-1&amp;-5&amp;9\\ 0&amp;5&amp;11&amp;10&amp;26\\ 0&amp;0&amp;-2&amp;-11&amp;-13\\ 0&amp;0&amp;-2&amp;-11&amp;-14\end {array}\right )\\ &amp;\sim \rijop {\op
+{R_1\to 2R_1-R_3}\\ \op {R_2\to 2R_2+11R_3}\\ \\ \op {R_4\to R_4-R_3}}\left (\begin{array}{rrrr|r}30&amp;0&amp;0&amp;1&amp;31\\ 0&amp;10&amp;0&amp;-101&amp;-91\\
+0&amp;0&amp;-2&amp;-11&amp;-13\\ 0&amp;0&amp;0&amp;0&amp;-1\end {array}\right )
+\end{align*}
+De laatste rij geeft \(0z=1\ \lightning \), dus \(r(A)=3&lt;r(A_b)=4\):
+</p>
+<p>
+\[V=\emptyset \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Homogene stelsels ......
+-->
+<h4 id="autosec-36"><span class="sectionnumber">VII&#x2003;</span>Homogene stelsels</h4>
+<a id="mkpiweb-autopage-36"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+Een stelsel waarvan alle bekende termen \(0\) zijn, noemen we een <b>homogeen stelsel</b>.
+</p>
+<!--
+...... subsection Opmerking ......
+-->
+<h5 id="autosec-38"><span class="sectionnumber">2&#x2003;</span>Opmerking</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+Elk homogeen stelsel heeft minstens één oplossing, namelijk de <b>nuloplossing</b> \((0;0;\ldots ;0)\). De laatste kolom van \(A_b\) bevat enkel nullen, dus \(r(A_b)=r(A)\).
+</p>
+<!--
+...... subsection Homogeen -stelsel ......
+-->
+<h5 id="autosec-39"><span class="sectionnumber">3&#x2003;</span>Homogeen \(n\times n\)-stelsel</h5>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+\[ \begin {cases} a_{11}x_1+\cdots +a_{1n}x_n=0\\ \quad \vdots \\ a_{n1}x_1+\cdots +a_{nn}x_n=0 \end {cases} \iff A\cdot X=O_n \qquad \text {met }A\in \R ^{n\times n}\text { en }X,O_n\in \R
+^{n\times 1} \]
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Is \(\det A\neq 0\), dan is \(r(A)=r(A_b)=n\). Het stelsel heeft precies één oplossing: de nuloplossing (\(X=O_n\)).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Is \(\det A=0\), dan is \(r(A)=r(A_b)&lt;n\). Het stelsel heeft oneindig veel oplossingen.
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-40">Besluit</h6>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+\[ \boxed {\;\text {Een homogeen }n\times n\text {-stelsel heeft andere oplossingen dan de nuloplossing}\iff \det A=0\;} \]
+</p>
+<!--
+...... subsection Voorbeeld met een parameter ......
+-->
+<h5 id="autosec-41"><span class="sectionnumber">4&#x2003;</span>Voorbeeld met een parameter</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+Voor welke waarden van de parameter \(m\) heeft het stelsel andere oplossingen dan de nuloplossing?
+</p>
+
+<p>
+\[ \begin {cases}mx+2y+4z=0\\ 2x+4y+mz=0\\ 4x+my+2z=0\end {cases} \]
+</p>
+
+<p>
+Voorwaarde: \(\det A=0\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                                  m   2   4
+                                                                                                                                  2   4   m =0
+                                                                                                                                  4   m   2
+                                                                                                                               m+6    2   4
+                                                          K1 →K1 +K2 +K3
+                                                               ⇐⇒                                                              m+6    4   m =0
+                                                                                                                               m+6    m   2
+                                                                                                                                 1    2   4
+                                                              ⇐⇒                                                         (m + 6) 1    4   m =0
+                                                                                                                                 1    m   2
+                                                                                                                          1     2      4
+                                                              R2 −R1
+                                                               ⇐⇒                                                 (m + 6) 0     2     m−4 =0
+                                                              R3 −R1
+                                                                                                                          0    m−2     −2
+                                                                K
+                                                                1                                                               2   m−4
+                                                               ⇐⇒                                                    (m + 6)               =0
+                                                                                                                               m−2   −2
+                                                                                                               (m + 6) −4 − (m2 − 6m + 8) = 0
+                                                                                                                                         
+                                                              ⇐⇒
+                                                              ⇐⇒                                               m = −6   ∨      −m2 + 6m − 12 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;&amp;\begin{vmatrix}m&amp;2&amp;4\\ 2&amp;4&amp;m\\ 4&amp;m&amp;2\end {vmatrix}&amp;=0\\ &amp;\weq [K_1\to K_1+K_2+K_3]{\iff }&amp; \begin{vmatrix}m+6&amp;2&amp;4\\ m+6&amp;4&amp;m\\
+m+6&amp;m&amp;2\end {vmatrix}&amp;=0\\ &amp;\iff &amp; (m+6)\begin{vmatrix}1&amp;2&amp;4\\ 1&amp;4&amp;m\\ 1&amp;m&amp;2\end {vmatrix}&amp;=0\\ &amp;\weq [R_2-R_1][R_3-R_1]{\iff }&amp;
+(m+6)\begin{vmatrix}1&amp;2&amp;4\\ 0&amp;2&amp;m-4\\ 0&amp;m-2&amp;-2\end {vmatrix}&amp;=0\\ &amp;\weq [K_1]{\iff }&amp; (m+6)\begin{vmatrix}2&amp;m-4\\ m-2&amp;-2\end {vmatrix}&amp;=0\\
+&amp;\iff &amp; (m+6)\bigl (-4-(m^2-6m+8)\bigr )&amp;=0\\ &amp;\iff &amp; m=-6\quad \vee \quad -m^2+6m-12&amp;=0
+\end{align*}
+Voor de tweede vergelijking is \(D=36-48=-12&lt;0\): geen oplossingen. Dus
+</p>
+
+<p>
+\[ m=-6 \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-42"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+Handboek p 133 nr 2.
+</p>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-43">Oefening 4</h6>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+Los op in \(\R ^3\), met \(a\in \R \):
+</p>
+
+<p>
+\[ \begin {cases}ax-2y+az=0\\ x+ay-2z=0\end {cases} \]
+</p>
+
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(V=\{((4-a^2)t;3at;(a^2+2)t)\mid t\in \R \}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                              
+                                                                                         a −2  a     0                         1      a −2   0
+                                                                              Ab =                           ∼   R1 ↔R2
+                                                                                         1  a −2     0                          a    −2  a   0
+                                                                                                                                    !
+                                                                                                     1               a    −2   0
+                                                                                 ∼                               2
+                                                                                     R2 →R2 −aR1     0       −a − 2    3a 0
+                                                                                                               −a2 − 2         4 − a2
+                                                                                                                                                    
+                                                                                                                          0                      0
+                                                                                 ∼   R1 →(−a2 −2)R1 −aR2                  2
+                                                                                                                 0      −a − 2   3a              0
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A_b&amp;=\left (\begin{array}{rrr|r}a&amp;-2&amp;a&amp;0\\ 1&amp;a&amp;-2&amp;0\end {array}\right ) \sim \rijop {\op {R_1\leftrightarrow R_2}\\ } \left (\begin{array}{rrr|r}\spil
+{1}&amp;a&amp;-2&amp;0\\ a&amp;-2&amp;a&amp;0\end {array}\right ) \\ &amp;\sim \rijop {\\ \op {R_2\to R_2-aR_1}\vphantom {\spil {0}}} \left (\begin{array}{rrr|r}1&amp;a&amp;-2&amp;0\\
+0&amp;\spil {-a^2-2}&amp;3a&amp;0\end {array}\right )\\ &amp;\sim \rijop {\op {R_1\to (-a^2-2)R_1-aR_2}\\ } \left (\begin{array}{ccc|c}-a^2-2&amp;0&amp;4-a^2&amp;0\\
+0&amp;-a^2-2&amp;3a&amp;0\end {array}\right )
+\end{align*}
+De spil \(-a^2-2\) is voor elke \(a\) negatief, dus nooit nul.
+</p>
+
+<p>
+\[ \begin {cases}-(a^2+2)\,x+(4-a^2)\,z=0\\ -(a^2+2)\,y+3a\,z=0\end {cases} \iff \begin {cases}x=(4-a^2)\,t\\ y=3a\,t\\ z=(a^2+2)\,t\end {cases} \qquad t\in \R \]
+</p>
+
+<p>
+<span class="aside">We kiezen \(z=(a^2+2)\,t\) in plaats van \(z=t\): zo verdwijnen de breuken. Omdat \(a^2+2\neq 0\), doorloopt \(z\) nog altijd heel \(\R \).</span>
+</p>
+
+<p>
+\[ V=\{((4-a^2)\,t;3a\,t;(a^2+2)\,t)\mid t\in \R \} \]
+</p>
+
+</div>
+
+</div>
+<!--
+...... section Toepassingen ......
+-->
+<h4 id="autosec-44"><span class="sectionnumber">VIII&#x2003;</span>Toepassingen</h4>
+<a id="mkpiweb-autopage-44"></a>
+<!--
+...... subsection Vraagstukken ......
+-->
+<h5 id="autosec-45"><span class="sectionnumber">1&#x2003;</span>Vraagstukken</h5>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opgave ......
+-->
+<h6 id="autosec-46">Opgave</h6>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+Zie handboek p 135. In een stad wonen \(1110\) migranten uit Italie&#x0308;, Griekenland en Portugal. Er zijn twee keer zoveel Italianen als Grieken en Portugezen samen. Waren er \(600\) Italianen minder, dan zouden er twee
+keer zoveel Grieken zijn als Italianen en Portugezen samen. Hoeveel Italianen, Grieken en Portugezen zijn er?
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Keuze van de onbekenden ......
+-->
+<h6 id="autosec-47">Keuze van de onbekenden</h6>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(x=\) het aantal Italianen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(y=\) het aantal Grieken
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(z=\) het aantal Portugezen
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opstellen van het stelsel ......
+-->
+<h6 id="autosec-48">Opstellen van het stelsel</h6>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+\[ \begin {cases}x+y+z=1110\\ x=2(y+z)\\ y=2(x-600+z)\end {cases} \iff \begin {cases}x+y+z=1110\\ x-2y-2z=0\\ -2x+y-2z=-1200\end {cases} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oplossen van het stelsel ......
+-->
+<h6 id="autosec-49">Oplossen van het stelsel</h6>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+\[ A_b=\left (\begin {array}{rrr|r}1&amp;1&amp;1&amp;1110\\ 1&amp;-2&amp;-2&amp;0\\ -2&amp;1&amp;-2&amp;-1200\end {array}\right ) \overset {\text {rref}}{\sim } \left (\begin
+{array}{rrr|r}1&amp;0&amp;0&amp;740\\ 0&amp;1&amp;0&amp;340\\ 0&amp;0&amp;1&amp;30\end {array}\right ) \qquad \Rightarrow \qquad \begin {cases}x=740\\ y=340\\ z=30\end {cases} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Antwoord ......
+-->
+<h6 id="autosec-50">Antwoord</h6>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p>
+Er zijn \(740\) Italianen, \(340\) Grieken en \(30\) Portugezen.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-51">Oefeningen</h6>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 5 ......
+-->
+<h6 id="autosec-52">Oefening 5</h6>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+Anna, Brigitte en Charlotte zijn samen \(105\) jaar. Trek je \(9\) jaar af van de leeftijd van Anna, dan krijg je de leeftijden van Brigitte en Charlotte samen. De leeftijden van Anna en Charlotte samen, plus \(3\), zijn het dubbele
+van de leeftijd van Brigitte. Hoe oud is elk van hen?
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">Anna is \(57\), Brigitte \(36\) en Charlotte \(12\) jaar.</span> \(x=\) de leeftijd van Anna, \(y=\) de leeftijd van Brigitte en \(z=\) de leeftijd van Charlotte.
+</p>
+
+<p>
+\[ \begin {cases}x+y+z=105\\ x-9=y+z\\ x+z+3=2y\end {cases} \iff \begin {cases}x+y+z=105\\ x-y-z=9\\ x-2y+z=-3\end {cases} \]
+</p>
+
+<p>
+\[ A_b=\left (\begin {array}{rrr|r}1&amp;1&amp;1&amp;105\\ 1&amp;-1&amp;-1&amp;9\\ 1&amp;-2&amp;1&amp;-3\end {array}\right ) \overset {\text {rref}}{\sim } \left (\begin
+{array}{rrr|r}1&amp;0&amp;0&amp;57\\ 0&amp;1&amp;0&amp;36\\ 0&amp;0&amp;1&amp;12\end {array}\right ) \]
+</p>
+
+<p>
+Anna is \(57\) jaar, Brigitte is \(36\) jaar en Charlotte is \(12\) jaar.
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 6 ......
+-->
+<h6 id="autosec-53">Oefening 6</h6>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+De som van de cijfers van een getal van drie cijfers is \(15\). Het cijfer van de tientallen is het gemiddelde van de twee andere cijfers. Keer je de volgorde van de cijfers om, dan wordt het getal \(396\) kleiner. Welk getal is het?
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">Het getal is \(753\).</span> \(x=\) het cijfer van de honderdtallen, \(y=\) het cijfer van de tientallen en \(z=\) het cijfer van de eenheden.
+</p>
+
+<p>
+\[ \begin {cases}x+y+z=15\\ x+z=2y\\ 100x+10y+z-(100z+10y+x)=396\end {cases} \iff \begin {cases}x+y+z=15\\ x-2y+z=0\\ 99x-99z=396\end {cases} \]
+</p>
+
+<p>
+Deel de laatste vergelijking door \(99\): \(x-z=4\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                        
+                                                                                     1    1   1 15                      1    1    1     15
+                                                                              Ab =  1   −2   1   0  ∼ R2 →R2 −R1  0 −3         0 −15 
+                                                                                     1    0 −1    4      R3 →R3 −R1     0 −1 −2 −11
+                                                                                                                                               
+                                                                                            1   1   1   15        R1 →R1 +R2     1    0      1 10
+                                                                                 ∼         0 −1    0  −5  ∼                  0 −1         0 −5 
+                                                                                   R2 /3
+                                                                                            0 −1 −2 −11           R3 →R3 −R2     0    0 −2 −6
+                                                                                                                                              
+                                                                                            1   0   1 10                       1    0      0   7
+                                                                                                                 R1 →R1 +R3
+                                                                                 ∼         0 −1    0 −5  ∼                  0 −1        0 −5 
+                                                                                   R3 /2    0   0 −1 −3                        0    0 −1 −3
+                                                                                                        
+                                                                                               1 0 0 7
+                                                                                 ∼ R2 →−R2  0 1 0 5 
+                                                                                   R3 →−R3     0 0 1 3
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A_b &amp;= \left (\begin{array}{rrr|r}1&amp;1&amp;1&amp;15\\ 1&amp;-2&amp;1&amp;0\\ 1&amp;0&amp;-1&amp;4\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-R_1}\\ \op {R_3\to R_3-R_1}}\left
+(\begin{array}{rrr|r}1&amp;1&amp;1&amp;15\\ 0&amp;-3&amp;0&amp;-15\\ 0&amp;-1&amp;-2&amp;-11\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2/3}\\ }\left
+(\begin{array}{rrr|r}1&amp;1&amp;1&amp;15\\ 0&amp;-1&amp;0&amp;-5\\ 0&amp;-1&amp;-2&amp;-11\end {array}\right ) \sim \rijop {\op {R_1\to R_1+R_2}\\ \\ \op {R_3\to R_3-R_2}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;1&amp;10\\ 0&amp;-1&amp;0&amp;-5\\ 0&amp;0&amp;-2&amp;-6\end {array}\right )\\ &amp;\sim \rijop {\\ \\ \op {R_3/2}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;1&amp;10\\ 0&amp;-1&amp;0&amp;-5\\ 0&amp;0&amp;-1&amp;-3\end {array}\right ) \sim \rijop {\op {R_1\to R_1+R_3}\\ \\ }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;7\\ 0&amp;-1&amp;0&amp;-5\\ 0&amp;0&amp;-1&amp;-3\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2\to -R_2}\\ \op {R_3\to -R_3}}\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;7\\ 0&amp;1&amp;0&amp;5\\ 0&amp;0&amp;1&amp;3\end {array}\right )
+\end{align*}
+Het getal is \(753\).
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 7 ......
+-->
+<h6 id="autosec-54">Oefening 7</h6>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+Een broodjeszaak levert vier dagen na elkaar broodjes aan een bedrijf. Welke broodjes en wat ze samen kosten, staat in de tabel. Wat kost één broodje van elke soort?
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="tbrule">
+<td class="tdl">dag</td>
+<td class="tdr">smos</td>
+<td class="tdr">martino</td>
+<td class="tdr">tonijn</td>
+<td class="tdr">Hawaı&#x0308;</td>
+<td class="tdr">prijs (euro)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdl">maandag</td>
+<td class="tdr">\(8\)</td>
+<td class="tdr">\(4\)</td>
+<td class="tdr">\(5\)</td>
+<td class="tdr">\(6\)</td>
+<td class="tdr">\(41.20\)</td>
+</tr>
+
+<tr>
+<td class="tdl">dinsdag</td>
+<td class="tdr">\(7\)</td>
+<td class="tdr">\(5\)</td>
+<td class="tdr">\(4\)</td>
+<td class="tdr">\(8\)</td>
+<td class="tdr">\(42.90\)</td>
+</tr>
+
+<tr>
+<td class="tdl">woensdag</td>
+<td class="tdr">\(6\)</td>
+<td class="tdr">\(3\)</td>
+<td class="tdr">\(7\)</td>
+<td class="tdr">\(6\)</td>
+<td class="tdr">\(40.60\)</td>
+</tr>
+
+<tr>
+<td class="tdl">donderdag</td>
+<td class="tdr">\(4\)</td>
+<td class="tdr">\(9\)</td>
+<td class="tdr">\(6\)</td>
+<td class="tdr">\(7\)</td>
+<td class="tdr">\(49.10\)</td>
+</tr>
+
+<tr class="tbrule" aria-hidden="true">
+<td class="tdl"></td>
+<td class="tdr"></td>
+<td class="tdr"></td>
+<td class="tdr"></td>
+<td class="tdr"></td>
+<td class="tdr"></td>
+</tr>
+</table>
+
+</div>
+
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">Smos \(1.50\), martino \(2.00\), tonijn \(2.20\) en Hawaı&#x0308; \(1.70\) euro.</span> \(x=\) de prijs van een smos, \(y=\) van een martino, \(z=\) van een tonijn en \(u=\) van een
+Hawaı&#x0308;, in euro.
+</p>
+
+<p>
+\[ \begin {cases}8x+4y+5z+6u=41.20\\ 7x+5y+4z+8u=42.90\\ 6x+3y+7z+6u=40.60\\ 4x+9y+6z+7u=49.10\end {cases} \qquad A_b\overset {\text {rref}}{\sim } \left (\begin
+{array}{rrrr|r}1&amp;0&amp;0&amp;0&amp;1.50\\ 0&amp;1&amp;0&amp;0&amp;2.00\\ 0&amp;0&amp;1&amp;0&amp;2.20\\ 0&amp;0&amp;0&amp;1&amp;1.70\end {array}\right ) \]
+</p>
+
+<p>
+Een smos kost \(1.50\) euro, een martino \(2.00\) euro, een broodje tonijn \(2.20\) euro en een broodje Hawaı&#x0308; \(1.70\) euro.
+</p>
+</div>
+
+</div>
+<!--
+...... subsection Bespreken van stelsels ......
+-->
+<h5 id="autosec-57"><span class="sectionnumber">2&#x2003;</span>Bespreken van stelsels</h5>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-58">Voorbeeld</h6>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<p>
+Bespreek in \(\R ^3\):
+</p>
+
+<p>
+\[ \begin {cases}x+4y+2mz=3\\ x+y-mz=0\\ mx+(m+1)y+(m-1)z=m\end {cases} \]
+</p>
+
+<p>
+Dit stelsel heeft oplossingen als \(r(A)=r(A_b)\). We bepalen eerst \(r(A)\):
+</p>
+
+<p>
+\[ \det A=\begin {vmatrix}1&amp;4&amp;2m\\ 1&amp;1&amp;-m\\ m&amp;m+1&amp;m-1\end {vmatrix}=-3(m^2-1) \]
+</p>
+
+<p>
+Voor \(m\neq 1\) en \(m\neq -1\) is \(\det A\neq 0\), dus \(r(A)=r(A_b)=3=n\): precies één oplossing. Tot de indeling in gevallen herleiden we voor alle \(m\) samen.
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                                                     
+                                                                           1       4      2m   3                      1    4             2m          3
+                                                                    Ab =  1       1      −m   0 ∼     R2 →R2 −R1  0    −3            −3m          −3 
+                                                                           m    m+1 m−1 m              R3 →R3 −mR1    0 1 − 3m       m − 1 − 2m2    −2m
+                                                                                                                   
+                                                                                      1     4      2m            3
+                                                                       ∼            0      1       m            1 
+                                                                         R2 /(−3)
+                                                                                      0 1 − 3m m − 1 − 2m2 −2m
+                                                                                                                  
+                                                                               R1 →R1 −4R2    1 0 −2m        −1
+                                                                       ∼                    0 1     m         1    (∗)
+                                                                                                    2
+                                                                         R3 →R3 −(1−3m)R2     0 0 m −1 m−1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A_b&amp;=\left (\begin{array}{ccc|c}\spil {1}&amp;4&amp;2m&amp;3\\ 1&amp;1&amp;-m&amp;0\\ m&amp;m+1&amp;m-1&amp;m\end {array}\right ) \sim \rijop {\vphantom {\spil {0}}\\ \op {R_2\to
+R_2-R_1}\\ \op {R_3\to R_3-mR_1}} \left (\begin{array}{ccc|c}1&amp;4&amp;2m&amp;3\\ 0&amp;-3&amp;-3m&amp;-3\\ 0&amp;1-3m&amp;m-1-2m^2&amp;-2m\end {array}\right )\\ &amp;\sim \rijop {\\ \op
+{R_2/(-3)}\vphantom {\spil {0}}\\ } \left (\begin{array}{ccc|c}1&amp;4&amp;2m&amp;3\\ 0&amp;\spil {1}&amp;m&amp;1\\ 0&amp;1-3m&amp;m-1-2m^2&amp;-2m\end {array}\right ) \\ &amp;\sim \rijop {\op
+{R_1\to R_1-4R_2}\\ \\ \op {R_3\to R_3-(1-3m)R_2}} \left (\begin{array}{ccc|c}1&amp;0&amp;-2m&amp;-1\\ 0&amp;1&amp;m&amp;1\\ 0&amp;0&amp;m^2-1&amp;m-1\end {array}\right ) \quad (*)
+\end{align*}
+Vanaf hier delen we in per geval.
+</p>
+<!--
+......   paragraph Geval 1:    en .   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-59">Geval 1: \(m\neq 1\) en \(m\neq -1\).</span>
+<a id="mkpiweb-autopage-59"></a>
+Dan is \(m-1\neq 0\) en \(m+1\neq 0\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                     −2m  −1
+                                                                                                             
+                                                                                              1 0
+                                                                         Ab ∼                0 1     m    1 
+                                                                                R3 /(m−1)     0 0    m+1   1
+                                                                                                                         
+                                                                                                      m+1    0   0    m−1
+                                                                                R1 →(m+1)R1 +2mR3
+                                                                           ∼                           0 m+1    0     1  
+                                                                                R2 →(m+1)R2 −mR3
+                                                                                                        0    0  m+1    1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A_b&amp;\sim \rijop {\\ \\ \op {R_3/(m-1)}\vphantom {\spil {0}}} \left (\begin{array}{ccc|c}1&amp;0&amp;-2m&amp;-1\\ 0&amp;1&amp;m&amp;1\\ 0&amp;0&amp;\spil {m+1}&amp;1\end {array}\right ) \\
+&amp;\sim \rijop {\op {R_1\to (m+1)R_1+2mR_3}\\ \op {R_2\to (m+1)R_2-mR_3}\\ } \left (\begin{array}{ccc|c}m+1&amp;0&amp;0&amp;m-1\\ 0&amp;m+1&amp;0&amp;1\\ 0&amp;0&amp;m+1&amp;1\end
+{array}\right )
+\end{align*}
+
+</p>
+
+<p>
+\[ \Rightarrow \begin {cases}x=\dfrac {m-1}{m+1}\\[8pt] y=\dfrac {1}{m+1}\\[8pt] z=\dfrac {1}{m+1}\end {cases} \qquad V=\Bigl \{\Bigl (\frac {m-1}{m+1};\frac {1}{m+1};\frac {1}{m+1}\Bigr )\Bigr
+\} \]
+</p>
+<!--
+......   paragraph Geval 2:    .   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-60">Geval 2: \(m=1\).</span>
+<a id="mkpiweb-autopage-60"></a>
+Dan is \(\det A=0\), dus \(r(A)&lt;n\). En \(r(A_b)\)? Vul \(m=1\) in \((*)\) in:
+</p>
+
+<p>
+\[ A_b\sim \left (\begin {array}{rrr|r}1&amp;0&amp;-2&amp;-1\\ 0&amp;1&amp;1&amp;1\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \Rightarrow \begin {cases}x-2z=-1\\ y+z=1\\ 0z=0\end {cases} \iff
+\begin {cases}x=-1+2t\\ y=1-t\\ z=t\in \R \end {cases} \]
+</p>
+
+<p>
+\[ V=\{(-1+2t;1-t;t)\mid t\in \R \} \]
+</p>
+<!--
+......   paragraph Geval 3:   .   ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-61">Geval 3: \(m=-1\).</span>
+<a id="mkpiweb-autopage-61"></a>
+Vul \(m=-1\) in \((*)\) in:
+</p>
+
+<p>
+\[ A_b\sim \left (\begin {array}{rrr|r}1&amp;0&amp;2&amp;-1\\ 0&amp;1&amp;-1&amp;1\\ 0&amp;0&amp;0&amp;-2\end {array}\right ) \Rightarrow V=\emptyset \]
+</p>
+<!--
+......   paragraph Overzicht.    ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-62">Overzicht.</span>
+<a id="mkpiweb-autopage-62"></a>
+
+</p>
+
+<p>
+\[ \begin {array}{ll} m\neq 1\text { en }m\neq -1:   &amp; V=\Bigl \{\Bigl (\dfrac {m-1}{m+1};\dfrac {1}{m+1};\dfrac {1}{m+1}\Bigr )\Bigr \}\\[12pt] m=1:   &amp; V=\{(-1+2t;1-t;t)\mid t\in \R
+\}\\[4pt] m=-1: &amp; V=\emptyset \end {array} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-63">Oefeningen</h6>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+Handboek p 146 nr 22.
+</p>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 8 ......
+-->
+<h6 id="autosec-64">Oefening 8</h6>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p>
+Bespreek in \(\R ^3\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\begin {cases}x+my+mz=2\\ mx+y+mz=0\\ x+my+(m+1)z=1\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(m\neq \pm 1\): \(V=\bigl \{\bigl (\frac {2-m}{1-m};\frac {m}{m-1};-1\bigr )\bigr \}\); \(m=1\): \(V=\emptyset \); \(m=-1\): \(V=\{(1+t;t;-1)\mid t\in \R \}\)</span>
+</p>
+<p>
+\[ \det A=\begin {vmatrix}1&amp;m&amp;m\\ m&amp;1&amp;m\\ 1&amp;m&amp;m+1\end {vmatrix} =m+1+m^2+m^3-m-m^2-m^3-m^2=1-m^2 \]
+</p>
+<p>
+\(\det A=0\) als \(m=1\) of \(m=-1\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                                  
+                                                                       1     m  m             2                            1     m        m       2
+                                                                Ab =  m     1  m             0 ∼         R2 →R2 −mR1    0   1 − m2   m − m2   −2m        (∗)
+                                                                       1     m m+1            1             R3 →R3 −R1     0      0       1       −1
+
+-->
+
+<p>
+
+\begin{align*}
+A_b&amp;=\left (\begin{array}{ccc|c}1&amp;m&amp;m&amp;2\\ m&amp;1&amp;m&amp;0\\ 1&amp;m&amp;m+1&amp;1\end {array}\right ) \sim \rijop {\\ \op {R_2\to R_2-mR_1}\\ \op {R_3\to R_3-R_1}} \left
+(\begin{array}{ccc|c}1&amp;m&amp;m&amp;2\\ 0&amp;1-m^2&amp;m-m^2&amp;-2m\\ 0&amp;0&amp;1&amp;-1\end {array}\right ) \quad (*)
+\end{align*}
+
+</p>
+<p>
+<b>Geval 1: \(m\neq 1\) en \(m\neq -1\).</b> Dan is \(r(A)=r(A_b)=n=3\): één oplossing.
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                    1 − m2          m − m2
+                                                                                                                               
+                                                                                              2
+                                                                                                               0             2
+                                                                               R1 →(1−m )R1 −mR2
+                                                                          Ab ∼                        0    1 − m2 m − m2 −2m 
+                                                                                                       0       0      1      −1
+                                                                                                   1 − m2          0 2 + m − m2
+                                                                                                                               
+                                                                                                              0
+                                                                               R1 →R1 −(m−m2 )R3
+                                                                             ∼                       0    1 − m2 0    −m − m2 
+                                                                               R2 →R2 −(m−m2 )R3
+                                                                                                      0       0    1     −1
+
+-->
+
+<p>
+
+\begin{align*}
+A_b&amp;\sim \rijop {\op {R_1\to (1-m^2)R_1-mR_2}\\ \\ } \left (\begin{array}{ccc|c}1-m^2&amp;0&amp;m-m^2&amp;2\\ 0&amp;1-m^2&amp;m-m^2&amp;-2m\\ 0&amp;0&amp;1&amp;-1\end {array}\right )\\
+&amp;\sim \rijop {\op {R_1\to R_1-(m-m^2)R_3}\\ \op {R_2\to R_2-(m-m^2)R_3}\\ } \left (\begin{array}{ccc|c}1-m^2&amp;0&amp;0&amp;2+m-m^2\\ 0&amp;1-m^2&amp;0&amp;-m-m^2\\
+0&amp;0&amp;1&amp;-1\end {array}\right )
+\end{align*}
+Met \(1-m^2=(1-m)(1+m)\) en \(2+m-m^2=(1+m)(2-m)\): <span class="aside">Die laatste ontbinding vind je met Horner: \(m=-1\) is een nulwaarde.</span>
+</p>
+<p>
+\[ \begin {cases} x=\dfrac {2+m-m^2}{1-m^2}=\dfrac {(1+m)(2-m)}{(1-m)(1+m)}=\dfrac {2-m}{1-m}\\[12pt] y=\dfrac {-m-m^2}{1-m^2}=\dfrac {-m(1+m)}{(1-m)(1+m)}=\dfrac {m}{m-1}\\[12pt] z=-1 \end
+{cases} \qquad V=\Bigl \{\Bigl (\frac {2-m}{1-m};\frac {m}{m-1};-1\Bigr )\Bigr \} \]
+</p>
+<p>
+<b>Geval 2: \(m=1\).</b> Vul in in \((*)\):
+</p>
+<p>
+\[ A_b\sim \left (\begin {array}{rrr|r}1&amp;1&amp;1&amp;2\\ 0&amp;0&amp;0&amp;-2\\ 0&amp;0&amp;1&amp;-1\end {array}\right ) \Rightarrow V=\emptyset \]
+</p>
+<p>
+<b>Geval 3: \(m=-1\).</b> Vul in in \((*)\):
+</p>
+<p>
+\[ A_b\sim \left (\begin {array}{rrr|r}1&amp;-1&amp;-1&amp;2\\ 0&amp;0&amp;-2&amp;2\\ 0&amp;0&amp;1&amp;-1\end {array}\right ) \sim \rijop {\op {R_1\to R_1+R_3}\\ \op {R_2\to R_2+2R_3}\\ }
+\left (\begin {array}{rrr|r}1&amp;-1&amp;0&amp;1\\ 0&amp;0&amp;0&amp;0\\ 0&amp;0&amp;1&amp;-1\end {array}\right ) \iff \begin {cases}x=1+t\\ y=t\in \R \\ z=-1\end {cases} \]
+</p>
+<p>
+\[ V=\{(1+t;t;-1)\mid t\in \R \} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\begin {cases}x+2y+3z=0\\ mx-y+mz=0\\ x+my+z=0\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(V=\{(0;0;0)\}\) voor elke \(m\)</span> Dit is een homogeen \(3\times 3\)-stelsel.
+</p>
+<p>
+\[ \det A=\begin {vmatrix}1&amp;2&amp;3\\ m&amp;-1&amp;m\\ 1&amp;m&amp;1\end {vmatrix} =-1+2m+3m^2+3-m^2-2m=2m^2+2&gt;0 \]
+</p>
+<p>
+Dus \(\det A\neq 0\) voor elke \(m\), en \(r(A)=r(A_b)=3=n\): één oplossing.
+</p>
+<p>
+\[ V=\{(0;0;0)\} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\begin {cases}2x+y+z=1+m\\ mx+2mz=-m\\ x-my+z=-m^2\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(m\neq 0,-\frac {1}{3}\): \(V=\{(1;m;-1)\}\); \(m=0\): \(V=\{(-t;1+t;t)\mid t\in \R \}\); \(m=-\frac {1}{3}\): \(V=\bigl \{\bigl (-1-2t;\frac {8}{3}+3t;t\bigr )\mid t\in \R
+\bigr \}\)</span>
+</p>
+<p>
+\[ \det A=\begin {vmatrix}2&amp;1&amp;1\\ m&amp;0&amp;2m\\ 1&amp;-m&amp;1\end {vmatrix} =2m-m^2+4m^2-m=3m^2+m=m(3m+1) \]
+</p>
+<p>
+\(\det A=0\) als \(m=0\) of \(m=-\frac {1}{3}\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                     
+                                                                                2          1 1 1+m
+                                                                         Ab =  m          02m    −m 
+                                                                                1         −m 1   −m2
+                                                                                                                                           
+                                                                                                2     1                   1       1+m
+                                                                             ∼ R2 →2R2 −mR1    0    −m                  3m     −3m − m2        (∗)
+                                                                                R3 →2R3 −R1     0 −2m − 1                 1    −2m2 − m − 1
+
+-->
+
+<p>
+
+\begin{align*}
+A_b&amp;=\left (\begin{array}{ccc|c}\spil {2}&amp;1&amp;1&amp;1+m\\ m&amp;0&amp;2m&amp;-m\\ 1&amp;-m&amp;1&amp;-m^2\end {array}\right )\\ &amp;\sim \rijop {\vphantom {\spil {0}}\\ \op {R_2\to
+2R_2-mR_1}\\ \op {R_3\to 2R_3-R_1}} \left (\begin{array}{ccc|c}2&amp;1&amp;1&amp;1+m\\ 0&amp;-m&amp;3m&amp;-3m-m^2\\ 0&amp;-2m-1&amp;1&amp;-2m^2-m-1\end {array}\right ) \quad (*)
+\end{align*}
+
+</p>
+<p>
+<b>Geval 1: \(m\neq 0\) en \(m\neq -\frac {1}{3}\).</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                               
+                                                                                                    2     1      1      1+m
+                                                                             Ab ∼                  0     1     −3      m+3     
+                                                                                      R2 /(−m)
+                                                                                                    0  −2m − 1 1 −2m2 − m − 1
+                                                                                                                               
+                                                                                             R1 →R1 −R2     2 0      4     −2
+                                                                                  ∼                      0 1       −3    m + 3  (∗∗)
+                                                                                      R3 →R3 +(2m+1)R2      0 0 −6m − 2 6m + 2
+                                                                                                                      
+                                                                                                       2 0 4       −2
+                                                                                  ∼                  0 1 −3 m + 3 
+                                                                                      R3 /(−6m−2)      0 0 1       −1
+                                                                                                                  
+                                                                                                       2 0 0 2
+                                                                                      R1 →R1 −4R3
+                                                                                  ∼                  0 1 0 m 
+                                                                                      R2 →R2 +3R3
+                                                                                                       0 0 1 −1
+
+-->
+
+<p>
+
+\begin{align*}
+A_b&amp;\sim \rijop {\\ \op {R_2/(-m)}\vphantom {\spil {0}}\\ } \left (\begin{array}{ccc|c}2&amp;1&amp;1&amp;1+m\\ 0&amp;\spil {1}&amp;-3&amp;m+3\\ 0&amp;-2m-1&amp;1&amp;-2m^2-m-1\end
+{array}\right ) \\ &amp;\sim \rijop {\op {R_1\to R_1-R_2}\\ \\ \op {R_3\to R_3+(2m+1)R_2}} \left (\begin{array}{ccc|c}2&amp;0&amp;4&amp;-2\\ 0&amp;1&amp;-3&amp;m+3\\
+0&amp;0&amp;-6m-2&amp;6m+2\end {array}\right )\quad (**)\\ &amp;\sim \rijop {\\ \\ \op {R_3/(-6m-2)}} \left (\begin{array}{ccc|c}2&amp;0&amp;4&amp;-2\\ 0&amp;1&amp;-3&amp;m+3\\
+0&amp;0&amp;1&amp;-1\end {array}\right ) \\ &amp;\sim \rijop {\op {R_1\to R_1-4R_3}\\ \op {R_2\to R_2+3R_3}\\ } \left (\begin{array}{ccc|c}2&amp;0&amp;0&amp;2\\ 0&amp;1&amp;0&amp;m\\
+0&amp;0&amp;1&amp;-1\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[ V=\{(1;m;-1)\} \]
+</p>
+<p>
+<b>Geval 2: \(m=0\).</b> Vul in in \((*)\):
+</p>
+<p>
+\[ A_b\sim \left (\begin {array}{rrr|r}2&amp;1&amp;1&amp;1\\ 0&amp;0&amp;0&amp;0\\ 0&amp;-1&amp;1&amp;-1\end {array}\right ) \iff \begin {cases}2x+y+z=1\\ -y+z=-1\\ z=t\in \R \end {cases} \iff
+\begin {cases}x=-t\\ y=1+t\\ z=t\in \R \end {cases} \]
+</p>
+<p>
+\[ V=\{(-t;1+t;t)\mid t\in \R \} \]
+</p>
+<p>
+<b>Geval 3: \(m=-\frac {1}{3}\).</b> In \((**)\) wordt de laatste rij een nulrij. Met \(R_1/2\):
+</p>
+<p>
+\[ A_b\sim \left (\begin {array}{rrr|r}1&amp;0&amp;2&amp;-1\\ 0&amp;1&amp;-3&amp;\frac {8}{3}\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \iff \begin {cases}x=-1-2t\\ y=\dfrac {8}{3}+3t\\ z=t\in
+\R \end {cases} \]
+</p>
+<p>
+\[ V=\Bigl \{\Bigl (-1-2t;\frac {8}{3}+3t;t\Bigr )\Bigm | t\in \R \Bigr \} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\begin {cases}ax+y+2z=0\\ x+2y+z=b\\ 2x+y+az=0\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(a\neq -1,2\): \(V=\bigl \{\bigl (\frac {-b}{2(a+1)};\frac {b(a+2)}{2(a+1)};\frac {-b}{2(a+1)}\bigr )\bigr \}\); \(a=2\): \(V=\bigl \{\bigl (-\frac {b}{3}-t;\frac
+{2b}{3};t\bigr )\mid t\in \R \bigr \}\); \(a=-1\) en \(b\neq 0\): \(V=\emptyset \); \(a=-1\) en \(b=0\): \(V=\{(t;-t;t)\mid t\in \R \}\)</span>
+</p>
+<p>
+\[ \det A=\begin {vmatrix}a&amp;1&amp;2\\ 1&amp;2&amp;1\\ 2&amp;1&amp;a\end {vmatrix} =2a^2+2+2-8-a-a=2a^2-2a-4 \]
+</p>
+<p>
+\[ \det A=0\iff a^2-a-2=0\iff (a+1)(a-2)=0\iff a=-1\text { of }a=2 \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                      
+                                                                            a 1 2       0                     1 2 1 b
+                                                                                                R 1 ↔R 2
+                                                                     Ab =  1 2 1       b ∼               a 1 2 0 
+                                                                            2 1 a       0                     2 1 a 0
+                                                                                                                    
+                                                                                           1     2         1     b
+                                                                         ∼ R2 →R2 −aR1  0 1 − 2a 2 − a −ab 
+                                                                           R3 →R3 −2R1     0    −3       a − 2 −2b
+                                                                                                               
+                                                                                       1     2        1      b
+                                                                         ∼          0      −3      a − 2 −2b 
+                                                                           R2 ↔R3
+                                                                                       0 1 − 2a 2 − a −ab
+                                                                                                                                     
+                                                                               R1 →−3R1 −2R2       −3 0           1 − 2a        b
+                                                                         ∼                      0 −3              a−2        −2b                     (∗)
+                                                                           R3 →−3R3 −(1−2a)R2       0     0 2(a + 1)(a − 2) −b(a − 2)
+
+-->
+
+<p>
+
+\begin{align*}
+A_b&amp;=\left (\begin{array}{ccc|c}a&amp;1&amp;2&amp;0\\ 1&amp;2&amp;1&amp;b\\ 2&amp;1&amp;a&amp;0\end {array}\right ) \sim \rijop {\op {R_1\leftrightarrow R_2}\vphantom {\spil {0}}\\ \\ }
+\left (\begin{array}{ccc|c}\spil {1}&amp;2&amp;1&amp;b\\ a&amp;1&amp;2&amp;0\\ 2&amp;1&amp;a&amp;0\end {array}\right ) \\ &amp;\sim \rijop {\\ \op {R_2\to R_2-aR_1}\\ \op {R_3\to R_3-2R_1}}
+\left (\begin{array}{ccc|c}1&amp;2&amp;1&amp;b\\ 0&amp;1-2a&amp;2-a&amp;-ab\\ 0&amp;-3&amp;a-2&amp;-2b\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2\leftrightarrow R_3}\vphantom {\spil
+{0}}\\ } \left (\begin{array}{ccc|c}1&amp;2&amp;1&amp;b\\ 0&amp;\spil {-3}&amp;a-2&amp;-2b\\ 0&amp;1-2a&amp;2-a&amp;-ab\end {array}\right ) \\ &amp;\sim \rijop {\op {R_1\to -3R_1-2R_2}\\ \\
+\op {R_3\to -3R_3-(1-2a)R_2}} \left (\begin{array}{ccc|c}-3&amp;0&amp;1-2a&amp;b\\ 0&amp;-3&amp;a-2&amp;-2b\\ 0&amp;0&amp;2(a+1)(a-2)&amp;-b(a-2)\end {array}\right ) \quad (*)
+\end{align*}
+<span class="aside">In de laatste rij staat \(2a^2-2a-4=2(a+1)(a-2)\) en \(2b-ab=-b(a-2)\).</span>
+</p>
+<p>
+<b>Geval 1: \(a\neq -1\) en \(a\neq 2\).</b>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                         
+                                                                                            −3        0      1 − 2a    b
+                                                                     Ab ∼
+                                                                                           0
+                                                                                                     −3      a−2     −2b 
+                                                                                                                          
+                                                                             R3 /(a−2)       0         0    2(a + 1)  −b
+                                                                                                                                                    
+                                                                                                              −6a − 6     0      0            3b
+                                                                             R1 →2(a+1)R1 −(1−2a)R3
+                                                                         ∼                                       0    −6a − 6   0         −3ab − 6b 
+                                                                                 R2 →2(a+1)R2 −(a−2)R3
+                                                                                                                  0       0    2a + 2         −b
+
+-->
+
+<p>
+
+\begin{align*}
+A_b&amp;\sim \rijop {\\ \\ \op {R_3/(a-2)}\vphantom {\spil {0}}} \left (\begin{array}{ccc|c}-3&amp;0&amp;1-2a&amp;b\\ 0&amp;-3&amp;a-2&amp;-2b\\ 0&amp;0&amp;\spil {2(a+1)}&amp;-b\end
+{array}\right )\\ &amp;\sim \rijop {\op {R_1\to 2(a+1)R_1-(1-2a)R_3}\\ \op {R_2\to 2(a+1)R_2-(a-2)R_3}\\ } \left (\begin{array}{ccc|c}-6a-6&amp;0&amp;0&amp;3b\\ 0&amp;-6a-6&amp;0&amp;-3ab-6b\\
+0&amp;0&amp;2a+2&amp;-b\end {array}\right )
+\end{align*}
+
+</p>
+<p>
+\[ \begin {cases} x=\dfrac {3b}{-6a-6}=\dfrac {-b}{2(a+1)}\\[12pt] y=\dfrac {-3ab-6b}{-6a-6}=\dfrac {b(a+2)}{2(a+1)}\\[12pt] z=\dfrac {-b}{2(a+1)} \end {cases} \qquad V=\Bigl \{\Bigl (\frac
+{-b}{2(a+1)};\frac {b(a+2)}{2(a+1)};\frac {-b}{2(a+1)}\Bigr )\Bigr \} \]
+</p>
+<p>
+<b>Geval 2: \(a=2\).</b> Vul in in \((*)\):
+</p>
+<p>
+\[ A_b\sim \left (\begin {array}{rrr|r}-3&amp;0&amp;-3&amp;b\\ 0&amp;-3&amp;0&amp;-2b\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \Rightarrow \begin {cases}x=-\dfrac {b}{3}-t\\[6pt] y=\dfrac
+{2b}{3}\\[6pt] z=t\in \R \end {cases} \qquad V=\Bigl \{\Bigl (-\frac {b}{3}-t;\frac {2b}{3};t\Bigr )\Bigm | t\in \R \Bigr \} \]
+</p>
+<p>
+<b>Geval 3: \(a=-1\).</b> Vul in in \((*)\):
+</p>
+<p>
+\[ A_b\sim \left (\begin {array}{rrr|r}-3&amp;0&amp;3&amp;b\\ 0&amp;-3&amp;-3&amp;-2b\\ 0&amp;0&amp;0&amp;3b\end {array}\right ) \]
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Geval 3.1: \(b\neq 0\). Dan is \(V=\emptyset \).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Geval 3.2: \(b=0\).
+</p>
+<p>
+\[ A_b\sim \left (\begin {array}{rrr|r}-3&amp;0&amp;3&amp;0\\ 0&amp;-3&amp;-3&amp;0\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \iff \begin {cases}x=t\\ y=-t\\ z=t\in \R \end {cases} \qquad
+V=\{(t;-t;t)\mid t\in \R \} \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+</div>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Coexistentievoorwaarde ......
+-->
+<h4 id="autosec-65"><span class="sectionnumber">IX&#x2003;</span>Coe&#x0308;xistentievoorwaarde</h4>
+<a id="mkpiweb-autopage-65"></a>
+<!--
+...... subsection Coexistentievoorwaarde van een -stelsel ......
+-->
+<h5 id="autosec-66"><span class="sectionnumber">1&#x2003;</span>Coe&#x0308;xistentievoorwaarde van een \(m\times n\)-stelsel</h5>
+<a id="mkpiweb-autopage-66"></a>
+
+
+<p>
+De <b>coe&#x0308;xistentievoorwaarde</b> is de voorwaarde opdat het stelsel een oplossing zou hebben:
+</p>
+
+<p>
+\[ \boxed {\;r(A)=r(A_b)\;} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-67">Voorbeeld</h6>
+<a id="mkpiweb-autopage-67"></a>
+
+
+<p>
+\[ \begin {cases}-x+3y+2z=2\\ 2x-2y+az=3\\ x+y+z=a\end {cases} \qquad \det A=\begin {vmatrix}-1&amp;3&amp;2\\ 2&amp;-2&amp;a\\ 1&amp;1&amp;1\end {vmatrix} =2+3a+4+4+a-6=4+4a=4(1+a) \]
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Is \(a\neq -1\), dan is \(r(A)=3\), dus \(r(A)=r(A_b)=3\): er zijn oplossingen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Is \(a=-1\), dan is \(r(A)&lt;3\). Maar bijvoorbeeld \(\begin {vmatrix}-1&amp;3\\ 2&amp;-2\end {vmatrix}=-4\neq 0\), dus \(r(A)=2\).
+</p>
+<p>
+En \(r(A_b)\)? Dat is het aantal niet-nulrijen in de rij-canonieke matrix:
+</p>
+<p>
+\[ A_b=\left (\begin {array}{rrr|r}-1&amp;3&amp;2&amp;2\\ 2&amp;-2&amp;-1&amp;3\\ 1&amp;1&amp;1&amp;-1\end {array}\right ) \overset {\text {rref}}{\sim } \left (\begin
+{array}{rrr|r}1&amp;0&amp;\frac {1}{4}&amp;0\\ 0&amp;1&amp;\frac {3}{4}&amp;0\\ 0&amp;0&amp;0&amp;1\end {array}\right ) \]
+</p>
+<p>
+Dus \(r(A_b)=3\neq r(A)\): geen oplossingen.
+</p>
+</li>
+</ul>
+<!--
+......   paragraph Besluit.     ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-68">Besluit.</span>
+<a id="mkpiweb-autopage-68"></a>
+Het stelsel is oplosbaar als \(a\neq -1\). Dat is de coe&#x0308;xistentievoorwaarde.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-69">Oefeningen</h6>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+Handboek p 151 nr 1.
+</p>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 9 ......
+-->
+<h6 id="autosec-70">Oefening 9</h6>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+Bepaal de coe&#x0308;xistentievoorwaarde.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\begin {cases}x-ay=4\\ 2x+(a-3)y=6\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(a\neq 1\)</span>
+</p>
+<p>
+\[ \det A=\begin {vmatrix}1&amp;-a\\ 2&amp;a-3\end {vmatrix}=3(a-1) \]
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(a\neq 1\): \(r(A)=2=r(A_b)\), dus er zijn oplossingen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(a=1\): \(A_b\overset {\text {rref}}{\sim }\left (\begin {array}{rr|r}1&amp;-1&amp;0\\ 0&amp;0&amp;1\end {array}\right )\), dus \(r(A_b)=2\neq r(A)=1\): geen
+oplossingen.
+</p>
+</li>
+</ul>
+<p>
+Coe&#x0308;xistentievoorwaarde: \(a\neq 1\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\begin {cases}3x+ay=5\\ x+2y=a\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(a\neq 6\)</span>
+</p>
+<p>
+\[ \det A=\begin {vmatrix}3&amp;a\\ 1&amp;2\end {vmatrix}=6-a \]
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(a\neq 6\): \(r(A)=r(A_b)=2\), dus er zijn oplossingen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(a=6\): \(A_b\overset {\text {rref}}{\sim }\left (\begin {array}{rr|r}1&amp;2&amp;0\\ 0&amp;0&amp;1\end {array}\right )\), dus \(r(A_b)=2\neq r(A)=1\): geen
+oplossingen.
+</p>
+</li>
+</ul>
+<p>
+Coe&#x0308;xistentievoorwaarde: \(a\neq 6\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\begin {cases}2x-ay-z=-1\\ x-2ay+z=a\\ x+ay-2z=1\end {cases}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(a=-2\)</span>
+</p>
+<p>
+\[ \det A=\begin {vmatrix}2&amp;-a&amp;-1\\ 1&amp;-2a&amp;1\\ 1&amp;a&amp;-2\end {vmatrix} =8a-a-a-2a-2a-2a=0 \qquad \Rightarrow \qquad r(A)&lt;3 \]
+</p>
+<p>
+Maar \(\begin {vmatrix}2&amp;-1\\ 1&amp;-2\end {vmatrix}=-4+1=-3\neq 0\), dus \(r(A)=2\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                         
+                                                                              2      −a     −1 −1                     2   −a    −1    −1
+                                                                       Ab =  1      −2a     1   a  ∼ R2 →2R2 −R1  0    −3a    3   2a + 1 
+                                                                              1       a     −2 1        R3 →2R3 −R1   0    3a   −3     3
+                                                                                                                
+                                                                                               2 −a −1     −1
+                                                                          ∼                 0 −3a 3 2a + 1 
+                                                                              R3 →R3 +R2       0  0   0 2a + 4
+
+-->
+
+<p>
+
+\begin{align*}
+A_b&amp;=\left (\begin{array}{ccc|c}\spil {2}&amp;-a&amp;-1&amp;-1\\ 1&amp;-2a&amp;1&amp;a\\ 1&amp;a&amp;-2&amp;1\end {array}\right ) \sim \rijop {\vphantom {\spil {0}}\\ \op {R_2\to
+2R_2-R_1}\\ \op {R_3\to 2R_3-R_1}} \left (\begin{array}{ccc|c}2&amp;-a&amp;-1&amp;-1\\ 0&amp;-3a&amp;3&amp;2a+1\\ 0&amp;3a&amp;-3&amp;3\end {array}\right ) \\ &amp;\sim \rijop {\\ \\ \op
+{R_3\to R_3+R_2}} \left (\begin{array}{ccc|c}2&amp;-a&amp;-1&amp;-1\\ 0&amp;-3a&amp;3&amp;2a+1\\ 0&amp;0&amp;0&amp;2a+4\end {array}\right )
+\end{align*}
+<span class="aside">We delen hier niet door \(-3a\): die spil hebben we niet nodig, en ze kan nul zijn.</span>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(r(A_b)=3\) als \(a\neq -2\): geen oplossingen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(r(A_b)=2\) als \(a=-2\): dan is \(r(A)=r(A_b)\), dus er zijn oplossingen.
+</p>
+</li>
+</ul>
+<p>
+Coe&#x0308;xistentievoorwaarde: \(a=-2\).
+</p>
+</div>
+</li>
+</ul>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=c5d6364c0958"></script>
+<script src="vendor/jsxgraphcore.js?v=c5d6364c0958"></script>
+<script src="interactieve-grafieken.js?v=c5d6364c0958"></script>
+<script src="matrixbord.js?v=c5d6364c0958"></script>
+<script src="hoofdstuk.interactief.js?v=c5d6364c0958"></script>
+</body>
+</html>

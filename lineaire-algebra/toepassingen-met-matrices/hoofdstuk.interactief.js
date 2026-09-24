@@ -392,9 +392,71 @@
       bord.update();
     }
 
+    // De matrix bij het gekozen jaar, zoals in de cursus:
+    // B_{2002+n} = M^n · B_{2002}, met M^n uitgeschreven.
+    function machten() {
+      var rij = [[[1, 0], [0, 1]]];
+      for (var n = 1; n <= JAREN; n++) {
+        var P = rij[n - 1];
+        rij.push([0, 1].map(function (i) {
+          return [0, 1].map(function (j) {
+            return P[i][0] * M[0][j] + P[i][1] * M[1][j];
+          });
+        }));
+      }
+      return rij;
+    }
+    var MN = machten();
+
+    var formule = document.createElement("div");
+    formule.className = "migratie-formule";
+    formule.style.cssText = "text-align:center;overflow-x:auto;margin:0.4rem 0";
+    ctx.element.parentNode.insertBefore(formule, ctx.element.nextSibling);
+
+    function aantalTex(x) {
+      return duizend(x * 1000).replace(/ /g, "\\,");
+    }
+
+    function kolomTex(v) {
+      return "\\begin{pmatrix}" + aantalTex(v[0]) + "\\\\" + aantalTex(v[1]) +
+        "\\end{pmatrix}";
+    }
+
+    // M^n heeft precies 2n decimalen, zoals M in de cursus; vanaf M^2
+    // houden we het bij vier. Een vaste lengte houdt de kolommen recht.
+    function matrixTex(A, decimalen) {
+      return "\\begin{pmatrix}" + A.map(function (rij) {
+        return rij.map(function (x) { return x.toFixed(decimalen); }).join(" & ");
+      }).join("\\\\") + "\\end{pmatrix}";
+    }
+
+    var vorigeTex = null;
+
+    function toonFormule() {
+      var n = jaar();
+      var b0 = kolomTex(rijen[0]);
+      var tex = "B_{" + (2002 + n) + "}=";
+      if (n > 0) {
+        tex += (n === 1 ? "M" : "M^{" + n + "}") + "\\cdot B_{2002}=" +
+          matrixTex(MN[n], Math.min(2 * n, 4)) + b0 + "=";
+      }
+      tex += kolomTex(rijen[n]) + "\\begin{matrix}S\\\\P\\end{matrix}";
+      if (tex === vorigeTex) return;
+      vorigeTex = tex;
+      var mj = window.MathJax;
+      try {
+        if (!mj || typeof mj.tex2svg !== "function") throw new Error("geen MathJax");
+        formule.replaceChildren(mj.tex2svg(tex, { display: true }));
+      } catch (e) {
+        formule.textContent = "B" + (2002 + n) + " = (" +
+          duizend(rijen[n][0] * 1000) + ", " + duizend(rijen[n][1] * 1000) + ")";
+      }
+    }
+
     function werkBij() {
       var n = jaar();
       var v = rijen[n];
+      toonFormule();
       ctx.toon("Start (" + (2002) + "): " + duizend(rijen[0][0] * 1000) +
         " in de stad en " + duizend(rijen[0][1] * 1000) + " op het platteland. " +
         "Na " + n + " jaar (" + (2002 + n) + "): S = " +
@@ -414,10 +476,11 @@
       werkBij();
     }
 
-    ctx.knop("Volgend jaar", function () { zetJaar(Math.min(JAREN, jaar() + 1)); });
     ctx.knop("Vorig jaar", function () { zetJaar(Math.max(0, jaar() - 1)); });
-    ctx.knop("2012 (na 10 jaar)", function () { zetJaar(10); });
-    ctx.knop("Na 50 jaar", function () { zetJaar(JAREN); });
+    ctx.knop("Volgend jaar", function () { zetJaar(Math.min(JAREN, jaar() + 1)); });
+    ctx.knop("2012 (na 10 jaar)", function () { zetJaar(10); })
+      .style.marginLeft = "1.2rem";
+    ctx.knop((2002 + JAREN) + " (na " + JAREN + " jaar)", function () { zetJaar(JAREN); });
 
     function herstel() {
       beginpunt.setPosition(window.JXG.COORDS_BY_USER, [0, 68]);
@@ -556,16 +619,78 @@
       bord.update();
     }
 
+    // De stap van het gekozen jaar, zoals in de cursus: P_n = L · P_{n-1},
+    // met L uitgeschreven. Een macht L^n zou hier enkel onleesbare decimalen
+    // geven; zo zie je bovendien de overlevingskans van de eieren, die met de
+    // schuifknop meeverandert, op haar plaats in de matrix staan (vet).
+    var formule = document.createElement("div");
+    formule.className = "leslie-formule";
+    formule.style.cssText = "text-align:center;overflow-x:auto;margin:0.4rem 0";
+    ctx.element.parentNode.insertBefore(formule, ctx.element.nextSibling);
+
+    function lesliematrix() {
+      var L = [GEBOORTE.slice(), [0, 0, 0, 0, 0], [0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]];
+      L[1][0] = eiOverleving();
+      for (var i = 2; i < 5; i++) L[i][i - 1] = OVERLEEF[i - 1];
+      return L;
+    }
+
+    function matrixTex(L) {
+      return "\\begin{pmatrix}" + L.map(function (rij, i) {
+        return rij.map(function (x, j) {
+          var t = ctx.getal(x, 2);
+          return i === 1 && j === 0 ? "\\mathbf{" + t + "}" : t;
+        }).join(" & ");
+      }).join("\\\\") + "\\end{pmatrix}";
+    }
+
+    function kolomTex(P) {
+      return "\\begin{pmatrix}" + P.map(function (x) {
+        return String(Math.round(x));
+      }).join("\\\\") + "\\end{pmatrix}";
+    }
+
+    function samen(P) {
+      return P.reduce(function (a, b) { return a + Math.round(b); }, 0);
+    }
+
+    var vorigeTex = null;
+
+    function toonFormule() {
+      var n = jaar();
+      var tex = "P_{" + n + "}=";
+      if (n > 0) {
+        tex += "L\\cdot P_{" + (n - 1) + "}=" + matrixTex(lesliematrix()) +
+          kolomTex(rijen[n - 1]) + "=";
+      }
+      tex += kolomTex(rijen[n]) +
+        "\\begin{matrix}0j\\\\1j\\\\2j\\\\3j\\\\4j\\end{matrix}" +
+        "\\ \\ \\Bigl(\\text{samen }" + samen(rijen[n]) + "\\Bigr)";
+      if (tex === vorigeTex) return;
+      vorigeTex = tex;
+      var mj = window.MathJax;
+      try {
+        if (!mj || typeof mj.tex2svg !== "function") throw new Error("geen MathJax");
+        formule.replaceChildren(mj.tex2svg(tex, { display: true }));
+      } catch (e) {
+        formule.textContent = "P" + n + " = (" + rijen[n].map(function (x) {
+          return Math.round(x);
+        }).join(", ") + ")";
+      }
+    }
+
     function werkBij() {
       var n = jaar();
       var P = rijen[n];
+      toonFormule();
       var groeit = totaal(rijen[JAREN]) > totaal(rijen[0]);
       ctx.toon("Overlevingskans van de eieren: " +
         ctx.getal(eiOverleving(), 2) + ". Na " + n + " jaar: " +
         KLASSEN.map(function (naam, i) {
           return naam + " = " + Math.round(P[i]);
         }).join(", ") + ", samen " +
-        P.reduce(function (a, b) { return a + Math.round(b); }, 0) +
+        samen(P) +
         " vogels. " +
         (groeit
           ? "Met deze overlevingskans groeit de populatie."

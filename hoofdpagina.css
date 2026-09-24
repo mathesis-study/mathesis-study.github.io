@@ -143,11 +143,19 @@ body {
 }
 
 .merk {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: .01em;
   color: var(--kleur-accent);
   text-decoration: none;
+}
+
+.merk img {
+  width: 1.65rem;
+  height: 1.65rem;
 }
 
 .rek {

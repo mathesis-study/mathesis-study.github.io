@@ -13,6 +13,16 @@
          "M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1",
     maan: "M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"
   };
+  // Het manifest maakt van de site een installeerbare app. Een lokaal
+  // geopend bestand mag het niet laden, dus enkel over http(s).
+  var manifest = document.querySelector('meta[name="mathesis-manifest"]');
+  if (manifest && /^https?:$/.test(location.protocol)) {
+    var link = document.createElement("link");
+    link.rel = "manifest";
+    link.href = manifest.content;
+    document.head.appendChild(link);
+  }
+
   var systeemDonker = window.matchMedia
     ? window.matchMedia("(prefers-color-scheme: dark)") : null;
 

@@ -1,0 +1,295 @@
+/* Vormgeving van de interactieve grafieken.
+ *
+ * cursus.cls levert per grafiek een <figure class="interactieve-grafiek"> met
+ * de statische figuur als terugval, een lege houder voor het JSXGraph-bord en
+ * een beschrijving. interactieve-grafieken.js vult die houder; pas als dat
+ * gelukt is, krijgt de figuur de klasse --actief en verdwijnt de terugval.
+ *
+ * De kleuren komen uit presentatie.css. De namen hieronder zeggen wat een
+ * kleur in een grafiek betekent, niet welke kleur het is, zodat de nachtstand
+ * enkel een tweede lijst is en de hoofdstukmodules niets van thema's weten.
+ */
+
+:root,
+:root[data-thema="licht"] {
+  --grafiek-vlak: var(--kleur-figuur);
+  --grafiek-as: #64748b;
+  --grafiek-raster: #e5eaf0;
+  --grafiek-tekst: var(--kleur-tekst);
+  --grafiek-zwak: var(--kleur-zwak);
+  --grafiek-kromme: #445264;
+  --grafiek-hulp: #94a3b8;
+  --grafiek-punt: #1d5fa8;
+  --grafiek-kolomdimensie: #7c3aed;
+  --grafiek-secante: #b45309;
+  --grafiek-raaklijn: #1d5fa8;
+  --grafiek-afgeleide: #15803d;
+}
+
+@media screen {
+  :root[data-thema="donker"] {
+    --grafiek-as: #93a3b6;
+    --grafiek-raster: #22303d;
+    --grafiek-kromme: #c3cedb;
+    --grafiek-hulp: #5c6b7c;
+    --grafiek-punt: #7ab4f0;
+    --grafiek-kolomdimensie: #c4b5fd;
+    --grafiek-secante: #f0b25e;
+    --grafiek-raaklijn: #7ab4f0;
+    --grafiek-afgeleide: #74c98c;
+  }
+}
+
+.interactieve-grafiek {
+  margin: 1rem auto;
+  padding: 0;
+}
+
+/* Zolang de grafiek niet draait, staat hier de statische figuur uit de
+ * cursus. Ze verdwijnt pas nadat het bord opgebouwd is, zodat een fout in
+ * JavaScript of een ontbrekende module de lezer niets afneemt. */
+.interactieve-grafiek-actief > .interactieve-grafiek-terugval {
+  display: none;
+}
+
+/* De houder krijgt zijn hoogte van het script, uit data-hoogte. Voor die tijd
+ * neemt hij geen plaats in. JSXGraph geeft zijn HTML-teksten een z-index
+ * (9 voor gewone tekst); isolation houdt die binnen het eigen bord, anders
+ * steken de getallen van een andere grafiek boven een groot getoonde figuur
+ * (z-index 8) uit. */
+.interactieve-grafiek-bord {
+  isolation: isolate;
+  display: none;
+  width: 100%;
+  background: var(--grafiek-vlak);
+  touch-action: pan-y;
+}
+
+/* In de gewone slide mag het figuurvlak licht doorschijnend zijn. Wanneer
+ * de grafiek het hele podium inneemt, moet ze de onderliggende slide volledig
+ * afdekken; anders blijven tekst en figuren door het JSXGraph-bord zichtbaar. */
+.pres-figuur-groot.interactieve-grafiek {
+  background: var(--kleur-vlak);
+}
+
+/* Groot getoond houdt het bord zijn verhouding en is het dus vaak smaller
+ * dan het podium; het staat dan in het midden. Het kader is een flexkolom:
+ * zonder flex-shrink zou die het bord in de hoogte laten krimpen en zo de
+ * verhouding alsnog breken. */
+.pres-figuur-groot .interactieve-grafiek-bord {
+  flex-shrink: 0;
+  margin-inline: auto;
+}
+
+.interactieve-grafiek-bord:focus-visible {
+  outline: 2px solid var(--kleur-accent);
+  outline-offset: -2px;
+}
+
+/* De actuele waarden in tekst, naast wat de tekening laat zien. Een
+ * schermlezer krijgt ze via aria-live te horen; kleur is dus nooit de enige
+ * drager van de informatie. */
+.interactieve-grafiek-status {
+  margin: .4rem .6rem 0;
+  font-size: .85rem;
+  color: var(--kleur-tekst);
+  text-align: center;
+}
+
+.interactieve-grafiek-status:empty {
+  display: none;
+}
+
+.interactieve-grafiek-knoppen {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .4rem;
+  margin: .5rem .6rem 0;
+}
+
+/* De ordeknoppen staan per matrix bij elkaar, met verhogen boven verlagen. */
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen {
+  display: grid;
+  grid-template-columns: max-content max-content 1rem max-content max-content 1rem max-content;
+}
+
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(1),
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(6) {
+  grid-column: 1;
+}
+
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(2),
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(7) {
+  grid-column: 2;
+}
+
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(-n+5) {
+  grid-row: 1;
+}
+
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(n+6) {
+  grid-row: 2;
+}
+
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(3),
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(8) {
+  grid-column: 4;
+}
+
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(4),
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(9) {
+  grid-column: 5;
+}
+
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(5) {
+  grid-column: 7;
+}
+
+[data-grafiek="product-orde"] .interactieve-grafiek-knoppen button:nth-child(10) {
+  grid-column: 7;
+}
+
+[data-grafiek="product-orde"] .matrixdimensie-binnen {
+  padding: .04em .18em;
+  color: var(--grafiek-tekst);
+  background: color-mix(in srgb, var(--grafiek-secante) 28%, transparent);
+  border-radius: .2em;
+  font-weight: 600;
+}
+
+[data-grafiek="product-orde"] .matrixdimensie-buiten-rijen,
+[data-grafiek="product-orde"] .matrixdimensie-buiten-kolommen {
+  padding: .04em .18em;
+  color: var(--grafiek-tekst);
+  border-radius: .2em;
+  font-weight: 600;
+}
+
+[data-grafiek="product-orde"] .matrixdimensie-buiten-rijen {
+  background: color-mix(in srgb, var(--grafiek-punt) 24%, transparent);
+}
+
+[data-grafiek="product-orde"] .matrixdimensie-buiten-kolommen {
+  background: color-mix(in srgb, var(--grafiek-kolomdimensie) 24%, transparent);
+}
+
+.interactieve-grafiek-knoppen button,
+.interactieve-grafiek-bord button {
+  font: inherit;
+  font-size: .82rem;
+  padding: .3rem .7rem;
+  color: var(--kleur-tekst);
+  background: var(--kleur-vlak);
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  cursor: pointer;
+}
+
+.interactieve-grafiek-knoppen button:hover,
+.interactieve-grafiek-bord button:hover {
+  border-color: var(--kleur-accent);
+}
+
+.interactieve-grafiek-knoppen button[aria-pressed="true"] {
+  background: var(--kleur-accent);
+  border-color: var(--kleur-accent);
+  color: var(--kleur-op-accent);
+}
+
+/* Een schakelaar: knoppen die samen één keuze vormen, aaneengesloten zoals
+ * Kort, Lang en Volledig in de kopbalk. De gekozen knop staat ingedrukt. */
+.interactieve-grafiek-schakelaar {
+  display: inline-flex;
+}
+
+.interactieve-grafiek-schakelaar button {
+  border-radius: 0;
+}
+
+.interactieve-grafiek-schakelaar button + button {
+  margin-left: -1px;
+}
+
+.interactieve-grafiek-schakelaar button:first-child {
+  border-radius: var(--straal) 0 0 var(--straal);
+}
+
+.interactieve-grafiek-schakelaar button:last-child {
+  border-radius: 0 var(--straal) var(--straal) 0;
+}
+
+/* Zo valt de gekleurde rand niet half onder de buurknop. */
+.interactieve-grafiek-schakelaar button:hover,
+.interactieve-grafiek-schakelaar button[aria-pressed="true"] {
+  position: relative;
+  z-index: 1;
+}
+
+/* Diagonaalknoppen houden hun betekenisvolle kleur ook in de actieve stand;
+ * zo ontstaat er geen blauwe achtergrond met een contrasterende accentkleur. */
+.interactieve-grafiek-knoppen button.diagonaal-knop[aria-pressed="true"] {
+  background: color-mix(in srgb, var(--diagonaal-kleur) 16%, var(--kleur-vlak));
+  border-color: var(--diagonaal-kleur);
+  color: var(--diagonaal-kleur);
+}
+
+.interactieve-grafiek-uitleg {
+  margin: .5rem .6rem .6rem;
+  font-size: .85rem;
+  color: var(--kleur-zwak);
+  text-align: center;
+}
+
+/* JSXGraph zet zijn eigen tekstlabels als HTML boven het bord. Ze moeten dus
+ * mee met de letters van de cursus en met de dag- en nachtstand. */
+.interactieve-grafiek-bord .JXGtext {
+  font-family: inherit !important;
+  font-size: .82rem !important;
+}
+
+/* De cijfers bij de assen volgen de dag- en nachtstand via deze klasse.
+ * JSXGraph zet zijn eigen kleur als attribuut en als inline stijl, vandaar de
+ * uitroeptekens; de asnamen zijn HTML (color), de cijfers erlangs staan als
+ * SVG-tekst in het bord (fill). */
+.interactieve-grafiek-bord .grafiek-aslabel {
+  color: var(--grafiek-zwak) !important;
+  fill: var(--grafiek-zwak) !important;
+  font-family: inherit !important;
+}
+
+/* De ingebouwde infobox ("X: 1.2, Y: 3.4") staat in het Engels en met een
+ * eigen opmaak; de grafieken tonen hun waarden zelf, in het Nederlands. */
+.interactieve-grafiek-bord .JXGinfobox {
+  display: none !important;
+}
+
+/* Een grafiek die niet kon starten, laat de statische figuur staan en zegt
+ * er in tekst bij waarom. */
+.interactieve-grafiek-fout {
+  margin: .4rem .6rem 0;
+  font-size: .8rem;
+  color: var(--kleur-zwak);
+  text-align: center;
+}
+
+/* Op een smal scherm is een vaste hoogte in rem al gauw te hoog of te laag;
+ * het script houdt de hoogte daarom binnen deze grenzen. */
+@media (max-width: 48rem) {
+  .interactieve-grafiek-uitleg,
+  .interactieve-grafiek-status {
+    font-size: .8rem;
+  }
+}
+
+@media print {
+  .interactieve-grafiek-actief > .interactieve-grafiek-terugval {
+    display: revert;
+  }
+
+  .interactieve-grafiek-bord,
+  .interactieve-grafiek-knoppen,
+  .interactieve-grafiek-status {
+    display: none !important;
+  }
+}

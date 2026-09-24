@@ -1,0 +1,27 @@
+{
+ "titel": "Stelsels van lineaire vergelijkingen",
+ "hoofdstuk": 4,
+ "code": "L04",
+ "vak": "Wiskunde",
+ "domein": "LineaireAlgebra",
+ "domeinnaam": "Lineaire algebra",
+ "url": "lineaire-algebra/stelsels",
+ "secties": [
+  "Stelsels van \\(m\\) lineaire vergelijkingen met \\(n\\) onbekenden",
+  "Oplossingenverzameling van een stelsel",
+  "Gelijkwaardige stelsels",
+  "Elementaire rij-operaties op een matrix",
+  "Rij-canonieke matrix",
+  "Stelsels oplossen met de methode van Gauss-Jordan",
+  "Homogene stelsels",
+  "Toepassingen",
+  "Coëxistentievoorwaarde"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.15",
+  "WD3_06.08.16"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": true
+}
