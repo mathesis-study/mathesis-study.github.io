@@ -1319,6 +1319,10 @@
   function zetGroteFiguur(doos, groot) {
     if (groteFiguur && groteFiguur !== doos) zetGroteFiguur(groteFiguur, false);
     doos.classList.toggle("pres-figuur-groot", groot);
+    if (groot) {
+      var frame = doos.querySelector("iframe[data-bron]");
+      if (frame) activeerFiguur(frame, true);
+    }
     document.body.classList.toggle("pres-figuur-open", groot);
     var knop = doos.querySelector(".pres-figuurbalk .pres-figuur-grootknop");
     if (knop) knop.setAttribute("aria-pressed", String(groot));
@@ -1336,11 +1340,124 @@
   function volgFiguren() {
     var waarnemer = new IntersectionObserver(function (items) {
       items.forEach(function (item) {
-        activeerFiguur(item.target, item.isIntersecting);
+        var aan = item.isIntersecting || Boolean(item.target.closest(".pres-figuur-groot"));
+        if (item.target.matches("[data-figuurgevallen]")) {
+          item.target.querySelectorAll("iframe[data-bron]").forEach(function (frame) {
+            activeerFiguur(frame, aan);
+          });
+        } else {
+          activeerFiguur(item.target, aan);
+        }
       });
     }, { root: podium, rootMargin: "50% 0px" });
     document.querySelectorAll("iframe[data-bron]").forEach(function (frame) {
-      waarnemer.observe(frame);
+      if (!frame.closest("[data-figuurgevallen]")) waarnemer.observe(frame);
+    });
+    document.querySelectorAll("[data-figuurgevallen]").forEach(function (groep) {
+      waarnemer.observe(groep);
+    });
+  }
+
+  function bereidFiguurgevallenVoor() {
+    document.querySelectorAll("[data-figuurgevallen]").forEach(function (groep) {
+      var gevallen = Array.from(groep.querySelectorAll(".pres-figuurgeval"));
+      if (!gevallen.length) return;
+      var keuze = el("div", "pres-figuurgevallen-keuze");
+      keuze.setAttribute("role", "group");
+      keuze.setAttribute("aria-label", groep.dataset.keuzenaam);
+      var opschrift = el("span", "");
+      opschrift.textContent = groep.dataset.keuzenaam + ":";
+      keuze.appendChild(opschrift);
+      var schakelaar = el("div", "pres-figuurgevallen-schakelaar");
+      var knoppen = gevallen.map(function (geval, index) {
+        var knop = el("button", "");
+        knop.type = "button";
+        knop.textContent = geval.dataset.naam;
+        knop.setAttribute("aria-pressed", String(index === 0));
+        schakelaar.appendChild(knop);
+        return knop;
+      });
+      keuze.appendChild(schakelaar);
+      groep.appendChild(keuze);
+      var wachtendeKeuze = null;
+      gevallen.forEach(function (geval) {
+        geval.inert = geval.hidden;
+        var frame = geval.querySelector("iframe");
+        // Enkel een figuur die bij een wissel nog moest laden, krijgt bij het
+        // laden de stand van de camera (rotatie, zoom en verschuiving). Elke
+        // andere keer dat ze laadt, zoals na Reset of bij een terugkeer naar
+        // de slide, begint ze vooraan.
+        if (frame) frame.addEventListener("load", function () {
+          frame._figuurGereed = Boolean(frame.getAttribute("src"));
+          var stand = frame._wachtendeStand;
+          frame._wachtendeStand = null;
+          if (stand && frame._figuurGereed) {
+            frame.contentWindow.postMessage({ type: "asy-zet-stand", stand: stand }, "*");
+          }
+        });
+      });
+      function toonGeval(index) {
+        var vorig = gevallen.find(function (geval) { return !geval.hidden; });
+        var vorigFrame = vorig && vorig.querySelector("iframe");
+        var stap = vorigFrame && vorigFrame._stappen && vorigFrame._stappen.aantal
+          ? vorigFrame._stappen.stap : null;
+        gevallen.forEach(function (geval, i) {
+          geval.hidden = i !== index;
+          // Het verborgen geval staat nog in beeld, onder het gekozen.
+          geval.inert = i !== index;
+          knoppen[i].setAttribute("aria-pressed", String(i === index));
+        });
+        var frame = gevallen[index].querySelector("iframe");
+        if (frame) {
+          if (stap && frame !== vorigFrame) {
+            if (frame.getAttribute("src") && frame._figuurGereed &&
+                frame._stappen && frame._stappen.aantal) {
+              zetFiguurstap(frame, stap);
+            } else {
+              frame._herstelStap = stap;
+            }
+          }
+          activeerFiguur(frame, true);
+        }
+      }
+      window.addEventListener("message", function (e) {
+        if (!e.data || e.data.type !== "asy-stand" || wachtendeKeuze === null) return;
+        var actief = gevallen.find(function (geval) { return !geval.hidden; });
+        var frame = actief && actief.querySelector("iframe");
+        if (!frame || e.source !== frame.contentWindow) return;
+        var stand = e.data.stand;
+        var index = wachtendeKeuze;
+        wachtendeKeuze = null;
+        // Het andere geval staat al geladen onder het huidige. Het krijgt
+        // eerst de stand van de camera en tekent die, pas daarna wisselen
+        // we, zodat er geen beeld zonder of met een oude scene tussen zit.
+        var doel = gevallen[index].querySelector("iframe");
+        if (doel && doel._figuurGereed) {
+          doel.contentWindow.postMessage({ type: "asy-zet-stand", stand: stand }, "*");
+          requestAnimationFrame(function () {
+            requestAnimationFrame(function () { toonGeval(index); });
+          });
+        } else {
+          if (doel) doel._wachtendeStand = stand;
+          toonGeval(index);
+        }
+      });
+      knoppen.forEach(function (knop, index) {
+        knop.addEventListener("click", function (e) {
+          e.stopPropagation();
+          var actief = gevallen.find(function (geval) { return !geval.hidden; });
+          var huidig = actief && actief.querySelector("iframe");
+          if (groep.dataset.camera !== "apart" && huidig &&
+              huidig.getAttribute("src") && huidig._figuurGereed &&
+              actief !== gevallen[index]) {
+            wachtendeKeuze = index;
+            huidig.contentWindow.postMessage({ type: "asy-vraag-stand" }, "*");
+          } else {
+            wachtendeKeuze = null;
+            toonGeval(index);
+          }
+        });
+      });
     });
   }
 
@@ -1348,6 +1465,7 @@
     if (aan) {
       if (frame.getAttribute("src")) return;
       frame._toonEindstap = oplossingenZichtbaar && Boolean(frame.closest(".oplossing"));
+      frame._figuurGereed = false;
       frame.setAttribute("src", frame.dataset.bron);
     } else if (frame.getAttribute("src")) {
       if (frame._stappen) stopStapspel(frame);
@@ -1372,6 +1490,8 @@
       /* ander origin of nog niet geladen: hieronder herladen we gewoon. */
     }
     frame._herstelStap = stap;
+    frame._wachtendeStand = null;
+    frame._figuurGereed = false;
     frame.removeAttribute("src");
     frame.setAttribute("src", frame.dataset.bron);
   }
@@ -2511,6 +2631,7 @@
     volgWiskundeOplossingen();
     volgBredeFormules();
     bereidFigurenVoor();
+    bereidFiguurgevallenVoor();
     bereidGrafiekenVoor();
     bouwChroom(stroom);
     zetOverzichten();

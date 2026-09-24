@@ -1186,6 +1186,79 @@ div.marginparblock img {
   overflow: hidden;
 }
 
+.pres-figuurgevallen-keuze {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  margin-top: .6rem;
+}
+
+.pres-figuurgevallen-schakelaar {
+  display: inline-flex;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+}
+
+.pres-figuurgevallen-keuze button {
+  flex: none;
+  border: 0;
+  border-right: 1px solid var(--kleur-lijn);
+  background: var(--kleur-vlak-zweef);
+  color: var(--kleur-tekst);
+  padding: .4rem .7rem;
+  cursor: pointer;
+  font: inherit;
+  white-space: nowrap;
+}
+
+.pres-figuurgevallen-keuze button:last-child {
+  border-right: 0;
+}
+
+.pres-figuurgevallen-keuze button[aria-pressed="true"] {
+  background: var(--kleur-accent);
+  color: var(--kleur-op-accent);
+}
+
+.pres-figuurgevallen-keuze button:focus-visible {
+  outline: 2px solid var(--kleur-accent);
+  outline-offset: 2px;
+}
+
+/* De gevallen liggen op elkaar in dezelfde cel. Een verborgen geval blijft
+   op ware grootte getekend, zodat wisselen geen lege of herschaalde
+   WebGL-scene toont; de groep is zo hoog als het hoogste geval. Verbergen
+   gebeurt met opacity en niet met visibility: een onzichtbaar iframe legt
+   de browser stil, en bij het tonen verschijnt dan eerst een donker,
+   leeg canvas. */
+.pres-figuurgevallen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pres-figuurgevallen > .pres-figuurgeval {
+  grid-area: 1 / 1;
+}
+
+.pres-figuurgeval[hidden] {
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pres-figuurgeval-uitleg[hidden] {
+  display: none;
+}
+
+.pres-figuurgeval-uitleg {
+  margin: .6rem 0 .3rem;
+  text-align: center;
+}
+
 .pres-figuur iframe {
   display: block;
   width: 100%;
@@ -1291,6 +1364,7 @@ div.marginparblock img {
   margin: 0;
   border: 0;
   border-radius: 0;
+  background: var(--kleur-vlak);
   box-shadow: 0 -2px 30px var(--schaduw);
 }
 
