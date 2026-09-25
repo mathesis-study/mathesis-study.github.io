@@ -1,0 +1,23 @@
+{
+ "titel": "Differentialen",
+ "hoofdstuk": 19,
+ "code": "A19",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/differentialen",
+ "secties": [
+  "Definitie differentiaal",
+  "Differentialen van hogere orde",
+  "Rekenregels",
+  "Oefeningen",
+  "Toepassing: berekenen van benaderingen"
+ ],
+ "leerplandoelen": [
+  "BV3_06.03",
+  "WD3_06.08.28"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": false
+}

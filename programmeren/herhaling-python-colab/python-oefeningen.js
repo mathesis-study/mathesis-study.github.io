@@ -20,6 +20,75 @@
     return editor.stapsoort === "regel" ? "regel" : "instructie";
   }
 
+  /* --- Koppeling met een interactieve grafiek ---------------------------
+   *
+   * Een codeblok met [grafiek=naam] hoort bij de grafiek met die naam. De
+   * grafiek bewaart de toestand en levert variabelen aan (bijvoorbeeld links
+   * en rechts): die staan klaar voor de eerste regel, alsof een vorige ronde
+   * van een lus ze achterliet. Een strook boven de code toont ze. In de andere
+   * richting meldt het blok zijn toestand met de gebeurtenis python:toestand:
+   * na een uitvoering de eindwaarden, en bij het stappen de waarden voor de
+   * volgende regel. De laatste melding blijft ook op te vragen, want een
+   * grafiek wordt pas gebouwd wanneer haar slide in beeld komt. Wat de
+   * grafiek met de waarden doet, weet dit bestand niet.
+   */
+  const GETAL = /^[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?$/;
+
+  function getallenUit(waarden) {
+    const getallen = {};
+    Object.keys(waarden || {}).forEach(naam => {
+      if (GETAL.test(waarden[naam])) getallen[naam] = Number(waarden[naam]);
+    });
+    return getallen;
+  }
+
+  function meldToestand(editor, extra) {
+    if (!editor.grafiek) return;
+    const detail = Object.assign({ grafiek: editor.grafiek, soort: "code",
+      vooraf: Object.assign({}, editor.vooraf), waarden: null, getallen: null,
+      regel: null, regeltekst: "", conditie: null, klaar: false, fout: false }, extra || {});
+    detail.getallen = getallenUit(detail.waarden);
+    editor.laatsteToestand = detail;
+    editor.blok.dispatchEvent(new CustomEvent("python:toestand", { bubbles: true, detail }));
+  }
+
+  // De aangeleverde waarden, zoals Python ze zou tonen.
+  function toonVooraf(editor) {
+    if (!editor.voorafstrook) return;
+    const namen = Object.keys(editor.vooraf);
+    editor.voorafstrook.hidden = !namen.length;
+    editor.voorafstrook.replaceChildren(element("span", "python-vooraf-label", "Uit de figuur:"));
+    namen.forEach(naam => {
+      const vak = element("span", "python-waarde");
+      vak.append(element("code", "", naam), document.createTextNode(" = "),
+        element("code", "", String(editor.vooraf[naam])));
+      editor.voorafstrook.appendChild(vak);
+    });
+  }
+
+  // De grafiek zet haar variabelen. Een open stapopname hoort bij de oude
+  // waarden en gaat dus dicht, tenzij de grafiek net het einde van die
+  // opname overneemt.
+  function zetVooraf(editor, waarden, sluitStappen = true) {
+    const nieuw = {};
+    Object.keys(waarden || {}).forEach(naam => {
+      if (/^[A-Za-z]\w*$/.test(naam) && Number.isFinite(waarden[naam])) nieuw[naam] = waarden[naam];
+    });
+    if (JSON.stringify(nieuw) === JSON.stringify(editor.vooraf)) return false;
+    editor.vooraf = nieuw;
+    toonVooraf(editor);
+    // Kiest de lezer in de grafiek een ander begin, dan hoort de vorige
+    // uitvoer daar niet meer bij. Neemt de grafiek net het resultaat van deze
+    // uitvoering over, dan blijft die uitvoer staan.
+    if (sluitStappen && !bezig) {
+      wisInstructies(editor);
+      editor.uitvoer.hidden = true;
+      editor.resultaat.hidden = true;
+      editor.code.clearDiagnostics();
+    }
+    return true;
+  }
+
   function kanVoorbeeldinvoer(editor, sessie = editor.invoerSessie) {
     return Boolean(!bezig && sessie && editor.voorbeeldinvoer &&
       sessie.antwoorden.length < editor.voorbeeldinvoer.length);
@@ -204,7 +273,8 @@
     worker.postMessage({ actie: "uitvoeren", naam: taak.editor.naam,
       bron: taak.bron, invoer: taak.invoer, stapsgewijs: taak.stapsgewijs,
       namespace: taak.namespace, modeloplossing: taak.modeloplossing,
-      outputDelay: taak.editor.outputDelay });
+      outputDelay: taak.editor.outputDelay, variabelen: Boolean(taak.editor.grafiek),
+      vooraf: taak.editor.grafiek ? taak.editor.vooraf : null });
   }
 
   function werkUitvoerBij(taak) {
@@ -312,6 +382,8 @@
     if (resultaat.stappen && resultaat.stappen.length) toonStappen(huidig, resultaat.stappen, bezig.bron);
     // Een mislukte initialisatie mag de volgende poging niet vergiftigen.
     afronden(taak.runtimeVerloren ? "De runtime is herstart. Voer de cellen opnieuw van boven naar onder uit." : "", Boolean(resultaat.fout && resultaat.uitvoer === undefined));
+    if (!wachtOpInvoer) meldToestand(huidig, { soort: resultaat.fout ? "fout" : "uitvoering",
+      waarden: resultaat.waarden || null, fout: Boolean(resultaat.fout) });
     if (wachtOpInvoer) huidig.status.textContent = kanVoorbeeldinvoer(huidig) ?
       "Druk op ↓ voor de voorbeeldinvoer." : "Vul je antwoord in en druk op Enter.";
   }
@@ -486,7 +558,7 @@
     }
     editor.stap = { instructies: resultaat.instructies, fout: resultaat.fout,
       foutgegevens: resultaat.foutgegevens, lussen: resultaat.lussen || [],
-      afgekapt: Boolean(resultaat.afgekapt), index: 0 };
+      afgekapt: Boolean(resultaat.afgekapt), eind: resultaat.eind || null, index: 0 };
     toonInstructies(editor);
   }
 
@@ -629,6 +701,15 @@
     }
     toonToestand(editor);
     knoppen();
+    if (editor.grafiek) {
+      const nu = klaar ? null : stap.instructies[stap.index];
+      const laatste = stap.instructies[aantal - 1];
+      meldToestand(editor, { soort: "stap", index: stap.index, aantal, klaar,
+        waarden: nu ? nu.waarden : (stap.eind || laatste.waarden),
+        regel: nu ? nu.regel : null,
+        regeltekst: nu ? (editor.code.getValue().split("\n")[nu.regel - 1] || "") : "",
+        conditie: nu && nu.conditie ? nu.conditie : null, fout: Boolean(fout) });
+    }
   }
 
   // Springen binnen de opname; de knoppen begin, einde en volgende ronde en het
@@ -695,6 +776,7 @@
 
   function sluitStappen(editor) {
     wisInstructies(editor);
+    meldToestand(editor);
     editor.code.clearDiagnostics();
     editor.uitvoer.hidden = true;
     editor.resultaat.hidden = true;
@@ -772,6 +854,7 @@
       ? soorten[bron.dataset.stappen] || "" : "";
     const stapsgewijs = Boolean(stapsoort);
     const editor = { naam: blok.dataset.python, codeblok, blok, stapsoort, namespace: bron.dataset.namespace || "",
+      grafiek: codeblok ? bron.dataset.grafiek || "" : "", vooraf: {},
       outputDelay: Number(bron.dataset.outputDelay) || 0,
       outputMax: Number(bron.dataset.outputMax) || 30,
       voorbeeldinvoer: blok.hasAttribute("data-input") ? blok.dataset.input.split(",").map(waarde => waarde.trim()) : [] };
@@ -868,6 +951,7 @@
       editor.invoerSessie = null;
       if (bezig && bezig.editor === editor) afronden("Code gewijzigd. Voer opnieuw uit.", true);
       else editor.status.textContent = "Code gewijzigd. Voer opnieuw uit.";
+      meldToestand(editor);
     }
     function werkResetknopBij() {
       if (editor.resetbalk) editor.resetbalk.hidden = editor.code.getValue() === begin;
@@ -965,7 +1049,14 @@
     resultaatinhoud.append(editor.uitvoer, editor.feedback);
     editor.resultaat.append(editor.markering, resultaatinhoud);
     editor.stappen = element("div", "python-stappen"); editor.stappen.hidden = true;
-    paneel.append(codekop, codevak);
+    if (editor.grafiek) {
+      editor.voorafstrook = element("div", "python-vooraf");
+      editor.voorafstrook.hidden = true;
+      editor.voorafstrook.setAttribute("aria-live", "polite");
+    }
+    paneel.append(codekop);
+    if (editor.voorafstrook) paneel.append(editor.voorafstrook);
+    paneel.append(codevak);
     // De stapinterface staat tussen de code en de uitvoer: bij het stappen lees
     // je van boven naar onder wat er is, wat er nu gebeurt en wat eruit komt.
     // Enkel [stap-per-regel] heeft ze; per instructie valt er tussen twee
@@ -1034,7 +1125,25 @@
         doe: richting => { if (richting > 0) gebruikVoorbeeldinvoer(editor); }
       };
     }
+    if (editor.grafiek) {
+      blok.dataset.grafiek = editor.grafiek;
+      blok.mathesisCode = {
+        grafiek: editor.grafiek,
+        code: () => editor.code.getValue(),
+        laatste: () => editor.laatsteToestand,
+        vooraf: (waarden, sluitStappen) => zetVooraf(editor, waarden, sluitStappen),
+        // Een grafiek start de code net zoals de playknop: niet terwijl er
+        // al iets loopt, en een open stapinterface gaat eerst dicht.
+        voerUit: () => {
+          if (bezig) return false;
+          if (editor.stap) wisInstructies(editor);
+          start(editor);
+          return true;
+        }
+      };
+    }
     editors.push(editor);
+    meldToestand(editor);
   });
   knoppen();
 

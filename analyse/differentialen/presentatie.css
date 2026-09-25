@@ -1,0 +1,2242 @@
+@import url("lwarp.css");
+
+/* Presentatielaag bovenop de lwarp-uitvoer van cursus.cls.
+ *
+ * De HTML komt integraal uit het .tex-bestand; presentatie.js knipt ze in
+ * slides en hangt er de klassen aan die hieronder opgemaakt worden. Alles wat
+ * met .slide, .pres- of .oplossing te maken heeft, hoort dus bij die laag.
+ */
+
+/* De hele opmaak rekent met deze namen, zodat dag- en nachtstand enkel een
+ * andere lijst kleuren zijn. presentatie.js zet daarvoor data-thema op <html>,
+ * altijd expliciet "licht" of "donker": zonder script staat er niets op de
+ * site, dus hoeft de dagstand hier niet ook nog eens los te staan. */
+:root,
+:root[data-thema="licht"] {
+  --kleur-tekst: #1c2530;
+  --kleur-zwak: #64748b;
+  --kleur-lijn: #dde3ea;
+  --kleur-vlak: #ffffff;
+  --kleur-vlak-zweef: rgba(255, 255, 255, .88);
+  --kleur-achtergrond: #eef1f5;
+  --kleur-accent: #1d5fa8;
+  --kleur-accent-zacht: #e8f0fa;
+  --kleur-actieve-regel: rgba(232, 240, 250, .68);
+  --kleur-selectie: #9fc3ea;
+  --kleur-zelfcontrole: #4d8fcb;
+  --kleur-op-accent: #ffffff;
+  --kleur-goed: #27823b;
+  --kleur-fout: #c43535;
+  --kleur-traceback: #7f1d1d;
+  --kleur-oplossing: #fafcfa;
+  --kleur-oplossing-rand: #d6e4d6;
+  --kleur-oplossing-streep: #f7faf7;
+  --kleur-oplossing-tekst: #3d6b3d;
+  --kleur-figuur: rgba(255, 255, 255, .4);
+  --kleur-figuur-rand: #e9edf2;
+  --kleur-sluier: rgba(20, 28, 38, .45);
+  --schaduw: rgba(0, 0, 0, .18);
+  --figuur-filter: none;
+  --figuur-mengmodus: multiply;
+  --grm-donker: #2e3238;
+  --grm-donker-rand: #2e3238;
+  --grm-donker-tekst: #ffffff;
+  --grm-licht: #ecedef;
+  --grm-licht-rand: #9aa0a6;
+  --grm-licht-tekst: #1b1d20;
+  --grm-bovenrij: #d3d6da;
+  --grm-tweede: #3c9ad6;
+  --grm-tweede-label: #1c78b8;
+  --grm-alfa: #57ae45;
+  --grm-alfa-label: #3a8a2c;
+  --grm-scherm: #ffffff;
+  --grm-scherm-rand: #3a3f45;
+  --grm-scherm-tekst: #1b1d20;
+  --grm-scherm-lijn: #8a9097;
+  --grm-status: #e4e6e9;
+  --grm-status-tekst: #5a6068;
+  --grm-selectie: #2b2f35;
+  --grm-selectie-tekst: #ffffff;
+  --balk: 3.25rem;
+  --zijbalk: 20rem;
+  --straal: 10px;
+}
+
+/* Nachtstand. De accentkleur gaat lichter dan overdag, want ze staat nu op
+ * een donker vlak; het groen van de oplossingen blijft herkenbaar maar
+ * gedempt, zodat een open oplossing niet oplicht in een donkere klas.
+ *
+ * Enkel voor het scherm: wie de slides afdrukt, wil geen zwarte bladen, dus
+ * valt de printbeurt vanzelf op de lijst hierboven terug. */
+@media screen {
+  :root[data-thema="donker"] {
+    --kleur-tekst: #dde5ee;
+    --kleur-zwak: #93a3b6;
+    --kleur-lijn: #2b3745;
+    --kleur-vlak: #182029;
+    --kleur-vlak-zweef: rgba(24, 32, 41, .9);
+    --kleur-achtergrond: #0e141a;
+    --kleur-accent: #7ab4f0;
+    --kleur-accent-zacht: #1d2c3c;
+    --kleur-actieve-regel: rgba(29, 44, 60, .68);
+    --kleur-selectie: #365b80;
+    --kleur-zelfcontrole: #91c5f5;
+    --kleur-op-accent: #0e141a;
+    --kleur-goed: #70c982;
+    --kleur-fout: #f08080;
+    --kleur-traceback: #cc6666;
+    --kleur-oplossing: #1a2822;
+    --kleur-oplossing-rand: #30483a;
+    --kleur-oplossing-streep: #1d2c23;
+    --kleur-oplossing-tekst: #9ccba6;
+    --kleur-figuur: rgba(255, 255, 255, .02);
+    --kleur-figuur-rand: #26313d;
+    --kleur-sluier: rgba(4, 8, 12, .6);
+    --schaduw: rgba(0, 0, 0, .55);
+    --figuur-filter: invert(1) hue-rotate(180deg);
+    --figuur-mengmodus: screen;
+    /* De toetsen houden hun kleur; enkel de donkere krijgen een rand, anders
+     * verdwijnen ze in het vlak. Het scherm van het toestel is gedempt wit. */
+    --grm-donker-rand: #5b636d;
+    --grm-licht: #d9dcdf;
+    --grm-bovenrij: #c3c7cc;
+    --grm-tweede-label: #6db8ea;
+    --grm-alfa-label: #86cf73;
+    --grm-scherm: #dfe3e7;
+    --grm-scherm-rand: #56606b;
+    --grm-status: #c9ced3;
+    --grm-status-tekst: #4a5058;
+  }
+}
+
+/* De browser mag zijn eigen onderdelen mee omkleuren: schuifbalken, het
+ * kruisje in het zoekveld, de rand rond een focus. */
+:root[data-thema="licht"] { color-scheme: light; }
+:root[data-thema="donker"] { color-scheme: dark; }
+
+html {
+  box-sizing: border-box;
+  font-size: 17px;
+}
+
+/* Presentatiestand. De hele opmaak rekent in rem, dus volstaat het de maat
+ * hier te verzetten om alles mee te laten groeien voor het scherm vooraan.
+ * De kopbalk verdwijnt en de inhoudstafel gaat dicht (dat laatste doet
+ * presentatie.js met de gewone klasse, zodat i of / ze toch nog opent); de
+ * voetbalk blijft, want daarmee blader je.
+ *
+ * De maat komt uit het scherm zelf. Een slide is 60rem breed, dus bij
+ * 1.45vw vult ze bijna de breedte; de 3vh houdt haar tegen op een breed maar
+ * laag venster, waar de hoogte de krappe kant is. De grenzen houden het
+ * leesbaar op een klein scherm en beheersbaar op een groot. Omdat vw en vh
+ * vanzelf meeveranderen, klopt de maat ook meteen na het openklappen naar
+ * volledig scherm of na het draaien van een tablet: daar hoeft geen script
+ * aan te pas te komen. */
+html.pres-groot {
+  font-size: clamp(18px, min(1.45vw, 3vh), 31px);
+}
+
+/* De kopbalk gaat niet weg, ze wacht boven het scherm. Kom je met de muis
+ * aan de bovenrand, dan schuift ze doorschijnend over de slide; presentatie.js
+ * zet daarvoor de klasse op de body. Ze zweeft, dus laat ze de rasterindeling
+ * hieronder met rust. */
+html.pres-groot .pres-kop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9;
+  background: var(--kleur-vlak-zweef);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 4px 20px var(--schaduw);
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .18s ease-out, opacity .18s ease-out;
+}
+
+html.pres-groot body.pres-kop-toon .pres-kop {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Ook zonder muis bereikbaar. Bewust :focus-visible en niet :focus-within:
+ * anders houdt de knop waarmee je de presentatiestand aanzette de balk in
+ * beeld tot je ergens anders klikt. Een aparte regel, want een browser die
+ * :has() niet kent, gooit de hele lijst weg waar het in staat. */
+html.pres-groot .pres-kop:has(:focus-visible) {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+html.pres-groot body.pres-klaar {
+  grid-template-rows: 1fr auto;
+  grid-template-areas:
+    "zijbalk podium"
+    "zijbalk voet";
+}
+
+/* Zonder kopbalk begint het podium bovenaan het scherm. */
+html.pres-groot .pres-figuur-groot {
+  top: 0;
+}
+
+/* De knop om de presentatiestand te verlaten, hoort enkel in die stand
+ * thuis: de kopbalk met de gewone knop is dan immers weg. De klasse van de
+ * voetbalk staat erbij omdat .pres-knop verderop anders even zwaar weegt en
+ * dan wint. */
+.pres-voet .pres-uit {
+  display: none;
+}
+
+html.pres-groot .pres-uit {
+  display: inline-flex;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--kleur-achtergrond);
+  color: var(--kleur-tekst);
+  font-family: "Source Sans Pro", "Segoe UI", system-ui, -apple-system, sans-serif;
+  line-height: 1.55;
+  overflow: hidden;
+}
+
+/* Zolang presentatie.js niet gedraaid heeft, blijft de rauwe lwarp-pagina
+ * verborgen. Dat voorkomt dat de volledige cursus even in beeld flitst. */
+body:not(.pres-klaar) .bodycontainer,
+body:not(.pres-klaar) .homepagegrid {
+  visibility: hidden;
+}
+
+/* De kolom met het podium krijgt minmax(0, 1fr) en niet 1fr: een rastercel is
+ * standaard nooit smaller dan haar min-content, en de kopbalk met haar
+ * knoppen en de titel op één regel zet die ondergrens ver boven de breedte van
+ * een telefoonscherm. Het hele raster werd daardoor breder dan het venster en
+ * de pagina schoof zijdelings weg. De nul laat de kolom wel krimpen; wat er
+ * dan nog te breed is, valt binnen zijn eigen kader op. */
+body.pres-klaar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: var(--balk) 1fr auto;
+  grid-template-areas:
+    "kop      kop"
+    "zijbalk  podium"
+    "zijbalk  voet";
+  height: 100dvh;
+}
+
+/* --- Kopbalk ----------------------------------------------------------- */
+
+.pres-kop {
+  grid-area: kop;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: 0 .75rem;
+  background: var(--kleur-vlak);
+  border-bottom: 1px solid var(--kleur-lijn);
+  position: relative;
+  z-index: 3;
+}
+
+.pres-kop h1 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pres-kop .pres-hoofdstuk {
+  color: var(--kleur-accent);
+  font-weight: 700;
+  margin-right: .1rem;
+}
+
+.pres-rek {
+  flex: 1 1 auto;
+}
+
+/* De weg terug: "Mathesis ›" voor de titel, met het icoon van de site. Op een
+ * breed scherm staat het woord erbij, op een telefoon enkel het icoon, zodat
+ * de titel ruimte houdt. */
+/* Met :link, :visited en :hover erbij wint dit van A:link en A:hover in lwarp.css. */
+.pres-merk,
+.pres-merk:link,
+.pres-merk:visited,
+.pres-merk:hover {
+  color: var(--kleur-accent);
+  text-decoration: none;
+}
+
+.pres-merk {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin-left: .15rem;
+  padding: .3rem .35rem;
+  border-radius: var(--straal);
+  font-weight: 700;
+}
+
+.pres-merk:hover {
+  background: var(--kleur-accent-zacht);
+}
+
+/* Zonder rand, schaduw en marge die lwarp.css aan elke img geeft. */
+.pres-merk img {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.pres-kruimel {
+  flex: 0 0 auto;
+  color: var(--kleur-zwak);
+  margin-right: -.15rem;
+}
+
+/* --- Knoppen ----------------------------------------------------------- */
+
+.pres-knop {
+  font: inherit;
+  font-size: .85rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .5rem .7rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-vlak);
+  color: var(--kleur-tekst);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background .12s, border-color .12s, color .12s;
+}
+
+.pres-knop:hover:not(:disabled) {
+  background: var(--kleur-accent-zacht);
+  border-color: var(--kleur-accent);
+  color: var(--kleur-accent);
+}
+
+.pres-knop:disabled {
+  opacity: .35;
+  cursor: default;
+}
+
+.pres-knop[aria-pressed="true"] {
+  background: var(--kleur-accent);
+  border-color: var(--kleur-accent);
+  color: var(--kleur-op-accent);
+}
+
+.pres-knop svg {
+  width: 1.05em;
+  height: 1.05em;
+  flex: none;
+}
+
+/* Kort, lang en volledig vormen samen een knop in drie delen, net als de
+ * drie standen van de oplossingen. */
+.pres-segmenten {
+  display: inline-flex;
+  flex: none;
+}
+
+.pres-segmenten .pres-knop {
+  border-radius: 0;
+}
+
+.pres-segmenten .pres-knop + .pres-knop {
+  margin-left: -1px;
+}
+
+.pres-segmenten .pres-knop:first-child {
+  border-radius: var(--straal) 0 0 var(--straal);
+}
+
+.pres-segmenten .pres-knop:last-child {
+  border-radius: 0 var(--straal) var(--straal) 0;
+}
+
+/* Zo valt de gekleurde rand niet half onder de buurknop. */
+.pres-segmenten .pres-knop:hover,
+.pres-segmenten .pres-knop[aria-pressed="true"] {
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Keuze van hulpmiddel ------------------------------------------------ */
+
+/* Een blok met dezelfde werkwijze voor bijvoorbeeld het GRM en Python. De
+ * lezer kiest met een knop in delen. */
+.pres-hulpmiddelkeuze {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem .7rem;
+  margin: 1.2rem 0 .2rem;
+  padding-top: .8rem;
+  border-top: 1px solid var(--kleur-lijn);
+}
+
+/* Zoals de bladerstanden, maar ook op een smal scherm staan alle knoppen:
+ * de lezer moet zien waartussen hij kiest. */
+.pres-hulpmiddelknoppen {
+  display: inline-flex;
+  flex: none;
+}
+
+.pres-hulpmiddelknoppen .pres-knop {
+  border-radius: 0;
+}
+
+.pres-hulpmiddelknoppen .pres-knop + .pres-knop {
+  margin-left: -1px;
+}
+
+.pres-hulpmiddelknoppen .pres-knop:first-child {
+  border-radius: var(--straal) 0 0 var(--straal);
+}
+
+.pres-hulpmiddelknoppen .pres-knop:last-child {
+  border-radius: 0 var(--straal) var(--straal) 0;
+}
+
+.pres-hulpmiddelknoppen .pres-knop:hover,
+.pres-hulpmiddelknoppen .pres-knop[aria-pressed="true"] {
+  position: relative;
+  z-index: 1;
+}
+
+.hulpmiddel > :first-child {
+  margin-top: .4rem;
+}
+
+.pres-notebook-download {
+  margin-left: auto;
+  text-decoration: none;
+}
+
+/* --- Overloopmenu in de kopbalk ------------------------------------------ */
+
+/* presentatie.js schuift hierin de knoppen die niet meer naast de titel
+ * passen. In de balk zelf blijven hun opschriften weg. */
+.pres-meer {
+  position: relative;
+  flex: none;
+}
+
+.pres-menu-label {
+  display: none;
+}
+
+/* Het menu heeft een eigen display, dat anders van hidden wint. */
+.pres-kop .pres-meer[hidden],
+.pres-kop .pres-meer [hidden] {
+  display: none;
+}
+
+.pres-menu {
+  position: absolute;
+  top: calc(100% + .4rem);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  min-width: 13rem;
+  padding: .4rem;
+  background: var(--kleur-vlak);
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  box-shadow: 0 8px 30px var(--schaduw);
+}
+
+.pres-kop .pres-menu > .pres-knop {
+  justify-content: flex-start;
+  border-color: transparent;
+}
+
+/* Scheidt de knoppen die uit de balk kwamen van wat altijd in het menu staat;
+ * staat er niets boven, dan hoeft de lijn er niet. */
+.pres-menu-lijn {
+  align-self: stretch;
+  margin: .1rem 0;
+  border: 0;
+  border-top: 1px solid var(--kleur-lijn);
+}
+
+.pres-menu > .pres-menu-lijn:first-child {
+  display: none;
+}
+
+.pres-kop .pres-menu > .pres-knop[aria-pressed="true"] {
+  border-color: var(--kleur-accent);
+}
+
+.pres-kop .pres-menu .pres-verberg-kop,
+.pres-kop .pres-menu .pres-menu-label {
+  display: inline;
+}
+
+/* De drie standen blijven in het menu naast elkaar, ook op een telefoon
+ * waar de balk er anders maar een toont. */
+.pres-kop .pres-menu .pres-segmenten {
+  display: flex;
+}
+
+.pres-kop .pres-menu .pres-segmenten .pres-knop {
+  display: inline-flex;
+  flex: 1 1 0;
+  justify-content: center;
+  padding-inline: .4rem;
+}
+
+.pres-kop .pres-menu .pres-segmenten .pres-knop:first-child {
+  border-radius: var(--straal) 0 0 var(--straal);
+}
+
+.pres-kop .pres-menu .pres-segmenten .pres-knop:last-child {
+  border-radius: 0 var(--straal) var(--straal) 0;
+}
+
+.slide[data-appendix] > .pres-appendix-download {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  justify-self: end;
+  width: max-content;
+  margin: 0 0 1rem;
+  text-decoration: none;
+}
+
+/* Hints blijven standaard verborgen, ook in de korte tijd voor
+ * presentatie.js gestart is. De lezer kan ze voor alle hoofdstukken tegelijk
+ * aanzetten; het script bewaart die keuze. */
+.hint {
+  display: none;
+  color: var(--kleur-zwak);
+}
+
+:root[data-hints="zichtbaar"] .hint {
+  display: inline;
+}
+
+/* Een hint die een heel blok beslaat, geschreven als \begin{hint}...\end{hint},
+ * bevat displaymath, een lijst of een figuur en kan dus niet inline staan. */
+:root[data-hints="zichtbaar"] .hint-blok {
+  display: block;
+}
+
+/* Een terzijde (omgeving aside in cursus.cls) staat altijd in beeld, maar
+ * gedempt, zoals op papier. */
+.aside {
+  color: var(--kleur-zwak);
+}
+
+/* Een grijs deel van een leerplandoel komt in dit hoofdstuk niet aan bod
+ * (omgeving leerplandoelen in cursus.cls). */
+.leerplan-grijs {
+  color: var(--kleur-zwak);
+}
+
+/* --- Zijbalk met de inhoudstafel --------------------------------------- */
+
+.pres-zijbalk {
+  grid-area: zijbalk;
+  width: var(--zijbalk);
+  background: var(--kleur-vlak);
+  border-right: 1px solid var(--kleur-lijn);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: .75rem 0 2rem;
+}
+
+body.pres-zijbalk-dicht .pres-zijbalk {
+  display: none;
+}
+
+/* De sluier hoort alleen bij de zwevende inhoudstafel van een smal scherm;
+ * breed staat die naast het podium en valt er niets te verduisteren. */
+.pres-sluier {
+  display: none;
+}
+
+body.pres-zijbalk-dicht .pres-sluier {
+  display: none;
+}
+
+.pres-zoek {
+  position: sticky;
+  top: -.75rem;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin: -.75rem .75rem .5rem;
+  padding: .5rem .1rem;
+  background: var(--kleur-vlak);
+  border-bottom: 1px solid var(--kleur-lijn);
+  color: var(--kleur-zwak);
+}
+
+.pres-zoek svg {
+  width: 1em;
+  height: 1em;
+  flex: none;
+}
+
+.pres-zoek input {
+  font: inherit;
+  font-size: .88rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  border: 0;
+  background: none;
+  color: var(--kleur-tekst);
+  padding: .15rem 0;
+}
+
+.pres-zoek input:focus {
+  outline: none;
+}
+
+.pres-zijbalk ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Tijdens het zoeken staan enkel nog de treffers in de lijst; de witruimte
+ * boven een deeltitel zou dan een gat slaan. */
+.pres-zijbalk.pres-zoekt .pres-niveau-1 > a {
+  margin-top: .2rem;
+}
+
+.pres-zijbalk a {
+  display: flex;
+  align-items: baseline;
+  padding: .3rem .9rem .3rem 1.5rem;
+  color: var(--kleur-tekst);
+  text-decoration: none;
+  font-size: .88rem;
+  border-left: 3px solid transparent;
+}
+
+.pres-zijbalk .pres-toctitel {
+  min-width: 0;
+}
+
+.pres-zijbalk a:hover {
+  background: var(--kleur-accent-zacht);
+}
+
+.pres-zijbalk a.pres-huidig {
+  border-left-color: var(--kleur-accent);
+  background: var(--kleur-accent-zacht);
+  color: var(--kleur-accent);
+  font-weight: 600;
+}
+
+.pres-zijbalk .pres-niveau-1 > a {
+  padding-left: .9rem;
+  margin-top: .8rem;
+  font-weight: 700;
+  font-size: .8rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--kleur-zwak);
+}
+
+.pres-zijbalk .pres-niveau-1 > a.pres-huidig {
+  color: var(--kleur-accent);
+}
+
+.pres-zijbalk .pres-niveau-3 > a {
+  padding-left: 2.4rem;
+}
+
+/* --- Het podium met de slides ------------------------------------------ */
+
+.pres-podium {
+  grid-area: podium;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scroll-behavior: smooth;
+  padding: 1.5rem 1.25rem 3rem;
+  min-width: 0;
+}
+
+/* Een formule die ook op 75% te breed is, krijgt eerst de marges rond haar:
+ * presentatie.js zet per slide --pres-krimp tussen 0 (volle marges) en 1
+ * (enkel --pres-rand-min over), en --pres-buiten op het podium (de strook
+ * tussen podium en slide). Alle marges hangen lineair af van die factor, zodat
+ * ze samen met de formule krimpen. De tweede term in de max() houdt de slide
+ * gecentreerd op haar maximumbreedte, zoals margin: auto dat deed. */
+.slide {
+  --slide-rand: 2rem;
+  --pres-rand-min: .5rem;
+  display: none;
+  max-width: 60rem;
+  margin-block: 0;
+  margin-inline: max(calc(var(--pres-krimp, 0) * (var(--pres-rand-min) - var(--pres-buiten, 0px))),
+                     calc((100% - 60rem) / 2));
+  background: var(--kleur-vlak);
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  padding-block: 1.6rem 2rem;
+  padding-inline: calc(var(--slide-rand) - var(--pres-krimp, 0) * (var(--slide-rand) - var(--pres-rand-min)));
+}
+
+.slide.pres-actief {
+  display: block;
+}
+
+/* Wie naar een slide of een kop springt, ziet ze met dezelfde ruimte erboven
+ * als bovenaan het podium. */
+.slide,
+.slide > :is(h1, h2, h3, h4, h5, h6),
+.slide > .python-oefening-kop > :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: 1.5rem;
+}
+
+/* Bij lang en volledig staan de slides van een sectie onder elkaar en lezen
+ * ze als een blad: de kaders sluiten op elkaar aan, en pas een nieuwe sectie
+ * begint een nieuw kader. */
+html:not([data-bladeren="kort"]) .slide.pres-actief:has(+ .slide.pres-actief:not([data-niveau="1"])) {
+  border-bottom: 0;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  padding-bottom: .5rem;
+}
+
+html:not([data-bladeren="kort"]) .slide.pres-actief + .slide.pres-actief:not([data-niveau="1"]) {
+  border-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  padding-top: .5rem;
+}
+
+html:not([data-bladeren="kort"]) .slide.pres-actief + .slide.pres-actief[data-niveau="1"] {
+  margin-top: 1.5rem;
+}
+
+/* Het kruimelspoor en het lijstje van wat eronder valt, zijn overbodig
+ * wanneer die onderdelen er meteen onder staan. Op de titelslide blijft het
+ * lijstje: daar is het de inhoudstafel van het hoofdstuk. */
+html:not([data-bladeren="kort"]) .slide > .pres-kruimel,
+html:not([data-bladeren="kort"]) .slide:not([data-titelslide]) > .pres-korteinhoud {
+  display: none;
+}
+
+/* Op een appendix deelt de titel haar eerste rij met de download. Alle
+ * volgende inhoud neemt opnieuw de volle tekstbreedte in. */
+.slide[data-appendix].pres-actief {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1rem;
+}
+
+.slide[data-appendix] > * {
+  grid-column: 1 / -1;
+}
+
+.slide[data-appendix] > :is(h1, h2, h3, h4, h5, h6):first-child {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.slide > .pres-kruimel {
+  font-size: .78rem;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--kleur-zwak);
+  margin: 0 0 .25rem;
+}
+
+.slide > h1,
+.slide > h2,
+.slide > h3,
+.slide > h4,
+.slide > h5,
+.slide > h6,
+.slide > .python-oefening-kop > :is(h1, h2, h3, h4, h5, h6) {
+  margin: 0 0 1rem;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--kleur-accent);
+}
+
+.slide p {
+  margin: .55rem 0;
+}
+
+/* In Kort is een reeks oefeningen een kleine stapreeks binnen haar slide.
+ * Lang en Volledig houden bewust de vertrouwde doorlopende bundel. */
+.pres-oefening-navigatie {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin: -.35rem 0 1rem;
+  padding: .35rem .45rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-achtergrond);
+}
+
+html[data-bladeren="kort"] .pres-oefening-navigatie:not([hidden]) {
+  display: flex;
+}
+
+.pres-oefening-navigatie .pres-knop {
+  font-size: .82rem;
+}
+
+.pres-oefening-teller {
+  font-variant-numeric: tabular-nums;
+  color: var(--kleur-zwak);
+  white-space: nowrap;
+}
+
+/* Vult de reeks de hele slide, dan deelt haar balk de titelrij, zoals de
+ * download op een appendixslide. presentatie.js zet dan data-oefenkop en
+ * hangt de balk als rechtstreeks kind van de slide voor de reeks. De kruimel
+ * en de titel houden de eerste kolom; al wat volgt, krijgt weer de volle
+ * tekstbreedte. */
+html[data-bladeren="kort"] .slide[data-oefenkop].pres-actief {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1rem;
+  align-content: start;
+}
+
+html[data-bladeren="kort"] .slide[data-oefenkop] > * {
+  grid-column: 1 / -1;
+}
+
+html[data-bladeren="kort"] .slide[data-oefenkop] > .pres-kruimel {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+html[data-bladeren="kort"] .slide[data-oefenkop] > :is(h1, h2, h3, h4, h5, h6) {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+html[data-bladeren="kort"] .slide[data-oefenkop] > .pres-oefening-navigatie {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  justify-self: end;
+  margin: 0 0 1rem;
+}
+
+/* De titelslide van het hoofdstuk. */
+.cursustitel {
+  text-align: center;
+  padding: 3rem 0 2rem;
+}
+
+.cursustitel .cursushoofdstuk {
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  font-size: .85rem;
+  color: var(--kleur-zwak);
+  margin: 0 0 .6rem;
+}
+
+/* "Ruimtemeetkunde" is één woord van vijftien letters: op een telefoon past
+ * dat niet naast de rand. De titel krimpt daarom mee met het scherm en mag
+ * desnoods afbreken; het document draagt lang="nl-BE", dus zet de browser het
+ * koppelteken op een verantwoorde plaats. */
+.cursustitel h1 {
+  font-size: clamp(1.7rem, 7.5vw, 2.4rem);
+  margin: 0;
+  color: var(--kleur-accent);
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+.cursustitel .cursusondertitel {
+  font-size: 1.1rem;
+  color: var(--kleur-zwak);
+}
+
+/* Het overzicht op een slide die enkel een titel draagt: wat eronder valt,
+ * als rode draad en als snelle ingang. */
+.pres-korteinhoud {
+  list-style: none;
+  max-width: 34rem;
+  margin: 1.2rem auto .5rem;
+  padding: 0;
+}
+
+/* Op de titelslide staat er een scheidingslijn boven, dus daar wat meer lucht. */
+.cursustitel + .pres-korteinhoud {
+  margin: 2rem auto 1rem;
+}
+
+/* Een lange lijst zou de slide doen scrollen, en dat is net wat je tijdens
+ * een les niet wil; vanaf negen stukken gaat ze daarom in twee kolommen. */
+.pres-korteinhoud:has(li:nth-child(9)) {
+  max-width: 52rem;
+  columns: 2;
+  column-gap: 2.5rem;
+}
+
+.pres-korteinhoud li {
+  break-inside: avoid;
+}
+
+/* Komt het overzicht na een inleidend stukje tekst of een figuur, dan scheidt
+ * een haarlijn de twee. Staat het meteen onder de kop, dan hoeft dat niet. De
+ * lege paragraaf die lwarp na de titel laat staan, telt daarbij niet mee. */
+.slide > :not(:is(h1, h2, h3, h4, h5, h6, .pres-kruimel, .cursustitel, p:empty)) + .pres-korteinhoud {
+  border-top: 1px solid var(--kleur-lijn);
+  padding-top: 1rem;
+  margin-top: 1.4rem;
+}
+
+.pres-korteinhoud a {
+  display: flex;
+  gap: .9rem;
+  align-items: baseline;
+  padding: .4rem .7rem;
+  border-radius: var(--straal);
+  color: var(--kleur-tekst);
+  text-decoration: none;
+}
+
+.pres-korteinhoud a:hover {
+  background: var(--kleur-accent-zacht);
+  color: var(--kleur-accent);
+}
+
+.pres-korteinhoud .pres-tocnummer {
+  min-width: 2em;
+  color: var(--kleur-accent);
+  font-weight: 700;
+}
+
+/* --- Oplossingen ------------------------------------------------------- */
+
+.oplossing {
+  position: relative;
+  background: var(--kleur-oplossing);
+  border: 1px solid var(--kleur-oplossing-rand);
+  border-left-width: 4px;
+  border-radius: var(--straal);
+  padding-block: .5rem;
+  padding-inline: calc(1rem - var(--pres-krimp, 0) * (1rem - var(--pres-rand-min, 0px)));
+  margin: 1rem 0;
+  cursor: pointer;
+}
+
+.opl {
+  display: inline-block;
+  position: relative;
+  /* Een inline blok wordt anders even breed als de formule die erin staat. */
+  max-width: 100%;
+  background: var(--kleur-oplossing);
+  border: 1px solid var(--kleur-oplossing-rand);
+  border-radius: 6px;
+  padding: .1rem 2rem .1rem .5rem;
+  margin: .15rem 0;
+  cursor: pointer;
+}
+
+.opl::after {
+  content: "";
+  display: none;
+  position: absolute;
+  top: 50%;
+  right: .55rem;
+  width: 1rem;
+  height: 1rem;
+  translate: 0 -50%;
+  background: currentColor;
+  opacity: .08;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.opl-fill {
+  min-width: 50%;
+  text-align: left;
+}
+
+.opl-vast {
+  text-align: center;
+}
+
+/* Dichtgeklapt: de inhoud wordt onzichtbaar, maar behoudt haar plaats. */
+.pres-verborgen > .pres-inhoud {
+  visibility: hidden;
+}
+
+.oplossing.pres-verborgen {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--kleur-oplossing) 0 6px,
+    var(--kleur-oplossing-streep) 6px 12px
+  );
+  border-style: dashed;
+}
+
+.opl.pres-verborgen {
+  color: transparent;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--kleur-oplossing) 0 6px,
+    var(--kleur-oplossing-streep) 6px 12px
+  );
+  border-style: dashed;
+  user-select: none;
+}
+
+.opl.pres-verborgen::after {
+  display: block;
+  background: var(--kleur-zwak);
+  opacity: .72;
+}
+
+/* Dezelfde \opl, maar dan door MathJax getekend: het kader komt van \bbox,
+ * dus hoeft enkel de inhoud te verdwijnen. */
+.pres-oplformule {
+  cursor: pointer;
+}
+
+.opl-math.pres-verborgen {
+  opacity: 0;
+}
+
+.pres-onthul {
+  position: absolute;
+  z-index: 1;
+  top: .55rem;
+  right: .55rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: .5rem;
+  border: 0;
+  background: transparent;
+  color: var(--kleur-zwak);
+  opacity: .08;
+  cursor: pointer;
+}
+
+.pres-onthul svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.pres-onthul span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.oplossing.pres-verborgen > .pres-onthul {
+  opacity: .72;
+}
+
+.oplossing:not(.pres-verborgen) > .pres-onthul svg {
+  visibility: hidden;
+}
+
+.pres-onthul:hover,
+.pres-onthul:focus-visible {
+  opacity: 1;
+}
+
+/* lwarp geeft lijsten rechts 1em marge; dan eindigen alinea's, oogjes en
+ * oplossingskaders in een exlist korter dan de tekst errond. */
+ul, ol {
+  margin-right: 0;
+}
+
+/* Compact: een gesloten oplossing verdwijnt, en een oogje rechts op de
+ * regel van haar vraag staat ervoor in de plaats. In Kaders en Open is dat
+ * oogje er niet; daar doet het kader zelf het werk. */
+html[data-oplossingen="compact"] .oplossing.pres-verborgen:not(.pres-zonder-anker) {
+  display: none;
+}
+
+/* presentatie.js meet de randen van een slide alsof de oplossingen er
+ * stonden; zie pasRandenAan. */
+html.pres-randmeting[data-oplossingen] .oplossing.pres-verborgen:not(.pres-zonder-anker) {
+  display: block;
+}
+
+/* Die meting mag het beeld niet verschuiven. */
+html.pres-randmeting .pres-podium {
+  overflow-anchor: none;
+}
+
+html.pres-randmeting[data-oplossingen] .oplossing.pres-zonder-anker.pres-verborgen > .pres-inhoud {
+  display: block;
+}
+
+.pres-oog {
+  display: none;
+}
+
+html[data-oplossingen="compact"] .pres-oplanker {
+  position: relative;
+  padding-right: 2.5rem;
+}
+
+html[data-oplossingen="compact"] .pres-oog {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  translate: 0 -50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1px dashed var(--kleur-oplossing-rand);
+  border-radius: 6px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--kleur-oplossing) 0 6px,
+    var(--kleur-oplossing-streep) 6px 12px
+  );
+  color: var(--kleur-zwak);
+  cursor: pointer;
+}
+
+html[data-oplossingen="compact"] .pres-oog[aria-pressed="true"] {
+  border-style: solid;
+  background: var(--kleur-oplossing);
+  color: var(--kleur-oplossing-tekst);
+}
+
+html[data-oplossingen="compact"] .pres-oog:hover,
+html[data-oplossingen="compact"] .pres-oog:focus-visible {
+  border-color: var(--kleur-oplossing-tekst);
+  color: var(--kleur-oplossing-tekst);
+}
+
+.pres-oog svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Zonder alinea ervoor blijft een gesloten oplossing een smalle balk, met
+ * het oogje rechts. */
+html[data-oplossingen="compact"] .oplossing.pres-zonder-anker.pres-verborgen {
+  min-height: 2.1rem;
+  margin: .5rem 0;
+  padding-block: 0;
+}
+
+html[data-oplossingen="compact"] .oplossing.pres-zonder-anker.pres-verborgen > :not(.pres-oog, .pres-antwoord) {
+  display: none;
+}
+
+html[data-oplossingen="compact"] .oplossing.pres-zonder-anker > .pres-oog {
+  right: .25rem;
+  border: 0;
+  background: none;
+}
+
+html[data-oplossingen="compact"] .oplossing.pres-zonder-anker:not(.pres-verborgen) > .pres-oog {
+  display: none;
+}
+
+/* Het korte antwoord (\antwoord) bestaat enkel in Compact. Het staat links
+ * van het oogje op de regel van de vraag, over de vrije ruimte heen, zodat
+ * er bij het openen niets verspringt. Enkel als het met de vraag zou
+ * botsen, komt het eronder (pres-antwoord-onder). */
+.pres-antwoord {
+  display: none;
+}
+
+html[data-oplossingen="compact"] .pres-kortopen > .pres-antwoord {
+  position: absolute;
+  top: 50%;
+  right: 2.5rem;
+  translate: 0 -50%;
+  display: block;
+  max-width: calc(100% - 3rem);
+  padding: .1rem .5rem;
+  border: 1px dashed var(--kleur-oplossing-rand);
+  border-radius: 6px;
+  background: var(--kleur-oplossing);
+  color: var(--kleur-oplossing-tekst);
+  white-space: nowrap;
+}
+
+html[data-oplossingen="compact"] .pres-kortopen > .pres-antwoord.pres-antwoord-onder {
+  position: static;
+  translate: none;
+  width: fit-content;
+  margin: .3rem 0 0 auto;
+  white-space: normal;
+}
+
+html[data-oplossingen="compact"] .oplossing.pres-zonder-anker > .pres-antwoord {
+  right: 2.5rem;
+}
+
+/* --- Figuren ----------------------------------------------------------- */
+
+/* Een oefening met een figuur ernaast komt uit twee LaTeX-minipages. Lwarp
+ * lijnt die standaard op hun onderrand uit, waardoor de kortere opgave te laag
+ * naast de figuur komt te staan. De expliciete HTML-wikkel maakt er twee
+ * bovenaan uitgelijnde kolommen van; de PDF-indeling blijft hierdoor ongemoeid. */
+.oefening-met-figuur {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(10rem, 1fr);
+  align-items: start;
+  gap: 1.5rem;
+}
+
+.oefening-met-figuur > .minipage {
+  width: auto !important;
+  min-width: 0;
+  vertical-align: top !important;
+}
+
+/* Bij de verwante hoeken staan op papier een grafiek en een formulekader in
+ * twee minipages. Gebruik diezelfde links-rechtsindeling op de site, maar laat
+ * haar de volledige slidebreedte innemen; de vaste TeX-breedtes maakten het
+ * grafiekbord te smal en gaven de minipage een horizontale schuifbalk. */
+.slide .center:has(> .minipage .interactieve-grafiek) {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(14rem, 2fr);
+  align-items: start;
+  gap: 1.5rem;
+}
+
+.slide .center:has(> .minipage .interactieve-grafiek) > .minipage {
+  width: auto !important;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+}
+
+/* Centreer de rechterkolom tegenover alleen het tekenbord. Status, knoppen en
+ * uitleg onder de grafiek horen niet mee te wegen in die uitlijning. De
+ * runtime vult de werkelijk gemeten middenpositie bij iedere herschaling in. */
+.slide .center:has(> .minipage .interactieve-grafiek)
+  > .minipage:not(:has(.interactieve-grafiek)) {
+  position: relative;
+  top: var(--grafiek-bordmidden, 10rem);
+  transform: translateY(-50%);
+  align-items: center;
+}
+
+.slide .center:has(> .minipage .interactieve-grafiek)
+  > .minipage:not(:has(.interactieve-grafiek)) .fbox {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding-left: 3rem !important;
+  padding-right: 3rem !important;
+}
+
+/* Rond ruwe HTML-blokken laat lwarp lege alinea's achter. In een grid zouden
+ * die als extra cel meetellen en beide echte kolommen een plaats opschuiven. */
+.oefening-met-figuur > p:empty {
+  display: none;
+}
+
+.oefening-met-figuur .pres-figuur {
+  margin: 0 auto;
+}
+
+/* Lwarp geeft zo'n blok bovenaan een marge en een opvulling, waardoor de
+ * figuur ruim een regel lager begint dan de tekst ernaast. Op papier staat ze
+ * net gelijk met de eerste regel, dus halen we die twee er bovenaan af. */
+div.marginblock,
+div.marginparblock {
+  /* Op papier tilt een \vspace de figuur nog een eind boven de eerste regel;
+   * die ene regel voorsprong nemen we hier ook, ze oogt rustiger. Op een smal
+   * scherm staat het blok boven de tekst en geldt de marge verderop. */
+  margin-top: -1.25rem;
+  padding-top: 0;
+}
+
+/* De figuur zelf staat bij lwarp in een alinea en blijft daar een inline
+ * element, dus houdt de regel waarin ze staat nog plaats vrij boven haar.
+ * Als blok valt die regelhoogte weg en begint ze echt bovenaan. */
+div.marginblock > p:first-child,
+div.marginparblock > p:first-child {
+  margin-top: 0;
+}
+
+div.marginblock img,
+div.marginparblock img {
+  display: block;
+  margin-inline: auto;
+}
+
+/* Lwarp maakt van een wrapfigure een div.marginblock die rechts naast de
+ * tekst zweeft. Op een smal scherm blijft daar te weinig over voor een figuur
+ * en voor de tekst ernaast, dus zetten we ze daar onder elkaar. De breedte en
+ * de zweving komen bij lwarp uit een style-attribuut op het blok zelf, dus is
+ * !important hier de enige manier om ze te overstemmen. */
+@media (max-width: 44rem) {
+  div.marginblock,
+  div.marginparblock {
+    float: none !important;
+    width: auto !important;
+    max-width: 100%;
+    margin: 1rem 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+.pres-figuur {
+  position: relative;
+  margin: 1rem auto;
+  border: 1px solid var(--kleur-figuur-rand);
+  border-radius: var(--straal);
+  background: var(--kleur-figuur);
+  overflow: hidden;
+}
+
+.pres-figuurgevallen-keuze {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  margin-top: .6rem;
+}
+
+.pres-figuurgevallen-schakelaar {
+  display: inline-flex;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+}
+
+.pres-figuurgevallen-keuze button {
+  flex: none;
+  border: 0;
+  border-right: 1px solid var(--kleur-lijn);
+  background: var(--kleur-vlak-zweef);
+  color: var(--kleur-tekst);
+  padding: .4rem .7rem;
+  cursor: pointer;
+  font: inherit;
+  white-space: nowrap;
+}
+
+.pres-figuurgevallen-keuze button:last-child {
+  border-right: 0;
+}
+
+.pres-figuurgevallen-keuze button[aria-pressed="true"] {
+  background: var(--kleur-accent);
+  color: var(--kleur-op-accent);
+}
+
+.pres-figuurgevallen-keuze button:focus-visible {
+  outline: 2px solid var(--kleur-accent);
+  outline-offset: 2px;
+}
+
+/* De gevallen liggen op elkaar in dezelfde cel. Een verborgen geval blijft
+   op ware grootte getekend, zodat wisselen geen lege of herschaalde
+   WebGL-scene toont; de groep is zo hoog als het hoogste geval. Verbergen
+   gebeurt met opacity en niet met visibility: een onzichtbaar iframe legt
+   de browser stil, en bij het tonen verschijnt dan eerst een donker,
+   leeg canvas. */
+.pres-figuurgevallen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pres-figuurgevallen > .pres-figuurgeval {
+  grid-area: 1 / 1;
+}
+
+.pres-figuurgeval[hidden] {
+  display: block;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.pres-figuurgeval-uitleg[hidden] {
+  display: none;
+}
+
+.pres-figuurgeval-uitleg {
+  margin: .6rem 0 .3rem;
+  text-align: center;
+}
+
+.pres-figuur iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+  /* In de nachtstand keert dit de scene om: de witte achtergrond wordt
+   * donker, de zwarte lijnen en labels wit. De draai over de kleurencirkel
+   * erachteraan zet de kleurvlakken weer op hun eigen tint, zodat een
+   * lichtblauw vlak blauw blijft in plaats van oranje te worden. Dat kan
+   * hier, in de bladwijzer: de figuur zelf is een WebGL-scene in een iframe
+   * die van niets weet, en een omschakeling laat haar zo in haar stand
+   * staan in plaats van ze opnieuw te moeten laden. */
+  filter: var(--figuur-filter);
+  mix-blend-mode: var(--figuur-mengmodus);
+}
+
+.pres-figuur .pres-figuurbalk {
+  position: absolute;
+  top: .4rem;
+  right: .4rem;
+  display: flex;
+  gap: .3rem;
+}
+
+.pres-figuurbalk .pres-knop {
+  gap: 0;
+  padding: .35rem .5rem;
+  font-size: .78rem;
+  background: var(--kleur-vlak-zweef);
+  opacity: .35;
+  transition: opacity .15s, background .12s, border-color .12s, color .12s;
+}
+
+.pres-figuurbalk .pres-knop:hover,
+.pres-figuurbalk .pres-knop:focus-visible {
+  opacity: 1;
+}
+
+.pres-figuurbalk .pres-stapknop {
+  opacity: .65;
+}
+
+.pres-figuurbalk .pres-figuur-grootknop {
+  margin-left: .45rem;
+}
+
+.pres-figuurbalk .pres-speel-attentie {
+  animation: pres-speel-attentie 1.35s ease-in-out;
+}
+
+@keyframes pres-speel-attentie {
+  0%, 100% {
+    background: var(--kleur-vlak-zweef);
+    border-color: var(--kleur-lijn);
+    box-shadow: none;
+    color: var(--kleur-tekst);
+  }
+  18%, 55% {
+    background: var(--kleur-accent);
+    border-color: var(--kleur-accent);
+    box-shadow: 0 0 0 .22rem var(--kleur-accent-zacht);
+    color: var(--kleur-op-accent);
+    opacity: 1;
+  }
+  34%, 72% {
+    background: var(--kleur-vlak-zweef);
+    border-color: var(--kleur-lijn);
+    box-shadow: none;
+    color: var(--kleur-tekst);
+  }
+}
+
+.pres-figuurbalk .pres-knop:disabled {
+  cursor: default;
+  opacity: .16;
+}
+
+.pres-figuurbalk .pres-knop span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* De doorschijnende achtergrond hierboven zou anders de ingedrukte stand
+ * overschrijven, en dan staat er wit op wit. */
+.pres-figuurbalk .pres-knop[aria-pressed="true"] {
+  background: var(--kleur-accent);
+  color: var(--kleur-op-accent);
+}
+
+/* Groot getoond: het kader gaat over het podium liggen, het iframe blijft
+ * hetzelfde element, zodat de scene zijn stand houdt. De hoogte staat in de
+ * stijl van het element zelf, vandaar het uitroepteken. */
+.pres-figuur-groot {
+  position: fixed;
+  inset: var(--balk) 0 0 0;
+  z-index: 8;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--kleur-vlak);
+  box-shadow: 0 -2px 30px var(--schaduw);
+}
+
+.pres-figuur-groot iframe {
+  height: 100% !important;
+}
+
+/* Zolang een interactieve grafiek niet draait, staat op haar plaats de gewone
+ * statische figuur uit de cursus. Groot en Reset horen daar niet bij: er valt
+ * niets te herstellen, en de andere statische figuren hebben die knoppen ook
+ * niet. */
+.interactieve-grafiek:not(.interactieve-grafiek-actief) .pres-figuurbalk {
+  display: none;
+}
+
+/* Een interactieve grafiek is geen iframe: ze tekent in de pagina zelf en
+ * krijgt haar hoogte in pixels van interactieve-grafieken.js. Hier staat
+ * enkel dat de figuur groot getoond het hele kader vult; de opmaak van de
+ * grafiek zelf blijft in interactieve-grafieken.css. */
+.pres-figuur-groot.interactieve-grafiek {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.pres-figuurhint {
+  text-align: center;
+  font-size: .78rem;
+  color: var(--kleur-zwak);
+  margin: -.4rem 0 1rem;
+}
+
+/* --- Voetbalk ---------------------------------------------------------- */
+
+.pres-voet {
+  grid-area: voet;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .55rem .9rem;
+  background: var(--kleur-vlak);
+  border-top: 1px solid var(--kleur-lijn);
+}
+
+.pres-teller {
+  font-variant-numeric: tabular-nums;
+  font-size: .85rem;
+  color: var(--kleur-zwak);
+  white-space: nowrap;
+}
+
+/* De balk is ook een sprongplank, dus krijgt ze een klikzone die met een
+ * vinger te raken is. De rail eronder blijft even dun als voorheen. */
+.pres-voortgang {
+  flex: 1 1 auto;
+  padding: .6rem 0;
+  cursor: pointer;
+}
+
+.pres-rail {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--kleur-lijn);
+  overflow: hidden;
+}
+
+.pres-rail > div {
+  height: 100%;
+  width: 0;
+  background: var(--kleur-accent);
+  transition: width .18s ease-out;
+}
+
+.pres-voortgang:hover .pres-rail {
+  background: var(--kleur-accent-zacht);
+}
+
+/* Enkel voor een schermlezer: de titel van de slide waar we net zijn beland. */
+.pres-melding {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* --- Hulpvenster met sneltoetsen --------------------------------------- */
+
+.pres-hulp {
+  position: fixed;
+  inset: 0;
+  display: none;
+  place-items: center;
+  background: var(--kleur-sluier);
+  z-index: 10;
+}
+
+.pres-hulp[open] {
+  display: grid;
+}
+
+.pres-hulp > div {
+  background: var(--kleur-vlak);
+  border-radius: var(--straal);
+  padding: 1.5rem 2rem;
+  max-width: 30rem;
+  box-shadow: 0 12px 40px var(--schaduw);
+}
+
+.pres-hulp h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.pres-hulp dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: .4rem 1rem;
+  margin: 0;
+  font-size: .9rem;
+}
+
+.pres-hulp dt {
+  text-align: right;
+}
+
+/* --- Venster met de leerplandoelen ------------------------------------- */
+
+/* Enkel op vraag, via het overloopmenu of de toets g. Het kader scrollt zelf,
+ * zodat een lange lijst ook op een telefoon helemaal bereikbaar blijft. */
+.pres-leerplan {
+  padding: 1rem;
+}
+
+.pres-leerplan > div {
+  box-sizing: border-box;
+  width: min(46rem, 100%);
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  outline: none;
+}
+
+.pres-leerplan-kop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pres-leerplan-kop h2 {
+  margin: .3rem 0 .75rem;
+  text-align: left;
+}
+
+.pres-leerplan-kop .pres-knop {
+  flex: none;
+}
+
+@media (max-width: 30rem) {
+  .pres-leerplan > div {
+    padding: 1rem;
+  }
+
+  .pres-leerplan ul {
+    padding-left: 1rem;
+  }
+}
+
+kbd {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .82em;
+  background: var(--kleur-achtergrond);
+  border: 1px solid var(--kleur-lijn);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  padding: .05em .4em;
+}
+
+/* --- Code (pythoncode en pythonuitvoer uit cursus.cls) ------------------- */
+
+/* Een programma staat in een kader; wat het afdrukt, hangt er met een streep
+ * aan de linkerkant onder, zoals op papier. Lange regels schuiven binnen hun
+ * eigen blok, want een ingesprongen regel mag niet afbreken. */
+pre.pythoncode,
+pre.pythonuitvoer {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .85em;
+  line-height: 1.5;
+  margin: .8rem 0;
+  padding: .6rem .9rem;
+  overflow-x: auto;
+  white-space: pre;
+  tab-size: 4;
+  color: var(--kleur-tekst);
+}
+
+pre.pythoncode {
+  background: var(--kleur-achtergrond);
+  border: 1px solid var(--kleur-lijn);
+  border-radius: 6px;
+}
+
+pre.pythonuitvoer {
+  border-left: 3px solid var(--kleur-lijn);
+  color: var(--kleur-zwak);
+}
+
+pre.pythoncode code,
+pre.pythonuitvoer code {
+  font: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+
+/* --- Rekentoestel (grm.sty) --------------------------------------------- */
+
+/* Toetsen, menu's en schermen van de TI-84. De soort van een toets
+ * (grm-donker, grm-licht, ...) komt uit de toetsentabel van grm.sty. */
+kbd.grm-toets {
+  display: inline-block;
+  min-width: 2.1em;
+  margin: 0 .08em;
+  padding: .08em .4em;
+  border: 1px solid;
+  border-radius: .3em;
+  box-shadow: 0 1px 0 var(--schaduw);
+  font-family: inherit;
+  font-size: .8em;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.grm-donker,
+.grm-pijl {
+  background: var(--grm-donker);
+  border-color: var(--grm-donker-rand);
+  color: var(--grm-donker-tekst);
+}
+
+.grm-licht {
+  background: var(--grm-licht);
+  border-color: var(--grm-licht-rand);
+  color: var(--grm-licht-tekst);
+}
+
+.grm-bovenrij {
+  background: var(--grm-bovenrij);
+  border-color: var(--grm-licht-rand);
+  color: var(--grm-licht-tekst);
+}
+
+kbd.grm-bovenrij {
+  border-radius: .15em;
+}
+
+kbd.grm-pijl {
+  min-width: 1.7em;
+  border-radius: .5em;
+}
+
+.grm-tweede {
+  background: var(--grm-tweede);
+  border-color: var(--grm-tweede);
+  color: #ffffff;
+}
+
+.grm-alfa {
+  background: var(--grm-alfa);
+  border-color: var(--grm-alfa);
+  color: #ffffff;
+}
+
+/* 2nd of alpha en de toets erna blijven samen op een regel. */
+.grm-combinatie {
+  white-space: nowrap;
+}
+
+/* Het label boven de toets, zoals het op het toestel gedrukt staat. Het staat
+ * in de ruimte die de bovenmarge van de houder vrijmaakt: de toets blijft zo
+ * op de basislijn van de tekst, en het label schuift niet over de regel
+ * erboven. */
+.grm-gelaagd {
+  position: relative;
+  display: inline-block;
+  padding-top: .75em;
+}
+
+.grm-boven {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .62em;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.grm-boven-2nd {
+  color: var(--grm-tweede-label);
+}
+
+.grm-boven-alpha {
+  color: var(--grm-alfa-label);
+}
+
+.grm-schermtekst {
+  display: inline-block;
+  padding: 0 .3em;
+  border: 1px solid var(--grm-scherm-rand);
+  border-radius: 2px;
+  background: var(--grm-scherm);
+  color: var(--grm-scherm-tekst);
+  font-size: .85em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.grm-tab {
+  padding: 0 .2em;
+}
+
+/* Begint een stukje scherm in de tekst met een markering, dan loopt die tot
+ * tegen de rand, zoals op het toestel. */
+.grm-schermtekst > .grm-tab:first-child {
+  margin-left: -.3em;
+  padding-left: .3em;
+}
+
+.grm-tab.grm-actief {
+  background: var(--grm-selectie);
+  color: var(--grm-selectie-tekst);
+}
+
+.grm-scherm {
+  width: 19em;
+  max-width: 100%;
+  margin: 1em auto;
+  border: 5px solid var(--grm-scherm-rand);
+  border-radius: 6px;
+  background: var(--grm-scherm);
+  color: var(--grm-scherm-tekst);
+  font-size: .9em;
+  line-height: 1.45;
+}
+
+.grm-status {
+  padding: .15em .4em;
+  background: var(--grm-status);
+  color: var(--grm-status-tekst);
+  font-size: .62em;
+  letter-spacing: .02em;
+}
+
+.grm-inhoud {
+  padding: .25em .4em;
+}
+
+.grm-rechts {
+  text-align: right;
+}
+
+.grm-tabs {
+  display: flex;
+  gap: .4em;
+}
+
+.grm-lijstregel {
+  margin-top: .15em;
+  border-top: 1px solid var(--grm-scherm-lijn);
+}
+
+/* De lijsteditor: de spleet tussen de cellen laat de achtergrond zien en
+ * tekent zo de lijnen tussen de kolommen. */
+.grm-lijsten {
+  display: grid;
+  column-gap: 1px;
+  background: var(--grm-scherm-lijn);
+}
+
+.grm-k1 { grid-template-columns: 1fr; }
+.grm-k2 { grid-template-columns: repeat(2, 1fr); }
+.grm-k3 { grid-template-columns: repeat(3, 1fr); }
+.grm-k4 { grid-template-columns: repeat(4, 1fr); }
+.grm-k5 { grid-template-columns: repeat(5, 1fr); }
+.grm-k6 { grid-template-columns: repeat(6, 1fr); }
+
+.grm-cel {
+  min-height: 1.45em;
+  background: var(--grm-scherm);
+  text-align: center;
+}
+
+.grm-kop {
+  box-shadow: inset 0 -1px var(--grm-scherm-lijn);
+}
+
+/* --- lwarp-restanten temmen -------------------------------------------- */
+
+/* lwarp zet zijn eigen kleuren voor links en kaders; die rekenen allemaal op
+ * een licht blad. Alles wat in een slide terechtkomt, gaat daarom door de
+ * namen hierboven. */
+.slide a {
+  color: var(--kleur-accent);
+  /* Een webadres is één woord van tachtig tekens; op een telefoon steekt dat
+   * anders dwars door het kader heen. */
+  overflow-wrap: anywhere;
+}
+
+.slide a:hover {
+  color: var(--kleur-accent);
+  text-decoration: underline;
+}
+
+/* Een formule op een eigen regel valt niet af te breken. Past ze niet, dan
+ * schuift ze binnen haar eigen strook opzij in plaats van de hele slide breder
+ * te maken; op een telefoon gebeurt dat bij de langere uitspraken. */
+.slide mjx-container[display="true"] {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: .25rem;
+}
+
+/* Een formule die net te breed is, krimpt eerst tot ze past; een svg blijft
+ * daarbij scherp. presentatie.js zet de ondergrens als min-width in ex (75%
+ * van de eigen breedte) en markeert de svg pas dan, zodat een formule zonder
+ * die ondergrens gewoon blijft schuiven. Tussen 100% en 75% krimpen de marges
+ * rond de slide mee (zie .slide); pas onder die grens, met de marges op hun
+ * minimum, komt de schuifbalk hierboven terug. */
+.slide mjx-container[display="true"] > svg[data-pres-krimp] {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Wiskunde in de lopende tekst kan niet schuiven zonder de regel eromheen mee
+ * te nemen, en ze breekt niet af. Ze krimpt daarom mee: MathJax levert een
+ * SVG met een viewBox, dus schaalt de formule evenredig zodra ze breder is
+ * dan wat er staat. Enkel dan, want max-width knijpt niets wat al past. Op een
+ * kleine telefoon scheelt dat bij de langere verzamelingsnotaties. */
+.slide mjx-container:not([display="true"]) {
+  max-width: 100%;
+}
+
+.slide mjx-container:not([display="true"]) svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Het kader dat MathJax rond \opl tekent, komt uit \bbox in cursus.cls en
+ * draagt dus vaste kleuren als attribuut. Een regel hier weegt zwaarder dan
+ * zo'n attribuut, dus volstaat dit om het mee te laten kleuren. */
+:root[data-thema="donker"] mjx-container [fill="whitesmoke"] {
+  fill: var(--kleur-oplossing);
+}
+
+:root[data-thema="donker"] mjx-container [stroke="darkseagreen"] {
+  stroke: var(--kleur-oplossing-rand);
+}
+
+/* lwarp zet de lijnen van een tabular, de kaders van \fbox en de tekst erin
+ * met vaste zwarte kleuren, deels zelfs als style-attribuut. In de nachtstand
+ * vallen die weg tegen het donkere vlak; enkel !important haalt het van zo'n
+ * attribuut. */
+:root[data-thema="donker"] .slide td[class*="tvertbar"],
+:root[data-thema="donker"] .slide tr.tbrule > td,
+:root[data-thema="donker"] .slide [style*="solid black"],
+:root[data-thema="donker"] .slide [style*="solid #000000"] {
+  border-color: var(--kleur-tekst) !important;
+}
+
+:root[data-thema="donker"] .slide [style*="color:#000000"],
+:root[data-thema="donker"] .slide [style*="color: #000000"] {
+  color: var(--kleur-tekst) !important;
+}
+
+:root[data-thema="donker"] .slide [style*="background:            #FFFFFF"] {
+  background: var(--kleur-vlak) !important;
+}
+
+/* Een TikZ-figuur is een SVG met zwarte lijnen op een doorzichtige grond. Ze
+ * keert in de nachtstand op dezelfde manier om als een 3D-figuur (zie
+ * .pres-figuur iframe): zwart wordt licht, een kleur houdt haar tint. */
+.slide img.lateximage {
+  filter: var(--figuur-filter);
+}
+
+/* De arcering van \undefsign (zie cursus.cls): de schuine strepen van
+ * \enclose zijn even dik als een breukstreep, en zo geplakt vormen ze een
+ * donker blok. Dun en grijs lijkt het op de drukversie. Een px is binnen de
+ * SVG van MathJax een duizendste em. */
+mjx-container .undefsign {
+  color: var(--kleur-zwak);
+  stroke: var(--kleur-zwak);
+}
+
+mjx-container .undefsign line {
+  stroke-width: 35px;
+}
+
+
+.slide .multicols {
+  column-count: 2;
+  column-gap: 2rem;
+}
+
+.slide dl.description {
+  margin: .3rem 0;
+}
+
+.slide dl.description dt {
+  float: left;
+  clear: left;
+  min-width: 2.5rem;
+  font-weight: 600;
+}
+
+.slide dl.description dd {
+  margin: 0 0 .3rem 3rem;
+}
+
+.slide .fbox {
+  border: 1px solid var(--kleur-lijn) !important;
+  border-radius: var(--straal);
+}
+
+/* --- Smalle schermen --------------------------------------------------- */
+
+@media (max-width: 55rem) {
+  .oefening-met-figuur {
+    grid-template-columns: 1fr;
+  }
+
+  body.pres-klaar {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "kop"
+      "podium"
+      "voet";
+  }
+
+  /* Op een smal scherm staat de inhoudstafel toch al zwevend over het
+   * podium, dus blijft het ook in presentatiestand bij een enkele kolom. */
+  html.pres-groot body.pres-klaar {
+    grid-template-areas:
+      "podium"
+      "voet";
+  }
+
+  .pres-zijbalk {
+    position: fixed;
+    top: var(--balk);
+    bottom: 0;
+    left: 0;
+    z-index: 5;
+    box-shadow: 0 0 40px var(--schaduw);
+    max-width: 85vw;
+  }
+
+  html.pres-groot .pres-zijbalk {
+    top: 0;
+  }
+
+  /* De inhoudstafel ligt hier over het podium in plaats van ernaast, dus
+   * hoort er een sluier onder: die maakt zichtbaar dat de cursus erachter
+   * blijft staan, en een tik erop legt de lijst weer weg. */
+  .pres-sluier {
+    display: block;
+    position: fixed;
+    inset: var(--balk) 0 0 0;
+    z-index: 4;
+    background: var(--kleur-sluier);
+  }
+
+  html.pres-groot .pres-sluier {
+    top: 0;
+  }
+
+  .slide {
+    --slide-rand: 1rem;
+    padding-block: 1.2rem 1.5rem;
+  }
+
+  /* Twee kolommen zijn op deze breedte een handvol woorden per regel. */
+  .pres-korteinhoud:has(li:nth-child(9)) {
+    columns: 1;
+  }
+
+  .slide .multicols {
+    column-count: 1;
+  }
+
+  /* De figuren komen uit de PDF en dragen daar een breedte in vw als
+   * inline stijl; op een telefoon blijft daar een postzegel van over. Ze
+   * mogen hier de volle breedte van de slide nemen. */
+  .pres-figuur iframe {
+    width: 100% !important;
+  }
+
+}
+
+/* De kopbalk heeft meer knoppen dan de voetbalk. Met opschriften vraagt hij
+ * ongeveer 82rem; daaronder blijven enkel de iconen staan, zodat de titel
+ * niet tot een paar letters wordt afgeknipt. */
+@media (max-width: 82rem) {
+  .pres-verberg-kop {
+    display: none;
+  }
+}
+
+/* De opschriften bij de knoppen in de voetbalk vallen pas veel later weg dan de zijbalk gaat
+ * zweven: een tablet en een telefoon in liggende stand hebben ruimte zat voor
+ * "Oplossingen" en "Volgende". Enkel op een telefoon in staande stand blijft
+ * er van de kopbalk anders niets over. */
+/* De balk met de oefeningen staat naast de titel, dus telt niet de breedte
+ * van het venster maar die van de kolom met het podium: een gedokte
+ * inhoudstafel eet er 20rem van op. Wordt die kolom te smal voor de titel
+ * naast de opschriften, dan blijven enkel de chevrons en de teller staan; de
+ * knoppen houden hun naam in aria-label en title. Onder 55rem zweeft de
+ * inhoudstafel over het podium en telt haar breedte niet mee. */
+@media (max-width: 44rem) {
+  .pres-verberg-smalle-kolom {
+    display: none;
+  }
+}
+
+@media (min-width: 55.01rem) and (max-width: 64rem) {
+  body:not(.pres-zijbalk-dicht) .pres-verberg-smalle-kolom {
+    display: none;
+  }
+}
+
+@media (max-width: 34rem) {
+  .pres-verberg-smal {
+    display: none;
+  }
+
+  /* Drie knoppen naast elkaar passen niet meer. Enkel de gekozen stand blijft
+   * staan; een tik erop gaat naar de volgende. */
+  .pres-segmenten .pres-knop:not([aria-pressed="true"]) {
+    display: none;
+  }
+
+  .pres-segmenten .pres-knop[aria-pressed="true"] {
+    border-radius: var(--straal);
+  }
+
+  .pres-merk .pres-merk-naam {
+    display: none;
+  }
+}
+
+/* Zonder muis valt er niets aan te wijzen: op een aanraakscherm staan de
+ * knoppen bij een figuur meteen in beeld, anders raakt de lezer nooit aan
+ * Groot of Reset. */
+@media (hover: none) {
+  .pres-figuur .pres-figuurbalk {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pres-figuurbalk .pres-speel-attentie {
+    animation: none;
+  }
+}
+
+@media print {
+  body,
+  body.pres-klaar {
+    display: block;
+    overflow: visible;
+    height: auto;
+  }
+
+  .pres-kop,
+  .pres-zijbalk,
+  .pres-zoek,
+  .pres-melding,
+  .pres-voet,
+  .pres-hulp,
+  .pres-figuurbalk,
+  .pres-appendix-download,
+  .hulpmiddel-notebook,
+  .pres-onthul,
+  .pres-oog,
+  .pres-antwoord {
+    display: none !important;
+  }
+
+  .oplossing.pres-verborgen {
+    display: block !important;
+  }
+
+  .slide,
+  .slide.pres-actief {
+    display: block;
+    break-inside: avoid;
+    border: 0;
+    animation: none;
+    /* Het papier heeft zijn eigen breedte; een krimp van het scherm geldt
+     * daar niet, ook al staat die als inline stijl op de slide. */
+    --pres-krimp: 0 !important;
+  }
+
+  .pres-verborgen > .pres-inhoud {
+    visibility: visible;
+  }
+
+  .pres-hulpmiddelkeuze {
+    display: none;
+  }
+
+  .hulpmiddel[hidden] {
+    display: block !important;
+  }
+}
+
+.pres-tocnummer {
+  display: inline-block;
+  min-width: 2.2em;
+  color: var(--kleur-zwak);
+  font-variant-numeric: tabular-nums;
+}
+
+.pres-zijbalk a.pres-huidig .pres-tocnummer {
+  color: inherit;
+}

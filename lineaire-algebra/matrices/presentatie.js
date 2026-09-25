@@ -31,12 +31,13 @@
   var LEERPLAN_ANKER = "leerplandoelen";
   // De rekenmachine: een markering uit cursus.cls zet de knop in de kopbalk,
   // het venster zelf wordt pas bij de eerste opening gebouwd. De soort zegt
-  // welke: de matrixrekenmachine of de functierekenmachine.
+  // welke: de matrix-, de functie- of de stelselrekenmachine.
   var rekenmachine = null, rekenmachinevenster = null, rekenmachineTerug = null,
-      rekenmachineWerk = null;
+      rekenmachineWerk = null, rekenmachineOpties = {};
   var REKENMACHINES = {
     matrix: { titel: "Matrixrekenmachine", script: "Matrixrekenmachine" },
-    functie: { titel: "Functierekenmachine", script: "Functierekenmachine" }
+    functie: { titel: "Functierekenmachine", script: "Functierekenmachine" },
+    stelsel: { titel: "Stelselrekenmachine", script: "Stelselrekenmachine" }
   };
   var kopbalk, knopVorige, knopVolgende, knopHints,
       knopZijbalk, knopPresentatie;
@@ -366,11 +367,15 @@
       leerplan.appendChild(blok);
     });
 
-    // \matrixrekenmachine en \functierekenmachine laten enkel een lege
-    // markering achter: ze hoort niet in de slides, maar zet de knop in de
-    // kopbalk.
+    // \matrixrekenmachine, \functierekenmachine en \stelselrekenmachine
+    // laten enkel een lege markering achter: ze hoort niet in de slides,
+    // maar zet de knop in de kopbalk.
     stroom.querySelectorAll(".cursusrekenmachine").forEach(function (blok) {
       rekenmachine = REKENMACHINES[blok.getAttribute("data-soort")] || REKENMACHINES.matrix;
+      // [zonder=...] laat bewerkingen weg die het hoofdstuk nog niet kent.
+      rekenmachineOpties = {
+        zonder: (blok.getAttribute("data-zonder") || "").split(/\s+/).filter(Boolean)
+      };
       blok.remove();
     });
     kinderen = Array.prototype.slice.call(stroom.children);
@@ -644,6 +649,11 @@
     reeks._volgende.disabled = nieuw === reeks._oefeningen.length - 1;
     reeks._teller.textContent = (nieuw + 1) + " / " + reeks._oefeningen.length;
     if (kort && !opties.zonderHash) history.replaceState(null, "", "#" + reeks._oefeningen[nieuw].id);
+    // Een grafiek in een oefening die verborgen was, krijgt pas nu haar maat
+    // en haar kleuren, net als in een oplossing die opengaat.
+    if (kort) {
+      reeks._oefeningen[nieuw].dispatchEvent(new CustomEvent("pres:zichtbaar", { bubbles: true }));
+    }
     toonHintknop();
     zetBladerknoppen();
     planRanden();
@@ -2219,7 +2229,7 @@
       if (e.target === rekenmachinevenster) wisselRekenmachine(false);
     });
     document.body.appendChild(rekenmachinevenster);
-    rekenmachineWerk = window[rekenmachine.script].maak(houder);
+    rekenmachineWerk = window[rekenmachine.script].maak(houder, rekenmachineOpties);
     return true;
   }
 

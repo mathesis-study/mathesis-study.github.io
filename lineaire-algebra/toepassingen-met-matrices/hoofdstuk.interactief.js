@@ -1,4 +1,10 @@
-/* Interactieve grafieken bij L02_ToepassingenMetMatrices.tex. */
+/* Interactieve grafieken bij L02_ToepassingenMetMatrices.tex.
+ *
+ * Het product bij VBTL oefening 2 staat op een matrixbord, zoals de
+ * productfiguren van L01.
+ *
+ * mkpi: gebruikt matrixbord.js
+ */
 (function () {
   "use strict";
 
@@ -732,5 +738,394 @@
     return { reset: herstel };
   });
 
+  /* --- VBTL oefening 2: de pizzabodems, rij maal kolom ------------------- */
+
+  // Op papier staan B₁, B₂ en B₃ als uitkomst. Hier staat het product zelf:
+  // bij elk element van het resultaat lichten de rij van P en de verdeling
+  // van het vorige kwartaal op, met de som eronder. "Zelfde bodem" toont
+  // deelvraag (c): de diagonaal van P, tegen dezelfde verdeling B₀.
+  G.registreer("pizza-kwartalen", function (ctx) {
+    var M = window.Matrixbord;
+    if (!M) throw new Error("matrixbord.js ontbreekt");
+
+    var P = [[0.80, 0.15, 0.07], [0.12, 0.75, 0.03], [0.08, 0.10, 0.90]];
+    var KWARTALEN = 3;
+    var BODEMS = ["klassiek (A)", "kaaskorst (B)", "pan (C)"];
+    var rij = [[[0.45], [0.25], [0.30]]];
+    for (var n = 1; n <= KWARTALEN; n++) rij.push(M.product(P, rij[n - 1]));
+
+    var st = { n: 1, cel: 1, zelfde: false, uitleg: "" };
+
+    function B(k) { return rij[k]; }
+    function naamB(k) { return "B" + M.index(k, M.ONDER); }
+    // Vaste decimalen, zoals in de oplossing: 0.80 en 0.3310, niet 0.8 en
+    // 0.331. P en B₀ hebben er twee; een verdeling na een kwartaal vier, meer
+    // voegt niets toe aan een percentage.
+    function getal(x, decimalen) { return M.net(x.toFixed(decimalen)); }
+    function aandeel(x) {
+      return getal(x, Math.abs(x * 100 - Math.round(x * 100)) < 1e-9 ? 2 : 4);
+    }
+
+    var wb = M.maakWerkblad(ctx);
+    var bord = M.matrixBord(ctx);
+    var d = M.maakDrieluik(ctx, wb, bord, {
+      teken: "·",
+      celbreedte: 1.9,
+      y: 0.35,
+      A: {
+        rijen: 3, kolommen: 3, naam: "P",
+        waarde: function (i, j) { return getal(P[i - 1][j - 1], 2); }
+      },
+      B: {
+        rijen: 3, kolommen: 1,
+        naam: function () { return naamB(st.n - 1); },
+        waarde: function (i) { return aandeel(B(st.n - 1)[i - 1][0]); }
+      },
+      C: {
+        rijen: 3, kolommen: 1,
+        naam: function () { return naamB(st.n); },
+        waarde: function (i) { return aandeel(B(st.n)[i - 1][0]); }
+      }
+    });
+
+    var merkRij = d.A.markeer("secante");
+    var merkDiagonaal = [1, 2, 3].map(function () {
+      return d.A.markeer("afgeleide");
+    });
+    var merkB = d.B.markeer("punt");
+    var merkC = d.C.markeer("raaklijn");
+
+    wb.tekst(bord, 0,
+      function () { return -d.hoogte() / 2 - 0.8; },
+      function () { return st.uitleg; }, "tekst", { factor: 0.95 });
+
+    wb.venster(bord, function () {
+      return [d.breedte() + 1.2, d.hoogte() + 3.4];
+    });
+
+    function som(termen) {
+      var uitkomst = 0;
+      var tekst = termen.map(function (paar) {
+        uitkomst += paar[0] * paar[1];
+        return getal(paar[0], 2) + "·" + aandeel(paar[1]);
+      }).join(" + ");
+      return { tekst: tekst, uitkomst: uitkomst };
+    }
+
+    function werkBij() {
+      var vorige = B(st.n - 1);
+      var s;
+      merkDiagonaal.forEach(function (merk) { merk.verberg(); });
+      merkRij.verberg();
+      merkC.verberg();
+      if (st.zelfde) {
+        merkDiagonaal.forEach(function (merk, k) { merk.zet(k + 1, k + 1); });
+        merkB.zet(0, 0);
+        s = som([0, 1, 2].map(function (k) { return [P[k][k], vorige[k][0]]; }));
+        st.uitleg = "zelfde bodem: " + s.tekst + " = " + aandeel(s.uitkomst);
+        ctx.toon("Wie blijft, staat op de diagonaal van P. Elke groep uit " +
+          "B₀ met haar eigen kans om te blijven: " + s.tekst + " = " +
+          aandeel(s.uitkomst) + ", dus " + ctx.getal(s.uitkomst * 100, 2) +
+          " % koopt volgend kwartaal dezelfde bodem.");
+      } else {
+        var i = st.cel;
+        merkRij.zet(i, 0);
+        merkB.zet(0, 0);
+        merkC.zet(i, 1);
+        s = som([0, 1, 2].map(function (k) { return [P[i - 1][k], vorige[k][0]]; }));
+        st.uitleg = "rij " + i + " van P maal " + naamB(st.n - 1) + ": " +
+          s.tekst + " = " + aandeel(s.uitkomst);
+        ctx.toon("Na " + st.n + (st.n === 1 ? " kwartaal" : " kwartalen") +
+          ": " + BODEMS.map(function (naam, k) {
+            return naam + " " + ctx.getal(B(st.n)[k][0] * 100, 2) + " %";
+          }).join(", ") + ". Het aandeel " + BODEMS[i - 1] + " is rij " + i +
+          " van P maal " + naamB(st.n - 1) + ".");
+      }
+      d.herplaats();
+      wb.pas();
+    }
+
+    bord.on("down", function (e) {
+      var p = M.klikPunt(bord, e);
+      if (!p) return;
+      var cel = d.C.celVan(p[0], p[1]) || d.A.celVan(p[0], p[1]);
+      if (!cel) return;
+      st.zelfde = false;
+      st.cel = cel.rij;
+      zetKnoppen();
+      werkBij();
+    });
+
+    // De kwartalen zijn een schakelaar: Kwartaal [1|2|3].
+    var groep = document.createElement("span");
+    groep.className = "interactieve-grafiek-schakelaar";
+    groep.setAttribute("role", "group");
+    groep.setAttribute("aria-label", "Kwartaal");
+    groep.style.marginRight = "1.2rem";
+
+    var kwartaalknoppen = [1, 2, 3].map(function (k) {
+      var knop = ctx.knop("Kwartaal " + k, function () {
+        st.n = k;
+        st.zelfde = false;
+        zetKnoppen();
+        werkBij();
+      });
+      if (k === 1) knop.parentNode.insertBefore(groep, knop);
+      groep.appendChild(knop);
+      return knop;
+    });
+
+    ctx.knop("Volgend element", function () {
+      st.cel = st.zelfde ? 1 : st.cel % 3 + 1;
+      st.zelfde = false;
+      zetKnoppen();
+      werkBij();
+    });
+
+    // Deelvraag (c) gaat over volgend kwartaal, dus over B₀.
+    var zelfdeKnop = ctx.knop("Zelfde bodem", function () {
+      st.zelfde = !st.zelfde;
+      if (st.zelfde) st.n = 1;
+      zetKnoppen();
+      werkBij();
+    });
+
+    function zetKnoppen() {
+      kwartaalknoppen.forEach(function (knop, k) {
+        knop.setAttribute("aria-pressed", String(k + 1 === st.n));
+      });
+      zelfdeKnop.setAttribute("aria-pressed", String(st.zelfde));
+    }
+
+    function herstel() {
+      st.n = 1;
+      st.cel = 1;
+      st.zelfde = false;
+      zetKnoppen();
+      werkBij();
+    }
+
+    zetKnoppen();
+    werkBij();
+    return { reset: herstel, herschaal: wb.pas, kleur: wb.kleur };
+  });
+
+  /* --- VBTL oefening 6: de zwemclub, met en zonder inschrijvingen -------- */
+
+  // Op papier staan drie jaren. Hier staan de vier groepen jaar na jaar, en
+  // één schakelaar wisselt tussen A en A′: zonder nieuwe leden loopt de club
+  // leeg, met nieuwe leden groeit ze naar een evenwicht van 60, 45, 60 en 60.
+  G.registreer("zwemclub", function (ctx) {
+    var A = [
+      [0.5, 0, 0, 0],
+      [0.3, 0.6, 0, 0],
+      [0, 0.4, 0.7, 0],
+      [0, 0, 0.2, 0.8]
+    ];
+    var AACCENT = A.map(function (r) { return r.slice(); });
+    AACCENT[0][0] = 1;
+    var B0 = [60, 30, 30, 20];
+    var GROEPEN = ["zwemschool (Z)", "waterduivels (W)",
+                   "competitie (C)", "senioren (S)"];
+    var KORT = ["Z", "W", "C", "S"];
+    var ROLLEN = ["punt", "secante", "afgeleide", "kromme"];
+    var STREEP = [0, 2, 3, 1];
+    var JAREN = 15;
+    var st = { inschrijven: false };
+
+    function matrix() { return st.inschrijven ? AACCENT : A; }
+
+    function verloop() {
+      var M = matrix();
+      var rij = [B0.slice()];
+      for (var n = 1; n <= JAREN; n++) {
+        var v = rij[n - 1];
+        rij.push(M.map(function (r) {
+          return r.reduce(function (s, a, k) { return s + a * v[k]; }, 0);
+        }));
+      }
+      return rij;
+    }
+
+    var rijen = verloop();
+
+    var bord = ctx.maakBord({
+      begrenzing: [-1.6, 88, JAREN + 1, -11],
+      assen: false
+    });
+    assenMet(ctx, bord, "jaar", "leden");
+
+    // De krommen komen bij A′ op het einde samen rond 60, dus de legende
+    // staat bovenaan op één rij, niet aan het uiteinde van de krommen: rechts
+    // van het opschrift van de y-as en onder de knoppen Groot en Reset.
+    var krommen = [0, 1, 2, 3].map(function (i) {
+      var kromme = ctx.stijl(bord.create("curve", [[], []], {
+        strokeWidth: 2.5, dash: STREEP[i], fixed: true, highlight: false
+      }), ROLLEN[i]);
+      ctx.stijl(bord.create("text", [1.6 + i * 3.4, 75, GROEPEN[i]], {
+        anchorX: "left", anchorY: "middle", fixed: true, highlight: false,
+        fontSize: 13, cssStyle: "font-weight:600"
+      }), ROLLEN[i]);
+      return kromme;
+    });
+
+    var spoor = bord.create("segment", [[0, 0], [JAREN, 0]], {
+      visible: false, fixed: true
+    });
+    var wijzer = ctx.stijl(bord.create("glider", [3, 0, spoor], {
+      name: "jaar", size: 5, showInfobox: false,
+      precision: { touch: 30, mouse: 6 },
+      label: { anchorX: "middle", offset: [0, -20] }
+    }), "hulp");
+
+    function jaar() {
+      return Math.max(0, Math.min(JAREN, Math.round(wijzer.X())));
+    }
+
+    ctx.stijl(bord.create("segment",
+      [[function () { return jaar(); }, 0],
+       [function () { return jaar(); }, 70]], {
+        strokeWidth: 1.5, dash: 2, fixed: true, highlight: false
+      }), "hulp");
+
+    [0, 1, 2, 3].forEach(function (i) {
+      ctx.stijl(bord.create("point",
+        [function () { return jaar(); },
+         function () { return rijen[jaar()][i]; }], {
+          name: "", size: 4, fixed: true, highlight: false, withLabel: false
+        }), ROLLEN[i]);
+    });
+
+    function tekenKrommen() {
+      krommen.forEach(function (kromme, i) {
+        var xs = [];
+        var ys = [];
+        for (var n = 0; n <= JAREN; n++) {
+          xs.push(n);
+          ys.push(rijen[n][i]);
+        }
+        kromme.dataX = xs;
+        kromme.dataY = ys;
+      });
+    }
+
+    // De stap van het gekozen jaar, zoals in de oplossing:
+    // B_n = A · B_{n-1}, met het veranderde element van A′ vet.
+    var formule = document.createElement("div");
+    formule.className = "zwemclub-formule";
+    formule.style.cssText = "text-align:center;overflow-x:auto;margin:0.4rem 0";
+    ctx.element.parentNode.insertBefore(formule, ctx.element.nextSibling);
+
+    function matrixTex(M) {
+      return "\\begin{pmatrix}" + M.map(function (r, i) {
+        return r.map(function (x, j) {
+          var t = ctx.getal(x, 1);
+          return st.inschrijven && i === 0 && j === 0 ? "\\mathbf{" + t + "}" : t;
+        }).join(" & ");
+      }).join("\\\\") + "\\end{pmatrix}";
+    }
+
+    function kolomTex(v) {
+      return "\\begin{pmatrix}" + v.map(function (x) {
+        return ctx.getal(x, 2);
+      }).join("\\\\") + "\\end{pmatrix}";
+    }
+
+    function samen(v) {
+      return v.reduce(function (a, b) { return a + b; }, 0);
+    }
+
+    var vorigeTex = null;
+
+    function toonFormule() {
+      var n = jaar();
+      var naam = st.inschrijven ? "A'" : "A";
+      var tex = "B_{" + n + "}=";
+      if (n > 0) {
+        tex += naam + "\\cdot B_{" + (n - 1) + "}=" + matrixTex(matrix()) +
+          kolomTex(rijen[n - 1]) + "=";
+      }
+      tex += kolomTex(rijen[n]) +
+        "\\begin{matrix}Z\\\\W\\\\C\\\\S\\end{matrix}";
+      if (tex === vorigeTex) return;
+      vorigeTex = tex;
+      var mj = window.MathJax;
+      try {
+        if (!mj || typeof mj.tex2svg !== "function") throw new Error("geen MathJax");
+        formule.replaceChildren(mj.tex2svg(tex, { display: true }));
+      } catch (e) {
+        formule.textContent = "B" + n + " = (" + rijen[n].map(function (x) {
+          return ctx.getal(x, 2);
+        }).join(", ") + ")";
+      }
+    }
+
+    function werkBij() {
+      var n = jaar();
+      var v = rijen[n];
+      toonFormule();
+      var tekst = "Na " + n + " jaar met " + (st.inschrijven ? "A′" : "A") +
+        ": " + KORT.map(function (naam, i) {
+          return naam + " = " + ctx.getal(v[i], 2);
+        }).join(", ") + ", samen " + ctx.getal(samen(v), 2) + " leden. ";
+      if (st.inschrijven) {
+        tekst += "De zwemschool blijft op 60, en de club groeit naar een " +
+          "evenwicht van 60, 45, 60 en 60 leden.";
+      } else {
+        tekst += "Zonder nieuwe leden loopt eerst de zwemschool leeg, " +
+          "daarna de hele club.";
+      }
+      ctx.toon(tekst);
+    }
+
+    bord.on("update", werkBij);
+
+    var groep = document.createElement("span");
+    groep.className = "interactieve-grafiek-schakelaar";
+    groep.setAttribute("role", "group");
+    groep.setAttribute("aria-label", "Matrix");
+    groep.style.marginRight = "1.2rem";
+
+    function kiesMatrix(inschrijven) {
+      st.inschrijven = inschrijven;
+      rijen = verloop();
+      tekenKrommen();
+      matrixknoppen.forEach(function (knop, k) {
+        knop.setAttribute("aria-pressed", String((k === 1) === inschrijven));
+      });
+    }
+
+    var matrixknoppen = ["Zonder inschrijvingen (A)", "Met inschrijvingen (A′)"]
+      .map(function (naam, k) {
+        var knop = ctx.knop(naam, function () {
+          kiesMatrix(k === 1);
+          bord.fullUpdate();
+          werkBij();
+        });
+        if (!k) knop.parentNode.insertBefore(groep, knop);
+        groep.appendChild(knop);
+        return knop;
+      });
+
+    function zetJaar(n) {
+      wijzer.setPosition(window.JXG.COORDS_BY_USER, [n, 0]);
+      bord.update();
+      werkBij();
+    }
+
+    ctx.knop("Vorig jaar", function () { zetJaar(Math.max(0, jaar() - 1)); });
+    ctx.knop("Volgend jaar", function () { zetJaar(Math.min(JAREN, jaar() + 1)); });
+    ctx.knop("Na 3 jaar", function () { zetJaar(3); });
+
+    function herstel() {
+      kiesMatrix(false);
+      zetJaar(3);
+    }
+
+    kiesMatrix(false);
+    tekenKrommen();
+    zetJaar(3);
+    return { reset: herstel };
+  });
 
 }());

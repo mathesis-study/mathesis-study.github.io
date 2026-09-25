@@ -266,3 +266,14 @@
 @media print {
   .python-editor, .python-notebook, .python-notebook-link { display: none; }
 }
+
+/* Een codeblok met [grafiek=naam] krijgt zijn beginwaarden uit de figuur.
+ * De strook boven de code zegt welke, zodat de lezer niet hoeft te raden
+ * waar links en rechts vandaan komen. Ze springt in tot naast de playknop,
+ * zodat ze boven de code zelf staat. */
+.python-vooraf {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .35rem;
+  margin: 0 0 .4rem 3rem; font-size: .85rem; color: var(--kleur-zwak);
+}
+.python-vooraf[hidden] { display: none; }
+.python-vooraf-label { margin-right: .15rem; }

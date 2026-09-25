@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Toepassingen met matrices</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=6cdca35fd4bd" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=2339748513e5" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -252,7 +252,7 @@ MathJax = {
 </script>
 
 
-<script src="mathjax-nicematrix.js?v=6cdca35fd4bd"></script>
+<script src="mathjax-nicematrix.js?v=2339748513e5"></script>
 <script
           id="MathJax-script"
           src="tex-svg-full.js"
@@ -264,8 +264,9 @@ MathJax = {
 <meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=6cdca35fd4bd" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=6cdca35fd4bd" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=2339748513e5" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=2339748513e5" />
+<link rel="stylesheet" href="matrixrekenmachine.css?v=2339748513e5" />
 </head>
 <body>
 
@@ -410,6 +411,22 @@ MathJax = {
 \(\newcommand {\ber }{\mathrm {ber}}\)
 
 \(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
 
 \(\newcommand {\qed }{\hfill \square }\)
 
@@ -677,6 +694,8 @@ MathJax = {
 <p>
 <header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 2</p> <h1>Toepassingen met matrices</h1> </header>
 </p>
+
+<div class="cursusrekenmachine" data-zonder="determinant"></div>
 <div class="center">
 
 <p>
@@ -930,15 +949,309 @@ Volgende dag: \(A^3=A^2\cdot A\), enzovoort.
 terug. Kies ook een ander weer voor vandaag: na een aantal dagen loopt alles naar hetzelfde evenwicht.</figcaption> </figure>
 </p>
 <!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+Handboek VBTL - Matrices p 58 tot 61: oefeningen 1, 2, 3, 6, 7 en 9. Extra, met de evolutie op lange termijn: 10, 14, 17 en 20 (p 61 tot 64).
+</p>
+
+<div class="cursus-oefenbalk"></div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 2 (p 58) ......
+-->
+<h6 id="autosec-18">VBTL oefening 2 (p 58)</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Een pizzeria verkoopt drie soorten bodems: de klassieke (\(A\)), die met een kaaskorst (\(B\)) en de panpizza (\(C\)). De meeste klanten blijven bij hun bodem, maar sommigen stappen over. Per kwartaal geeft de overgangsmatrix
+\(P\) de verhoudingen.
+</p>
+
+<p>
+\[ P= \begin {pNiceMatrix}[first-row,last-col,columns-width=2em] A &amp; B &amp; C &amp; \\ 0.80 &amp; 0.15 &amp; 0.07 &amp; A\\ 0.12 &amp; 0.75 &amp; 0.03 &amp; B\\ 0.08 &amp; 0.10 &amp; 0.90
+&amp; C \end {pNiceMatrix} \]
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Hoeveel procent van wie dit kwartaal een klassieke pizza koopt, doet dat volgend kwartaal opnieuw?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(80\,\%\)</span> We lezen in de kolom \(A\) (van) de rij \(A\) (naar): \(p_{11}=0.80\). Van de klanten met een klassieke bodem blijft dus \(80\,\%\) bij die bodem.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Nu koopt \(45\,\%\) van de klanten een klassieke pizza, \(25\,\%\) een kaaspizza en \(30\,\%\) een panpizza. Bereken de verdeling na één, twee en drie kwartalen.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">na drie kwartalen \(37.86\,\%\), \(24.42\,\%\) en \(37.72\,\%\)</span> We zetten de verdeling van nu in een kolommatrix, in dezelfde volgorde als de kolommen van \(P\):
+</p>
+<p>
+\[ B_0=\begin {pmatrix}0.45\\0.25\\0.30\end {pmatrix} \qquad \text {en}\qquad B_{n+1}=P\cdot B_n . \]
+</p>
+<p>
+Na één kwartaal:
+</p>
+<p>
+\[ B_1=P\cdot B_0= \begin {pmatrix} 0.80 &amp; 0.15 &amp; 0.07\\ 0.12 &amp; 0.75 &amp; 0.03\\ 0.08 &amp; 0.10 &amp; 0.90 \end {pmatrix} \begin {pmatrix}0.45\\0.25\\0.30\end {pmatrix} =\begin
+{pmatrix}0.4185\\0.2505\\0.3310\end {pmatrix} \begin {matrix}A\\B\\C\end {matrix} \]
+</p>
+<p>
+Elk element is een rij maal een kolom. Zo is het eerste element
+</p>
+<p>
+\[ 0.80\cdot 0.45+0.15\cdot 0.25+0.07\cdot 0.30=0.36+0.0375+0.021=0.4185 . \]
+</p>
+<p>
+Wie na een kwartaal een klassieke pizza koopt, kocht er al een en bleef, of stapte over van een kaas- of een panpizza.
+</p>
+<p>
+Zo gaan we verder, telkens met de vorige verdeling:
+</p>
+<p>
+\[ B_2=P\cdot B_1=\begin {pmatrix}0.3955\\0.2480\\0.3564\end {pmatrix} \qquad B_3=P\cdot B_2=\begin {pmatrix}0.3786\\0.2442\\0.3772\end {pmatrix} \]
+</p>
+<p>
+Rechtstreeks kan het ook met een macht: \(B_3=P^3\cdot B_0\).
+</p>
+<div class="center">
+<table>
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdl"></td>
+<td class="tdc">klassiek (\(A\))</td>
+<td class="tdc">kaaskorst (\(B\))</td>
+<td class="tdc">pan (\(C\))</td>
+</tr>
+
+<tr class="hline">
+<td class="tdl">nu</td>
+<td class="tdc">\(45\,\%\)</td>
+<td class="tdc">\(25\,\%\)</td>
+<td class="tdc">\(30\,\%\)</td>
+</tr>
+
+<tr>
+<td class="tdl">na \(1\) kwartaal</td>
+<td class="tdc">\(41.85\,\%\)</td>
+<td class="tdc">\(25.05\,\%\)</td>
+<td class="tdc">\(33.10\,\%\)</td>
+</tr>
+
+<tr>
+<td class="tdl">na \(2\) kwartalen</td>
+<td class="tdc">\(39.55\,\%\)</td>
+<td class="tdc">\(24.80\,\%\)</td>
+<td class="tdc">\(35.64\,\%\)</td>
+</tr>
+
+<tr>
+<td class="tdl">na \(3\) kwartalen</td>
+<td class="tdc">\(37.86\,\%\)</td>
+<td class="tdc">\(24.42\,\%\)</td>
+<td class="tdc">\(37.72\,\%\)</td>
+</tr>
+</table>
+</div>
+<p>
+De panpizza wint terrein: ze houdt \(90\,\%\) van haar klanten, de klassieke bodem maar \(80\,\%\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Hoeveel procent van de klanten koopt volgend kwartaal dezelfde bodem als nu?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(81.75\,\%\)</span> Wie blijft, staat op de diagonaal van \(P\): \(0.80\), \(0.75\) en \(0.90\). Elke groep klanten nemen we met haar eigen kans om te blijven:
+</p>
+<p>
+\[ 0.80\cdot 0.45+0.75\cdot 0.25+0.90\cdot 0.30=0.36+0.1875+0.27=0.8175 . \]
+</p>
+<p>
+Volgend kwartaal koopt dus \(81.75\,\%\) van de klanten dezelfde bodem. <span class="aside">Dat is geen element van \(B_1\): daarin zitten ook de klanten die van bodem wisselden.</span>
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="pizza-kwartalen" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Het product \(P\cdot B_{n}=B_{n+1}\), kwartaal na kwartaal. Klik op een element van het resultaat: de rij van \(P\) en de
+verdeling die ermee vermenigvuldigd worden, lichten op. <em>Zelfde bodem</em> toont de diagonaal van deelvraag (c).</figcaption> </figure>
+</p>
+
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 6 (p 59) ......
+-->
+<h6 id="autosec-21">VBTL oefening 6 (p 59)</h6>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+Een zwemclub deelt haar leden in naar ervaring en leeftijd. Na de zwemschool (\(Z\)) word je waterduivel (\(W\)), daarna competitiezwemmer (\(C\)) en ten slotte senior (\(S\)). De overgang van jaar tot jaar staat in de
+overgangsmatrix \(A\).
+</p>
+
+<p>
+\[ A= \begin {pNiceMatrix}[first-row,last-col,columns-width=2em] Z &amp; W &amp; C &amp; S &amp; \\ 0.5 &amp; 0 &amp; 0 &amp; 0 &amp; Z\\ 0.3 &amp; 0.6 &amp; 0 &amp; 0 &amp; W\\ 0 &amp; 0.4
+&amp; 0.7 &amp; 0 &amp; C\\ 0 &amp; 0 &amp; 0.2 &amp; 0.8 &amp; S \end {pNiceMatrix} \]
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Hoe zie je aan \(A\) dat enkel de waterduivels allemaal in de club blijven?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">enkel de kolom \(W\) telt op tot \(1\)</span> Een kolom zegt waar de leden van één groep een jaar later zitten. We tellen elke kolom op:
+</p>
+<p>
+\[ Z:\ 0.5+0.3=0.8 \qquad W:\ 0.6+0.4=1 \qquad C:\ 0.7+0.2=0.9 \qquad S:\ 0.8 \]
+</p>
+<p>
+Enkel de kolom \(W\) telt op tot \(1\): elke waterduivel blijft waterduivel of wordt competitiezwemmer. In de andere groepen verlaat telkens een deel de club: \(20\,\%\) van de zwemschool, \(10\,\%\) van de
+competitiezwemmers en \(20\,\%\) van de senioren. In de graaf zijn dat de gestreepte pijlen.
+</p>
+<div class="center">
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+  0.5            0.6           0.7              0.8
+
+
+           0.3         0.4              0.2
+  Z              W             C                 S
+
+
+weg: 0.2                     weg: 0.1         weg: 0.2
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> De club telt nu \(60\) leden in de zwemschool, \(30\) waterduivels, \(30\) competitiezwemmers en \(20\) senioren. Bereken de samenstelling na drie jaar.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">ongeveer \(8\), \(23\), \(38\) en \(27\) leden</span>
+</p>
+<p>
+\[ B_0=\begin {pmatrix}60\\30\\30\\20\end {pmatrix} \qquad B_1=A\cdot B_0= \begin {pmatrix} 0.5 &amp; 0 &amp; 0 &amp; 0\\ 0.3 &amp; 0.6 &amp; 0 &amp; 0\\ 0 &amp; 0.4 &amp; 0.7 &amp; 0\\ 0 &amp;
+0 &amp; 0.2 &amp; 0.8 \end {pmatrix} \begin {pmatrix}60\\30\\30\\20\end {pmatrix} =\begin {pmatrix}30\\36\\33\\22\end {pmatrix} \]
+</p>
+<p>
+Zo is het tweede element \(0.3\cdot 60+0.6\cdot 30=18+18=36\): de nieuwe waterduivels uit de zwemschool en de waterduivels die bleven.
+</p>
+<p>
+\[ B_2=A\cdot B_1=\begin {pmatrix}15\\30.6\\37.5\\24.2\end {pmatrix} \qquad B_3=A\cdot B_2=\begin {pmatrix}7.5\\22.86\\38.49\\26.86\end {pmatrix} \begin {matrix}Z\\W\\C\\S\end {matrix} \]
+</p>
+<p>
+Na drie jaar zijn er ongeveer \(8\) leden in de zwemschool, \(23\) waterduivels, \(38\) competitiezwemmers en \(27\) senioren. De club slinkt van \(140\) naar ongeveer \(96\) leden, en vooral de zwemschool loopt leeg.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> De zwemschool schrijft nu elk jaar zoveel nieuwe leden in dat ze er steeds \(60\) telt. Hoe ziet de nieuwe overgangsmatrix eruit? Bereken daarmee de samenstelling na drie jaar.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(a_{11}\) wordt \(1\); dan \(60\), ongeveer \(42\), \(42\) en \(27\) leden</span> Van de \(60\) leden in de zwemschool blijft de helft: \(0.5\cdot 60=30\). Er moeten er dus elk jaar \(30\) bij,
+en dat is opnieuw \(0.5\cdot 60\). Zolang de zwemschool \(60\) leden telt, is
+</p>
+<p>
+\[ Z_{n+1}=\underbrace {0.5\,Z_n}_{\text {blijven}} +\underbrace {0.5\,Z_n}_{\text {nieuw}}=1\cdot Z_n . \]
+</p>
+<p>
+Enkel het element linksboven verandert:
+</p>
+<p>
+\[ A&apos;= \begin {pNiceMatrix}[first-row,last-col,columns-width=2em] Z &amp; W &amp; C &amp; S &amp; \\ 1 &amp; 0 &amp; 0 &amp; 0 &amp; Z\\ 0.3 &amp; 0.6 &amp; 0 &amp; 0 &amp; W\\ 0 &amp; 0.4
+&amp; 0.7 &amp; 0 &amp; C\\ 0 &amp; 0 &amp; 0.2 &amp; 0.8 &amp; S \end {pNiceMatrix} \]
+</p>
+<p>
+\[ B_1=A&apos;\cdot B_0=\begin {pmatrix}60\\36\\33\\22\end {pmatrix} \qquad B_2=A&apos;\cdot B_1=\begin {pmatrix}60\\39.6\\37.5\\24.2\end {pmatrix} \qquad B_3=A&apos;\cdot B_2=\begin
+{pmatrix}60\\41.76\\42.09\\26.86\end {pmatrix} \begin {matrix}Z\\W\\C\\S\end {matrix} \]
+</p>
+<p>
+Na drie jaar telt de club \(60\) leden in de zwemschool, ongeveer \(42\) waterduivels, \(42\) competitiezwemmers en \(27\) senioren: samen ongeveer \(171\) leden, en de club groeit. <span class="aside">De kolom \(Z\) van
+\(A&apos;\) telt op tot \(1.3\). Strikt genomen is \(A&apos;\) dus geen overgangsmatrix meer: de extra \(0.5\) is geen overgang, maar het aantal nieuwe leden per lid van de zwemschool.</span>
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="zwemclub" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">De vier groepen jaar na jaar. Versleep <em>jaar</em> of gebruik de knoppen, en schakel tussen \(A\) zonder en \(A&apos;\)
+met nieuwe inschrijvingen: zonder loopt de club leeg, met groeit ze naar een evenwicht.</figcaption> </figure>
+</p>
+
+</div>
+<!--
 ...... section Migratiematrices ......
 -->
-<h4 id="autosec-17"><span class="sectionnumber">II&#x2003;</span>Migratiematrices</h4>
-<a id="mkpiweb-autopage-17"></a>
+<h4 id="autosec-25"><span class="sectionnumber">II&#x2003;</span>Migratiematrices</h4>
+<a id="mkpiweb-autopage-25"></a>
 <!--
 ...... subsection Opgave ......
 -->
-<h5 id="autosec-18"><span class="sectionnumber">1&#x2003;</span>Opgave</h5>
-<a id="mkpiweb-autopage-18"></a>
+<h5 id="autosec-26"><span class="sectionnumber">1&#x2003;</span>Opgave</h5>
+<a id="mkpiweb-autopage-26"></a>
 
 
 <p>
@@ -948,13 +1261,13 @@ platteland.
 <!--
 ...... subsection Graaf ......
 -->
-<h5 id="autosec-19"><span class="sectionnumber">2&#x2003;</span>Graaf</h5>
-<a id="mkpiweb-autopage-19"></a>
+<h5 id="autosec-27"><span class="sectionnumber">2&#x2003;</span>Graaf</h5>
+<a id="mkpiweb-autopage-27"></a>
 <div class="center">
 
 <p>
 <span
-    id="lateximage-mkpiweb-4"
+    id="lateximage-mkpiweb-5"
     class="lateximagesource"
 ><!--
            0.15
@@ -963,7 +1276,7 @@ platteland.
 
            0.10
 --><img
-    src="mkpiweb-images/image-4.svg"
+    src="mkpiweb-images/image-5.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
@@ -973,8 +1286,8 @@ platteland.
 <!--
 ...... subsection Matrix: ‘‘migratiematrix’’ ......
 -->
-<h5 id="autosec-23"><span class="sectionnumber">3&#x2003;</span>Matrix: “migratiematrix” \(M\)</h5>
-<a id="mkpiweb-autopage-23"></a>
+<h5 id="autosec-31"><span class="sectionnumber">3&#x2003;</span>Matrix: “migratiematrix” \(M\)</h5>
+<a id="mkpiweb-autopage-31"></a>
 
 
 <p>
@@ -983,8 +1296,8 @@ platteland.
 <!--
 ...... subsection Bevolkingsevolutie ......
 -->
-<h5 id="autosec-24"><span class="sectionnumber">4&#x2003;</span>Bevolkingsevolutie</h5>
-<a id="mkpiweb-autopage-24"></a>
+<h5 id="autosec-32"><span class="sectionnumber">4&#x2003;</span>Bevolkingsevolutie</h5>
+<a id="mkpiweb-autopage-32"></a>
 
 
 <p>
@@ -1056,8 +1369,8 @@ Op een bepaald ogenblik ontstaat er dus een <b>evenwicht</b>.
 <!--
 ...... subsection Exacte berekening van de evenwichtstoestand ......
 -->
-<h5 id="autosec-25"><span class="sectionnumber">5&#x2003;</span>Exacte berekening van de evenwichtstoestand</h5>
-<a id="mkpiweb-autopage-25"></a>
+<h5 id="autosec-33"><span class="sectionnumber">5&#x2003;</span>Exacte berekening van de evenwichtstoestand</h5>
+<a id="mkpiweb-autopage-33"></a>
 
 
 <p>
@@ -1103,15 +1416,25 @@ Stel \(s=\) het aantal stedelingen bij evenwicht en \(p=\) het aantal platteland
 
 </p>
 <!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-34"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+Handboek VBTL - Matrices p 59 tot 63: oefeningen 4, 5, 8, 16 en 18.
+</p>
+<!--
 ...... section Populatie- of Lesliematrices ......
 -->
-<h4 id="autosec-26"><span class="sectionnumber">III&#x2003;</span>Populatie- of Lesliematrices</h4>
-<a id="mkpiweb-autopage-26"></a>
+<h4 id="autosec-35"><span class="sectionnumber">III&#x2003;</span>Populatie- of Lesliematrices</h4>
+<a id="mkpiweb-autopage-35"></a>
 <!--
 ...... subsection Opgave ......
 -->
-<h5 id="autosec-27"><span class="sectionnumber">1&#x2003;</span>Opgave</h5>
-<a id="mkpiweb-autopage-27"></a>
+<h5 id="autosec-36"><span class="sectionnumber">1&#x2003;</span>Opgave</h5>
+<a id="mkpiweb-autopage-36"></a>
 
 
 <p>
@@ -1122,13 +1445,13 @@ volgende klasse overleeft \(60\,\%\). Vogels van \(2j\) en \(3j\) leggen elk gem
 <!--
 ...... subsection Graaf ......
 -->
-<h5 id="autosec-28"><span class="sectionnumber">2&#x2003;</span>Graaf</h5>
-<a id="mkpiweb-autopage-28"></a>
+<h5 id="autosec-37"><span class="sectionnumber">2&#x2003;</span>Graaf</h5>
+<a id="mkpiweb-autopage-37"></a>
 <div class="center">
 
 <p>
 <span
-    id="lateximage-mkpiweb-5"
+    id="lateximage-mkpiweb-6"
     class="lateximagesource"
 ><!--
                           1
@@ -1143,7 +1466,7 @@ volgende klasse overleeft \(60\,\%\). Vogels van \(2j\) en \(3j\) leggen elk gem
 
 eieren
 --><img
-    src="mkpiweb-images/image-5.svg"
+    src="mkpiweb-images/image-6.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
@@ -1153,8 +1476,8 @@ eieren
 <!--
 ...... subsection Matrix: ‘‘Lesliematrix’’ ......
 -->
-<h5 id="autosec-32"><span class="sectionnumber">3&#x2003;</span>Matrix: “Lesliematrix” \(L\)</h5>
-<a id="mkpiweb-autopage-32"></a>
+<h5 id="autosec-41"><span class="sectionnumber">3&#x2003;</span>Matrix: “Lesliematrix” \(L\)</h5>
+<a id="mkpiweb-autopage-41"></a>
 
 
 <p>
@@ -1168,8 +1491,8 @@ De eerste rij bevat de <b>geboortecijfers</b>, de onderdiagonaal de <b>overlevin
 <!--
 ...... subsection Evolutie ......
 -->
-<h5 id="autosec-33"><span class="sectionnumber">4&#x2003;</span>Evolutie</h5>
-<a id="mkpiweb-autopage-33"></a>
+<h5 id="autosec-42"><span class="sectionnumber">4&#x2003;</span>Evolutie</h5>
+<a id="mkpiweb-autopage-42"></a>
 
 
 <p>
@@ -1193,22 +1516,22 @@ de eieren: onder een bepaalde waarde sterft de soort uit, erboven groeit de popu
 <!--
 ...... subsection Besluit ......
 -->
-<h5 id="autosec-34"><span class="sectionnumber">5&#x2003;</span>Besluit</h5>
-<a id="mkpiweb-autopage-34"></a>
+<h5 id="autosec-43"><span class="sectionnumber">5&#x2003;</span>Besluit</h5>
+<a id="mkpiweb-autopage-43"></a>
 
 
 <p>
 De populatie (samen \(360\) bij de start) halveert om de \(16\) jaar. De vogelsoort zal uitsterven.
 </p>
 <!--
-...... section Oefeningen ......
+...... subsection Oefeningen ......
 -->
-<h4 id="autosec-35"><span class="sectionnumber">IV&#x2003;</span>Oefeningen</h4>
-<a id="mkpiweb-autopage-35"></a>
+<h5 id="autosec-44"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-44"></a>
 
 
 <p>
-p 35 e.v.
+Handboek VBTL - Matrices p 61 tot 62: oefeningen 11, 12, 13 en 15. Extra: 19 (p 64), een kweker die zijn plantjes zo verkoopt dat de verdeling over de klassen jaar na jaar gelijk blijft.
 </p>
 
 <a id="mkpiweb-autofile-last"></a>
@@ -1217,9 +1540,11 @@ p 35 e.v.
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=6cdca35fd4bd"></script>
-<script src="vendor/jsxgraphcore.js?v=6cdca35fd4bd"></script>
-<script src="interactieve-grafieken.js?v=6cdca35fd4bd"></script>
-<script src="hoofdstuk.interactief.js?v=6cdca35fd4bd"></script>
+<script src="presentatie.js?v=2339748513e5"></script>
+<script src="vendor/jsxgraphcore.js?v=2339748513e5"></script>
+<script src="interactieve-grafieken.js?v=2339748513e5"></script>
+<script src="matrixbord.js?v=2339748513e5"></script>
+<script src="hoofdstuk.interactief.js?v=2339748513e5"></script>
+<script src="matrixrekenmachine.js?v=2339748513e5"></script>
 </body>
 </html>

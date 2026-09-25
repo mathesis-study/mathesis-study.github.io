@@ -1,0 +1,301 @@
+/* Opmaak van de stelselrekenmachine (web/stelselrekenmachine.js).
+ *
+ * Alle kleuren komen uit de lijsten in presentatie.css, zodat de dag- en de
+ * nachtstand vanzelf volgen. De controlekolom is grijs, zoals in de cursus.
+ */
+
+.sr {
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+  font-size: .95rem;
+  color: var(--kleur-tekst);
+}
+
+.sr-zwak { color: var(--kleur-zwak); }
+
+/* --- Knoppen ------------------------------------------------------------ */
+
+.sr-knop {
+  font: inherit;
+  font-size: .85rem;
+  line-height: 1.1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .3rem;
+  padding: .4rem .65rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-vlak);
+  color: var(--kleur-tekst);
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+
+.sr-knop:hover:not(.sr-aan) {
+  border-color: var(--kleur-accent);
+  color: var(--kleur-accent);
+}
+
+.sr-knop.sr-aan {
+  background: var(--kleur-accent);
+  border-color: var(--kleur-accent);
+  color: var(--kleur-op-accent);
+}
+
+.sr-klein {
+  font-size: .78rem;
+  padding: .3rem .55rem;
+}
+
+/* --- Invoer ------------------------------------------------------------- */
+
+.sr-voorbeelden {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .35rem;
+  font-size: .85rem;
+}
+
+.sr-voorbeelden > .sr-zwak { margin-right: .2rem; }
+
+.sr-invoerrij {
+  display: flex;
+  align-items: flex-start;
+  gap: .5rem;
+}
+
+.sr-label {
+  flex: none;
+  padding-top: .5rem;
+  color: var(--kleur-zwak);
+  font-size: .85rem;
+}
+
+.sr-invoer {
+  font: inherit;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .95rem;
+  line-height: 1.45;
+  flex: 1 1 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: .45rem .6rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-vlak);
+  color: var(--kleur-tekst);
+  resize: vertical;
+}
+
+.sr-invoer:focus {
+  outline: 2px solid var(--kleur-accent);
+  outline-offset: 1px;
+}
+
+.sr-invoer.sr-veld-fout { border-color: var(--kleur-fout); }
+
+.sr-invoer::placeholder {
+  color: var(--kleur-zwak);
+  opacity: .55;
+  font-style: italic;
+  font-size: .85rem;
+}
+
+.sr-bediening {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+
+.sr-hulp { font-size: .85rem; }
+
+.sr-hulp summary {
+  cursor: pointer;
+  color: var(--kleur-accent);
+}
+
+.sr-schrijfwijze {
+  border-collapse: collapse;
+  margin: .4rem 0;
+}
+
+.sr-schrijfwijze td {
+  padding: .2rem .8rem .2rem 0;
+  vertical-align: baseline;
+}
+
+.sr-schrijfwijze code { white-space: nowrap; }
+
+.sr-hulp p { margin: .3rem 0; }
+
+/* --- Uitvoer ------------------------------------------------------------ */
+
+.sr-uitvoer {
+  padding: .6rem .8rem .8rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-achtergrond);
+  min-height: 8rem;
+}
+
+.sr-leeg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 7rem;
+  color: var(--kleur-zwak);
+  text-align: center;
+}
+
+.sr-fout,
+.sr-foutmelding { color: var(--kleur-fout); }
+
+.sr-foutmelding { margin: .3rem 0; }
+
+.sr-foutplaats {
+  display: inline-block;
+  font-size: .9em;
+  color: var(--kleur-tekst);
+  white-space: pre;
+}
+
+.sr-foutplaats mark {
+  background: var(--kleur-fout);
+  color: var(--kleur-op-accent);
+  border-radius: 2px;
+}
+
+.sr-gelezen,
+.sr-info {
+  margin: .3rem 0;
+  color: var(--kleur-zwak);
+  font-size: .9rem;
+}
+
+/* Elke formule scrolt op zich: een lange herleiding duwt het venster niet
+ * breder. */
+.sr-formule {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: .1rem 0;
+}
+
+.sr-formule mjx-container[display="true"] {
+  margin: .3em 0 !important;
+}
+
+.sr-paar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 2.5rem;
+}
+
+.sr-paar > .sr-formule { max-width: 100%; }
+
+.sr-controle { color: var(--kleur-zwak); }
+
+.sr-kop {
+  margin: 1rem 0 .3rem;
+  font-size: 1rem;
+}
+
+.sr-stappen {
+  padding-left: .7rem;
+  border-left: 3px solid var(--kleur-accent-zacht);
+  margin: .2rem 0 .4rem;
+}
+
+/* Alles staat links, zoals een align* in de cursus: de regels van de
+ * herleiding beginnen onder elkaar met A_b of het teken ~. */
+.sr-uitvoer mjx-container[display="true"] {
+  text-align: left !important;
+}
+
+.sr-stapkop {
+  margin: .5rem 0 0;
+  font-weight: 600;
+  font-size: .88rem;
+}
+
+.sr-geval {
+  margin: .8rem 0 .4rem;
+  padding: .3rem 0 .3rem .8rem;
+  border-left: 3px solid var(--kleur-lijn);
+}
+
+.sr-gevalkop {
+  margin: .2rem 0 .3rem;
+  font-size: .95rem;
+}
+
+/* De oplossingenverzameling is het antwoord: ze staat in een kader. */
+.sr-V {
+  display: table;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0 .8rem;
+  border: 1px solid var(--kleur-oplossing-rand);
+  border-radius: var(--straal);
+  background: var(--kleur-oplossing);
+}
+
+.sr-rangen {
+  margin: .3rem 0 .2rem;
+  color: var(--kleur-zwak);
+  font-size: .9rem;
+}
+
+.sr-overzicht {
+  padding: .2rem .8rem;
+  border-radius: var(--straal);
+  background: var(--kleur-vlak);
+}
+
+/* --- Het venster --------------------------------------------------------- */
+
+/* Hetzelfde venster als dat van de andere rekenmachines; de regels staan
+ * hier opnieuw, want een cursus laadt maar één van die stijlbladen. */
+.pres-rekenmachine {
+  padding: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pres-rekenmachine > div {
+  box-sizing: border-box;
+  justify-self: center;
+  width: min(58rem, 100%);
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  outline: none;
+  padding: 1.2rem 1.4rem 1.4rem;
+}
+
+.pres-rekenmachine h2 {
+  margin: .2rem 0 .8rem;
+  font-size: 1.1rem;
+  text-align: left;
+}
+
+.pres-rekenmachine-knoppen {
+  display: flex;
+  flex: none;
+  gap: .4rem;
+}
+
+@media (max-width: 34rem) {
+  .pres-rekenmachine { padding: .4rem; }
+
+  .pres-rekenmachine > div {
+    padding: .8rem;
+    max-height: calc(100dvh - .8rem);
+  }
+
+  .sr-invoerrij .sr-label { display: none; }
+  .sr-uitvoer { padding: .5rem; }
+  .sr-geval { padding-left: .5rem; }
+}

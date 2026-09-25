@@ -199,6 +199,28 @@
     } catch (fout) { /* een verwijderd object hoeft niets meer. */ }
   }
 
+  // JSXGraph 1.13 kan een kromme in een zeer klein venster (na veel keer
+  // inzoomen, een interval van 1e-5 breed) met één enkel punt achterlaten, en
+  // dan faalt het opbouwen van haar pad. Die fout breekt de update van het
+  // bord halverwege af, en daarna weigert het bord elke volgende update: de
+  // grafiek hangt, ook Reset en Beginstand doen niets meer. Zo'n pad blijft
+  // daarom leeg; zodra het venster weer groter is, tekent de volgende update
+  // het gewoon opnieuw.
+  function beschermPaden(bord) {
+    var renderer = bord.renderer;
+    ["updatePathStringPrim", "updatePathStringBezierPrim"].forEach(function (naam) {
+      var origineel = renderer[naam];
+      if (typeof origineel !== "function") return;
+      renderer[naam] = function () {
+        try {
+          return origineel.apply(this, arguments);
+        } catch (fout) {
+          return "";
+        }
+      };
+    });
+  }
+
   function maakContext(instantie) {
     var kleuren = kleurenVan(instantie.figuur);
     return {
@@ -230,6 +252,7 @@
           zoom: { enabled: keuze.zoomen === true, wheel: keuze.zoomen === true },
           registerEvents: true
         });
+        beschermPaden(bord);
         bord.presBegrenzing = begrenzing.slice();
         bord.presGelijkeSchaal = keuze.gelijkeschaal === true;
         instantie.borden.push(bord);
@@ -289,6 +312,54 @@
         knop.addEventListener("click", function () { functie(knop); });
         knoppenbalk(instantie).appendChild(knop);
         return knop;
+      },
+
+      // Het codeblok met [grafiek=<naam van deze grafiek>]. De grafiek
+      // bewaart de toestand en levert met vooraf(waarden) de variabelen aan
+      // waarmee de code begint. volg(toestand) krijgt elke melding van
+      // python-oefeningen.js: na een uitvoering de eindwaarden, bij het
+      // stappen de waarden voor de volgende regel. De laatste melding komt
+      // meteen, want de code kan er al staan voor de grafiek gebouwd wordt.
+      // Zonder Python blijft de grafiek werken; vooraf en voerUit doen dan
+      // niets.
+      code: function (volg) {
+        function blok() {
+          return document.querySelector('.python-oefening[data-grafiek="' +
+            instantie.naam + '"]');
+        }
+        function api() { var b = blok(); return b && b.mathesisCode; }
+        // De scripts van de grafieken laden voor die van Python. Vraagt de
+        // grafiek variabelen aan voor het codeblok er is, dan onthouden we
+        // ze tot de eerste melding van dat blok.
+        var gewenst = null;
+        function luister(e) {
+          if (!e.detail || e.detail.grafiek !== instantie.naam) return;
+          if (gewenst && api()) {
+            var waarden = gewenst;
+            gewenst = null;
+            api().vooraf(waarden, true);
+          }
+          try { volg(e.detail); } catch (fout) {
+            if (window.console && console.warn) console.warn(fout);
+          }
+        }
+        document.addEventListener("python:toestand", luister);
+        instantie.opruimen.push(function () {
+          document.removeEventListener("python:toestand", luister);
+        });
+        var nu = api();
+        if (nu && nu.laatste()) volg(nu.laatste());
+        return {
+          beschikbaar: function () { return Boolean(api()); },
+          // sluitStappen = false laat een open stapopname staan: de grafiek
+          // neemt dan net het einde van die opname over als nieuwe toestand.
+          vooraf: function (waarden, sluitStappen) {
+            var a = api();
+            gewenst = a ? null : waarden;
+            return a ? a.vooraf(waarden, sluitStappen !== false) : false;
+          },
+          voerUit: function () { var a = api(); return a ? a.voerUit() : false; }
+        };
       }
     };
   }
@@ -313,6 +384,8 @@
     });
     instantie.borden = [];
     instantie.gestileerd = [];
+    instantie.opruimen.forEach(function (werk) { werk(); });
+    instantie.opruimen = [];
     if (instantie.status) instantie.status.textContent = "";
     var plaats = instanties.indexOf(instantie);
     if (plaats >= 0) instanties.splice(plaats, 1);
@@ -338,7 +411,8 @@
 
     var instantie = {
       figuur: figuur, element: element, naam: naam,
-      borden: [], gestileerd: [], api: null, status: null, knoppen: null
+      borden: [], gestileerd: [], api: null, status: null, knoppen: null,
+      opruimen: []
     };
     instanties.push(instantie);
     try {
@@ -353,6 +427,15 @@
     }
     figuur.setAttribute("data-grafiek-stand", "actief");
     figuur.classList.add("interactieve-grafiek-actief");
+    // Een bord dat later gebouwd wordt op een slide waar al een bord staat
+    // (een tweede oefening achter \oefeningenbalk), houdt in de SVG soms de
+    // standaardkleuren van JSXGraph, ook na de fullUpdate van het
+    // herschalen. Eén beeld later tekent een fullUpdate de kleuren wel.
+    window.requestAnimationFrame(function () {
+      instantie.borden.forEach(function (bord) {
+        try { bord.fullUpdate(); } catch (fout) { /* niets */ }
+      });
+    });
   }
 
   /* --- Herschalen, herstellen, herkleuren -------------------------------- */
