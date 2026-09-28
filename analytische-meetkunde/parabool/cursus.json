@@ -1,0 +1,30 @@
+{
+ "titel": "De parabool",
+ "hoofdstuk": 3,
+ "code": "M03",
+ "vak": "Wiskunde",
+ "domein": "AnalytischeMeetkunde",
+ "domeinnaam": "Analytische meetkunde",
+ "url": "analytische-meetkunde/parabool",
+ "secties": [
+  "Definitie",
+  "Cartesische vergelijking",
+  "Functieonderzoek",
+  "Oefeningen",
+  "Constructie van de parabool",
+  "Raaklijn aan de parabool in een punt van de parabool",
+  "Andere vormen van de topvergelijking",
+  "Raaklijnen uit een punt buiten de parabool",
+  "Vraagstukken"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.11.02",
+  "WD3_06.08.11.03",
+  "WD3_06.08.21",
+  "WD3_06.08.28.01",
+  "WD3_06.08.29"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": false
+}

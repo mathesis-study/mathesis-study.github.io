@@ -1,0 +1,3861 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>De parabool</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=56999104d71b" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=56999104d71b" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=56999104d71b" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 3</p> <h1>De parabool</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+            y
+    r
+
+G                   P (x, y)
+
+
+
+
+                               x
+        O       F
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.11.02</b> De leerlingen formuleren <span class="leerplan-grijs">cirkel</span>, <span class="leerplan-grijs">ellips</span>, parabool, <span
+class="leerplan-grijs">hyperbool</span> als meetkundige plaats.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.11.03</b> De leerlingen formuleren de standaardvergelijkingen van <span class="leerplan-grijs">cirkel</span>, <span class="leerplan-grijs">ellips</span>,
+parabool, <span class="leerplan-grijs">hyperbool</span>.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Aanvullend voor het onderdeel functieonderzoek van de halve parabolen</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.21</b> (MD 06.08.07) De leerlingen leggen het verband tussen de grafiek en het voorschrift van een functie en haar kenmerken.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">veeltermfuncties</span>, <span class="leerplan-grijs">rationale functies</span>, (elementaire) irrationale functies, <span
+class="leerplan-grijs">exponentie&#x0308;le functies</span>, <span class="leerplan-grijs">logaritmische functies \(f(x)=\log _a(x)\)</span>, <span class="leerplan-grijs">goniometrische functies \(f(x)=\cos
+x\) en \(f(x)=\tan x\)</span>, <span class="leerplan-grijs">cyclometrische functies</span>, <span class="leerplan-grijs">absolute waardenfunctie</span>, <span class="leerplan-grijs">meervoudig
+functievoorschrift</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: domein, <span class="leerplan-grijs">bereik</span>, nulwaarden, tekenverloop, stijgen/dalen/constant, <span class="leerplan-grijs">extrema</span>,
+constante/toenemende/afnemende stijging/daling, <span class="leerplan-grijs">symmetrie</span>, <span class="leerplan-grijs">periode</span>, <span class="leerplan-grijs">amplitude</span>, asymptotisch
+gedrag, <span class="leerplan-grijs">gedrag op oneindig</span>
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.28.01</b> (MD 06.08.17) De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit veeltermfuncties, rationale functies, irrationale functies,
+exponentie&#x0308;le functies, logaritmische functies en goniometrische functies.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.29</b> (MD 06.08.18) De leerlingen analyseren het verloop van functies met behulp van de eerste en tweede afgeleide functie en <span class="leerplan-grijs">lossen
+extremumproblemen op</span>.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: <span class="leerplan-grijs">stelling van Rolle</span>, <span class="leerplan-grijs">middelwaardestelling van Lagrange</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> de parabool als meetkundige plaats, topvergelijking \(y^2=2px\) en haar andere vormen, functieonderzoek van de bovenste en onderste halve parabool, constructie en parametervoorstelling,
+raaklijn in een punt van de parabool, hoofdeigenschap en optische eigenschap, raaklijnen uit een punt buiten de parabool en de raakkoorde.
+</p>
+
+</div>
+<!--
+...... section Definitie ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Definitie</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+Een <b>parabool</b> is de verzameling van alle punten van het vlak die even ver liggen van een gegeven punt \(F\) als van een gegeven rechte \(r\).
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Het punt \(F\) noemen we het <b>brandpunt</b>.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De rechte \(r\) noemen we de <b>richtlijn</b>.
+</p>
+</li>
+</ul>
+
+<p>
+\[ \mathcal {P}=\{\,P \in \pi _0 \mid d(P,r)=d(P,F)\,\} \]
+</p>
+<!--
+...... section Cartesische vergelijking ......
+-->
+<h4 id="autosec-8"><span class="sectionnumber">II&#x2003;</span>Cartesische vergelijking</h4>
+<a id="mkpiweb-autopage-8"></a>
+<!--
+...... subsection Keuze van het assenstelsel ......
+-->
+<h5 id="autosec-9"><span class="sectionnumber">1&#x2003;</span>Keuze van het assenstelsel</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="parabool-definitie" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+                   y
+           r
+               d(P, r)
+      G
+                             P (x, y)
+
+                           d(P, F )
+
+
+                                         x
+      R        O         F p2 , 0
+                                 
+
+
+
+
+x = − p2
+
+                                     P
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\). Telkens \(|PF|=|PG|\) wordt, springt \(P\) op de parabool en blijft er een stip achter: zo ontstaat de
+parabool uit de definitie. Toon daarna de parabool om te controleren, of versleep \(F\) om \(p\) te veranderen.</figcaption> </figure>
+</p>
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdl">geg.:</td>
+<td class="tdl">richtlijn \(r\)</td>
+</tr>
+
+<tr>
+<td class="tdl"></td>
+<td class="tdl">brandpunt \(F\)</td>
+</tr>
+
+<tr>
+<td class="tdl">gev.:</td>
+<td class="tdl">vergelijking van \(\mathcal {P}\)</td>
+</tr>
+</table>
+
+<p>
+Keuze van het assenstelsel:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(x\)-as \(=\) loodlijn uit \(F\) op \(r\), &#x2003;\(x\cap r=\{R\}\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(O=\) midden van \([RF]\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(y\)-as \(\perp \) \(x\)-as in \(O\)
+</p>
+</li>
+</ul>
+
+<p>
+\[ \Rightarrow \quad F\Bigl (\frac {p}{2},0\Bigr ) \qquad \text {en}\qquad r \leftrightarrow x=-\frac {p}{2} \qquad \text {met } p&gt;0 \]
+</p>
+<!--
+...... subsection Punten construeren ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">2&#x2003;</span>Punten construeren</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Trek een evenwijdige met \(r\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Pas de afstand tussen \(r\) en die evenwijdige af vanuit \(F\).
+</p>
+</li>
+</ul>
+
+<p>
+Zo vinden we op elke evenwijdige rechts van \(O\) twee punten van \(\mathcal {P}\).
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="punten-construeren" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+        y
+r
+
+
+
+
+            d
+
+                x
+    O       F
+
+
+
+
+    d
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep de evenwijdige met \(r\), of laat ze lopen. De cirkel rond \(F\) met straal \(d\) snijdt ze in twee punten van de
+parabool, die als stip blijven staan. Links van \(O\) haalt de cirkel de evenwijdige niet.</figcaption> </figure>
+</p>
+<!--
+...... subsection Opstellen vergelijking ......
+-->
+<h5 id="autosec-18"><span class="sectionnumber">3&#x2003;</span>Opstellen vergelijking</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Stel \(G\) de loodrechte projectie van \(P(x,y)\) op \(r\), dus \(G\bigl (-\frac {p}{2},y\bigr )\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                     P (x, y) ∈ P ⇐⇒ |P F | = |P G|
+                                                                              | {z }
+                                                                                = d(P,r)
+
+                                                                                                                                              BV: OK
+                                                                        r                        r
+                                                                              p 2                       p 2
+                                                                  ⇐⇒    x−                   2
+                                                                                    + (y − 0) =      x+       + (y − y)2                      KV: OK
+                                                                              2                          2
+                                                                          p 2               p 2
+                                                                  ⇐⇒ x −        + y2 = x +
+                                                                           2                   2
+                                                                                 p 2
+                                                                                                       p2
+                                                                  ⇐⇒ x2 − px +       + y 2 = x2 + px +
+                                                                                 4                     4
+                                                                  ⇐⇒ y 2 = 2px
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+P(x,y)\in \mathcal {P} &amp;\iff |PF| = \underbrace {|PG|}_{=\,d(P,r)} \\ &amp;\iff \sqrt {\Bigl (x-\frac {p}{2}\Bigr )^2+(y-0)^2}=\sqrt {\Bigl (x+\frac {p}{2}\Bigr )^2+(y-y)^2} &amp;&amp;
+\shortstack [l]{\text {BV: OK}\\\text {KV: OK}} \\ &amp;\iff \Bigl (x-\frac {p}{2}\Bigr )^2+y^2=\Bigl (x+\frac {p}{2}\Bigr )^2 \\ &amp;\iff x^2-px+\frac {p^2}{4}+y^2=x^2+px+\frac {p^2}{4} \\
+&amp;\iff \boxed {y^2=2px}
+\end{align*}
+
+</p>
+
+
+<div class="aside">
+
+<p>
+Beide wortels zijn positief, dus kwadrateren levert een equivalente vergelijking op.
+</p>
+
+</div>
+<!--
+...... subsection Besluit ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">4&#x2003;</span>Besluit</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+\(\mathcal {P} \leftrightarrow y^2=2px\) is de <b>topvergelijking</b> van de parabool met
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> top \(O(0,0)\) en \(y\)-as \(=\) topraaklijn;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> brandpunt \(F\bigl (\frac {p}{2},0\bigr )\);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> richtlijn \(r \leftrightarrow x=-\frac {p}{2}\);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(x\)-as \(=\) symmetrieas.
+</p>
+</li>
+</ul>
+<!--
+...... section Functieonderzoek ......
+-->
+<h4 id="autosec-20"><span class="sectionnumber">III&#x2003;</span>Functieonderzoek</h4>
+<a id="mkpiweb-autopage-20"></a>
+<!--
+...... subsection Twee functies ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">1&#x2003;</span>Twee functies</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+\[ y^2=2px \iff y=\sqrt {2px} \ \vee \ y=-\sqrt {2px} \]
+</p>
+
+<p>
+\(\mathcal {P}\) kan dus beschreven worden met twee functies:
+</p>
+
+<p>
+\[ f_1(x)=\sqrt {2px} \qquad \text {en}\qquad f_2(x)=-\sqrt {2px} \]
+</p>
+
+<p>
+We onderzoeken \(f_1\). De grafiek van \(f_2\) is het spiegelbeeld van de grafiek van \(f_1\) om de \(x\)-as.
+</p>
+<!--
+...... subsection Domein ......
+-->
+<h5 id="autosec-22"><span class="sectionnumber">2&#x2003;</span>Domein</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+\[ \text {eis:   } 2px\ge 0 \iff x\ge 0 \quad (p&gt;0) \qquad \Rightarrow \qquad \boxed {\dom f_1=\R ^+} \]
+</p>
+<!--
+...... subsection Continuıteit ......
+-->
+<h5 id="autosec-23"><span class="sectionnumber">3&#x2003;</span>Continuı&#x0308;teit</h5>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+\(f_1\) is een irrationale functie \(\Rightarrow \) \(f_1\) is continu in \(\dom f_1=\R ^+\).
+</p>
+<!--
+...... subsection Snijpunten met de assen ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">4&#x2003;</span>Snijpunten met de assen</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+\[ f_1(x)=0 \iff x=0 \qquad \Rightarrow \qquad \text {enkel de top } O(0,0) \]
+</p>
+<!--
+...... subsection Tekenverloop ......
+-->
+<h5 id="autosec-25"><span class="sectionnumber">5&#x2003;</span>Tekenverloop</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p>
+\[ \begin {array}{c|ccc} x &amp; &amp; 0 &amp; \\ \hline f_1(x) &amp; /// &amp; 0 &amp; + \end {array} \]
+</p>
+<!--
+...... subsection Asymptoten ......
+-->
+<h5 id="autosec-26"><span class="sectionnumber">6&#x2003;</span>Asymptoten</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<dl class="description" >
+
+<dt><span class="listmarker">VA:</span></dt>
+<dd>
+<p>
+geen noemer \(\Rightarrow \) geen VA.
+</p>
+
+</dd>
+<dt><span class="listmarker">HA:</span></dt>
+<dd>
+<p>
+\(\displaystyle \lim _{x\to +\infty }\sqrt {2px}=+\infty \) \(\Rightarrow \) geen HA.
+</p>
+
+</dd>
+<dt><span class="listmarker">SA:</span></dt>
+<dd>
+<p>
+\(\displaystyle \lim _{x\to +\infty }\frac {\sqrt {2px}}{x} =\lim _{x\to +\infty }\frac {\sqrt {2p}}{\sqrt {x}}=0\notin \R _0\) \(\Rightarrow \) geen SA.
+</p>
+</dd>
+</dl>
+<!--
+...... subsection Stijgen en dalen ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">7&#x2003;</span>Stijgen en dalen</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                              (2px)′    2p     p
+                                                                                    f1′ (x) = √      = √    =√
+                                                                                             2 2px    2 2px    2px
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f_1&apos;(x) &amp;= \frac {(2px)&apos;}{2\sqrt {2px}} = \frac {2p}{2\sqrt {2px}} = \frac {p}{\sqrt {2px}}
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{c|ccc} x &amp; &amp; 0 &amp; \\ \hline T=p &amp; &amp; + &amp; + \\ N=\sqrt {2px} &amp; /// &amp; 0 &amp; + \\ \hline f_1&apos;(x)=\dfrac {T}{N} &amp; /// &amp; | &amp; + \\
+\hline f_1 &amp; /// &amp; 0 &amp; \nearrow \end {array} \]
+</p>
+
+<p>
+\[ \lim _{x \underset {&gt;}{\to } 0} f_1&apos;(x) = +\infty \qquad \Rightarrow \qquad f_1 \text { stijgt op } \R ^+ \text {, met een verticale raaklijn in } O(0,0) \]
+</p>
+<!--
+...... subsection Hol en bol ......
+-->
+<h5 id="autosec-28"><span class="sectionnumber">8&#x2003;</span>Hol en bol</h5>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                       1
+                                                                                                          ′
+                                                                                    f1′′ (x) = p (2px)− 2
+                                                                                                   1       3
+                                                                                             = p · − (2px)− 2 · 2p
+                                                                                                     2
+                                                                                                  −p2
+                                                                                             =     √
+                                                                                               2px 2px
+                                                                                                  −p
+                                                                                             = √       < 0 in R+0
+                                                                                               2x 2px
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f_1&apos;&apos;(x) &amp;= \Bigl (p\,(2px)^{-\frac 12}\Bigr )&apos; \\ &amp;= p\cdot \Bigl (-\frac 12\Bigr )(2px)^{-\frac 32}\cdot 2p \\ &amp;= \frac {-p^2}{2px\sqrt {2px}} \\ &amp;= \frac
+{-p}{2x\sqrt {2px}} &lt; 0 \quad \text {in } \R _0^+
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{c|ccc} x &amp; &amp; 0 &amp; \\ \hline f_1&apos;&apos;(x) &amp; /// &amp; | &amp; - \\ \hline f_1 &amp; /// &amp; 0 &amp; \cap \end {array} \qquad \Rightarrow \qquad f_1 \text
+{ is bol} \]
+</p>
+<!--
+...... subsection Grafiek ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">9&#x2003;</span>Grafiek</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+Een tabel van waarden maken we met het GRM, bijvoorbeeld voor \(p=1\).
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="halve-parabolen" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+        y
+r
+
+                         f1
+    2
+
+
+    1
+
+
+                              x
+O           F1   2   3
+
+
+−1
+
+
+−2
+                         f2
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x\) over de \(x\)-as: bij één \(x\) horen twee \(y\)-waarden, een op \(f_1\) en een op \(f_2\). De raaklijn aan
+\(f_1\) wordt steiler naarmate \(x\) naar \(0\) gaat, tot ze in \(O\) verticaal staat.</figcaption> </figure>
+</p>
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-33"><span class="sectionnumber">IV&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 2 (p 39) ......
+-->
+<h6 id="autosec-34">VBTL oefening 2 (p 39)</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+Stel een vergelijking op van de parabool met top \(O\) en de \(x\)-as als symmetrieas als:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(b)</span> het punt \(A(3,2)\) op de parabool ligt;
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(y^2=\dfrac {4}{3}x\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                               A(3, 2) ∈ P ↔ y 2 = 2px ⇒ 22 = 2p · 3
+                                                                                                                                 4   2
+                                                                                                                       ⇐⇒ p =      =
+                                                                                                                                 6   3
+                                                                                                                                       4
+                                                                                                                       ⇒ P ↔ y2 =        x
+                                                                                                                                       3
+
+-->
+
+<p>
+
+\begin{align*}
+A(3,2)\in \mathcal {P} \leftrightarrow y^2=2px &amp;\Rightarrow 2^2=2p\cdot 3 \\ &amp;\iff p=\frac {4}{6}=\frac {2}{3} \\ &amp;\Rightarrow \boxed {\mathcal {P} \leftrightarrow y^2=\frac
+{4}{3}x}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> de richtlijn \(r \leftrightarrow 2x+1=0\) is.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(y^2=2x\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                        1  p   1
+                                                                                             r ↔ 2x + 1 = 0 ⇐⇒ x = −      ⇒ =
+                                                                                                                        2  2   2
+                                                                                                                          ⇐⇒ p = 1
+
+                                                                                                                          ⇒ P ↔ y 2 = 2x
+
+
+-->
+
+<p>
+
+\begin{align*}
+r \leftrightarrow 2x+1=0 \iff x=-\frac {1}{2} &amp;\Rightarrow \frac {p}{2}=\frac {1}{2} \\ &amp;\iff p=1 \\ &amp;\Rightarrow \boxed {\mathcal {P} \leftrightarrow y^2=2x}
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+Deelvraag (a) volgt na het onderdeel over de andere vormen van de topvergelijking.
+</p>
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 4 (p 39) ......
+-->
+<h6 id="autosec-35">VBTL oefening 4 (p 39)</h6>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p>
+Bepaal de snijpunten van de parabool en de rechte.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(y^2=4x\) &#x2003;en &#x2003;\(y=x\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(P_1(0,0)\) en \(P_2(4,4)\)</span>
+</p>
+<p>
+\[ \begin {cases} y^2=4x \\ y=x \end {cases} \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                         ⇒ x2 = 4x
+                                                                                         ⇐⇒ x2 − 4x = 0
+                                                                                         ⇐⇒ x(x − 4) = 0
+                                                                                         ⇐⇒ x = 0 ∨ x = 4
+
+                                                                                         ⇒ P1 (0, 0) en P2 (4, 4)
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\Rightarrow x^2=4x \\ &amp;\iff x^2-4x=0 \\ &amp;\iff x(x-4)=0 \\ &amp;\iff x=0 \ \vee \ x=4 \\ &amp;\Rightarrow \boxed {P_1(0,0) \text { en } P_2(4,4)}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(y^2+x=0\) &#x2003;en &#x2003;\(x+y-2=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">geen snijpunten</span>
+</p>
+<p>
+\[ \begin {cases} y^2+x=0 \\ x+y-2=0 \end {cases} \iff \begin {cases} x=-y^2 \\ -y^2+y-2=0 \end {cases} \]
+</p>
+<p>
+\[ D=1-8&lt;0 \qquad \Rightarrow \qquad \boxed {\text {geen snijpunten}} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(9y+x^2=0\) &#x2003;en &#x2003;\(2x+3y-3=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(P_1=P_2(3,-1)\)</span>
+</p>
+<p>
+\[ \begin {cases} 9y+x^2=0 \\ 2x+3y-3=0 \end {cases} \iff \begin {cases} y=-\dfrac {x^2}{9} \\[1ex] 2x+3\Bigl (-\dfrac {x^2}{9}\Bigr )-3=0 \end {cases} \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                      x2
+                                                                               2x −      − 3 = 0 ⇐⇒ −x2 + 6x − 9 = 0
+                                                                                      3
+                                                                                                   D = 36 − 36 = 0
+                                                                                                                    −6
+                                                                                                 ⇐⇒ x1 = x2 =          =3
+                                                                                                                    −2
+                                                                                                 ⇒ P1 = P2 (3, −1)
+
+
+-->
+
+<p>
+
+\begin{align*}
+2x-\frac {x^2}{3}-3=0 &amp;\iff -x^2+6x-9=0 \\ &amp;\qquad D=36-36=0 \\ &amp;\iff x_1=x_2=\frac {-6}{-2}=3 \\ &amp;\Rightarrow \boxed {P_1=P_2(3,-1)}
+\end{align*}
+Eén snijpunt: de rechte raakt de parabool in \((3,-1)\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Constructie van de parabool ......
+-->
+<h4 id="autosec-36"><span class="sectionnumber">V&#x2003;</span>Constructie van de parabool</h4>
+<a id="mkpiweb-autopage-36"></a>
+<!--
+...... subsection Constructie ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">1&#x2003;</span>Constructie</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+Gegeven: de topvergelijking \(\mathcal {P} \leftrightarrow y^2=2px\).
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="constructie-parabool" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+                y
+                    e
+
+            B
+                        P
+
+
+
+                            x
+A(−2p, 0)   O           C
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(B\) over de \(y\)-as, of laat \(\lambda \) lopen. Voor elke rico \(\lambda \) van \(e\) ligt \(P(x_C,y_B)\) op
+de parabool, en de stippen die \(P\) achterlaat vormen ze.</figcaption> </figure>
+</p>
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Punt \(A(-2p,0)\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Willekeurige rechte \(e\) door \(A\) met rico \(\lambda \).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> \(e\) snijdt de \(y\)-as in \(B\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Loodlijn in \(B\) op \(AB\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Die snijdt de \(x\)-as in \(C\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> \(\Rightarrow P(x_C,y_B)\in \mathcal {P}\).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Bewijs ......
+-->
+<h5 id="autosec-41"><span class="sectionnumber">2&#x2003;</span>Bewijs</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+Stel \(\lambda =\) rico van \(AB\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                ⇒ AB ↔ y − 0 = λ(x + 2p) ⇐⇒ y = λx + 2pλ
+                                                                                   (             (                    (
+                                                                                     AB            y = λx + 2pλ        y = 2pλ
+                                                                                ⇒B          ⇐⇒                  ⇐⇒                        ⇒ B(0, 2pλ)
+                                                                                     y-as          x=0                 x=0
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Rightarrow AB \leftrightarrow y-0=\lambda (x+2p) \iff y=\lambda x+2p\lambda \\ &amp;\Rightarrow B \begin{cases} AB \\ y\text {-as} \end {cases} \iff \begin{cases} y=\lambda x+2p\lambda
+\\ x=0 \end {cases} \iff \begin{cases} y=2p\lambda \\ x=0 \end {cases} \Rightarrow B(0,2p\lambda )
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                1
+                                                                            BC ⊥ AB ⇒ mBC = −
+                                                                                                λ
+                                                                                                1
+                                                                             ⇒ BC ↔ y − 2pλ = − (x − 0) ⇐⇒ x + λy − 2pλ2 = 0
+                                                                                                λ
+                                                                                (            (                        (
+                                                                                  BC           x + λy − 2pλ2 = 0       x = 2pλ2
+                                                                             ⇒C          ⇐⇒                      ⇐⇒                         ⇒ C(2pλ2 , 0)
+                                                                                  x-as         y=0                     y=0
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;BC\perp AB \Rightarrow m_{BC}=-\frac {1}{\lambda } \\ &amp;\Rightarrow BC \leftrightarrow y-2p\lambda =-\frac {1}{\lambda }(x-0) \iff x+\lambda y-2p\lambda ^2=0 \\ &amp;\Rightarrow C
+\begin{cases} BC \\ x\text {-as} \end {cases} \iff \begin{cases} x+\lambda y-2p\lambda ^2=0 \\ y=0 \end {cases} \iff \begin{cases} x=2p\lambda ^2 \\ y=0 \end {cases} \Rightarrow C(2p\lambda
+^2,0)
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                            ?
+                                                                                               ⇒ P (2pλ2 , 2pλ) ∈ P ?    y 2 = 2px
+                                                                                                                            ?
+                                                                                                                ⇐⇒ (2pλ)2 = 2p · 2pλ2
+                                                                                                                ⇐⇒ 4p2 λ2 = 4p2 λ2 □
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow P(2p\lambda ^2,2p\lambda ) \in \mathcal {P}\,?             \qquad y^2 &amp;\overset {?}{=} 2px \\ \iff (2p\lambda )^2 &amp;\overset {?}{=} 2p\cdot 2p\lambda ^2 \\ \iff 4p^2\lambda ^2 &amp;=
+4p^2\lambda ^2 \qed
+\end{align*}
+
+</p>
+
+
+<div class="aside">
+
+<p>
+Voor \(\lambda =0\) is \(e\) de \(x\)-as zelf: dan is \(B=O\), de loodlijn in \(B\) is de \(y\)-as en ook \(C=O\). De constructie levert dan de top \(O(0,0)\).
+</p>
+
+</div>
+<!--
+...... subsection Gevolg: stelsel parametervergelijkingen ......
+-->
+<h5 id="autosec-42"><span class="sectionnumber">3&#x2003;</span>Gevolg: stelsel parametervergelijkingen</h5>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+\[ \mathcal {P} \leftrightarrow \boxed { \begin {cases} x=2p\lambda ^2 \\ y=2p\lambda \end {cases} \qquad \text {met } \lambda \in \R } \]
+</p>
+
+<p>
+Dit is een stelsel parametervergelijkingen van de parabool \(\mathcal {P} \leftrightarrow y^2=2px\).
+</p>
+
+
+<div class="aside">
+
+<p>
+Voor elke keuze van \(\lambda \) vinden we één punt van de parabool, bijvoorbeeld \(\lambda =0 \Rightarrow \) de top \((0,0)\). Geef het stelsel ook eens in op het GRM, in de parametermodus.
+</p>
+
+</div>
+<!--
+...... section Raaklijn aan de parabool in een punt van de parabool ......
+-->
+<h4 id="autosec-43"><span class="sectionnumber">VI&#x2003;</span>Raaklijn aan de parabool in een punt van de parabool</h4>
+<a id="mkpiweb-autopage-43"></a>
+<!--
+...... subsection Opstellen vergelijking ......
+-->
+<h5 id="autosec-44"><span class="sectionnumber">1&#x2003;</span>Opstellen vergelijking</h5>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p>
+\[ \mathcal {P} \leftrightarrow y^2=2px \qquad \Rightarrow \qquad y=\pm \sqrt {2px} \]
+</p>
+
+<p>
+Herhaling analyse: de raaklijn aan de grafiek van \(f\) in \((a,f(a))\) is
+</p>
+
+<p>
+\[ y-f(a)=f&apos;(a)\,(x-a) \qquad \text {of}\qquad y-y_1=f&apos;(x_1)\,(x-x_1) \text { in } P_1(x_1,y_1).   \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bovenste helft:        ......
+-->
+<h6 id="autosec-45">Bovenste helft: \(f(x)=\sqrt {2px}\)</h6>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                p
+                                                                                    P1 (x1 , y1 ) ∈ P ⇒ y1 = 2px1
+                                                                                                  p                    p     p
+                                                                                    f ′ (x) = √       ⇒ f ′ (x1 ) = √      =
+                                                                                                  2px                 2px1   y1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;P_1(x_1,y_1)\in \mathcal {P} \Rightarrow y_1=\sqrt {2px_1} \\ &amp;f&apos;(x)=\frac {p}{\sqrt {2px}} \Rightarrow f&apos;(x_1)=\frac {p}{\sqrt {2px_1}}=\frac {p}{y_1}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                    p
+                                                   ⇒ t ↔ y − y1 =      (x − x1 )
+                                                                    y1
+                                                   ⇐⇒ y1 y − y12 = px − px1
+                                                        ⇐⇒ y1 y = px − px1 + y12
+                                                        ⇐⇒ y1 y = px − px1 + 2px1                                                 y12 = 2px1 want P1 ∈ P
+                                                        ⇐⇒ y1 y = p(x + x1 )
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow \ t \leftrightarrow y-y_1 &amp;= \frac {p}{y_1}(x-x_1) \\ \iff y_1y-y_1^2 &amp;= px-px_1 \\ \iff y_1y &amp;= px-px_1+y_1^2 \\ \iff y_1y &amp;= px-px_1+2px_1 &amp;&amp; y_1^2=2px_1
+\text { want } P_1\in \mathcal {P} \\ \iff y_1y &amp;= p(x+x_1)
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Onderste helft:        ......
+-->
+<h6 id="autosec-46">Onderste helft: \(f(x)=-\sqrt {2px}\)</h6>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                     −p      −p    p
+                                                                                      ⇒ f ′ (x1 ) = √      =     =
+                                                                                                      2px1   −y1   y1
+                                                                                                         p
+                                                                                      ⇒ t ↔ y − y1 = (x − x1 )        ⇒      zelfde resultaat!
+                                                                                                        y1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Rightarrow f&apos;(x_1)=\frac {-p}{\sqrt {2px_1}}=\frac {-p}{-y_1}=\frac {p}{y_1} \\ &amp;\Rightarrow t \leftrightarrow y-y_1=\frac {p}{y_1}(x-x_1) \qquad \Rightarrow \qquad \text
+{zelfde resultaat!}
+\end{align*}
+
+</p>
+
+<p>
+\[ \boxed {t \leftrightarrow y_1y=p(x+x_1)} \]
+</p>
+
+<p>
+is de vergelijking van de raaklijn in \(P_1(x_1,y_1)\in \mathcal {P}\) aan \(\mathcal {P}\).
+</p>
+
+
+<div class="aside">
+
+<p>
+In de top is \(y_1=0\) en bestaat \(f&apos;(x_1)\) niet. De formule geldt daar toch: \(0\cdot y=p(x+0) \iff x=0\), en dat is de verticale raaklijn in \(O\), de topraaklijn.
+</p>
+
+</div>
+<!--
+...... subsection Constructie van de raaklijn ......
+-->
+<h5 id="autosec-47"><span class="sectionnumber">2&#x2003;</span>Constructie van de raaklijn</h5>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+De raaklijn \(t\) gaat door \(P_1(x_1,y_1)\). Als tweede punt zoeken we het snijpunt \(S\) met de \(x\)-as:
+</p>
+
+<p>
+\[ S \begin {cases} t \\ x\text {-as} \end {cases} \iff \begin {cases} y_1y=p(x+x_1) \\ y=0 \end {cases} \iff \begin {cases} x=-x_1 \\ y=0 \end {cases} \qquad \Rightarrow \qquad S(-x_1,0) \]
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="raaklijn-parabool" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+                      y
+                 r
+                                             t
+
+             G            P (x1 , y1 )
+                                                     g
+                                 1
+                                     2
+
+
+
+
+S(−x1 , 0)                                       n
+                                   x                x
+                     O F      p          1
+                              2
+                                ,0
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\) over de parabool. De raaklijn \(t\) gaat altijd door \(S(-x_1,0)\) en staat loodrecht op de normaal \(n\).
+\(GPFS\) blijft een ruit, zodat \(PS\) de hoek tussen \(PG\) en \(PF\) middendoor deelt.</figcaption> </figure>
+</p>
+<!--
+......   paragraph Besluit ......
+-->
+
+
+<p>
+<span class="paragraph" id="autosec-51">Besluit</span>
+<a id="mkpiweb-autopage-51"></a>
+De raaklijn \(t\) in \(P(x_1,y_1)\in \mathcal {P}\) aan \(\mathcal {P}\) gaat door \(S(-x_1,0)\).
+</p>
+<!--
+...... subsection Hoofdeigenschap ......
+-->
+<h5 id="autosec-52"><span class="sectionnumber">3&#x2003;</span>Hoofdeigenschap</h5>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+De raaklijn \(t\) en de normaal \(n\) in het punt \(P(x_1,y_1)\) van de parabool zijn de bissectrices van de hoeken tussen de rechte \(PF\) (\(F=\) brandpunt) en de rechte door \(P\) evenwijdig met de \(x\)-as.
+</p>
+<!--
+...... subsection Bewijs ......
+-->
+<h5 id="autosec-53"><span class="sectionnumber">4&#x2003;</span>Bewijs</h5>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Figuur: zie de constructie van de raaklijn.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(t=\) raaklijn, \(n=\) normaal \(\Rightarrow \) \(n\perp t\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(g=\) rechte door \(P\) evenwijdig met de \(x\)-as, \(G=g\cap r\)
+</p>
+</li>
+</ul>
+
+<p>
+t.b.:
+</p>
+
+<p>
+\[ |\hat {P}_1|=|\hat {P}_2| \qquad \text {met } \hat {P}_1=G\hat {P}S \text { en } \hat {P}_2=S\hat {P}F \]
+</p>
+
+<p>
+Beschouw de vierhoek \(GPFS\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                            GP ∥ SF (gegeven)
+                                                                                    p
+                                                                            |GP | =   + x1 = |F S|
+                                                                                    2
+                                                                             ⇒ GP F S is een parallellogram (2 evenwijdige en gelijke zijden)
+                                                                            Maar P ∈ P ⇐⇒ |P r| = |P F | ⇐⇒ |P G| = |P F |
+                                                                             ⇒ GP F S is een ruit met P S als diagonaal
+                                                                             ⇒ P S = symmetrieas van de ruit
+                                                                             ⇒ P S = bissectrice van GP̂ F
+                                                                             ⇒ |P̂1 | = |P̂2 |
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;GP \parallel SF \quad (\text {gegeven}) \\ &amp;|GP|=\Bigl |\frac {p}{2}+x_1\Bigr |=|FS| \\ &amp;\Rightarrow GPFS \text { is een parallellogram (2 evenwijdige en gelijke zijden)} \\
+&amp;\text {Maar } P\in \mathcal {P} \iff |Pr|=|PF| \iff |PG|=|PF| \\ &amp;\Rightarrow GPFS \text { is een ruit met } PS \text { als diagonaal} \\ &amp;\Rightarrow PS=\text {symmetrieas van de
+ruit} \\ &amp;\Rightarrow PS=\text {bissectrice van } G\hat {P}F \\ &amp;\Rightarrow |\hat {P}_1|=|\hat {P}_2|
+\end{align*}
+Omdat \(n\perp t\), is \(n\) dan de bissectrice van de nevenhoek. &#x2003;&#x2003;<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+□
+--><img
+    src="mkpiweb-images/3752916C171806A9F7C6944BE55310EA.svg"
+    alt="(math image)"
+    role="math"
+    style="width:0.91205em"
+    class="lateximage"
+></span>
+</p>
+<!--
+...... subsection Gevolg: optische eigenschap van de parabool ......
+-->
+<h5 id="autosec-56"><span class="sectionnumber">5&#x2003;</span>Gevolg: optische eigenschap van de parabool</h5>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p>
+Een straal die evenwijdig met de as op een parabolische spiegel invalt, wordt teruggekaatst naar het brandpunt van de spiegel.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="optische-eigenschap" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+    x
+F
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep de lichtbron rechts op en neer. De straal kaatst in \(Q\) terug volgens de normaal en gaat altijd door \(F\). Toon de
+bundel om veel stralen tegelijk te zien.</figcaption> </figure>
+</p>
+
+<p>
+Voorbeelden (zie handboek p 35):
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> telescopen;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> koplamp en zaklamp (de omgekeerde eigenschap: licht uit het brandpunt vertrekt evenwijdig met de as);
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> schotelantenne.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-60"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 6 (p 39) ......
+-->
+<h6 id="autosec-61">VBTL oefening 6 (p 39)</h6>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<p>
+Stel een vergelijking op van de raaklijn \(t\) en van de normaal \(n\) aan de parabool \(\mathcal {P}\) in het punt \(Q\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\mathcal {P} \leftrightarrow y^2=\dfrac {4}{3}x\) &#x2003;en &#x2003;\(Q(3,-2)\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(t \leftrightarrow x+3y+3=0\), \(n \leftrightarrow 3x-y-11=0\)</span> \(p=\dfrac {2}{3}\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                             −1
+                                                                t ↔ y1 y = p(x + x1 )                                             n ↔ y − y1 =  (x − x1 )
+                                                                                                                                             mt
+                                                                           2                                                                  −1
+                                                              ⇐⇒ −2y =       (x + 3)                                              ⇐⇒ y + 2 =      (x − 3)
+                                                                           3                                                                 −1/3
+                                                       ⇐⇒ 2x + 6y + 6 = 0                                                         ⇐⇒ y + 2 = 3(x − 3)
+                                                        ⇐⇒ x + 3y + 3 = 0                                                    ⇐⇒ 3x − y − 11 = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+t \leftrightarrow y_1y &amp;= p(x+x_1) &amp; n \leftrightarrow y-y_1 &amp;= \frac {-1}{m_t}(x-x_1) \\ \iff -2y &amp;= \frac {2}{3}(x+3) &amp; \iff y+2 &amp;= \frac {-1}{-1/3}(x-3) \\ \iff
+2x+6y+6 &amp;= 0 &amp; \iff y+2 &amp;= 3(x-3) \\ \iff \Aboxed {x+3y+3 &amp;= 0} &amp; \iff \Aboxed {3x-y-11 &amp;= 0}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\mathcal {P} \leftrightarrow y^2=6x\) &#x2003;en &#x2003;\(Q(3,\ldots )\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(t_{1,2} \leftrightarrow x\mp \sqrt 2\,y+3=0\), \(n_{1,2} \leftrightarrow \sqrt 2\,x\pm y-6\sqrt 2=0\)</span>
+</p>
+<p>
+\[ y^2=6\cdot 3 \Rightarrow y=\pm 3\sqrt 2 \qquad p=3 \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                √                                                                       √
+                                                        Q1 (3, 3 2)                                                            Q2 (3, −3 2)
+                                                                √                                                                       √
+                                                        t1 ↔ 3 2 y = 3(x + 3)                                                  t2 ↔ −3 2 y = 3(x + 3)
+                                                                     √                                                                     √
+                                                         ⇐⇒ x − 2 y + 3 = 0                                                     ⇐⇒ x + 2 y + 3 = 0
+                                                                    √       √                                                             √     √
+                                                        n1 ↔ y − 3 2 = − 2 (x − 3)                                             n2 ↔ y + 3 2 = 2 (x − 3)
+                                                                 √           √                                                         √           √
+                                                         ⇐⇒        2x + y − 6 2 = 0                                             ⇐⇒       2x − y − 6 2 = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;Q_1(3,3\sqrt 2) &amp; &amp;Q_2(3,-3\sqrt 2) \\ &amp;t_1 \leftrightarrow 3\sqrt 2\,y=3(x+3) &amp; &amp;t_2 \leftrightarrow -3\sqrt 2\,y=3(x+3) \\ &amp;\iff \boxed {x-\sqrt 2\,y+3=0} &amp;
+&amp;\iff \boxed {x+\sqrt 2\,y+3=0} \\ &amp;n_1 \leftrightarrow y-3\sqrt 2=-\sqrt 2\,(x-3) &amp; &amp;n_2 \leftrightarrow y+3\sqrt 2=\sqrt 2\,(x-3) \\ &amp;\iff \boxed {\sqrt 2\,x+y-6\sqrt
+2=0} &amp; &amp;\iff \boxed {\sqrt 2\,x-y-6\sqrt 2=0}
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+De deelvragen (b) en (d) volgen na het onderdeel over de andere vormen van de topvergelijking.
+</p>
+</div>
+<!--
+...... section Andere vormen van de topvergelijking ......
+-->
+<h4 id="autosec-62"><span class="sectionnumber">VII&#x2003;</span>Andere vormen van de topvergelijking</h4>
+<a id="mkpiweb-autopage-62"></a>
+<!--
+...... subsection Overzicht ......
+-->
+<h5 id="autosec-63"><span class="sectionnumber">1&#x2003;</span>Overzicht</h5>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="andere-vormen" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+    y                     y
+r                                 r
+
+
+
+                 x                    x
+            F         F
+
+
+
+ y 2 = 2px           y 2 = −2px
+    y
+                          y
+
+        F                                 r
+                 x                         x
+                r             F
+
+
+
+x2 = 2py              x2 = −2py
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(F\) naar een andere halve as, of kies een vorm met de knoppen. De halve as waarop \(F\) ligt, bepaalt de vorm
+van de topvergelijking; de afstand van \(F\) tot \(O\) bepaalt \(p\).</figcaption> </figure>
+</p>
+
+<p>
+Telkens is \(p&gt;0\) en de top \(O(0,0)\).
+</p>
+
+<p>
+\[ \renewcommand {\arraystretch }{1.6} \begin {array}{c|c|c|c} \mathcal {P} &amp; F &amp; r &amp; t \text { in } P_1(x_1,y_1) \\ \hline y^2=2px &amp; \bigl (\frac {p}{2},0\bigr ) &amp; x=-\frac
+{p}{2} &amp; y_1y=p(x+x_1) \\ y^2=-2px &amp; \bigl (-\frac {p}{2},0\bigr ) &amp; x=\frac {p}{2} &amp; y_1y=-p(x+x_1) \\ x^2=2py &amp; \bigl (0,\frac {p}{2}\bigr ) &amp; y=-\frac {p}{2} &amp;
+x_1x=p(y+y_1) \\ x^2=-2py &amp; \bigl (0,-\frac {p}{2}\bigr ) &amp; y=\frac {p}{2} &amp; x_1x=-p(y+y_1) \end {array} \]
+</p>
+
+
+<div class="aside">
+
+<p>
+Bij \(x^2=\pm 2py\) wisselen \(x\) en \(y\) van rol: de \(y\)-as is de symmetrieas en de \(x\)-as de topraaklijn. Een minteken spiegelt de parabool om de topraaklijn.
+</p>
+
+</div>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-67"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-67"></a>
+
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 2 (p 39) ......
+-->
+<h6 id="autosec-68">VBTL oefening 2 (p 39)</h6>
+<a id="mkpiweb-autopage-68"></a>
+
+
+<p>
+Stel een vergelijking op van de parabool met top \(O\) en de \(x\)-as als symmetrieas, als het brandpunt \(F(-2,0)\) is.
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(y^2=-8x\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                         p 
+                                                                                             F (−2, 0) = − , 0 ⇒ P ↔ y 2 = −2px
+                                                                                                          2
+                                                                                                                  p
+                                                                                                                    = 2 ⇐⇒ p = 4
+                                                                                                                  2
+                                                                                                                 ⇒ P ↔ y 2 = −8x
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+F(-2,0) = \Bigl (-\frac {p}{2},0\Bigr ) &amp;\Rightarrow \mathcal {P} \leftrightarrow y^2=-2px \\ &amp;\qquad \frac {p}{2}=2 \iff p=4 \\ &amp;\Rightarrow \boxed {\mathcal {P} \leftrightarrow
+y^2=-8x}
+\end{align*}
+
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 3 (p 39) ......
+-->
+<h6 id="autosec-69">VBTL oefening 3 (p 39)</h6>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+Stel een vergelijking op van de parabool met top \(O\) en de \(y\)-as als symmetrieas als:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> het brandpunt \(F(0,2)\) is;
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x^2=8y\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                              p
+                                                                                             F (0, 2) ⇒ P ↔ x2 = 2py    met     = 2 ⇐⇒ p = 4
+                                                                                                                              2
+                                                                                                                       ⇒ P ↔ x2 = 8y
+
+
+-->
+
+<p>
+
+\begin{align*}
+F(0,2) \Rightarrow \mathcal {P} \leftrightarrow x^2=2py &amp;\quad \text {met } \frac {p}{2}=2 \iff p=4 \\ &amp;\Rightarrow \boxed {\mathcal {P} \leftrightarrow x^2=8y}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> het punt \(A(3,2)\) op de parabool ligt;
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x^2=\dfrac {9}{2}y\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                          9
+                                                                                             A(3, 2) ∈ P ↔ x2 = 2py ⇒ 9 = 2p · 2 ⇐⇒ p =
+                                                                                                                                          4
+                                                                                                                                   9
+                                                                                                                   ⇒ P ↔ x2 =        y
+                                                                                                                                   2
+
+-->
+
+<p>
+
+\begin{align*}
+A(3,2)\in \mathcal {P} \leftrightarrow x^2=2py &amp;\Rightarrow 9=2p\cdot 2 \iff p=\frac {9}{4} \\ &amp;\Rightarrow \boxed {\mathcal {P} \leftrightarrow x^2=\frac {9}{2}y}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> de richtlijn \(r \leftrightarrow 2y-3=0\) is.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x^2=-6y\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                3  p
+                                                                                    r ↔ 2y − 3 = 0 ⇐⇒ y =         = ⇒ p = 3 en P ↔ x2 = −2py
+                                                                                                                2  2
+                                                                                                                        ⇒ P ↔ x2 = −6y
+
+
+-->
+
+<p>
+
+\begin{align*}
+r \leftrightarrow 2y-3=0 \iff y=\frac {3}{2}=\frac {p}{2} &amp;\Rightarrow p=3 \text { en } \mathcal {P} \leftrightarrow x^2=-2py \\ &amp;\Rightarrow \boxed {\mathcal {P} \leftrightarrow
+x^2=-6y}
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 6 (p 39) ......
+-->
+<h6 id="autosec-70">VBTL oefening 6 (p 39)</h6>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+Stel een vergelijking op van de raaklijn \(t\) en van de normaal \(n\) aan de parabool \(\mathcal {P}\) in het punt \(Q\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(b)</span> \(\mathcal {P} \leftrightarrow y^2=-4x\) &#x2003;en &#x2003;\(Q(-4,4)\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(t \leftrightarrow x+2y-4=0\), \(n \leftrightarrow 2x-y+12=0\)</span> \(y^2=-2px\) met \(p=2\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                               −1
+                                                               t ↔ y1 y = −p(x + x1 )                                             n↔y−4=           (x + 4)
+                                                                                                                                              −1/2
+                                                               ⇐⇒ 4y = −2(x − 4)                                                  ⇐⇒ y − 4 = 2(x + 4)
+                                                      ⇐⇒ 2x + 4y − 8 = 0                                                     ⇐⇒ 2x − y + 12 = 0
+
+                                                       ⇐⇒ x + 2y − 4 = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+t \leftrightarrow y_1y &amp;= -p(x+x_1) &amp; n \leftrightarrow y-4 &amp;= \frac {-1}{-1/2}(x+4) \\ \iff 4y &amp;= -2(x-4) &amp; \iff y-4 &amp;= 2(x+4) \\ \iff 2x+4y-8 &amp;= 0 &amp; \iff
+\Aboxed {2x-y+12 &amp;= 0} \\ \iff \Aboxed {x+2y-4 &amp;= 0}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(\mathcal {P} \leftrightarrow x^2=8y\) &#x2003;en &#x2003;\(Q(-4,\ldots )\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(t \leftrightarrow x+y+2=0\), \(n \leftrightarrow x-y+6=0\)</span> Andere vorm! \(x^2=2py\) met \(p=4\).
+</p>
+<p>
+\[ y=\frac {1}{8}x^2=\frac {16}{8}=2 \qquad \Rightarrow \qquad Q(-4,2) \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                             −1
+                                                                t ↔ x1 x = p(y + y1 )                                             n↔y−2=        (x + 4)
+                                                                                                                                             −1
+                                                              ⇐⇒ −4x = 4(y + 2)                                               ⇐⇒ x − y + 6 = 0
+
+                                                         ⇐⇒ x + y + 2 = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+t \leftrightarrow x_1x &amp;= p(y+y_1) &amp; n \leftrightarrow y-2 &amp;= \frac {-1}{-1}(x+4) \\ \iff -4x &amp;= 4(y+2) &amp; \iff \Aboxed {x-y+6 &amp;= 0} \\ \iff \Aboxed {x+y+2 &amp;= 0}
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-71">Oefening 1</h6>
+<a id="mkpiweb-autopage-71"></a>
+
+
+<p>
+Stel een vergelijking op van de parabool met top \(O\) als:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> de \(x\)-as de as is en \(F(4,0)\);
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(y^2=16x\)</span>
+</p>
+<p>
+\[ \frac {p}{2}=4 \Rightarrow p=8 \qquad \Rightarrow \qquad \boxed {\mathcal {P} \leftrightarrow y^2=16x} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> de \(y\)-as de as is en \(r \leftrightarrow 4y+3=0\);
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x^2=3y\)</span>
+</p>
+<p>
+\[ 4y+3=0 \iff y=-\frac {3}{4}=-\frac {p}{2} \Rightarrow p=\frac {3}{2} \qquad \Rightarrow \qquad \boxed {\mathcal {P} \leftrightarrow x^2=3y} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> de \(y\)-as de as is en \(F(0,5)\);
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x^2=20y\)</span>
+</p>
+<p>
+\[ \frac {p}{2}=5 \Rightarrow p=10 \qquad \Rightarrow \qquad \boxed {\mathcal {P} \leftrightarrow x^2=20y} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> de \(x\)-as de as is en \(A(1,9)\in \mathcal {P}\).
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(y^2=81x\)</span>
+</p>
+<p>
+\[ \mathcal {P} \leftrightarrow y^2=2px:\quad 81=2p \iff p=\frac {81}{2} \qquad \Rightarrow \qquad \boxed {\mathcal {P} \leftrightarrow y^2=81x} \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 7 (p 39) ......
+-->
+<h6 id="autosec-72">VBTL oefening 7 (p 39)</h6>
+<a id="mkpiweb-autopage-72"></a>
+
+
+<p>
+De rechte \(t \leftrightarrow 3x+4y+6=0\) raakt de parabool \(\mathcal {P} \leftrightarrow y^2=2px\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bepaal het brandpunt van de parabool.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(F\Bigl (\dfrac {9}{8},0\Bigr )\)</span>
+</p>
+<p>
+\[ t \leftrightarrow 3x+4y+6=0 \iff 4y=-3(x+2) \qquad F\Bigl (\frac {p}{2},0\Bigr )=\,?                   \Rightarrow p=\,?     \]
+</p>
+<p>
+Stel \(R(x_1,y_1)\) het raakpunt.
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                 
+                                                                                      y = − 3 (x + 2)            y1 = . . .
+                                                                                        1        1
+                                                                                               4               ⇐⇒   9
+                                                                                      y 2 = 2px                   (x1 + 2)2 = 2px1
+                                                                                         1         1                16
+                                                                                          (
+                                                                                           y1 = . . .
+                                                                                       ⇐⇒
+                                                                                           9x21 + 36x1 + 36 = 32px1
+                                                                                          (
+                                                                                           y1 = . . .
+                                                                                       ⇐⇒
+                                                                                           9x21 + (36 − 32p)x1 + 36 = 0        (∗)
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\begin{cases} y_1=-\dfrac {3}{4}(x_1+2) \\ y_1^2=2px_1 \end {cases} \iff \begin{cases} y_1=\ldots \\ \dfrac {9}{16}(x_1+2)^2=2px_1 \end {cases} \\ &amp;\iff \begin{cases} y_1=\ldots \\
+9x_1^2+36x_1+36=32px_1 \end {cases} \\ &amp;\iff \begin{cases} y_1=\ldots \\ 9x_1^2+(36-32p)x_1+36=0 \quad (*) \end {cases}
+\end{align*}
+\(t\) raakt \(\mathcal {P}\) in \(R\) \(\Rightarrow \) \((*)\) heeft maar één oplossing voor \(x_1\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                             ⇒D=0
+                                                                                             ⇐⇒ (36 − 32p)2 − 4 · 9 · 36 = 0
+                                                                                             ⇐⇒ 362 − 2 · 36 · 32p + 322 p2 − 1296 = 0
+                                                                                             ⇐⇒ 1024p2 − 2304p = 0
+                                                                                             ⇐⇒ 4p2 − 9p = 0
+                                                                                             ⇐⇒ p(4p − 9) = 0
+                                                                                                                                     9
+                                                                                             ⇐⇒ p = 0 (geen parabool) ∨ p =
+                                                                                                                                     4
+                                                                                                   9                   9
+                                                                                             ⇒ F         , 0 en P ↔ y 2 = x
+                                                                                                       8                 2
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\Rightarrow D=0 \\ &amp;\iff (36-32p)^2-4\cdot 9\cdot 36=0 \\ &amp;\iff 36^2-2\cdot 36\cdot 32p+32^2p^2-1296=0 \\ &amp;\iff 1024p^2-2304p=0 \\ &amp;\iff 4p^2-9p=0 \\ &amp;\iff p(4p-9)=0
+\\ &amp;\iff p=0 \ (\text {geen parabool}) \ \vee \ p=\frac {9}{4} \\ &amp;\Rightarrow \boxed {F\Bigl (\frac {9}{8},0\Bigr )} \text { en } \mathcal {P} \leftrightarrow y^2=\frac {9}{2}x
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Bepaal het raakpunt.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(R(2,-3)\)</span> In \((*)\) met \(p=\dfrac {9}{4}\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                       9
+                                                                                       9x21 + 36 − 32 ·    x1 + 36 = 0
+                                                                                                        4
+                                                                                        ⇐⇒ 9x21 − 36x1 + 36 = 0
+                                                                                                               (
+                                                                                                     2          x1 = 2
+                                                                                        ⇐⇒ (x1 − 2) = 0 ⇒                      ⇒ R(2, −3)
+                                                                                                                y1 = −3
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;9x_1^2+\Bigl (36-32\cdot \frac {9}{4}\Bigr )x_1+36=0 \\ &amp;\iff 9x_1^2-36x_1+36=0 \\ &amp;\iff (x_1-2)^2=0 \Rightarrow \begin{cases} x_1=2 \\ y_1=-3 \end {cases} \Rightarrow \boxed
+{R(2,-3)}
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+<div class="oplossing">
+
+<p>
+<b>Tweede methode</b>, voor (a) en (b) samen: met de formule van de raaklijn.
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                          3
+                                                                                          t ↔ 3x + 4y + 6 = 0 ⇒ mt = −
+                                                                                                                          4
+                                                                                                                                         p
+                                                                                          R(x1 , y1 ) ⇒ t ↔ y1 y = p(x + x1 ) ⇒ mt =
+                                                                                                                                         y1
+                                                                                                 p     3        3
+                                                                                             ⇒      = − ⇐⇒ p = − y1
+                                                                                                 y1    4        4
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;t \leftrightarrow 3x+4y+6=0 \Rightarrow m_t=-\frac {3}{4} \\ &amp;R(x_1,y_1) \Rightarrow t \leftrightarrow y_1y=p(x+x_1) \Rightarrow m_t=\frac {p}{y_1} \\ &amp;\Rightarrow \frac
+{p}{y_1}=-\frac {3}{4} \iff p=-\frac {3}{4}y_1
+\end{align*}
+Maar \(R(x_1,y_1)\in t\) en \(R\in \mathcal {P}\):
+</p>
+
+<p>
+\[ \begin {cases} p=-\dfrac {3}{4}y_1 \\[1ex] y_1^2=2px_1 \\ 3x_1+4y_1+6=0 \end {cases} \iff \begin {cases} p=\ldots \\ y_1^2=-\dfrac {3}{2}y_1x_1 \\[1ex] 3x_1+4y_1+6=0 \end {cases} \]
+</p>
+
+<p>
+\[ \iff \begin {cases} p=\ldots \\ y_1=-\dfrac {3}{2}x_1 \\[1ex] 3x_1-6x_1+6=0 \end {cases} \iff \begin {cases} p=\dfrac {9}{4} \\[1ex] y_1=-3 \\ x_1=2 \end {cases} \]
+</p>
+
+<p>
+\[ \Rightarrow \quad \boxed {F\Bigl (\frac {9}{8},0\Bigr )} \qquad \text {en}\qquad \boxed {R(2,-3)} \]
+</p>
+
+
+<div class="aside">
+
+<p>
+We mochten door \(y_1\) delen: \(y_1=0\) geeft \(x_1=-2\) uit de vergelijking van \(t\), en dat punt ligt niet op een parabool \(y^2=2px\) met \(p&gt;0\).
+</p>
+
+</div>
+
+</div>
+
+</div>
+<!--
+...... section Raaklijnen uit een punt buiten de parabool ......
+-->
+<h4 id="autosec-73"><span class="sectionnumber">VIII&#x2003;</span>Raaklijnen uit een punt buiten de parabool</h4>
+<a id="mkpiweb-autopage-73"></a>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-74"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-74"></a>
+
+
+<p>
+Bepaal de vergelijkingen van de raaklijnen uit \(A(-3,1)\) aan de parabool \(\mathcal {P} \leftrightarrow y^2=5x\).
+</p>
+<!--
+...... subsubsection Eerste methode ......
+-->
+<h6 id="autosec-75"><span class="sectionnumber">&#x2003;</span>Eerste methode</h6>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+Bepaal de rico \(m\) van de raaklijn \(t\) door \(A\), door uit te drukken dat \(t\) en \(\mathcal {P}\) één punt gemeenschappelijk hebben.
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                       t ↔ y − yA = m(x − xA )
+                                                                                                       ⇐⇒ y − 1 = m(x + 3)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+t \leftrightarrow y-y_A &amp;= m(x-x_A) \\ \iff y-1 &amp;= m(x+3)
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {cases} t \leftrightarrow y-1=m(x+3) \\ \mathcal {P} \leftrightarrow y^2=5x \end {cases} \text { heeft 1 oplossing} \iff \begin {cases} x=\dfrac {y-1-3m}{m} \\[1.5ex] y^2=5\cdot
+\dfrac {y-1-3m}{m} \end {cases} \text { heeft 1 oplossing} \]
+</p>
+
+<p>
+\(\Rightarrow \) de tweede vergelijking \(my^2-5y+5+15m=0\) heeft 1 oplossing
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                            ⇐⇒ D = 0
+                                                                                            ⇐⇒ 25 − 4m(5 + 15m) = 0
+                                                                                            ⇐⇒ −60m2 − 20m + 25 = 0
+                                                                                            ⇐⇒ 12m2 + 4m − 5 = 0
+                                                                                               D = 16 + 240 = 256 = 162
+                                                                                                      −4 − 16   5     −4 + 16   1
+                                                                                            ⇐⇒ m =            =− ∨ m=         =
+                                                                                                        24      6       24      2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\iff D=0 \\ &amp;\iff 25-4m(5+15m)=0 \\ &amp;\iff -60m^2-20m+25=0 \\ &amp;\iff 12m^2+4m-5=0 \\ &amp;\qquad D=16+240=256=16^2 \\ &amp;\iff m=\frac {-4-16}{24}=-\frac {5}{6} \ \vee \
+m=\frac {-4+16}{24}=\frac {1}{2}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                             5                                                                                        1
+                                                             ⇒ t1 ↔ y − 1 = − (x + 3)                                                                  t2 ↔ y − 1 =     (x + 3)
+                                                                             6                                                                                        2
+                                                         ⇐⇒ 5x + 6y + 9 = 0                                                                       ⇐⇒ x − 2y + 5 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow t_1 \leftrightarrow y-1 &amp;= -\frac {5}{6}(x+3) &amp; t_2 \leftrightarrow y-1 &amp;= \frac {1}{2}(x+3) \\ \iff \Aboxed {5x+6y+9 &amp;= 0} &amp; \iff \Aboxed {x-2y+5 &amp;= 0}
+\end{align*}
+
+</p>
+
+
+<div class="aside">
+
+<p>
+We deelden door \(m\). Een horizontale rechte (\(m=0\)) snijdt de parabool wel in precies één punt, maar raakt ze niet. Een verticale rechte heeft geen rico en valt buiten deze methode: kijk die apart na (zie VBTL oefening 10 (a)).
+</p>
+
+</div>
+<!--
+...... subsubsection Tweede methode ......
+-->
+<h6 id="autosec-76"><span class="sectionnumber">&#x2003;</span>Tweede methode</h6>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<p>
+Stel het raakpunt \(R(x_1,y_1)\) \(\Rightarrow \) \(t \leftrightarrow y_1y=p(x+x_1)\). Zoek eerst het raakpunt.
+</p>
+
+<p>
+\[ t \leftrightarrow y_1y=\frac {5}{2}(x+x_1) \qquad \bigl (y^2=5x=2px \Rightarrow p=\tfrac {5}{2}\bigr ) \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                             5                   5     15
+                                                   A(−3, 1) ∈ t ⇐⇒ y1 · 1 =    (−3 + x1 ) ⇐⇒ y1 = x1 −                                              (1)
+                                                                             2                   2      2
+                                                   R(x1 , y1 ) ∈ P ⇐⇒ y12 = 5x1                                                                     (2)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;A(-3,1)\in t \iff y_1\cdot 1=\frac {5}{2}(-3+x_1) \iff y_1=\frac {5}{2}x_1-\frac {15}{2} &amp;&amp; (1) \\ &amp;R(x_1,y_1)\in \mathcal {P} \iff y_1^2=5x_1 &amp;&amp; (2)
+\end{align*}
+
+</p>
+
+<p>
+\[ \Rightarrow \begin {cases} 2y_1=5x_1-15 \\ 5x_1=y_1^2 \end {cases} \iff \begin {cases} y_1^2=5x_1 \\ 2y_1=y_1^2-15 \end {cases} \]
+</p>
+
+<p>
+Tweede vergelijking: \(y_1^2-2y_1-15=0\), &#x2003;\(D=4+60=64\)
+</p>
+
+<p>
+\[ \begin {cases} y_1=\dfrac {2-8}{2}=-3 \\[1.5ex] x_1=\dfrac {1}{5}y_1^2=\dfrac {9}{5} \end {cases} \ \vee \ \begin {cases} y_1=\dfrac {2+8}{2}=5 \\[1.5ex] x_1=\dfrac {1}{5}y_1^2=5 \end
+{cases} \]
+</p>
+
+<p>
+\(\Rightarrow \) 2 raakpunten \(R_1\bigl (\frac {9}{5},-3\bigr )\) en \(R_2(5,5)\)
+</p>
+
+<p>
+\(\Rightarrow \) 2 raaklijnen
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                        5    9                                                             5
+                                                           t1 ↔ −3y =      x+                                                    t2 ↔ 5y =     (x + 5)
+                                                                        2     5                                                              2
+                                                    ⇐⇒ 5x + 6y + 9 = 0                                                    ⇐⇒ x − 2y + 5 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+t_1 \leftrightarrow -3y &amp;= \frac {5}{2}\Bigl (x+\frac {9}{5}\Bigr ) &amp; t_2 \leftrightarrow 5y &amp;= \frac {5}{2}(x+5) \\ \iff \Aboxed {5x+6y+9 &amp;= 0} &amp; \iff \Aboxed {x-2y+5
+&amp;= 0}
+\end{align*}
+
+</p>
+<!--
+...... subsubsection Extra: de raakkoorde ......
+-->
+<h6 id="autosec-77"><span class="sectionnumber">&#x2003;</span>Extra: de raakkoorde</h6>
+<a id="mkpiweb-autopage-77"></a>
+
+
+<p>
+De <b>raakkoorde</b> is de rechte door de twee raakpunten.
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                               x     y    1        x      y 1
+                                                                                       R1 R2 ↔ x1    y1   1 = 0 ⇐⇒ 95     −3 1 = 0
+                                                                                               x2    y2   1        5      5 1
+                                                                                                                             16
+                                                                                                                ⇐⇒ −8x +        y + 24 = 0
+                                                                                                                             5
+                                                                                                                ⇐⇒ 5x − 2y − 15 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+R_1R_2 \leftrightarrow \begin{vmatrix} x &amp; y &amp; 1 \\ x_1 &amp; y_1 &amp; 1 \\ x_2 &amp; y_2 &amp; 1 \end {vmatrix}=0 &amp;\iff \begin{vmatrix} x &amp; y &amp; 1 \\ \frac {9}{5} &amp; -3
+&amp; 1 \\ 5 &amp; 5 &amp; 1 \end {vmatrix}=0 \\ &amp;\iff -8x+\frac {16}{5}y+24=0 \\ &amp;\iff \boxed {5x-2y-15=0}
+\end{align*}
+
+</p>
+
+
+<div class="aside">
+
+<p>
+Vul je de coo&#x0308;rdinaten van \(A\) in de formule van de raaklijn in, dan krijg je precies de raakkoorde: \(y_Ay=p(x+x_A)\) geeft \(y=\frac {5}{2}(x-3)\), of \(5x-2y-15=0\). Die rechte heet de <em>poollijn</em> van \(A\).
+</p>
+
+</div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="raaklijnen-uit-punt" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+           y
+                                  t2
+
+                             R2
+
+
+A(−3, 1)
+
+                                       x
+
+                R1 R2
+               R1
+
+                        t1
+--><img
+    src="mkpiweb-images/image-10.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(A\) over het rooster. Buiten de parabool zijn er twee raaklijnen met hun raakkoorde, op de parabool één, binnen
+de parabool geen.</figcaption> </figure>
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-81"><span class="sectionnumber">2&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-81"></a>
+
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 10 (p 40) ......
+-->
+<h6 id="autosec-82">VBTL oefening 10 (p 40)</h6>
+<a id="mkpiweb-autopage-82"></a>
+
+
+<p>
+Stel vergelijkingen op van de raaklijnen uit \(Q\) aan de parabool \(\mathcal {P}\), en een vergelijking van de raakkoorde.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(\mathcal {P} \leftrightarrow y^2=3x\) &#x2003;en &#x2003;\(Q(0,3)\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(t_1 \leftrightarrow x-4y+12=0\), \(t_2 \leftrightarrow x=0\), \(R_1R_2 \leftrightarrow x-2y=0\)</span> Stel
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                      t ↔ y − y1 = m(x − x1 )
+                                                                                                      ⇐⇒ y − 3 = mx
+
+
+-->
+
+<p>
+
+\begin{align*}
+t \leftrightarrow y-y_1 &amp;= m(x-x_1) \\ \iff y-3 &amp;= mx
+\end{align*}
+
+</p>
+<p>
+\[ \begin {cases} t \leftrightarrow y-3=mx \\ \mathcal {P} \leftrightarrow y^2=3x \end {cases} \text { heeft 1 oplossing} \iff \begin {cases} y-3=\dfrac {m}{3}y^2 \\[1.5ex] x=\dfrac {1}{3}y^2
+\end {cases} \text { heeft 1 oplossing} \]
+</p>
+<p>
+Eerste vergelijking: \(my^2-3y+9=0\) heeft 1 oplossing
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                       ⇐⇒ D = 0
+                                                                                                       ⇐⇒ 9 − 36m = 0
+                                                                                                                  1
+                                                                                                       ⇐⇒ m =
+                                                                                                                  4
+                                                                                                                        1
+                                                                                                      ⇒ t1 ↔ y − 3 =      x
+                                                                                                                        4
+                                                                                                       ⇐⇒ x − 4y + 12 = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\iff D=0 \\ &amp;\iff 9-36m=0 \\ &amp;\iff m=\frac {1}{4} \\ &amp;\Rightarrow t_1 \leftrightarrow y-3=\frac {1}{4}x \\ &amp;\iff \boxed {x-4y+12=0}
+\end{align*}
+<b>Maar</b> \(Q(0,3)\) ligt op de \(y\)-as, en de \(y\)-as is de topraaklijn van \(\mathcal {P}\)
+</p>
+<p>
+\[ \Rightarrow t_2 = y\text {-as} \leftrightarrow \boxed {x=0} \qquad \Rightarrow \qquad R_2(0,0) \]
+</p>
+<p>
+\[ R_1 \begin {cases} y^2=3x \\ x-4y+12=0 \end {cases} \iff \begin {cases} y^2=3x \\ \frac {1}{4}y^2-3y+9=0 \quad (D=0) \end {cases} \]
+</p>
+<p>
+\[ \iff \begin {cases} x=12 \\ y=6 \end {cases} \Rightarrow R_1(12,6) \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                   x y       1
+                                                                                           R1 R2 ↔ 0 0       1 = 0 ⇐⇒ −6x + 12y = 0
+                                                                                                   12 6      1
+                                                                                                                      ⇐⇒ x − 2y = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+R_1R_2 \leftrightarrow \begin{vmatrix} x &amp; y &amp; 1 \\ 0 &amp; 0 &amp; 1 \\ 12 &amp; 6 &amp; 1 \end {vmatrix}=0 &amp;\iff -6x+12y=0 \\ &amp;\iff \boxed {x-2y=0}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(\mathcal {P} \leftrightarrow y^2=-4x\) &#x2003;en &#x2003;\(Q(2,0)\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(t_{1,2} \leftrightarrow x\pm \sqrt 2\,y-2=0\), \(R_1R_2 \leftrightarrow x=-2\)</span> \(Q\) ligt op de \(x\)-as \(\Rightarrow \) 2 raaklijnen, symmetrisch om de \(x\)-as.
+</p>
+<p>
+Tweede methode: raakpunt \(R(x_1,y_1)\), en \(y^2=-2px\) met \(p=2\).
+</p>
+<p>
+\[ t \leftrightarrow y_1y=-p(x+x_1) \iff y_1y=-2(x+x_1) \]
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                             Q ∈ t ⇐⇒ 0 = −2(2 + x1 ) ⇐⇒ x1 = −2                                                             (1)
+                                                             R ∈ P ⇐⇒ y12 = −4x1                                                                             (2)
+
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;Q\in t \iff 0=-2(2+x_1) \iff x_1=-2 &amp;&amp; (1) \\ &amp;R\in \mathcal {P} \iff y_1^2=-4x_1 &amp;&amp; (2)
+\end{align*}
+
+</p>
+<p>
+\[ \Rightarrow \begin {cases} x_1=-2 \\ y_1^2=-4x_1 \end {cases} \iff \begin {cases} x_1=-2 \\ y_1^2=8 \end {cases} \iff \begin {cases} x_1=-2 \\ y_1=2\sqrt 2 \end {cases} \vee \begin {cases}
+x_1=-2 \\ y_1=-2\sqrt 2 \end {cases} \]
+</p>
+<p>
+\(\Rightarrow R_1(-2,2\sqrt 2)\) en \(R_2(-2,-2\sqrt 2)\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                  √                                                                               √
+                                                            t1 ↔ 2 2 y = −2(x − 2)                                                         t2 ↔ −2 2 y = −2(x − 2)
+                                                               √                                                                               √
+                                                      ⇐⇒ 2x + 2 2 y − 4 = 0                                                             ⇐⇒ x − 2 y − 2 = 0
+                                                                  √
+                                                         ⇐⇒ x +       2y − 2 = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+t_1 \leftrightarrow 2\sqrt 2\,y &amp;= -2(x-2) &amp; t_2 \leftrightarrow -2\sqrt 2\,y &amp;= -2(x-2) \\ \iff 2x+2\sqrt 2\,y-4 &amp;= 0 &amp; \iff \Aboxed {x-\sqrt 2\,y-2 &amp;= 0} \\ \iff
+\Aboxed {x+\sqrt 2\,y-2 &amp;= 0}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                             x       y
+                                                                                                     √     1         √             √
+                                                                                     R1 R2 ↔ −2     2 √2   1 = 0 ⇐⇒ 4 2 x − 0 y + 8 2 = 0
+                                                                                             −2    −2 2    1
+                                                                                                                      ⇐⇒ x = −2
+
+
+-->
+
+<p>
+
+\begin{align*}
+R_1R_2 \leftrightarrow \begin{vmatrix} x &amp; y &amp; 1 \\ -2 &amp; 2\sqrt 2 &amp; 1 \\ -2 &amp; -2\sqrt 2 &amp; 1 \end {vmatrix}=0 &amp;\iff 4\sqrt 2\,x-0\,y+8\sqrt 2=0 \\ &amp;\iff \boxed
+{x=-2}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(\mathcal {P} \leftrightarrow y^2=4x\) &#x2003;en &#x2003;\(Q(-2,1)\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(t_1 \leftrightarrow x+y+1=0\), \(t_2 \leftrightarrow x-2y+4=0\), \(R_1R_2 \leftrightarrow 2x-y-4=0\)</span>
+</p>
+<p>
+\[ \begin {cases} t \leftrightarrow y-1=m(x+2) \\ \mathcal {P} \leftrightarrow y^2=4x \end {cases} \text { heeft 1 oplossing} \]
+</p>
+<p>
+\[ \iff \begin {cases} y-1=\dfrac {m}{4}y^2+2m \\[1.5ex] x=\dfrac {y^2}{4} \end {cases} \text { heeft 1 oplossing} \]
+</p>
+<p>
+\(\Rightarrow \) de eerste vergelijking \(my^2-4y+8m+4=0\) heeft 1 oplossing
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                            ⇐⇒ D = 0
+                                                                                            ⇐⇒ 16 − 4m(8m + 4) = 0
+                                                                                            ⇐⇒ 16 − 32m2 − 16m = 0
+                                                                                            ⇐⇒ 2m2 + m − 1 = 0
+                                                                                               D =1+8=9
+                                                                                                      −1 − 3            −1 + 3   1
+                                                                                            ⇐⇒ m =           = −1 ∨ m =        =
+                                                                                                        4                 4      2
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\iff D=0 \\ &amp;\iff 16-4m(8m+4)=0 \\ &amp;\iff 16-32m^2-16m=0 \\ &amp;\iff 2m^2+m-1=0 \\ &amp;\qquad D=1+8=9 \\ &amp;\iff m=\frac {-1-3}{4}=-1 \ \vee \ m=\frac {-1+3}{4}=\frac {1}{2}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                                                           1
+                                                            ⇒ t1 ↔ y − 1 = −x − 2                                                           t2 ↔ y − 1 =     (x + 2)
+                                                                                                                                                           2
+                                                          ⇐⇒ x + y + 1 = 0                                                              ⇐⇒ x − 2y + 4 = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+\Rightarrow t_1 \leftrightarrow y-1 &amp;= -x-2 &amp; t_2 \leftrightarrow y-1 &amp;= \frac {1}{2}(x+2) \\ \iff \Aboxed {x+y+1 &amp;= 0} &amp; \iff \Aboxed {x-2y+4 &amp;= 0}
+\end{align*}
+
+</p>
+<p>
+\[ R_1 \begin {cases} x+y+1=0 \\ x=\dfrac {y^2}{4} \end {cases} \iff \begin {cases} y^2+4y+4=0 \\ x=\dfrac {y^2}{4} \end {cases} \iff \begin {cases} y=-2 \\ x=1 \end {cases} \]
+</p>
+<p>
+\[ R_2 \begin {cases} x-2y+4=0 \\ x=\dfrac {y^2}{4} \end {cases} \iff \begin {cases} y^2-8y+16=0 \\ x=\dfrac {y^2}{4} \end {cases} \iff \begin {cases} y=4 \\ x=4 \end {cases} \]
+</p>
+<p>
+\(\Rightarrow R_1(1,-2)\) en \(R_2(4,4)\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                 x    y 1
+                                                                                         R1 R2 ↔ 1    −2 1 = 0 ⇐⇒ −6x + 3y + 12 = 0
+                                                                                                 4     4 1
+                                                                                                                  ⇐⇒ 2x − y − 4 = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+R_1R_2 \leftrightarrow \begin{vmatrix} x &amp; y &amp; 1 \\ 1 &amp; -2 &amp; 1 \\ 4 &amp; 4 &amp; 1 \end {vmatrix}=0 &amp;\iff -6x+3y+12=0 \\ &amp;\iff \boxed {2x-y-4=0}
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 9 (p 45) ......
+-->
+<h6 id="autosec-83">VBTL oefening 9 (p 45)</h6>
+<a id="mkpiweb-autopage-83"></a>
+
+
+<p>
+Bepaal een vergelijking van de raaklijn aan de parabool \(\mathcal {P} \leftrightarrow y^2=4x\) die evenwijdig is met \(h \leftrightarrow 2x-y+3=0\). Bepaal ook het raakpunt \(R(x_1,y_1)\).
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(t \leftrightarrow 4x-2y+1=0\) en \(R\Bigl (\dfrac {1}{4},1\Bigr )\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                            t ∥ h ⇐⇒ mt = mh = 2
+                                                                                                                           2
+                                                                                            t ↔ y1 y = 2(x + x1 ) ⇒ mt =
+                                                                                                                           y1
+                                                                                                2
+                                                                                            ⇒      = 2 ⇐⇒ y1 = 1
+                                                                                                y1
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;t\parallel h \iff m_t=m_h=2 \\ &amp;t \leftrightarrow y_1y=2(x+x_1) \Rightarrow m_t=\frac {2}{y_1} \\ &amp;\Rightarrow \frac {2}{y_1}=2 \iff y_1=1
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                1                   1     
+                                                                                R ∈ P ⇐⇒ y12 = 4x1 ⇐⇒ x1 =            ⇒         R        ,1
+                                                                                                                4                    4
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+R\in \mathcal {P} &amp;\iff y_1^2=4x_1 \iff x_1=\frac {1}{4} \qquad \Rightarrow \qquad \boxed {R\Bigl (\frac {1}{4},1\Bigr )}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                              1
+                                                                                                 ⇒t↔1·y =2 x+
+                                                                                                               4
+                                                                                                         1
+                                                                                              ⇐⇒ 2x − y + = 0
+                                                                                                         2
+                                                                                             ⇐⇒ 4x − 2y + 1 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow t \leftrightarrow 1\cdot y &amp;= 2\Bigl (x+\frac {1}{4}\Bigr ) \\ \iff 2x-y+\frac {1}{2} &amp;= 0 \\ \iff \Aboxed {4x-2y+1 &amp;= 0}
+\end{align*}
+
+</p>
+</div>
+
+</div>
+<!--
+...... section Vraagstukken ......
+-->
+<h4 id="autosec-84"><span class="sectionnumber">IX&#x2003;</span>Vraagstukken</h4>
+<a id="mkpiweb-autopage-84"></a>
+
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 17 (p 40) ......
+-->
+<h6 id="autosec-85">VBTL oefening 17 (p 40)</h6>
+<a id="mkpiweb-autopage-85"></a>
+
+
+<p>
+Een rechte door \(A(p,0)\) snijdt de parabool \(\mathcal {P} \leftrightarrow y^2=2px\) in \(B\) en \(C\). Het midden van \([BC]\) is \(M\), en \(D\) is de loodrechte projectie van \(M\) op de \(y\)-as. Toon aan dat
+\(\triangle ABD\) rechthoekig is in \(A\).
+</p>
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-11"
+    class="lateximagesource"
+><!--
+    y
+
+                    B   P
+
+
+
+D               M
+                            x
+O           A
+        C
+--><img
+    src="mkpiweb-images/image-11.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+t.b.:
+</p>
+
+<p>
+\[ \triangle ABD \text { is rechthoekig in } A \iff AD\perp AB \iff m_{AD}\cdot m_{AB}=-1 \]
+</p>
+
+<p>
+Stel \(m_{BC}=m=m_{AB}\) &#x2003;(\(m\neq 0\), anders is er maar één snijpunt).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                       ⇒ BC ↔ y − 0 = m(x − p) ⇐⇒ y = mx − mp
+                                                                              (          (                      (
+                                                                                BC         y = mx − mp            y = ...
+                                                                       B en C       ⇐⇒      2
+                                                                                                           ⇐⇒
+                                                                                P          y = 2px                m2 x2 − 2m2 px + m2 p2 = 2px
+                                                                                         (
+                                                                                           y = ...
+                                                                                    ⇐⇒
+                                                                                           m2 x2 − 2p(m2 + 1)x + m2 p2 = 0
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Rightarrow BC \leftrightarrow y-0=m(x-p) \iff y=mx-mp \\ &amp;B \text { en } C \begin{cases} BC \\ \mathcal {P} \end {cases} \iff \begin{cases} y=mx-mp \\ y^2=2px \end {cases} \iff
+\begin{cases} y=\ldots \\ m^2x^2-2m^2px+m^2p^2=2px \end {cases} \\ &amp;\phantom {B \text { en } C \begin{cases} BC \\ \mathcal {P} \end {cases}} \iff \begin{cases} y=\ldots \\
+m^2x^2-2p(m^2+1)x+m^2p^2=0 \end {cases}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                              D = 4p2 (m2 + 1)2 − 4m2 · m2 p2
+                                                                                                = 4p2 m4 + 2m2 + 1 − m4
+                                                                                                                         
+
+                                                                                                = 4p2 (2m2 + 1) > 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+D &amp;= 4p^2(m^2+1)^2-4m^2\cdot m^2p^2 \\ &amp;= 4p^2\bigl (m^4+2m^2+1-m^4\bigr ) \\ &amp;= 4p^2(2m^2+1)&gt;0
+\end{align*}
+
+</p>
+
+<p>
+\[ \iff \begin {cases} x=\dfrac {2p(m^2+1)\pm 2p\sqrt {2m^2+1}}{2m^2}=\dfrac {p\bigl (m^2+1\pm \sqrt {2m^2+1}\bigr )}{m^2} \\[2ex] y=mx-mp=\dfrac {p\bigl (1\pm \sqrt {2m^2+1}\bigr )}{m} \end
+{cases} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                      √           √        
+                                                                                           p m2 + 1 + 2m2 + 1 p 1 + 2m2 + 1
+                                                                                          
+                                                                                     ⇒B                         ,
+                                                                                                     m2              m
+                                                                                                      √           √       
+                                                                                          p m2 + 1 − 2m2 + 1 p 1 − 2m2 + 1
+                                                                                        
+                                                                                      C                       ,
+                                                                                                    m2              m
+                                                                                          pm2 + p p 
+                                                                                     ⇒M            ,
+                                                                                             m2      m
+                                                                                         p
+                                                                                     ⇒ D 0,
+                                                                                             m
+                                                                                               p
+                                                                                                 −0       1
+                                                                                     ⇒ mAD = m        =−
+                                                                                               0−p        m
+                                                                                                        1
+                                                                                     ⇒ mAD · mAB = − · m = −1□
+                                                                                                        m
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Rightarrow B\biggl (\frac {p\bigl (m^2+1+\sqrt {2m^2+1}\bigr )}{m^2},\frac {p\bigl (1+\sqrt {2m^2+1}\bigr )}{m}\biggr ) \\ &amp;\phantom {\Rightarrow {}} C\biggl (\frac {p\bigl
+(m^2+1-\sqrt {2m^2+1}\bigr )}{m^2},\frac {p\bigl (1-\sqrt {2m^2+1}\bigr )}{m}\biggr ) \\ &amp;\Rightarrow M\Bigl (\frac {pm^2+p}{m^2},\frac {p}{m}\Bigr ) \\ &amp;\Rightarrow D\Bigl (0,\frac
+{p}{m}\Bigr ) \\ &amp;\Rightarrow m_{AD}=\frac {\frac {p}{m}-0}{0-p}=-\frac {1}{m} \\ &amp;\Rightarrow m_{AD}\cdot m_{AB}=-\frac {1}{m}\cdot m=-1 \qed
+\end{align*}
+
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 19 (p 40) ......
+-->
+<h6 id="autosec-89">VBTL oefening 19 (p 40)</h6>
+<a id="mkpiweb-autopage-89"></a>
+
+
+<p>
+De raaklijnen aan de parabool \(\mathcal {P} \leftrightarrow y^2=4x\) in \(A(4,4)\) en in \(B(1,-2)\) snijden elkaar in \(S\). \(M\) is het midden van \([SA]\) en \(N\) het midden van \([SB]\). Toon aan dat \(MN\) een
+raaklijn is aan \(\mathcal {P}\).
+</p>
+<div class="oplossing">
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-12"
+    class="lateximagesource"
+><!--
+            y
+                             t1
+                        MN
+                             A
+
+                M
+
+S
+                R
+                                  x
+        O           F
+    N
+
+                    B
+                        t2   P
+--><img
+    src="mkpiweb-images/image-12.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+t.b.:
+</p>
+
+<p>
+\[ MN \text { is raaklijn aan } \mathcal {P} \qquad (y^2=4x \Rightarrow p=2) \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                     (                                 (                   (
+                                                                         t1 ↔ 4y = 2(x + 4)                2y = x + 4       −2x − 2 = x + 4
+                                                                 S                                ⇐⇒                    ⇐⇒
+                                                                         t2 ↔ −2y = 2(x + 1)               y = −x − 1       y = −x − 1
+                                                                                                       (
+                                                                                                           x = −2
+                                                                                                  ⇐⇒
+                                                                                                           y=1
+                                                                                                 ⇒ S(−2, 1)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+S \begin{cases} t_1 \leftrightarrow 4y=2(x+4) \\ t_2 \leftrightarrow -2y=2(x+1) \end {cases} &amp;\iff \begin{cases} 2y=x+4 \\ y=-x-1 \end {cases} \iff \begin{cases} -2x-2=x+4 \\ y=-x-1 \end
+{cases} \\ &amp;\iff \begin{cases} x=-2 \\ y=1 \end {cases} \\ &amp;\Rightarrow S(-2,1)
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                              5         1 1
+                                                                                         ⇒ M 1,     en N − , −
+                                                                                                2            2 2
+                                                                                                           5
+                                                                                                      1       + 1 1
+                                                                                         ⇒ M N ↔ y + = 2 12 x +
+                                                                                                      2   1+ 2     2
+                                                                                                  1         1 
+                                                                                         ⇐⇒ y + = 2 x +
+                                                                                                  2          2
+                                                                                                  1
+                                                                                         ⇐⇒ y + = 2x + 1
+                                                                                                  2
+                                                                                         ⇐⇒ 4x − 2y + 1 = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Rightarrow M\Bigl (1,\frac {5}{2}\Bigr ) \text { en } N\Bigl (-\frac {1}{2},-\frac {1}{2}\Bigr ) \\ &amp;\Rightarrow MN \leftrightarrow y+\frac {1}{2}=\frac {\frac {5}{2}+\frac
+{1}{2}}{1+\frac {1}{2}}\Bigl (x+\frac {1}{2}\Bigr ) \\ &amp;\iff y+\frac {1}{2}=2\Bigl (x+\frac {1}{2}\Bigr ) \\ &amp;\iff y+\frac {1}{2}=2x+1 \\ &amp;\iff 4x-2y+1=0
+\end{align*}
+We gaan na hoeveel punten \(MN\) en \(\mathcal {P}\) gemeenschappelijk hebben:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                     (                            (
+                                                                      y 2 = 4x                     y 2 = 4x
+                                                                                               ⇐⇒                          D=0
+                                                                      4x − 2y + 1 = 0              y 2 − 2y + 1 = 0
+                                                                                           ⇒ 1 oplossing
+                                                                                                                                     1     
+                                                                                           ⇒ 1 gemeenschappelijk punt = raakpunt R        ,1
+                                                                                                                                      4
+                                                                                           ⇒ M N is raaklijn aan P□
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\begin{cases} y^2=4x \\ 4x-2y+1=0 \end {cases} &amp;\iff \begin{cases} y^2=4x \\ y^2-2y+1=0 \end {cases} \qquad D=0 \\ &amp;\Rightarrow 1 \text { oplossing} \\ &amp;\Rightarrow 1 \text {
+gemeenschappelijk punt} = \text {raakpunt } R\Bigl (\frac {1}{4},1\Bigr ) \\ &amp;\Rightarrow MN \text { is raaklijn aan } \mathcal {P} \qed
+\end{align*}
+
+</p>
+</div>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=56999104d71b"></script>
+<script src="vendor/jsxgraphcore.js?v=56999104d71b"></script>
+<script src="interactieve-grafieken.js?v=56999104d71b"></script>
+<script src="hoofdstuk.interactief.js?v=56999104d71b"></script>
+</body>
+</html>

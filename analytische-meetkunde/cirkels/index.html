@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>De cirkel</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=d7b7f964400d" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=9954dbe18065" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -263,6 +263,8 @@ MathJax = {
 <meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=9954dbe18065" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=9954dbe18065" />
 </head>
 <body>
 
@@ -445,6 +447,10 @@ MathJax = {
 \(\newcommand {\scriptsize }{}\)
 
 \(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
 
 \(\newcommand {\markeerterm }[2]{#2}\)
 
@@ -859,6 +865,11 @@ Als het middelpunt \(M\) is en de straal \(r\), dan noteren we:
 -->
 <h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Figuur</h5>
 <a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="cirkel-definitie" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
 <div class="center">
 
 <p>
@@ -883,6 +894,11 @@ M (xM , yM )
 </p>
 </div>
 
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\). Telkens \(P\) op afstand \(r\) van \(M\) komt, blijft er een stip achter: zo ontstaat de cirkel uit de definitie.
+Toon daarna de cirkel om te controleren, of versleep \(M\).</figcaption> </figure>
+</p>
+
 
 <div class="aside">
 
@@ -905,6 +921,10 @@ Een punt behoort tot de cirkel als en slechts als zijn afstand tot het middelpun
 
 <p>
 We kiezen een orthonormaal assenstelsel:
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="cirkel-vergelijking" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
 </p>
 <div class="center">
 
@@ -933,6 +953,11 @@ y
 ></span>
 </p>
 </div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(M\) en \(P\) over het rooster. De rechthoekszijden \(x-x_M\) en \(y-y_M\) en de straal \(r\) vormen een
+rechthoekige driehoek, dus \((x-x_M)^2+(y-y_M)^2=r^2\). Laat \(P\) rondgaan: de zijden veranderen, de som van hun kwadraten niet.</figcaption> </figure>
+</p>
 <table>
 
 <tr style="display:none"><th>.</th></tr>
@@ -977,8 +1002,8 @@ y
 <p>
 
 \begin{align*}
-P(x,y) &amp;\in \mathcal {C}(M,r) \\ &amp;\Leftrightarrow d(P,M)=r \\ &amp;\Leftrightarrow \sqrt {(x-x_M)^2+(y-y_M)^2}=r &amp;&amp; \text {\shortstack [l]{BV: OK\\KV: $r\ge 0$, want afstand}}
-\\ &amp;\Leftrightarrow \boxed {(x-x_M)^2+(y-y_M)^2=r^2} &amp;&amp; \leftrightarrow \mathcal {C}(M,r)
+P(x,y) &amp;\in \mathcal {C}(M,r) \\ &amp;\Leftrightarrow d(P,M)=r \\ &amp;\Leftrightarrow \sqrt {(x-x_M)^2+(y-y_M)^2}=r &amp;&amp; \shortstack [l]{\text {BV: OK}\\\text {KV: $r\ge 0$, want
+afstand}} \\ &amp;\Leftrightarrow \boxed {(x-x_M)^2+(y-y_M)^2=r^2} &amp;&amp; \leftrightarrow \mathcal {C}(M,r)
 \end{align*}
 
 </p>
@@ -1366,7 +1391,7 @@ Geef \(M\) en \(r\) van de cirkel met vgl.
 </p>
 
 <p>
-\[ \left \{ \begin {aligned} 2a&amp;=-4 &amp;&amp;\Rightarrow a=-2\\ 2b&amp;=-16 &amp;&amp;\Rightarrow b=-8\\ c&amp;=43 \end {aligned} \right .          \]
+\[ \left \{ \begin {aligned} 2a&amp;=-4 &amp;&amp;\Rightarrow a=-2\\ 2b&amp;=-16 &amp;&amp;\Rightarrow b=-8\\ c&amp;=43 \end {aligned} \right .                        \]
 </p>
 
 <p>
@@ -1391,9 +1416,9 @@ Geef \(M\) en \(r\) van de cirkel met vgl.
 
 
 
-                                                                                                                   x2 − 4x + y 2 − 16y = −43
-                                                        ⇔                                              (x2 − 4x + 4) + (y 2 − 16y + 64) = −43 + 4 + 64
-                                                        ⇔                                                          (x − 2)2 + (y − 8)2 = 25
+                                                                                                                                 x2 − 4x + y 2 − 16y = −43
+                                                         ⇔                                                           (x2 − 4x + 4) + (y 2 − 16y + 64) = −43 + 4 + 64
+                                                         ⇔                                                                       (x − 2)2 + (y − 8)2 = 25
 
 
 
@@ -1416,6 +1441,41 @@ Geef \(M\) en \(r\) van de cirkel met vgl.
 </div>
 </p>
 
+<p>
+<figure class="interactieve-grafiek" data-grafiek="algemene-vorm" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+    y
+
+                 x2 + y 2 − 4x − 16y + 43 = 0
+
+M (2, 8)
+           r=5
+
+
+
+
+                     x
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(M\) om \(a\) en \(b\) te veranderen, en verander \(c\) met de knoppen. Zolang \(a^2+b^2-c&gt;0\) is er een
+cirkel met \(r=\sqrt {a^2+b^2-c}\); bij \(0\) blijft enkel \(M\) over, daaronder voldoet geen enkel punt.</figcaption> </figure>
+</p>
+
 <div class="cursus-oefening">
 
 <p>
@@ -1424,8 +1484,8 @@ Geef \(M\) en \(r\) van de cirkel met vgl.
 <!--
 ...... subsubsection Oefening 4 ......
 -->
-<h6 id="autosec-27">Oefening 4</h6>
-<a id="mkpiweb-autopage-27"></a>
+<h6 id="autosec-30">Oefening 4</h6>
+<a id="mkpiweb-autopage-30"></a>
 
 
 <p>
@@ -1477,8 +1537,8 @@ Bepaal middelpunt en straal van:
 <!--
 ...... subsubsection Oefening 5 ......
 -->
-<h6 id="autosec-28">Oefening 5</h6>
-<a id="mkpiweb-autopage-28"></a>
+<h6 id="autosec-31">Oefening 5</h6>
+<a id="mkpiweb-autopage-31"></a>
 
 
 <p>
@@ -1568,13 +1628,13 @@ Stel de vergelijking op in algemene vorm, van de cirkel met middelpunt \(M(2,5)\
 <!--
 ...... section Raaklijn aan een cirkel ......
 -->
-<h4 id="autosec-29"><span class="sectionnumber">IV&#x2003;</span>Raaklijn aan een cirkel</h4>
-<a id="mkpiweb-autopage-29"></a>
+<h4 id="autosec-32"><span class="sectionnumber">IV&#x2003;</span>Raaklijn aan een cirkel</h4>
+<a id="mkpiweb-autopage-32"></a>
 <!--
 ...... subsection Eigenschap ......
 -->
-<h5 id="autosec-30"><span class="sectionnumber">1&#x2003;</span>Eigenschap</h5>
-<a id="mkpiweb-autopage-30"></a>
+<h5 id="autosec-33"><span class="sectionnumber">1&#x2003;</span>Eigenschap</h5>
+<a id="mkpiweb-autopage-33"></a>
 
 
 <p>
@@ -1587,16 +1647,13 @@ De raaklijn aan een cirkel in een punt \(D\) staat loodrecht op de straal door d
 <!--
 ...... subsection Raaklijn aan in een punt ......
 -->
-<h5 id="autosec-31"><span class="sectionnumber">2&#x2003;</span>Raaklijn aan \(\mathcal {C}(O,r)\) in een punt \(D(x_1,y_1)\)</h5>
-<a id="mkpiweb-autopage-31"></a>
-<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:268pt ; ">
-
-<a id="mkpiweb-autopage-32"></a>
+<h5 id="autosec-34"><span class="sectionnumber">2&#x2003;</span>Raaklijn aan \(\mathcal {C}(O,r)\) in een punt \(D(x_1,y_1)\)</h5>
+<a id="mkpiweb-autopage-34"></a>
 <!--
 ...... subsubsection Gegeven ......
 -->
-<h6 id="autosec-33"><span class="sectionnumber">&#x2003;</span>Gegeven</h6>
-<a id="mkpiweb-autopage-33"></a>
+<h6 id="autosec-35"><span class="sectionnumber">&#x2003;</span>Gegeven</h6>
+<a id="mkpiweb-autopage-35"></a>
 
 
 <p>
@@ -1609,27 +1666,21 @@ De raaklijn aan een cirkel in een punt \(D\) staat loodrecht op de straal door d
 <!--
 ...... subsubsection Gevraagd ......
 -->
-<h6 id="autosec-34"><span class="sectionnumber">&#x2003;</span>Gevraagd</h6>
-<a id="mkpiweb-autopage-34"></a>
+<h6 id="autosec-36"><span class="sectionnumber">&#x2003;</span>Gevraagd</h6>
+<a id="mkpiweb-autopage-36"></a>
 
 
 <p>
 Vergelijking van de raaklijn \(t\) in \(D\) aan \(\mathcal {C}(O;r)\).
 </p>
 
-
-</div>
-
-&#x2003;
-
-&#x2003;
-<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:203pt ; ">
-
-<a id="mkpiweb-autopage-35"></a>
+<p>
+<figure class="interactieve-grafiek" data-grafiek="raaklijn-cirkel" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
 
 <p>
 <span
-    id="lateximage-mkpiweb-4"
+    id="lateximage-mkpiweb-5"
     class="lateximagesource"
 ><!--
     y
@@ -1642,20 +1693,22 @@ C       D(x1 , y1 )
     O                 x
          r       t
 --><img
-    src="mkpiweb-images/image-4.svg"
+    src="mkpiweb-images/image-5.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
 ></span>
 </p>
 
-
-</div>
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(D\) over de cirkel: de raaklijn \(t\) blijft loodrecht op de straal. Op een roosterpunt springt \(D\) vast, zodat \(t
+\leftrightarrow x_1x+y_1y=r^2\) met gehele getallen uitkomt. Het punt rechts op de cirkel verandert \(r^2\); met Middelpunt verschuiven wordt het de algemene formule.</figcaption> </figure>
+</p>
 <!--
 ...... subsubsection Oplossing ......
 -->
-<h6 id="autosec-38"><span class="sectionnumber">&#x2003;</span>Oplossing</h6>
-<a id="mkpiweb-autopage-38"></a>
+<h6 id="autosec-39"><span class="sectionnumber">&#x2003;</span>Oplossing</h6>
+<a id="mkpiweb-autopage-39"></a>
 
 
 <p>
@@ -1726,8 +1779,8 @@ C       D(x1 , y1 )
 <!--
 ...... subsection Voorbeeld ......
 -->
-<h5 id="autosec-39"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
-<a id="mkpiweb-autopage-39"></a>
+<h5 id="autosec-40"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-40"></a>
 
 
 <p>
@@ -1754,8 +1807,8 @@ Gegeven \(\mathcal {C} \leftrightarrow x^2+y^2=25\), bepaal de raaklijn in \(D(4
 <!--
 ...... subsubsection Oefening 6 ......
 -->
-<h6 id="autosec-40">Oefening 6</h6>
-<a id="mkpiweb-autopage-40"></a>
+<h6 id="autosec-41">Oefening 6</h6>
+<a id="mkpiweb-autopage-41"></a>
 
 
 <p>
@@ -1860,8 +1913,8 @@ Dus \(D(2,3)\) ligt op de cirkel.
 <!--
 ...... subsubsection Oefening 7 ......
 -->
-<h6 id="autosec-41">Oefening 7</h6>
-<a id="mkpiweb-autopage-41"></a>
+<h6 id="autosec-42">Oefening 7</h6>
+<a id="mkpiweb-autopage-42"></a>
 
 
 <p>
@@ -2017,8 +2070,8 @@ Bepaal de raaklijn in \(A\) aan \(\mathcal {C}\) als:
 <!--
 ...... subsection Algemene formule ......
 -->
-<h5 id="autosec-42"><span class="sectionnumber">4&#x2003;</span>Algemene formule</h5>
-<a id="mkpiweb-autopage-42"></a>
+<h5 id="autosec-43"><span class="sectionnumber">4&#x2003;</span>Algemene formule</h5>
+<a id="mkpiweb-autopage-43"></a>
 
 
 <p>
@@ -2056,13 +2109,13 @@ Deze formule zegt in feite opnieuw dat de normaalvector van de raaklijn de richt
 <!--
 ...... section Functioneel verloop van de cirkel ......
 -->
-<h4 id="autosec-43"><span class="sectionnumber">V&#x2003;</span>Functioneel verloop van de cirkel</h4>
-<a id="mkpiweb-autopage-43"></a>
+<h4 id="autosec-44"><span class="sectionnumber">V&#x2003;</span>Functioneel verloop van de cirkel</h4>
+<a id="mkpiweb-autopage-44"></a>
 <!--
 ...... subsection Een cirkel is geen functie ......
 -->
-<h5 id="autosec-44"><span class="sectionnumber">1&#x2003;</span>Een cirkel is geen functie</h5>
-<a id="mkpiweb-autopage-44"></a>
+<h5 id="autosec-45"><span class="sectionnumber">1&#x2003;</span>Een cirkel is geen functie</h5>
+<a id="mkpiweb-autopage-45"></a>
 
 
 <p>
@@ -2103,8 +2156,8 @@ Daarom beschrijven we de cirkel met twee functies:
 <!--
 ...... subsection Nulwaarden ......
 -->
-<h5 id="autosec-45"><span class="sectionnumber">2&#x2003;</span>Nulwaarden</h5>
-<a id="mkpiweb-autopage-45"></a>
+<h5 id="autosec-46"><span class="sectionnumber">2&#x2003;</span>Nulwaarden</h5>
+<a id="mkpiweb-autopage-46"></a>
 
 
 <p>
@@ -2113,8 +2166,8 @@ Daarom beschrijven we de cirkel met twee functies:
 <!--
 ...... subsection Tekenverloop ......
 -->
-<h5 id="autosec-46"><span class="sectionnumber">3&#x2003;</span>Tekenverloop</h5>
-<a id="mkpiweb-autopage-46"></a>
+<h5 id="autosec-47"><span class="sectionnumber">3&#x2003;</span>Tekenverloop</h5>
+<a id="mkpiweb-autopage-47"></a>
 
 
 <p>
@@ -2124,8 +2177,8 @@ Daarom beschrijven we de cirkel met twee functies:
 <!--
 ...... subsection Domein ......
 -->
-<h5 id="autosec-47"><span class="sectionnumber">4&#x2003;</span>Domein</h5>
-<a id="mkpiweb-autopage-47"></a>
+<h5 id="autosec-48"><span class="sectionnumber">4&#x2003;</span>Domein</h5>
+<a id="mkpiweb-autopage-48"></a>
 
 
 <p>
@@ -2134,8 +2187,8 @@ Daarom beschrijven we de cirkel met twee functies:
 <!--
 ...... subsection Symmetrie ......
 -->
-<h5 id="autosec-48"><span class="sectionnumber">5&#x2003;</span>Symmetrie</h5>
-<a id="mkpiweb-autopage-48"></a>
+<h5 id="autosec-49"><span class="sectionnumber">5&#x2003;</span>Symmetrie</h5>
+<a id="mkpiweb-autopage-49"></a>
 
 
 <p>
@@ -2148,8 +2201,8 @@ Daarom beschrijven we de cirkel met twee functies:
 <!--
 ...... subsection Continuıteit ......
 -->
-<h5 id="autosec-49"><span class="sectionnumber">6&#x2003;</span>Continuı&#x0308;teit</h5>
-<a id="mkpiweb-autopage-49"></a>
+<h5 id="autosec-50"><span class="sectionnumber">6&#x2003;</span>Continuı&#x0308;teit</h5>
+<a id="mkpiweb-autopage-50"></a>
 
 
 <p>
@@ -2158,8 +2211,8 @@ Daarom beschrijven we de cirkel met twee functies:
 <!--
 ...... subsection Asymptoten ......
 -->
-<h5 id="autosec-50"><span class="sectionnumber">7&#x2003;</span>Asymptoten</h5>
-<a id="mkpiweb-autopage-50"></a>
+<h5 id="autosec-51"><span class="sectionnumber">7&#x2003;</span>Asymptoten</h5>
+<a id="mkpiweb-autopage-51"></a>
 
 
 <dl class="description" >
@@ -2188,8 +2241,8 @@ geen! (idem HA)
 <!--
 ...... subsection Stijgen - dalen ......
 -->
-<h5 id="autosec-51"><span class="sectionnumber">8&#x2003;</span>Stijgen &amp; dalen</h5>
-<a id="mkpiweb-autopage-51"></a>
+<h5 id="autosec-52"><span class="sectionnumber">8&#x2003;</span>Stijgen &amp; dalen</h5>
+<a id="mkpiweb-autopage-52"></a>
 
 
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -2236,8 +2289,8 @@ f_1&apos;(x) &amp; = \frac {1}{2}\cdot \frac {(r^2-x^2)&apos;}{\sqrt {r^2-x^2}} 
 <!--
 ...... subsection Hol - bol ......
 -->
-<h5 id="autosec-52"><span class="sectionnumber">9&#x2003;</span>Hol &amp; bol</h5>
-<a id="mkpiweb-autopage-52"></a>
+<h5 id="autosec-53"><span class="sectionnumber">9&#x2003;</span>Hol &amp; bol</h5>
+<a id="mkpiweb-autopage-53"></a>
 
 
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -2290,13 +2343,18 @@ En analoog voor \(f_2\) \(\Rightarrow \) onder de \(x\)-as &#x202f;(\(f_2=-f_1\)
 <!--
 ...... subsection Grafiek ......
 -->
-<h5 id="autosec-53"><span class="sectionnumber">10&#x2003;</span>Grafiek</h5>
-<a id="mkpiweb-autopage-53"></a>
+<h5 id="autosec-54"><span class="sectionnumber">10&#x2003;</span>Grafiek</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="halve-cirkels" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
 <div class="center">
 
 <p>
 <span
-    id="lateximage-mkpiweb-5"
+    id="lateximage-mkpiweb-6"
     class="lateximagesource"
 ><!--
           y
@@ -2314,13 +2372,18 @@ En analoog voor \(f_2\) \(\Rightarrow \) onder de \(x\)-as &#x202f;(\(f_2=-f_1\)
               f2
      −r
 --><img
-    src="mkpiweb-images/image-5.svg"
+    src="mkpiweb-images/image-6.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
 ></span>
 </p>
 </div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x\) over de \(x\)-as: de verticale rechte snijdt de cirkel in twee punten, dus bij één \(x\) horen twee
+\(y\)-waarden. De raaklijn aan de grafiek van \(f_1\) toont het teken van \(f_1&apos;(x)\). Het punt \(r\) verandert de straal.</figcaption> </figure>
+</p>
 
 <div class="cursus-oefening">
 
@@ -2330,8 +2393,8 @@ En analoog voor \(f_2\) \(\Rightarrow \) onder de \(x\)-as &#x202f;(\(f_2=-f_1\)
 <!--
 ...... subsubsection Oefening 8 ......
 -->
-<h6 id="autosec-57">Oefening 8</h6>
-<a id="mkpiweb-autopage-57"></a>
+<h6 id="autosec-58">Oefening 8</h6>
+<a id="mkpiweb-autopage-58"></a>
 
 
 <ul class="enumerate" style="list-style-type:none">
@@ -2369,28 +2432,32 @@ En analoog voor \(f_2\) \(\Rightarrow \) onder de \(x\)-as &#x202f;(\(f_2=-f_1\)
 <!--
 ...... section Parametervoorstelling ......
 -->
-<h4 id="autosec-58"><span class="sectionnumber">VI&#x2003;</span>Parametervoorstelling</h4>
-<a id="mkpiweb-autopage-58"></a>
+<h4 id="autosec-59"><span class="sectionnumber">VI&#x2003;</span>Parametervoorstelling</h4>
+<a id="mkpiweb-autopage-59"></a>
 <!--
 ...... subsection M = O(0,0) ......
 -->
-<h5 id="autosec-59"><span class="sectionnumber">1&#x2003;</span>M = O(0,0)</h5>
-<a id="mkpiweb-autopage-59"></a>
+<h5 id="autosec-60"><span class="sectionnumber">1&#x2003;</span>M = O(0,0)</h5>
+<a id="mkpiweb-autopage-60"></a>
 <!--
-......   paragraph Figuur:   ......
+......   paragraph Figuur:    ......
 -->
 
 
 <p>
-<span class="paragraph" id="autosec-60">Figuur:</span>
-<a id="mkpiweb-autopage-60"></a>
+<span class="paragraph" id="autosec-61">Figuur:</span>
+<a id="mkpiweb-autopage-61"></a>
 
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="parameter-oorsprong" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
 </p>
 <div class="center">
 
 <p>
 <span
-    id="lateximage-mkpiweb-6"
+    id="lateximage-mkpiweb-7"
     class="lateximagesource"
 ><!--
     y
@@ -2403,21 +2470,26 @@ En analoog voor \(f_2\) \(\Rightarrow \) onder de \(x\)-as &#x202f;(\(f_2=-f_1\)
                           x
 O           x Q
 --><img
-    src="mkpiweb-images/image-6.svg"
+    src="mkpiweb-images/image-7.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
 ></span>
 </p>
 </div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\) over de cirkel en volg \(x=r\cos t\) en \(y=r\sin t\) in de rechthoekige driehoek \(OQP\), of laat \(t\) van
+\(0\) tot \(2\pi \) lopen. Het punt \(L\) verandert de straal.</figcaption> </figure>
+</p>
 <!--
 ......   paragraph Gegeven:     ......
 -->
 
 
 <p>
-<span class="paragraph" id="autosec-64">Gegeven:</span>
-<a id="mkpiweb-autopage-64"></a>
+<span class="paragraph" id="autosec-65">Gegeven:</span>
+<a id="mkpiweb-autopage-65"></a>
 
 </p>
 
@@ -2442,8 +2514,8 @@ O           x Q
 
 
 <p>
-<span class="paragraph" id="autosec-65">Opstellen formule:</span>
-<a id="mkpiweb-autopage-65"></a>
+<span class="paragraph" id="autosec-66">Opstellen formule:</span>
+<a id="mkpiweb-autopage-66"></a>
 \(\triangle OPQ\) is rechthoekig \(\Rightarrow \)
 </p>
 
@@ -2456,8 +2528,8 @@ O           x Q
 
 
 <p>
-<span class="paragraph" id="autosec-66">Controle:</span>
-<a id="mkpiweb-autopage-66"></a>
+<span class="paragraph" id="autosec-67">Controle:</span>
+<a id="mkpiweb-autopage-67"></a>
 Voldoet dit aan \((1)\)?
 </p>
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -2490,8 +2562,8 @@ x^2+y^2 &amp;= r^2\cos ^2 t+r^2\sin ^2 t \\ &amp;= r^2(\cos ^2 t+\sin ^2 t) \\ &
 
 
 <p>
-<span class="paragraph" id="autosec-67">Stelsel parameter vergelijking (parvgl):</span>
-<a id="mkpiweb-autopage-67"></a>
+<span class="paragraph" id="autosec-68">Stelsel parameter vergelijking (parvgl):</span>
+<a id="mkpiweb-autopage-68"></a>
 
 </p>
 
@@ -2501,8 +2573,8 @@ x^2+y^2 &amp;= r^2\cos ^2 t+r^2\sin ^2 t \\ &amp;= r^2(\cos ^2 t+\sin ^2 t) \\ &
 <!--
 ...... subsection Algemeen geval ......
 -->
-<h5 id="autosec-68"><span class="sectionnumber">2&#x2003;</span>Algemeen geval</h5>
-<a id="mkpiweb-autopage-68"></a>
+<h5 id="autosec-69"><span class="sectionnumber">2&#x2003;</span>Algemeen geval</h5>
+<a id="mkpiweb-autopage-69"></a>
 
 
 <p>
@@ -2527,13 +2599,18 @@ We krijgen:
 <!--
 ...... subsection Figuur ......
 -->
-<h5 id="autosec-69"><span class="sectionnumber">3&#x2003;</span>Figuur</h5>
-<a id="mkpiweb-autopage-69"></a>
+<h5 id="autosec-70"><span class="sectionnumber">3&#x2003;</span>Figuur</h5>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="parameter-algemeen" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
 <div class="center">
 
 <p>
 <span
-    id="lateximage-mkpiweb-7"
+    id="lateximage-mkpiweb-8"
     class="lateximagesource"
 ><!--
        y
@@ -2547,13 +2624,18 @@ M (xM , yM )
                r cos t
                                    x
 --><img
-    src="mkpiweb-images/image-7.svg"
+    src="mkpiweb-images/image-8.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
 ></span>
 </p>
 </div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(M\) over het rooster en \(P\) over de cirkel. De cirkel rond \(O\) met het punt \(P_0\) toont de verschuiving:
+\(P\) is \(P_0\), verschoven over \((x_M,y_M)\). Het punt rechts van \(M\) verandert de straal.</figcaption> </figure>
+</p>
 
 <div class="cursus-oefening">
 
@@ -2563,8 +2645,8 @@ M (xM , yM )
 <!--
 ...... subsubsection Oefening 9 ......
 -->
-<h6 id="autosec-73">Oefening 9</h6>
-<a id="mkpiweb-autopage-73"></a>
+<h6 id="autosec-74">Oefening 9</h6>
+<a id="mkpiweb-autopage-74"></a>
 
 
 <p>
@@ -2582,18 +2664,18 @@ in parametervorm.
 <!--
 ...... section Toepassingen ......
 -->
-<h4 id="autosec-74"><span class="sectionnumber">VII&#x2003;</span>Toepassingen</h4>
-<a id="mkpiweb-autopage-74"></a>
+<h4 id="autosec-75"><span class="sectionnumber">VII&#x2003;</span>Toepassingen</h4>
+<a id="mkpiweb-autopage-75"></a>
 <!--
 ...... subsection Van algemene vorm naar middelpunt en straal ......
 -->
-<h5 id="autosec-75"><span class="sectionnumber">1&#x2003;</span>Van algemene vorm naar middelpunt en straal</h5>
-<a id="mkpiweb-autopage-75"></a>
+<h5 id="autosec-76"><span class="sectionnumber">1&#x2003;</span>Van algemene vorm naar middelpunt en straal</h5>
+<a id="mkpiweb-autopage-76"></a>
 <!--
 ...... subsubsection Voorbeeld 1 ......
 -->
-<h6 id="autosec-76"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
-<a id="mkpiweb-autopage-76"></a>
+<h6 id="autosec-77"><span class="sectionnumber">&#x2003;</span>Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-77"></a>
 
 
 <p>
@@ -2650,8 +2732,8 @@ Dus:
 <!--
 ...... subsubsection Voorbeeld 2 ......
 -->
-<h6 id="autosec-77"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
-<a id="mkpiweb-autopage-77"></a>
+<h6 id="autosec-78"><span class="sectionnumber">&#x2003;</span>Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-78"></a>
 
 
 <p>
@@ -2704,8 +2786,8 @@ en de vergelijking wordt:
 <!--
 ...... subsection Raaklijn via afstand van punt tot rechte ......
 -->
-<h5 id="autosec-78"><span class="sectionnumber">2&#x2003;</span>Raaklijn via afstand van punt tot rechte</h5>
-<a id="mkpiweb-autopage-78"></a>
+<h5 id="autosec-79"><span class="sectionnumber">2&#x2003;</span>Raaklijn via afstand van punt tot rechte</h5>
+<a id="mkpiweb-autopage-79"></a>
 
 
 <p>
@@ -2727,8 +2809,8 @@ Dit criterium is vaak de snelste manier om te controleren of een rechte raaklijn
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-79"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
-<a id="mkpiweb-autopage-79"></a>
+<h6 id="autosec-80"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-80"></a>
 
 
 <p>
@@ -2775,6 +2857,41 @@ Dus:
 en daarom is \(a\) een raaklijn. </div>
 </p>
 
+<p>
+<figure class="interactieve-grafiek" data-grafiek="afstand-rechte" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+     y
+
+
+
+
+M (1, 3)                  a
+
+
+           d
+                              x
+               H(4, −1)
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(A\) en \(B\) over het rooster. De loodlijn uit \(M\) op \(a\) geeft \(d(M,a)\): kleiner dan \(r\) geeft twee
+snijpunten, gelijk aan \(r\) een raakpunt \(H\), groter dan \(r\) geen gemeenschappelijk punt.</figcaption> </figure>
+</p>
+
 <div class="cursus-oefening">
 
 <p>
@@ -2783,8 +2900,8 @@ en daarom is \(a\) een raaklijn. </div>
 <!--
 ...... subsubsection Oefening 10 ......
 -->
-<h6 id="autosec-80">Oefening 10</h6>
-<a id="mkpiweb-autopage-80"></a>
+<h6 id="autosec-84">Oefening 10</h6>
+<a id="mkpiweb-autopage-84"></a>
 
 
 <p>
@@ -2933,8 +3050,8 @@ is de rechte geen raaklijn.
 <!--
 ...... subsubsection Oefening 11 ......
 -->
-<h6 id="autosec-81">Oefening 11</h6>
-<a id="mkpiweb-autopage-81"></a>
+<h6 id="autosec-85">Oefening 11</h6>
+<a id="mkpiweb-autopage-85"></a>
 
 
 <p>
@@ -3015,8 +3132,8 @@ De vergelijking van de cirkel is:
 <!--
 ...... subsubsection Oefening 12 ......
 -->
-<h6 id="autosec-82">Oefening 12</h6>
-<a id="mkpiweb-autopage-82"></a>
+<h6 id="autosec-86">Oefening 12</h6>
+<a id="mkpiweb-autopage-86"></a>
 
 
 <p>
@@ -3113,29 +3230,65 @@ Dus de raaklijnen zijn:
 \[ \boxed {y=3x-12 \quad \text {en} \quad y=3x+8} \]
 </p>
 
+<p>
+<figure class="interactieve-grafiek" data-grafiek="evenwijdige-raaklijnen" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+             y
+                     y = 3x − 12
+
+
+
+
+                 M                 x
+
+
+
+
+y = 3x + 8
+--><img
+    src="mkpiweb-images/image-10.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep de rechte \(y=3x+m\), of verander \(m\) met de knoppen. De discriminant van \(10x^2+(6m-8)x+m^2-2m-8=0\)
+beslist: twee snijpunten, één raakpunt of geen gemeenschappelijk punt. De gegeven rechte staat in stippellijn.</figcaption> </figure>
+</p>
+
 </div>
 
 </div>
 <!--
 ...... subsection Omgeschreven cirkel van een driehoek ......
 -->
-<h5 id="autosec-83"><span class="sectionnumber">3&#x2003;</span>Omgeschreven cirkel van een driehoek</h5>
-<a id="mkpiweb-autopage-83"></a>
+<h5 id="autosec-90"><span class="sectionnumber">3&#x2003;</span>Omgeschreven cirkel van een driehoek</h5>
+<a id="mkpiweb-autopage-90"></a>
 <!--
 ......   paragraph Methode ......
 -->
 
 
 <p>
-<span class="paragraph" id="autosec-84">Methode</span>
-<a id="mkpiweb-autopage-84"></a>
+<span class="paragraph" id="autosec-91">Methode</span>
+<a id="mkpiweb-autopage-91"></a>
 De omgeschreven cirkel van een driehoek gaat door de drie hoekpunten. Het middelpunt is het snijpunt van twee middelloodlijnen van de zijden.
 </p>
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-85"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
-<a id="mkpiweb-autopage-85"></a>
+<h6 id="autosec-92"><span class="sectionnumber">&#x2003;</span>Voorbeeld</h6>
+<a id="mkpiweb-autopage-92"></a>
 
 
 <p>
@@ -3278,6 +3431,42 @@ De gezochte cirkel is:
 </div>
 </p>
 
+<p>
+<figure class="interactieve-grafiek" data-grafiek="omgeschreven-cirkel" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-11"
+    class="lateximagesource"
+><!--
+             y
+
+
+
+                   A(5, 6)
+
+
+        M (1, 3)
+
+                             x
+                   C(5, 0)
+B(−2, −1)
+--><img
+    src="mkpiweb-images/image-11.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(A\), \(B\) en \(C\) over het rooster. De middelloodlijnen van \([AB]\) en \([BC]\) snijden in \(M\), en de cirkel
+rond \(M\) gaat door alle drie de hoekpunten. Toon ook de middelloodlijn van \([AC]\): ze gaat door hetzelfde punt \(M\).</figcaption> </figure>
+</p>
+
 <div class="cursus-oefening">
 
 <p>
@@ -3286,8 +3475,8 @@ De gezochte cirkel is:
 <!--
 ...... subsubsection Oefening 13 ......
 -->
-<h6 id="autosec-86">Oefening 13</h6>
-<a id="mkpiweb-autopage-86"></a>
+<h6 id="autosec-96">Oefening 13</h6>
+<a id="mkpiweb-autopage-96"></a>
 
 
 <p>
@@ -3515,8 +3704,8 @@ De vergelijking van de omgeschreven cirkel is:
 <!--
 ...... subsubsection Oefening 14 ......
 -->
-<h6 id="autosec-87">Oefening 14</h6>
-<a id="mkpiweb-autopage-87"></a>
+<h6 id="autosec-97">Oefening 14</h6>
+<a id="mkpiweb-autopage-97"></a>
 
 
 <p>
@@ -3553,6 +3742,9 @@ Gegeven: \(A(5,6)\), \(B(-2,-1)\) en \(C(5,0)\)
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=d7b7f964400d"></script>
+<script src="presentatie.js?v=9954dbe18065"></script>
+<script src="vendor/jsxgraphcore.js?v=9954dbe18065"></script>
+<script src="interactieve-grafieken.js?v=9954dbe18065"></script>
+<script src="hoofdstuk.interactief.js?v=9954dbe18065"></script>
 </body>
 </html>

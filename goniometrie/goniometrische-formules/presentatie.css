@@ -1440,6 +1440,51 @@ div.marginparblock img {
   opacity: .65;
 }
 
+/* De schuifregelaar van een figuur met een parameter staat onder de figuur,
+ * zodat hij niets van de tekening bedekt. In de stand Groot neemt het iframe
+ * de rest van de hoogte. */
+.pres-figuur .pres-figuurschuif {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  width: min(24rem, calc(100% - 1rem));
+  box-sizing: border-box;
+  margin: 0 auto .5rem;
+  padding: .3rem .7rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-vlak-zweef);
+  color: var(--kleur-tekst);
+  font-family: serif;
+  font-size: 1.1rem;
+}
+
+.pres-figuur-groot.pres-met-schuif {
+  display: flex;
+  flex-direction: column;
+}
+
+.pres-figuur-groot.pres-met-schuif iframe {
+  flex: 1;
+  min-height: 0;
+  height: auto !important;
+}
+
+.pres-figuurschuif-naam {
+  font-style: italic;
+}
+
+.pres-figuurschuif input {
+  flex: 1;
+  min-width: 0;
+  accent-color: var(--kleur-accent);
+}
+
+.pres-figuurschuif-waarde {
+  min-width: 3.2em;
+  font-variant-numeric: tabular-nums;
+}
+
 .pres-figuurbalk .pres-figuur-grootknop {
   margin-left: .45rem;
 }
@@ -1510,6 +1555,29 @@ div.marginparblock img {
 
 .pres-figuur-groot iframe {
   height: 100% !important;
+}
+
+/* Vorige en volgende figuur, met de teller ertussen. Ze horen enkel bij de
+ * stand Groot: daar blijft de figuur groot terwijl je verder bladert. */
+.pres-figuurnav {
+  display: none;
+}
+
+.pres-figuur-groot .pres-figuurnav {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  margin-left: .45rem;
+}
+
+.pres-figuurnav-teller {
+  padding: .2rem .45rem;
+  border-radius: .3rem;
+  font-size: .78rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--kleur-zwak);
+  background: var(--kleur-vlak-zweef);
 }
 
 /* Zolang een interactieve grafiek niet draait, staat op haar plaats de gewone

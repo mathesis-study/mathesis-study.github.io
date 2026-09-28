@@ -7,7 +7,7 @@
  * lichten de elementen op die eraan meegewerkt hebben, en eronder staat de
  * berekening symbolisch, met getallen en uitgerekend.
  *
- * Het script staat los van de rest: presentatie.js bouwt het venster en roept
+ * De rekenkern staat in matrixcas.js; presentatie.js bouwt het venster en roept
  * Matrixrekenmachine.maak(houder, opties) aan; opties.zonder noemt de soorten
  * bewerkingen die het hoofdstuk nog niet kent, zoals ["determinant"]. Er komt geen MathJax aan te pas, zodat
  * het venster meteen klaar is; breuken worden met HTML en CSS gezet.
@@ -18,95 +18,10 @@
   // Grotere matrices passen niet meer op een telefoonscherm, en de cursus
   // gaat niet verder dan orde vier.
   var MIN_ORDE = 1, MAX_ORDE = 6;
-  // Hoe ver een macht mag gaan. Verder gaan de getallen toch over de rand.
-  var MAX_MACHT = 8;
 
-  /* --- Breuken ---------------------------------------------------------- */
-
-  // Alles rekent met exacte breuken. Zo blijft 1/3 van een matrix leesbaar en
-  // klopt de determinant van een matrix met kommagetallen tot op het cijfer.
-  function ggd(a, b) {
-    a = Math.abs(a); b = Math.abs(b);
-    while (b) { var t = a % b; a = b; b = t; }
-    return a || 1;
-  }
-
-  function breuk(t, n) {
-    if (n === 0) throw new Error("Delen door nul kan niet.");
-    if (n < 0) { t = -t; n = -n; }
-    if (!Number.isSafeInteger(t) || !Number.isSafeInteger(n)) {
-      throw new Error("De getallen worden te groot voor deze rekenmachine. " +
-                      "Neem kleinere elementen of een kleinere orde.");
-    }
-    var d = ggd(t, n);
-    return { t: t / d, n: n / d };
-  }
-
-  function heel(t) { return breuk(t, 1); }
-  function optel(a, b) { return breuk(a.t * b.n + b.t * a.n, a.n * b.n); }
-  function aftrek(a, b) { return breuk(a.t * b.n - b.t * a.n, a.n * b.n); }
-  function maal(a, b) { return breuk(a.t * b.t, a.n * b.n); }
-  function isNul(a) { return a.t === 0; }
-  function isGelijk(a, b) { return a.t === b.t && a.n === b.n; }
-  function isNegatief(a) { return a.t < 0; }
-
-  /* --- Matrices --------------------------------------------------------- */
-
-  // Een matrix is { r: rijen, k: kolommen, w: [[breuk]] }.
-  function matrix(r, k, maakElement) {
-    var w = [];
-    for (var i = 0; i < r; i++) {
-      var rij = [];
-      for (var j = 0; j < k; j++) rij.push(maakElement(i, j));
-      w.push(rij);
-    }
-    return { r: r, k: k, w: w };
-  }
-
-  function eenheidsmatrix(n) {
-    return matrix(n, n, function (i, j) { return heel(i === j ? 1 : 0); });
-  }
-  function getransponeerde(m) {
-    return matrix(m.k, m.r, function (i, j) { return m.w[j][i]; });
-  }
-  function termsgewijs(a, b, bewerking) {
-    return matrix(a.r, a.k, function (i, j) { return bewerking(a.w[i][j], b.w[i][j]); });
-  }
-  function scalairVeelvoud(r, m) {
-    return matrix(m.r, m.k, function (i, j) { return maal(r, m.w[i][j]); });
-  }
-  function product(a, b) {
-    return matrix(a.r, b.k, function (i, j) {
-      var s = heel(0);
-      for (var t = 0; t < a.k; t++) s = optel(s, maal(a.w[i][t], b.w[t][j]));
-      return s;
-    });
-  }
-
-  // De matrix die overblijft als rij i en kolom j geschrapt worden.
-  function minor(m, i, j) {
-    var w = [];
-    for (var p = 0; p < m.r; p++) {
-      if (p === i) continue;
-      var rij = [];
-      for (var q = 0; q < m.k; q++) if (q !== j) rij.push(m.w[p][q]);
-      w.push(rij);
-    }
-    return { r: m.r - 1, k: m.k - 1, w: w };
-  }
-
-  // Ontwikkeling naar de eerste rij, precies zoals in de cursus.
-  function determinant(m) {
-    if (m.r === 1) return m.w[0][0];
-    if (m.r === 2) return aftrek(maal(m.w[0][0], m.w[1][1]), maal(m.w[0][1], m.w[1][0]));
-    var totaal = heel(0);
-    for (var j = 0; j < m.k; j++) {
-      if (isNul(m.w[0][j])) continue;
-      var term = maal(m.w[0][j], determinant(minor(m, 0, j)));
-      totaal = (j % 2 === 0) ? optel(totaal, term) : aftrek(totaal, term);
-    }
-    return totaal;
-  }
+  var { MAX_MACHT, optel, aftrek, isNegatief,
+    getransponeerde, termsgewijs, scalairVeelvoud, product, determinant,
+    leesGetal, leesMatrix, leesMacht, macht } = window.MatrixCAS;
 
   /* --- Kleine HTML-hulpjes ---------------------------------------------- */
 
@@ -309,23 +224,7 @@
     }
 
     function lees(naam) {
-      var s = st[naam];
-      return matrix(s.r, s.k, function (i, j) {
-        var tekst = String(s.tekst[i][j]).trim().replace(/\s+/g, "").replace(",", ".");
-        if (tekst !== "") {
-          var deling = /^([+-]?\d+)\/(\d+)$/.exec(tekst);
-          if (deling) return breuk(Number(deling[1]), Number(deling[2]));
-          if (/^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(tekst)) {
-            var punt = tekst.indexOf(".");
-            if (punt < 0) return heel(Number(tekst));
-            var cijfers = tekst.length - punt - 1;
-            return breuk(Math.round(Number(tekst) * Math.pow(10, cijfers)),
-                         Math.pow(10, cijfers));
-          }
-        }
-        throw new Error("In " + naam + " staat op rij " + (i + 1) + ", kolom " +
-          (j + 1) + " geen getal. Schrijf bijvoorbeeld 3, -1.5 of 2/3.");
-      });
+      return leesMatrix(st[naam].tekst, naam);
     }
 
     function schrijf(naam, m) {
@@ -696,35 +595,6 @@
 
     /* --- De bewerkingen uitvoeren -------------------------------------- */
 
-    function leesFactor() {
-      var tekst = String(st.factor).trim().replace(/\s+/g, "").replace(",", ".");
-      var deling = /^([+-]?\d+)\/(\d+)$/.exec(tekst);
-      if (deling) return breuk(Number(deling[1]), Number(deling[2]));
-      if (/^[+-]?(\d+(\.\d*)?|\.\d+)$/.test(tekst)) {
-        var punt = tekst.indexOf(".");
-        if (punt < 0) return heel(Number(tekst));
-        var cijfers = tekst.length - punt - 1;
-        return breuk(Math.round(Number(tekst) * Math.pow(10, cijfers)),
-                     Math.pow(10, cijfers));
-      }
-      throw new Error("Vul bij r een getal in, bijvoorbeeld 3, -0.5 of 2/3.");
-    }
-
-    function leesMacht() {
-      var tekst = String(st.macht).trim();
-      if (!/^\d+$/.test(tekst) || Number(tekst) > MAX_MACHT) {
-        throw new Error("Vul bij n een geheel getal van 0 tot " + MAX_MACHT + " in.");
-      }
-      return Number(tekst);
-    }
-
-    function eisVierkant(naam, m) {
-      if (m.r !== m.k) {
-        throw new Error("Een determinant bestaat enkel voor een vierkante matrix; " +
-          naam + " is een " + m.r + " × " + m.k + "-matrix.");
-      }
-    }
-
     function voerUit(A, B) {
       switch (st.bewerking) {
         case "som": return toonTermsgewijs(A, B, 1);
@@ -745,11 +615,6 @@
 
     function toonTermsgewijs(A, B, teken) {
       var symbol = teken > 0 ? " + " : " − ";
-      if (A.r !== B.r || A.k !== B.k) {
-        toonGeenResultaat("Optellen kan enkel bij gelijke dimensies: A is " +
-          A.r + " × " + A.k + ", B is " + B.r + " × " + B.k + ".");
-        return;
-      }
       var m = termsgewijs(A, B, teken > 0 ? optel : aftrek);
       toonResultaat(linkerdelen(), m, function (i, j) {
         markeer("A", i, j);
@@ -763,13 +628,7 @@
     }
 
     function toonProduct(naam1, M, naam2, N) {
-      if (M.k !== N.r) {
-        toonGeenResultaat("Dit product bestaat niet: " + naam1 + " heeft " + M.k +
-          " kolommen en " + naam2 + " heeft " + N.r + " rijen. " +
-          "Voor een product moeten die twee gelijk zijn.");
-        return;
-      }
-      var m = product(M, N);
+      var m = product(M, N, naam1, naam2);
       toonResultaat(linkerdelen(), m, function (i, j) {
         markeerRij(naam1, i);
         markeerKolom(naam2, j);
@@ -791,19 +650,14 @@
 
     function toonGelijkheid(A, B) {
       zetVergelijking(linkerdelen());
-      if (A.r !== B.r || A.k !== B.k) {
+      var verschillen = window.MatrixCAS.verschillen(A, B);
+      if (verschillen === null) {
         melding("A en B zijn niet gelijk: hun dimensies verschillen (" +
           A.r + " × " + A.k + " tegenover " + B.r + " × " + B.k + ").",
           "mr-kan-niet");
         tip("Twee matrices zijn gelijk als ze dezelfde dimensies hebben " +
           "én alle overeenkomstige elementen gelijk zijn.");
         return;
-      }
-      var verschillen = [];
-      for (var i = 0; i < A.r; i++) {
-        for (var j = 0; j < A.k; j++) {
-          if (!isGelijk(A.w[i][j], B.w[i][j])) verschillen.push([i, j]);
-        }
       }
       if (!verschillen.length) {
         melding("A = B: alle overeenkomstige elementen zijn gelijk.", "mr-goed");
@@ -832,7 +686,7 @@
     }
 
     function toonScalair(naam, M) {
-      var r = leesFactor();
+      var r = leesGetal(st.factor);
       var m = scalairVeelvoud(r, M);
       var letter = naam === "A" ? "a" : "b";
       toonResultaat(linkerdelen(), m, function (i, j) {
@@ -861,19 +715,13 @@
     }
 
     function toonMacht(naam, M) {
-      var n = leesMacht();
-      if (M.r !== M.k) {
-        toonGeenResultaat("Een macht bestaat enkel voor een vierkante matrix; " +
-          naam + " is een " + M.r + " × " + M.k + "-matrix.");
-        return;
-      }
+      var n = leesMacht(st.macht);
+      var m = macht(M, n, naam);
       if (n === 0) {
-        toonResultaat(linkerdelen(), eenheidsmatrix(M.r), null);
+        toonResultaat(linkerdelen(), m, null);
         tip("Per afspraak is de nulde macht de eenheidsmatrix I" + M.r + ".");
         return;
       }
-      var m = M;
-      for (var t = 1; t < n; t++) m = product(m, M);
       // Enkel de uitkomst. Een keten A · A = A² · A = A³ leest alsof al die
       // uitdrukkingen aan elkaar gelijk zijn, en een element van Aⁿ komt niet uit
       // één rij en één kolom van A, dus valt er in A ook niets aan te wijzen.
@@ -881,8 +729,7 @@
     }
 
     function toonDeterminant(naam, M) {
-      eisVierkant(naam, M);
-      var waarde = determinant(M);
+      var waarde = determinant(M, naam);
       var n = M.r;
       zetVergelijking(linkerdelen().concat(["=",
                        operand(el("span", "mr-uitkomst"), null)]));
@@ -925,17 +772,7 @@
 
       if (st.lijn >= n) st.lijn = 0;
       var lijn = st.lijn;
-      var termen = [];
-      for (var q = 0; q < n; q++) {
-        var i = st.richting === "rij" ? lijn : q;
-        var j = st.richting === "rij" ? q : lijn;
-        termen.push({
-          i: i, j: j,
-          element: M.w[i][j],
-          minor: minor(M, i, j),
-          teken: (i + j) % 2 === 0 ? 1 : -1
-        });
-      }
+      var termen = window.MatrixCAS.ontwikkeling(M, st.richting, lijn, naam);
 
       var ontwikkeling = el("div", "mr-ontwikkeling");
       termen.forEach(function (term, t) {
@@ -961,8 +798,8 @@
               else markeer(naam, p, q, "mr-licht-zacht");
             }
           }
-          var deelwaarde = determinant(term.minor);
-          var cofactor = maal(heel(term.teken), deelwaarde);
+          var deelwaarde = term.deelwaarde;
+          var cofactor = term.cofactor;
           var kopje = el("span", "mr-sym mr-a");
           kopje.appendChild(document.createTextNode("(−1)"));
           kopje.appendChild(el("sup", null, (term.i + 1) + "+" + (term.j + 1)));
@@ -972,7 +809,7 @@
             ["cofactor = ", kopje, " · ", factorNode(deelwaarde), " = ",
              getalNode(cofactor)],
             ["term = ", factorNode(term.element), " · ", factorNode(cofactor),
-             " = ", getalNode(maal(term.element, cofactor))]
+             " = ", getalNode(term.waarde)]
           );
         }
         doos.addEventListener("click", kies);

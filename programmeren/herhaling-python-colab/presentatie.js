@@ -129,7 +129,9 @@
     meer: "M12 4.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM12 10.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" +
           "M12 16.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z",
     rekenmachine: "M5 3h14v18H5zM8 7h8M8 12h.01M12 12h.01M16 12h.01" +
-                  "M8 16h.01M12 16h.01M16 16h.01"
+                  "M8 16h.01M12 16h.01M16 16h.01",
+    figuurVorige: "M11 17l-5-5 5-5M18 17l-5-5 5-5",
+    figuurVolgende: "M13 17l5-5-5-5M6 17l5-5-5-5"
   };
 
   // Hierin gaat wat een leerling tussen twee keer kijken wil terugvinden: de
@@ -1292,6 +1294,10 @@
   // De iframes krijgen hun src pas wanneer hun slide in beeld komt. Browsers
   // staan maar een handvol WebGL-contexten tegelijk toe, dus een figuur die
   // uit beeld gaat, geeft de zijne weer vrij.
+  // Dezelfde lijst staat in de figuren zelf (bin/mkpi_lib/sitebuild.py).
+  var DOORGESTUURDE_TOETSEN = ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown",
+    "PageUp", "PageDown", "Escape", " "];
+
   function bereidFigurenVoor() {
     document.querySelectorAll("iframe").forEach(function (frame) {
       var bron = frame.getAttribute("src");
@@ -1379,6 +1385,7 @@
         reset.addEventListener("click", function () { herstelFiguur(frame); });
         balk.appendChild(reset);
       }
+      voegFiguurnavigatieToe(balk);
       doos.appendChild(balk);
     });
 
@@ -1386,6 +1393,18 @@
       var frame = Array.prototype.find.call(document.querySelectorAll("iframe"),
         function (kandidaat) { return kandidaat.contentWindow === e.source; });
       var bericht = e.data;
+      // Wie de figuur met de muis draaide, heeft de focus in het iframe. De
+      // figuur stuurt daarom de bladertoetsen door, en die lopen hier langs
+      // dezelfde weg als een toets in de pagina.
+      if (frame && bericht && bericht.type === "asy-toets" &&
+          DOORGESTUURDE_TOETSEN.indexOf(bericht.key) >= 0) {
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: bericht.key, bubbles: true }));
+        return;
+      }
+      if (frame && bericht && bericht.type === "asy-schuif") {
+        werkFiguurschuifBij(frame, bericht);
+        return;
+      }
       if (!frame || !bericht || bericht.type !== "asy-stappen") return;
       var toestand = frame._stappen;
       toestand.stap = bericht.stap;
@@ -1398,6 +1417,53 @@
       if (!toestand.knoppen) voegStapknoppenToe(frame);
       werkStapknoppenBij(frame);
     });
+  }
+
+  // Een figuur met een parameter (zoals k in k·P) meldt zich met asy-schuif:
+  // de naam, de mogelijke waarden en de gekozen index. Onder de figuur komt
+  // dan een schuifregelaar, die de figuur met asy-zet-schuif een andere
+  // variant van dezelfde scene laat tonen. Laadt de figuur opnieuw, dan
+  // meldt ze haar beginwaarde, en krijgt ze de gekozen waarde terug.
+  function werkFiguurschuifBij(frame, bericht) {
+    var waarden = Array.isArray(bericht.waarden) ? bericht.waarden.map(String) : [];
+    if (!waarden.length || !frame.parentNode) return;
+    var schuif = frame._schuif;
+    if (!schuif) {
+      var rij = el("label", "pres-figuurschuif");
+      rij.addEventListener("click", function (e) { e.stopPropagation(); });
+      var naam = el("span", "pres-figuurschuif-naam", String(bericht.naam || ""));
+      var invoer = el("input", "");
+      invoer.type = "range";
+      invoer.min = "0";
+      invoer.max = String(waarden.length - 1);
+      invoer.step = "1";
+      invoer.setAttribute("aria-label", String(bericht.naam || "waarde"));
+      var waarde = el("output", "pres-figuurschuif-waarde");
+      rij.appendChild(naam);
+      rij.appendChild(invoer);
+      rij.appendChild(waarde);
+      frame.parentNode.classList.add("pres-met-schuif");
+      frame.parentNode.appendChild(rij);
+      schuif = frame._schuif = { invoer: invoer, waarde: waarde, waarden: waarden, index: null };
+      invoer.addEventListener("input", function () {
+        schuif.index = Number(invoer.value);
+        toonSchuifwaarde(schuif);
+        frame.contentWindow.postMessage({ type: "asy-zet-schuif", index: schuif.index }, "*");
+      });
+    }
+    if (schuif.index === null) {
+      schuif.index = Math.max(0, Math.min(waarden.length - 1, Math.round(Number(bericht.index) || 0)));
+    } else if (schuif.index !== bericht.index) {
+      frame.contentWindow.postMessage({ type: "asy-zet-schuif", index: schuif.index }, "*");
+    }
+    schuif.invoer.value = String(schuif.index);
+    toonSchuifwaarde(schuif);
+  }
+
+  function toonSchuifwaarde(schuif) {
+    var tekst = "= " + schuif.waarden[schuif.index];
+    schuif.waarde.textContent = tekst;
+    schuif.invoer.setAttribute("aria-valuetext", schuif.waarden[schuif.index]);
   }
 
   function stapknop(icoonpad, tekst, titel, actie) {
@@ -1425,7 +1491,7 @@
   function voegStapknoppenToe(frame) {
     var toestand = frame._stappen;
     var balk = frame.parentNode.querySelector(".pres-figuurbalk");
-    var groot = balk.firstChild;
+    var groot = balk.querySelector(".pres-figuur-grootknop");
     var begin = stapknop(ICOON.begin, "Begin", "Toon de eerste constructiestap",
       function () { zetFiguurstap(frame, 1); });
     var vorige = stapknop(ICOON.links, "Vorige", "Toon de vorige constructiestap",
@@ -1497,6 +1563,7 @@
       var balk = el("div", "pres-figuurbalk");
 
       var groot = el("button", "pres-knop");
+      groot.classList.add("pres-figuur-grootknop");
       groot.type = "button";
       groot.title = "Deze grafiek groot tonen (Escape sluit ze weer)";
       groot.setAttribute("aria-pressed", "false");
@@ -1516,6 +1583,7 @@
         fig.dispatchEvent(new CustomEvent("pres:herstel", { bubbles: true }));
       });
       balk.appendChild(reset);
+      voegFiguurnavigatieToe(balk);
 
       fig.appendChild(balk);
     });
@@ -1536,10 +1604,103 @@
     var knop = doos.querySelector(".pres-figuurbalk .pres-figuur-grootknop");
     if (knop) knop.setAttribute("aria-pressed", String(groot));
     groteFiguur = groot ? doos : null;
+    if (groot) werkFiguurnavigatieBij(doos);
     // Een tekening in de pagina zelf moet weten hoeveel plaats ze nu heeft;
     // een iframe krijgt vanzelf een resize.
     doos.toggleAttribute("data-grafiek-groot", groot);
     doos.dispatchEvent(new CustomEvent("pres:zichtbaar", { bubbles: true }));
+  }
+
+  // Aan het bord blijft een figuur groot terwijl je naar de volgende of
+  // vorige figuur gaat. Alle figuren van het hoofdstuk tellen mee, in
+  // documentvolgorde: een groep scènes (asyvarianten) als één figuur, via
+  // het geval dat nu gekozen is, en een figuur in een gesloten oplossing ook.
+  // Een figuur in een gesloten hulpmiddel slaan we over: die variant koos
+  // niemand.
+  function figurenInVolgorde() {
+    return Array.prototype.filter.call(document.querySelectorAll(".pres-figuur"), function (doos) {
+      if (!doos.closest("section.slide")) return false;
+      var geval = doos.closest(".pres-figuurgeval");
+      if (geval && geval.hidden) return false;
+      var deel = doos.closest("[data-hulpmiddel]");
+      return !(deel && deel.hidden);
+    });
+  }
+
+  function naarFiguur(richting) {
+    var figuren = figurenInVolgorde();
+    var doos = figuren[figuren.indexOf(groteFiguur) + richting];
+    if (!groteFiguur || !doos) {
+      melding.textContent = richting > 0 ? "Dit is de laatste figuur" : "Dit is de eerste figuur";
+      return;
+    }
+    // Wat de figuur verbergt, gaat eerst open: haar oplossing, en in kort
+    // haar oefening in een bladerreeks.
+    for (var blok = doos.parentElement; blok; blok = blok.parentElement) {
+      if (blok.classList.contains("oplossing") && blok.classList.contains("pres-verborgen")) {
+        zetOplossing(blok, true);
+      }
+      if (blok.classList.contains("cursus-oefening") && blok.parentElement._oefeningen) {
+        var reeks = blok.parentElement;
+        var i = reeks._oefeningen.indexOf(blok);
+        if (bladeren === "kort" && i !== reeks._index) zetOefening(reeks, i, { zonderHash: true });
+      }
+    }
+    var j = slides.indexOf(doos.closest("section.slide"));
+    if (zichtbaar.indexOf(j) < 0) toon(j, { doel: doos });
+    else scrollNaar(doos, "instant");
+    zetGroteFiguur(doos, true);
+    melding.textContent = "Figuur " + (figuren.indexOf(doos) + 1) + " van " + figuren.length;
+  }
+
+  // Een presentatiewijzer stuurt Page Down en Page Up: eerst de
+  // constructiestappen van de grote figuur, daarna de figuur ernaast.
+  function stapInGroteFiguur(richting) {
+    var frame = groteFiguur.querySelector("iframe");
+    var toestand = frame && frame._stappen;
+    if (toestand && toestand.aantal > 0) {
+      var volgende = toestand.stap + richting;
+      if (volgende >= 1 && volgende <= toestand.aantal) {
+        zetFiguurstap(frame, volgende);
+        return;
+      }
+    }
+    naarFiguur(richting);
+  }
+
+  // Vorige en volgende figuur in de figuurbalk. Ze staan er enkel in de
+  // stand Groot; het dubbele pijltje houdt ze apart van de constructiestappen.
+  function voegFiguurnavigatieToe(balk) {
+    var nav = el("span", "pres-figuurnav");
+    var vorige = el("button", "pres-knop");
+    vorige.type = "button";
+    vorige.title = "Vorige figuur (←)";
+    vorige.setAttribute("aria-label", "Vorige figuur");
+    vorige.appendChild(icoon(ICOON.figuurVorige));
+    vorige.addEventListener("click", function () { naarFiguur(-1); });
+    var tellerFiguren = el("span", "pres-figuurnav-teller");
+    var volgende = el("button", "pres-knop");
+    volgende.type = "button";
+    volgende.title = "Volgende figuur (→)";
+    volgende.setAttribute("aria-label", "Volgende figuur");
+    volgende.appendChild(icoon(ICOON.figuurVolgende));
+    volgende.addEventListener("click", function () { naarFiguur(1); });
+    nav.appendChild(vorige);
+    nav.appendChild(tellerFiguren);
+    nav.appendChild(volgende);
+    balk.appendChild(nav);
+  }
+
+  function werkFiguurnavigatieBij(doos) {
+    var nav = doos.querySelector(".pres-figuurbalk .pres-figuurnav");
+    if (!nav) return;
+    var figuren = figurenInVolgorde();
+    var i = figuren.indexOf(doos);
+    var knoppen = nav.querySelectorAll("button");
+    knoppen[0].disabled = i <= 0;
+    knoppen[1].disabled = i < 0 || i >= figuren.length - 1;
+    nav.querySelector(".pres-figuurnav-teller").textContent =
+      "Figuur " + (i + 1) + " / " + figuren.length;
   }
 
   // Een figuur laadt wanneer ze in de buurt van het beeld komt en geeft haar
@@ -1938,11 +2099,30 @@
       return true;
     }
     var oefening = document.getElementById(id);
-    if (!oefening || !oefening.classList.contains("cursus-oefening")) return false;
+    if (!oefening) return false;
+    // Het anker van een \label (lwarp schrijft een lege <a id>): toon de slide
+    // waarin het staat en scrol ernaartoe. Hoort het bij een kop, dan naar de
+    // kop, anders valt die net boven het beeld. Tussen beide staan enkel
+    // andere links: lwarps eigen ankers en eventueel de knop van de appendix.
+    if (!oefening.classList.contains("cursus-oefening")) {
+      var ankerSlide = slides.indexOf(oefening.closest(".slide"));
+      if (ankerSlide < 0) return false;
+      var ervoor = oefening.previousElementSibling;
+      while (ervoor && ervoor.tagName === "A") ervoor = ervoor.previousElementSibling;
+      var doel = ervoor && ervoor.matches(KOPPEN) ? ervoor : oefening;
+      toon(ankerSlide, { vanHash: true, doel: doel });
+      return true;
+    }
     var reeks = oefening.parentElement;
-    var oefeningIndex = reeks._oefeningen.indexOf(oefening);
-    var slideIndex = slides.indexOf(reeks.closest(".slide"));
-    if (oefeningIndex < 0 || slideIndex < 0) return false;
+    var slideIndex = slides.indexOf(oefening.closest(".slide"));
+    if (slideIndex < 0) return false;
+    // Zonder \oefeningenbalk staan de oefeningen onder elkaar: toon de slide
+    // en scrol naar de oefening.
+    var oefeningIndex = reeks._oefeningen ? reeks._oefeningen.indexOf(oefening) : -1;
+    if (oefeningIndex < 0) {
+      toon(slideIndex, { vanHash: true, doel: oefening });
+      return true;
+    }
     toon(slideIndex, { vanHash: true });
     zetOefening(reeks, oefeningIndex, { zonderHash: true });
     return true;
@@ -2634,6 +2814,7 @@
       ["←", "vorige slide"],
       ["↓ · Page Down", "scrollen tot de volgende stap in beeld is, dan voorbeeldinvoer, figuurstap, oplossing of kort antwoord, coderegel of slide"],
       ["↑ · Page Up", "scrollen tot de vorige stap in beeld is, dan vorige figuurstap, oplossing of kort antwoord, coderegel of slide"],
+      ["→ · ←", "bij een grote figuur: volgende of vorige figuur, die groot blijft; ↓ en ↑ nemen dan eerst haar constructiestappen, daarna de figuur ernaast"],
       ["Home · End", "eerste of laatste slide"],
       ["k · l · v", "bladeren: kort, lang of volledig"],
       ["o", "alle oplossingen open, of terug naar compact of kaders"],
@@ -2761,6 +2942,25 @@
           ["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", " ",
            "PageUp", "PageDown", "Home", "End"].indexOf(e.key) >= 0) {
         return;
+      }
+
+      // Staat een figuur groot, dan bladeren de pijltjes van figuur naar
+      // figuur, en nemen de verticale eerst haar constructiestappen.
+      if (groteFiguur) {
+        var groot = {
+          ArrowRight: function () { naarFiguur(1); },
+          " ": function () { naarFiguur(1); },
+          ArrowLeft: function () { naarFiguur(-1); },
+          ArrowDown: function () { stapInGroteFiguur(1); },
+          PageDown: function () { stapInGroteFiguur(1); },
+          ArrowUp: function () { stapInGroteFiguur(-1); },
+          PageUp: function () { stapInGroteFiguur(-1); }
+        }[e.key];
+        if (groot) {
+          groot();
+          e.preventDefault();
+          return;
+        }
       }
 
       switch (e.key) {

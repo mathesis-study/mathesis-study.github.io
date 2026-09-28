@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>T -Formules en Formules van Simpson</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=d7b7f964400d" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=29b268430fc4" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -446,6 +446,10 @@ MathJax = {
 
 \(\newcommand {\tiny }{}\)
 
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
 \(\newcommand {\markeerterm }[2]{#2}\)
 
 \(\newcommand {\lightning }{\unicode {x21AF}}\)
@@ -773,10 +777,15 @@ vergelijkingen</span> en goniometrische vergelijkingen algebraı&#x0308;sch op.
 </li>
 </ul>
 <!--
-...... section T--formules (universele t-substitutie) ......
+...... section T-formules (universele t-substitutie) ......
 -->
-<h4 id="autosec-4"><span class="sectionnumber">I&#x2003;</span>T&#x202f;-formules (universele t-substitutie)</h4>
+<h4 id="autosec-4"><span class="sectionnumber">I&#x2003;</span>T-formules (universele t-substitutie)</h4>
 <a id="mkpiweb-autopage-4"></a>
+<!--
+...... subsection Stelling ......
+-->
+<h5 id="autosec-5"><span class="sectionnumber">1&#x2003;</span>Stelling</h5>
+<a id="mkpiweb-autopage-5"></a>
 
 
 <p>
@@ -784,7 +793,7 @@ We zetten
 </p>
 
 <p>
-\[ \boxed {\ t=\tan \frac {\alpha }{2}\ }\qquad (\text {dus } \alpha =2\arctan t).       \]
+\[ \boxed {\ t=\tan \frac {\alpha }{2}\ }\qquad (\text {dus } \alpha =2\arctan t).             \]
 </p>
 
 <p>
@@ -792,20 +801,30 @@ Dan gelden de <em>t&#x202f;-formules</em>
 </p>
 
 <p>
-\[ \boxed {\ \sin \alpha =\frac {2t}{1+t^2}\ },\qquad \boxed {\ \cos \alpha =\frac {1-t^2}{1+t^2}\ },\qquad \boxed {\ \tan \alpha =\frac {2t}{1-t^2}\ }.   \]
+\[ \boxed {\ \sin \alpha =\frac {2t}{1+t^2}\ },\qquad \boxed {\ \cos \alpha =\frac {1-t^2}{1+t^2}\ },\qquad \boxed {\ \tan \alpha =\frac {2t}{1-t^2}\ }.                      \]
 </p>
 
 <p>
 (Voorwaarden: \(1+t^2\neq 0\) (altijd waar) en \(1-t^2\neq 0\) voor \(\tan \alpha \).)
 </p>
+
+
+<div class="aside">
+
+<p>
+Voor \(\alpha =\pi +2k\pi \) bestaat \(t=\tan \frac {\alpha }{2}\) niet. Lossen we een vergelijking op met de t-formules, dan vinden we die hoeken dus nooit. Controleer ze daarom apart door ze in de oorspronkelijke
+vergelijking in te vullen.
+</p>
+
+</div>
 <!--
-......   paragraph Bewijs (via halve-hoek).     ......
+...... subsection Bewijs ......
 -->
+<h5 id="autosec-6"><span class="sectionnumber">2&#x2003;</span>Bewijs</h5>
+<a id="mkpiweb-autopage-6"></a>
 
 
 <p>
-<span class="paragraph" id="autosec-5">Bewijs (via halve-hoek).</span>
-<a id="mkpiweb-autopage-5"></a>
 Vertrek van de verdubbelingsformules met \(\alpha =2\theta \) en neem \(t=\tan \theta \):
 </p>
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -814,15 +833,35 @@ Vertrek van de verdubbelingsformules met \(\alpha =2\theta \) en neem \(t=\tan \
 <!--
 
 
-                                                                                                                      2 tan θ     2t
-                                                                                sin α = sin(2θ) = 2 sin θ cos θ =           2 =        ,
-                                                                                                                    1 + tan θ   1 + t2
-                                                                                                                       1 − tan2 θ   1 − t2
-                                                                                cos α = cos(2θ) = cos2 θ − sin2 θ =           2   =        ,
-                                                                                                                       1 + tan θ    1 + t2
-                                                                                          sin α     2t
-                                                                                tan α =         =        .
-                                                                                          cos α   1 − t2
+
+                                                     sin α = sin(2θ)
+                                                          = 2 sin θ cos θ
+                                                              2 sin θ cos θ
+                                                          =                                                        want cos2 θ + sin2 θ = 1
+                                                            cos2 θ + sin2 θ
+                                                              2 tan θ
+                                                          =                                                        teller en noemer delen door cos2 θ
+                                                            1 + tan2 θ
+                                                              2t
+                                                          =         ,
+                                                            1 + t2
+                                                     cos α = cos(2θ)
+                                                          = cos2 θ − sin2 θ
+                                                               cos2 θ − sin2 θ
+                                                          =                                                        want cos2 θ + sin2 θ = 1
+                                                               cos2 θ + sin2 θ
+                                                            1 − tan2 θ
+                                                          =                                                        teller en noemer delen door cos2 θ
+                                                            1 + tan2 θ
+                                                            1 − t2
+                                                          =        ,
+                                                            1 + t2
+                                                            sin α
+                                                     tan α =
+                                                            cos α
+                                                              2t
+                                                          =        .
+                                                            1 − t2
 
 
 -->
@@ -831,8 +870,11 @@ Vertrek van de verdubbelingsformules met \(\alpha =2\theta \) en neem \(t=\tan \
 <p>
 
 \begin{align*}
-\sin \alpha &amp;=\sin (2\theta )=2\sin \theta \cos \theta =\frac {2\tan \theta }{1+\tan ^2\theta } =\frac {2t}{1+t^2},\\ \cos \alpha &amp;=\cos (2\theta )=\cos ^2\theta -\sin ^2\theta =\frac
-{1-\tan ^2\theta }{1+\tan ^2\theta } =\frac {1-t^2}{1+t^2},\\ \tan \alpha &amp;=\frac {\sin \alpha }{\cos \alpha } =\frac {2t}{1-t^2}.
+\sin \alpha &amp;=\sin (2\theta )\\ &amp;=2\sin \theta \cos \theta \\ &amp;=\frac {2\sin \theta \cos \theta }{\cos ^2\theta +\sin ^2\theta } &amp;&amp; \aside {\text {want } \cos ^2\theta
++\sin ^2\theta =1}\\ &amp;=\frac {2\tan \theta }{1+\tan ^2\theta } &amp;&amp; \aside {\text {teller en noemer delen door } \cos ^2\theta }\\ &amp;=\frac {2t}{1+t^2},\\[1ex] \cos \alpha
+&amp;=\cos (2\theta )\\ &amp;=\cos ^2\theta -\sin ^2\theta \\ &amp;=\frac {\cos ^2\theta -\sin ^2\theta }{\cos ^2\theta +\sin ^2\theta } &amp;&amp; \aside {\text {want } \cos ^2\theta +\sin
+^2\theta =1}\\ &amp;=\frac {1-\tan ^2\theta }{1+\tan ^2\theta } &amp;&amp; \aside {\text {teller en noemer delen door } \cos ^2\theta }\\ &amp;=\frac {1-t^2}{1+t^2},\\[1ex] \tan \alpha
+&amp;=\frac {\sin \alpha }{\cos \alpha }\\ &amp;=\frac {2t}{1-t^2}.
 \end{align*}
 &#x2003;&#x2003;<span
     id="lateximage-mkpiweb-1"
@@ -848,13 +890,13 @@ Vertrek van de verdubbelingsformules met \(\alpha =2\theta \) en neem \(t=\tan \
 ></span>
 </p>
 <!--
-......   paragraph Handige omkeringen.   ......
+...... subsection Omkering ......
 -->
+<h5 id="autosec-9"><span class="sectionnumber">3&#x2003;</span>Omkering</h5>
+<a id="mkpiweb-autopage-9"></a>
 
 
 <p>
-<span class="paragraph" id="autosec-8">Handige omkeringen.</span>
-<a id="mkpiweb-autopage-8"></a>
 Uit \(\sin \alpha =\dfrac {2t}{1+t^2}\) en \(\cos \alpha =\dfrac {1-t^2}{1+t^2}\) volgt ook
 </p>
 
@@ -862,10 +904,10 @@ Uit \(\sin \alpha =\dfrac {2t}{1+t^2}\) en \(\cos \alpha =\dfrac {1-t^2}{1+t^2}\
 \[ \boxed {\ t=\frac {\sin \alpha }{1+\cos \alpha }=\frac {1-\cos \alpha }{\sin \alpha }\ }\quad (\sin \alpha \neq 0 \text { voor de tweede vorm}).   \]
 </p>
 <!--
-...... subsection Toepassing: vergelijkingen oplossen met ......
+...... subsection Toepassingen: vergelijkingen oplossen ......
 -->
-<h5 id="autosec-9"><span class="sectionnumber">1&#x2003;</span>Toepassing: vergelijkingen oplossen met \(t=\tan \dfrac {\alpha }{2}\)</h5>
-<a id="mkpiweb-autopage-9"></a>
+<h5 id="autosec-10"><span class="sectionnumber">4&#x2003;</span>Toepassingen: vergelijkingen oplossen</h5>
+<a id="mkpiweb-autopage-10"></a>
 
 
 <p>
@@ -874,54 +916,7 @@ Uit \(\sin \alpha =\dfrac {2t}{1+t^2}\) en \(\cos \alpha =\dfrac {1-t^2}{1+t^2}\
 <!--
 ...... subsubsection Voorbeeld 1 ......
 -->
-<h6 id="autosec-10">Voorbeeld 1</h6>
-<a id="mkpiweb-autopage-10"></a>
-
-
-<p>
-Los op in \(\mathbb {R}\):
-</p>
-
-<p>
-\[ \sin \alpha +\cos \alpha =\tfrac {3}{2}.       \]
-</p>
-
-<p>
-<b>Oplossing.</b> Schrijf in functie van \(t\):
-</p>
-
-<p>
-\[ \sin \alpha +\cos \alpha =\frac {2t}{1+t^2}+\frac {1-t^2}{1+t^2} =\frac {1+2t-t^2}{1+t^2} =\frac {3}{2}.   \]
-</p>
-
-<p>
-Kruislings vermenigvuldigen:
-</p>
-
-<p>
-\[ 2(1+2t-t^2)=3(1+t^2) \ \Leftrightarrow \ 2+4t-2t^2=3+3t^2 \]
-</p>
-
-<p>
-\[ \Leftrightarrow \ 0=3+3t^2-2-4t+2t^2 =5t^2-4t+1.      \]
-</p>
-
-<p>
-\[ 5t^2-4t+1=0\ \Rightarrow \ t=\frac {4\pm \sqrt {16-20}}{10}=\frac {4\pm \sqrt {-4}}{10} \]
-</p>
-
-<p>
-Geen ree&#x0308;le oplossingen voor \(t\) \(\Rightarrow \) <em>geen ree&#x0308;le \(\alpha \)</em>.<br />
-(Controle: \(\sin \alpha +\cos \alpha \le \sqrt {2}&lt;\tfrac {3}{2}\).)
-</p>
-
-<p>
-<span class="cursus-subtitel-op-slide"></span>
-</p>
-<!--
-...... subsubsection Voorbeeld 2 ......
--->
-<h6 id="autosec-11">Voorbeeld 2</h6>
+<h6 id="autosec-11">Voorbeeld 1</h6>
 <a id="mkpiweb-autopage-11"></a>
 
 
@@ -930,64 +925,181 @@ Los op in \(\mathbb {R}\):
 </p>
 
 <p>
-\[ \tan \alpha + \sec \alpha =2, \quad \sec \alpha =\frac {1}{\cos \alpha }.    \]
+\[ \sin \alpha +\cos \alpha =\tfrac {3}{2}.      \]
+</p>
+
+<div class="oplossing">
+
+<p>
+Schrijf in functie van \(t\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                             3
+                                                           sin α + cos α =
+                                                                             2
+                                                           2t      1 − t2   3
+                                                      ⇐⇒      2
+                                                                +       2
+                                                                          =
+                                                         1+t       1+t      2
+                                                                   2
+                                                         1 + 2t − t     3
+                                                      ⇐⇒             =
+                                                           1 + t2       2
+                                                      ⇐⇒ 2(1 + 2t − t2 ) = 3(1 + t2 )                                               kruisproduct
+                                                                      2          2
+                                                      ⇐⇒ 2 + 4t − 2t = 3 + 3t
+                                                      ⇐⇒ 5t2 − 4t + 1 = 0
+                                                                  √             √
+                                                             4 ± 16 − 20    4 ± −4
+                                                      =⇒ t =              =
+                                                                   10          10
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\sin \alpha +\cos \alpha =\frac {3}{2}\\ \iff {}&amp;\frac {2t}{1+t^2}+\frac {1-t^2}{1+t^2}=\frac {3}{2}\\ \iff {}&amp;\frac {1+2t-t^2}{1+t^2}=\frac {3}{2}\\ \iff
+{}&amp;2(1+2t-t^2)=3(1+t^2) &amp;&amp; \aside {\text {kruisproduct}}\\ \iff {}&amp;2+4t-2t^2=3+3t^2\\ \iff {}&amp;5t^2-4t+1=0\\ \implies {}&amp;t=\frac {4\pm \sqrt {16-20}}{10}=\frac {4\pm
+\sqrt {-4}}{10}\ \lightning
+\end{align*}
+Geen ree&#x0308;le oplossingen voor \(t\) \(\Rightarrow \) <em>geen ree&#x0308;le \(\alpha \)</em>.<br />
+(Controle: \(\sin \alpha +\cos \alpha \le \sqrt {2}&lt;\tfrac {3}{2}\).)
+</p>
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-12">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+Los op in \(\mathbb {R}\):
 </p>
 
 <p>
-<b>Oplossing.</b> In \(t\):
+\[ \tan \alpha + \sec \alpha =2, \quad \sec \alpha =\frac {1}{\cos \alpha }.           \]
+</p>
+
+<div class="oplossing">
+
+<p>
+In \(t\):
 </p>
 
 <p>
-\[ \tan \alpha =\frac {2t}{1-t^2},\qquad \sec \alpha =\frac {1+t^2}{1-t^2}.    \]
+\[ \tan \alpha =\frac {2t}{1-t^2},\qquad \sec \alpha =\frac {1+t^2}{1-t^2}.           \]
 </p>
 
 <p>
-Dan
+Beide breuken hebben de noemer \(1-t^2\), dus we eisen \(t\neq 1\) en \(t\neq -1\).
 </p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                   tan α + sec α = 2
+                                                                                                  2t     1 + t2
+                                                                                             ⇐⇒        +        =2
+                                                                                                1 − t2   1 − t2
+                                                                                                1 + t2 + 2t
+                                                                                             ⇐⇒             =2
+                                                                                                  1 − t2
+                                                                                             ⇐⇒ 1 + t2 + 2t = 2 − 2t2
+                                                                                             ⇐⇒ 3t2 + 2t − 1 = 0
+                                                                                                          √
+                                                                                                    −2 ± 4 + 12     −2 ± 4
+                                                                                             =⇒ t =               =
+                                                                                                           6          6
+                                                                                                    1
+                                                                                             =⇒ t =     of t = −1
+                                                                                                    3
+
+
+-->
+
 
 <p>
-\[ \frac {2t}{1-t^2}+\frac {1+t^2}{1-t^2}=2 \ \Leftrightarrow \ \frac {1+t^2+2t}{1-t^2}=2 \ \Leftrightarrow \ 1+t^2+2t=2(1-t^2).   \]
-</p>
 
-<p>
-Dus
-</p>
-
-<p>
-\[ 1+t^2+2t=2-2t^2 \ \Leftrightarrow \ 3t^2+2t-1=0 \ \Rightarrow \ t=\frac {-2\pm \sqrt {4+12}}{6}=\frac {-2\pm 4}{6}.      \]
-</p>
-
-<p>
-\[ t=\frac {1}{3}\quad \text {of}\quad t=-1.    \]
+\begin{align*}
+&amp;\tan \alpha +\sec \alpha =2\\ \iff {}&amp;\frac {2t}{1-t^2}+\frac {1+t^2}{1-t^2}=2\\ \iff {}&amp;\frac {1+t^2+2t}{1-t^2}=2\\ \iff {}&amp;1+t^2+2t=2-2t^2\\ \iff {}&amp;3t^2+2t-1=0\\
+\implies {}&amp;t=\frac {-2\pm \sqrt {4+12}}{6}=\frac {-2\pm 4}{6}\\ \implies {}&amp;t=\frac {1}{3}\quad \text {of}\quad t=-1\ \lightning
+\end{align*}
+De waarde \(t=-1\) valt weg, want ze maakt de noemer \(1-t^2\) nul. Voor \(t=-1\) is \(\alpha =-\frac {\pi }{2}+2k\pi \), en daar bestaan \(\tan \alpha \) en \(\sec \alpha \) niet.
 </p>
 
 <p>
 Terug naar \(\alpha \) via \(t=\tan \dfrac {\alpha }{2}\):
 </p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
-<p>
-\[ \boxed {\ \tan \frac {\alpha }{2}=\frac {1}{3}\quad \text {of}\quad \tan \frac {\alpha }{2}=-1\ }.   \]
-</p>
 
-<p>
-Dus
-</p>
-
-<p>
-\[ \frac {\alpha }{2}=\arctan \!\frac {1}{3}+k\pi \ \Rightarrow \ \alpha =2\arctan \!\frac {1}{3}+2k\pi , \]
-</p>
-
-<p>
-\[ \frac {\alpha }{2}=-\frac {\pi }{4}+k\pi \ \Rightarrow \ \alpha =-\frac {\pi }{2}+2k\pi ,\qquad k\in \mathbb {Z}.   \]
-</p>
 <!--
-......   paragraph Oefeningen.   ......
+
+
+                                                                                                       α   1
+                                                                                                 tan     =
+                                                                                                       2   3
+                                                                                                 α         1
+                                                                                            =⇒     = arctan + kπ
+                                                                                                 2         3
+                                                                                                                 1
+                                                                                            =⇒    α = 2 arctan     + 2kπ ,   k∈Z
+                                                                                                                 3
+
+
 -->
 
 
 <p>
-<span class="paragraph" id="autosec-12">Oefeningen.</span>
-<a id="mkpiweb-autopage-12"></a>
+
+\begin{align*}
+&amp;\tan \frac {\alpha }{2}=\frac {1}{3}\\ \implies {}&amp;\frac {\alpha }{2}=\arctan \frac {1}{3}+k\pi \\ \implies {}&amp;\boxed {\ \alpha =2\arctan \frac {1}{3}+2k\pi \ },\quad k\in \mathbb
+{Z}
+\end{align*}
+(Controle: \(\tan \alpha =\frac {3}{4}\) en \(\sec \alpha =\frac {5}{4}\), samen \(2\).)
+</p>
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-13">Oefeningen</h6>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-14">Oefening 1</h6>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
 Los op in \(\mathbb {R}\) met \(t=\tan \dfrac {\alpha }{2}\).
 </p>
 <ul class="enumerate" style="list-style-type:none">
@@ -996,39 +1108,198 @@ Los op in \(\mathbb {R}\) met \(t=\tan \dfrac {\alpha }{2}\).
 <p>
 <span class="listmarker">(a)</span> \(\sin \alpha =\dfrac {3}{5}\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\alpha =2\arctan 3+2k\pi \) of \(\alpha =2\arctan \frac {1}{3}+2k\pi \), \(k\in \mathbb {Z}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                   2t     3
+                                                                                                        =
+                                                                                                 1 + t2   5
+                                                                                          ⇐⇒ 10t = 3 + 3t2
+                                                                                          ⇐⇒ 3t2 − 10t + 3 = 0
+                                                                                                       √
+                                                                                                 10 ± 100 − 36      10 ± 8
+                                                                                          =⇒ t =                  =
+                                                                                                         6             6
+                                                                                                             1
+                                                                                          =⇒ t = 3 of t =
+                                                                                                             3
+                                                                                          =⇒ α = 2 arctan 3 + 2kπ
+                                                                                                                   1
+                                                                                           of    α = 2 arctan        + 2kπ,        k∈Z
+                                                                                                                   3
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\frac {2t}{1+t^2}=\frac {3}{5}\\ \iff {}&amp;10t=3+3t^2\\ \iff {}&amp;3t^2-10t+3=0\\ \implies {}&amp;t=\frac {10\pm \sqrt {100-36}}{6}=\frac {10\pm 8}{6}\\ \implies {}&amp;t=3\quad \text
+{of}\quad t=\frac {1}{3}\\ \implies {}&amp;\alpha =2\arctan 3+2k\pi \\ \text {of}\quad {}&amp;\alpha =2\arctan \frac {1}{3}+2k\pi ,\quad k\in \mathbb {Z}
+\end{align*}
+Voor \(\alpha =\pi +2k\pi \) is \(\sin \alpha =0\neq \frac {3}{5}\), dus daar komt niets bij.
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(b)</span> \(\cos \alpha -\sin \alpha =\dfrac {1}{2}\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\alpha =2\arctan \frac {-2+\sqrt {7}}{3}+2k\pi \) of \(\alpha =2\arctan \frac {-2-\sqrt {7}}{3}+2k\pi \), \(k\in \mathbb {Z}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+
+                                                                                        1 − t2    2t     1
+                                                                                             2
+                                                                                               −     2
+                                                                                                       =
+                                                                                        1+t      1+t     2
+                                                                                   ⇐⇒ 2(1 − t2 − 2t) = 1 + t2
+                                                                                   ⇐⇒ 3t2 + 4t − 1 = 0
+                                                                                                 √                √         √
+                                                                                          −4 ± 16 + 12      −4 ± 2 7   −2 ± 7
+                                                                                   =⇒ t =                 =          =
+                                                                                                  6             6         3
+                                                                                                         √
+                                                                                                    −2 + 7
+                                                                                   =⇒ α = 2 arctan          + 2kπ
+                                                                                                       3
+                                                                                                         √
+                                                                                                    −2 − 7
+                                                                                    of α = 2 arctan         + 2kπ, k ∈ Z
+                                                                                                       3
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\frac {1-t^2}{1+t^2}-\frac {2t}{1+t^2}=\frac {1}{2}\\ \iff {}&amp;2(1-t^2-2t)=1+t^2\\ \iff {}&amp;3t^2+4t-1=0\\ \implies {}&amp;t=\frac {-4\pm \sqrt {16+12}}{6}=\frac {-4\pm 2\sqrt
+{7}}{6}=\frac {-2\pm \sqrt {7}}{3}\\ \implies {}&amp;\alpha =2\arctan \frac {-2+\sqrt {7}}{3}+2k\pi \\ \text {of}\quad {}&amp;\alpha =2\arctan \frac {-2-\sqrt {7}}{3}+2k\pi ,\quad k\in \mathbb
+{Z}
+\end{align*}
+Voor \(\alpha =\pi +2k\pi \) is \(\cos \alpha -\sin \alpha =-1\neq \frac {1}{2}\), dus daar komt niets bij.
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(c)</span> \(2\sin \alpha =\tan \alpha \)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\alpha =k\pi \) of \(\alpha =\pm \frac {\pi }{3}+2k\pi \), \(k\in \mathbb {Z}\)</span> De noemer \(1-t^2\) van \(\tan \alpha \) eist \(t\neq 1\) en \(t\neq -1\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                            2t       2t
+                                                                                                      2·       2
+                                                                                                                 =
+                                                                                                           1+t     1 − t2
+                                                                                                ⇐⇒ 4t(1 − t2 ) = 2t(1 + t2 )
+                                                                                                ⇐⇒ 6t3 − 2t = 0
+                                                                                                ⇐⇒ 2t(3t2 − 1) = 0
+                                                                                                                           √
+                                                                                                                               3
+                                                                                                ⇐⇒ t = 0      of     t=±
+                                                                                                                              3
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;2\cdot \frac {2t}{1+t^2}=\frac {2t}{1-t^2}\\ \iff {}&amp;4t(1-t^2)=2t(1+t^2)\\ \iff {}&amp;6t^3-2t=0\\ \iff {}&amp;2t(3t^2-1)=0\\ \iff {}&amp;t=0\quad \text {of}\quad t=\pm \frac {\sqrt
+{3}}{3}
+\end{align*}
+Geen van die waarden is \(\pm 1\). Terug naar \(\alpha \):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                α                                                                           α    π
+                                                                  = kπ                                                                   of   = ± + kπ
+                                                                2                                                                           2    6
+                                                                                                                                                 π
+                                                             ⇒ α = 2kπ                                                                   of α = ± + 2kπ
+                                                                                                                                                 3
+
+-->
+
+<p>
+
+\begin{align*}
+\frac {\alpha }{2}&amp;=k\pi &amp; \text {of}\quad \frac {\alpha }{2}&amp;=\pm \frac {\pi }{6}+k\pi \\ \Rightarrow \alpha &amp;=2k\pi &amp; \text {of}\quad \alpha &amp;=\pm \frac {\pi
+}{3}+2k\pi
+\end{align*}
+Voor \(\alpha =\pi +2k\pi \) bestaat \(t\) niet, dus controleren we apart: \(2\sin \pi =0=\tan \pi \). Die hoeken zijn dus ook oplossingen. Samen met \(\alpha =2k\pi \) geeft dat
+</p>
+<p>
+\[ \boxed {\ \alpha =k\pi \quad \text {of}\quad \alpha =\pm \frac {\pi }{3}+2k\pi ,\qquad k\in \mathbb {Z}\ }. \]
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(d)</span> \(\dfrac {1-\cos \alpha }{\sin \alpha }=\dfrac {1}{3}\)
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\alpha =2\arctan \frac {1}{3}+2k\pi \), \(k\in \mathbb {Z}\)</span> Volgens de omkering is het linkerlid precies \(t\) (met \(\sin \alpha \neq 0\)). Dus
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                      1
+                                                                                                 t=
+                                                                                                      3
+                                                                                                                1
+                                                                                          =⇒ α = 2 arctan         + 2kπ,       k∈Z
+                                                                                                                3
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;t=\frac {1}{3}\\ \implies {}&amp;\alpha =2\arctan \frac {1}{3}+2k\pi ,\quad k\in \mathbb {Z}
+\end{align*}
+Daar is \(\sin \alpha =\dfrac {2t}{1+t^2}=\dfrac {3}{5}\neq 0\), dus de voorwaarde klopt. Voor \(\alpha =\pi +2k\pi \) is \(\sin \alpha =0\) en bestaat het linkerlid niet.
+</p>
+</div>
+<p>
+
+</p>
 </li>
 </ul>
+
+</div>
 <!--
 ...... section Formules van Simpson (som--product en product--som) ......
 -->
-<h4 id="autosec-13"><span class="sectionnumber">II&#x2003;</span>Formules van Simpson (som–product en product–som)</h4>
-<a id="mkpiweb-autopage-13"></a>
+<h4 id="autosec-15"><span class="sectionnumber">II&#x2003;</span>Formules van Simpson (som–product en product–som)</h4>
+<a id="mkpiweb-autopage-15"></a>
 <!--
 ...... subsection Som product ......
 -->
-<h5 id="autosec-14"><span class="sectionnumber">1&#x2003;</span>Som \(\leftrightarrow \) product</h5>
-<a id="mkpiweb-autopage-14"></a>
+<h5 id="autosec-16"><span class="sectionnumber">1&#x2003;</span>Som \(\leftrightarrow \) product</h5>
+<a id="mkpiweb-autopage-16"></a>
 
 
 <p>
@@ -1052,8 +1323,8 @@ Los op in \(\mathbb {R}\) met \(t=\tan \dfrac {\alpha }{2}\).
 
 
 <p>
-<span class="paragraph" id="autosec-15">Bewijs (voorbeeld).</span>
-<a id="mkpiweb-autopage-15"></a>
+<span class="paragraph" id="autosec-17">Bewijs (voorbeeld).</span>
+<a id="mkpiweb-autopage-17"></a>
 
 </p>
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -1100,8 +1371,8 @@ De andere formules analoog. &#x2003;&#x2003;<span
 <!--
 ...... subsection Product som ......
 -->
-<h5 id="autosec-18"><span class="sectionnumber">2&#x2003;</span>Product \(\leftrightarrow \) som</h5>
-<a id="mkpiweb-autopage-18"></a>
+<h5 id="autosec-20"><span class="sectionnumber">2&#x2003;</span>Product \(\leftrightarrow \) som</h5>
+<a id="mkpiweb-autopage-20"></a>
 
 
 <p>
@@ -1121,8 +1392,8 @@ De andere formules analoog. &#x2003;&#x2003;<span
 
 
 <p>
-<span class="paragraph" id="autosec-19">Bewijs.</span>
-<a id="mkpiweb-autopage-19"></a>
+<span class="paragraph" id="autosec-21">Bewijs.</span>
+<a id="mkpiweb-autopage-21"></a>
 Volgt onmiddellijk door optellingsformules toe te passen op de rechterleden bij de som–productvormen (of begin met \(\cos (A\pm B)\) en herschik). &#x2003;&#x2003;<span
     id="lateximage-mkpiweb-3"
     class="lateximagesource"
@@ -1139,8 +1410,8 @@ Volgt onmiddellijk door optellingsformules toe te passen op de rechterleden bij 
 <!--
 ...... subsection Toepassingen ......
 -->
-<h5 id="autosec-22"><span class="sectionnumber">3&#x2003;</span>Toepassingen</h5>
-<a id="mkpiweb-autopage-22"></a>
+<h5 id="autosec-24"><span class="sectionnumber">3&#x2003;</span>Toepassingen</h5>
+<a id="mkpiweb-autopage-24"></a>
 
 
 <p>
@@ -1149,16 +1420,16 @@ Volgt onmiddellijk door optellingsformules toe te passen op de rechterleden bij 
 <!--
 ...... subsubsection Exacte waarden en vereenvoudigen ......
 -->
-<h6 id="autosec-23">Exacte waarden en vereenvoudigen</h6>
-<a id="mkpiweb-autopage-23"></a>
+<h6 id="autosec-25">Exacte waarden en vereenvoudigen</h6>
+<a id="mkpiweb-autopage-25"></a>
 <!--
 ......   paragraph Voorbeeld 1.   ......
 -->
 
 
 <p>
-<span class="paragraph" id="autosec-24">Voorbeeld 1.</span>
-<a id="mkpiweb-autopage-24"></a>
+<span class="paragraph" id="autosec-26">Voorbeeld 1.</span>
+<a id="mkpiweb-autopage-26"></a>
 Bereken \(\sin 20^\circ +\sin 40^\circ \).
 </p>
 
@@ -1171,8 +1442,8 @@ Bereken \(\sin 20^\circ +\sin 40^\circ \).
 
 
 <p>
-<span class="paragraph" id="autosec-25">Voorbeeld 2.</span>
-<a id="mkpiweb-autopage-25"></a>
+<span class="paragraph" id="autosec-27">Voorbeeld 2.</span>
+<a id="mkpiweb-autopage-27"></a>
 Herschrijf \(\sin x+\sin 3x\) als product en los \(\sin x+\sin 3x=0\) op.
 </p>
 
@@ -1206,8 +1477,8 @@ Dus \(2x=k\pi \) of \(x=\dfrac {\pi }{2}+k\pi \):
 <!--
 ...... subsubsection Integraalvoorbereiding (algebraısch) ......
 -->
-<h6 id="autosec-26">Integraalvoorbereiding (algebraı&#x0308;sch)</h6>
-<a id="mkpiweb-autopage-26"></a>
+<h6 id="autosec-28">Integraalvoorbereiding (algebraı&#x0308;sch)</h6>
+<a id="mkpiweb-autopage-28"></a>
 
 
 <p>
@@ -1221,15 +1492,31 @@ Zet \(\sin ^2 x\) om naar een som:
 <p>
 (dit zijn de halveringsformules; nuttig voor gemiddelden en integralen).
 </p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
 <!--
-......   paragraph Oefeningen.   ......
+...... subsubsection Oefeningen ......
 -->
+<h6 id="autosec-29">Oefeningen</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-30">Oefening 2</h6>
+<a id="mkpiweb-autopage-30"></a>
 
 
 <p>
-<span class="paragraph" id="autosec-27">Oefeningen.</span>
-<a id="mkpiweb-autopage-27"></a>
-
+Gebruik telkens de formules van Simpson.
 </p>
 <ul class="enumerate" style="list-style-type:none">
 
@@ -1237,34 +1524,164 @@ Zet \(\sin ^2 x\) om naar een som:
 <p>
 <span class="listmarker">(a)</span> Schrijf \(\cos 7x-\cos 5x\) als product.
 </p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\cos 7x-\cos 5x=-2\sin 6x\sin x\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+                                                                                                                 7x + 5x      7x − 5x
+                                                                                         cos 7x − cos 5x = −2 sin         sin
+                                                                                                                     2           2
+                                                                                                        = −2 sin 6x sin x
+
+
+-->
+
+<p>
+
+\begin{align*}
+\cos 7x-\cos 5x &amp;=-2\sin \frac {7x+5x}{2}\sin \frac {7x-5x}{2}\\ &amp;=-2\sin 6x\sin x
+\end{align*}
+
+</p>
+</div>
 </li>
 <li>
 
 <p>
 <span class="listmarker">(b)</span> Vereenvoudig \(\sin 5x\cos 3x+\sin 3x\cos 5x\).
 </p>
-
-</li>
-<li>
-
+<div class="oplossing">
 <p>
-<span class="listmarker">(c)</span> Los op: \(\cos x+\cos 3x=1\).
+<span class="oplantwoord">\(\sin 8x\)</span>
 </p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
+<!--
+
+
+                                                                          sin 5x cos 3x + sin 3x cos 5x = 21 sin 8x + sin 2x + 12 sin 8x + sin(−2x)
+                                                                                                                                                 
+
+                                                                                                        = 12 sin 8x + sin 2x + 12 sin 8x − sin 2x
+                                                                                                                                              
+
+                                                                                                       = sin 8x
+
+
+-->
+
+<p>
+
+\begin{align*}
+\sin 5x\cos 3x+\sin 3x\cos 5x &amp;=\tfrac 12\bigl [\sin 8x+\sin 2x\bigr ]+\tfrac 12\bigl [\sin 8x+\sin (-2x)\bigr ]\\ &amp;=\tfrac 12\bigl [\sin 8x+\sin 2x\bigr ]+\tfrac 12\bigl [\sin 8x-\sin
+2x\bigr ]\\ &amp;=\sin 8x
+\end{align*}
+<span class="aside">Dit is ook de somformule \(\sin (5x+3x)\).</span>
+</p>
+</div>
 </li>
 <li>
 
 <p>
-<span class="listmarker">(d)</span> Toon aan: \(\sin A\sin B+\cos A\cos B=\cos (A-B)\) via Simpson.
+<span class="listmarker">(c)</span> Los op: \(\cos x+\cos 3x=\cos 2x\).
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=\frac {\pi }{4}+k\frac {\pi }{2}\) of \(x=\pm \frac {\pi }{3}+2k\pi \), \(k\in \mathbb {Z}\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                         cos x + cos 3x = cos 2x
+                                                             x + 3x      x − 3x
+                                                    ⇐⇒ 2 cos         cos        = cos 2x
+                                                                2           2
+                                                    ⇐⇒ 2 cos 2x cos x = cos 2x                                                                          cos(−x) = cos x
+                                                    ⇐⇒ cos 2x (2 cos x − 1) = 0                                                                         niet delen door cos 2x
+                                                                                    1
+                                                    ⇐⇒ cos 2x = 0    of   cos x =
+                                                                                    2
+
+-->
+
+<p>
+
+\begin{align*}
+&amp;\cos x+\cos 3x=\cos 2x\\ \iff {}&amp;2\cos \frac {x+3x}{2}\cos \frac {x-3x}{2}=\cos 2x\\ \iff {}&amp;2\cos 2x\cos x=\cos 2x &amp;&amp; \aside {\cos (-x)=\cos x}\\ \iff {}&amp;\cos
+2x\,(2\cos x-1)=0 &amp;&amp; \aside {\text {niet delen door } \cos 2x}\\ \iff {}&amp;\cos 2x=0\quad \text {of}\quad \cos x=\frac {1}{2}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                              π                                                                                         π
+                                                            2x =+ kπ                                                                       of   x=±       + 2kπ,   k∈Z
+                                                              2                                                                                         3
+                                                              π    π
+                                                        =⇒ x = + k
+                                                              4    2
+
+-->
+
+<p>
+
+\begin{align*}
+2x&amp;=\frac {\pi }{2}+k\pi &amp; \text {of}\quad x&amp;=\pm \frac {\pi }{3}+2k\pi ,\quad k\in \mathbb {Z}\\ \implies x&amp;=\frac {\pi }{4}+k\frac {\pi }{2}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> Toon aan: \(\sin A\sin B+\cos A\cos B=\cos (A-B)\).
+</p>
+<div class="oplossing">
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                   sin A sin B + cos A cos B = 21 cos(A − B) − cos(A + B)
+                                                                                                                                        
+
+                                                                                                              + 12 cos(A − B) + cos(A + B)
+                                                                                                                                          
+
+                                                                                                           = cos(A − B).
+
+
+-->
+
+<p>
+
+\begin{align*}
+\sin A\sin B+\cos A\cos B &amp;=\tfrac 12\bigl [\cos (A-B)-\cos (A+B)\bigr ]\\ &amp;\quad +\tfrac 12\bigl [\cos (A-B)+\cos (A+B)\bigr ]\\ &amp;=\cos (A-B).
+\end{align*}
+
+</p>
+</div>
+<p>
+
 </p>
 </li>
 </ul>
+
+</div>
 <!--
 ...... section Combineren: t--formules en Simpson ......
 -->
-<h4 id="autosec-28"><span class="sectionnumber">III&#x2003;</span>Combineren: t&#x202f;-formules <em>en</em> Simpson</h4>
-<a id="mkpiweb-autopage-28"></a>
+<h4 id="autosec-31"><span class="sectionnumber">III&#x2003;</span>Combineren: t&#x202f;-formules <em>en</em> Simpson</h4>
+<a id="mkpiweb-autopage-31"></a>
 
 
 <p>
@@ -1273,8 +1690,8 @@ Zet \(\sin ^2 x\) om naar een som:
 <!--
 ...... subsubsection Voorbeeld 3 ......
 -->
-<h6 id="autosec-29">Voorbeeld 3</h6>
-<a id="mkpiweb-autopage-29"></a>
+<h6 id="autosec-32">Voorbeeld 3</h6>
+<a id="mkpiweb-autopage-32"></a>
 
 
 <p>
@@ -1327,16 +1744,16 @@ Dit geeft een (ree&#x0308;le) vergelijking van graad \(3\) in \(t\). Werk uit of
 
 
 <p>
-<span class="paragraph" id="autosec-30">Oefening (uitwerking op apart blad).</span>
-<a id="mkpiweb-autopage-30"></a>
+<span class="paragraph" id="autosec-33">Oefening (uitwerking op apart blad).</span>
+<a id="mkpiweb-autopage-33"></a>
 Los exact op: \(\sin 2x+\sin 4x=1\).<br />
 (<em>Hint:</em> Simpson \(\Rightarrow \) product van \(\sin 3x\) en \(\cos x\); daarna t&#x202f;-formules of herschrijven met \(\sin 3x=3\sin x-4\sin ^3x\).)
 </p>
 <!--
 ...... section Overzicht op één blik ......
 -->
-<h4 id="autosec-31">Overzicht op één blik</h4>
-<a id="mkpiweb-autopage-31"></a>
+<h4 id="autosec-34">Overzicht op één blik</h4>
+<a id="mkpiweb-autopage-34"></a>
 
 
 <p>
@@ -1347,8 +1764,8 @@ B&amp;=-2\sin \frac {A+B}{2}\sin \frac {A-B}{2}. \end {aligned}} \]
 <!--
 ...... section Extra oefenset ......
 -->
-<h4 id="autosec-32">Extra oefenset</h4>
-<a id="mkpiweb-autopage-32"></a>
+<h4 id="autosec-35">Extra oefenset</h4>
+<a id="mkpiweb-autopage-35"></a>
 
 
 <ul class="enumerate" style="list-style-type:none">
@@ -1397,8 +1814,8 @@ B&amp;=-2\sin \frac {A+B}{2}\sin \frac {A-B}{2}. \end {aligned}} \]
 <!--
 ...... section Appendix: Geometrische gids voor ......
 -->
-<h4 id="autosec-33">Appendix: Geometrische gids voor \(t=\tan \dfrac {\alpha }{2}\)</h4>
-<a id="mkpiweb-autopage-33"></a>
+<h4 id="autosec-36">Appendix: Geometrische gids voor \(t=\tan \dfrac {\alpha }{2}\)</h4>
+<a id="mkpiweb-autopage-36"></a>
 <div class="center">
 
 <p>
@@ -1436,6 +1853,6 @@ Op de raaklijn \(x=1\) aan de eenheidscirkel is \(t\) precies de georie&#x0308;n
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=d7b7f964400d"></script>
+<script src="presentatie.js?v=29b268430fc4"></script>
 </body>
 </html>
