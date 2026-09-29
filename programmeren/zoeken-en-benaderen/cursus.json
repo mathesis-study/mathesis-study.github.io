@@ -1,0 +1,21 @@
+{
+ "titel": "Zoeken en benaderen",
+ "hoofdstuk": 1,
+ "code": "N01",
+ "vak": "Informatica",
+ "domein": "Programmeren",
+ "domeinnaam": "Programmeren",
+ "url": "programmeren/zoeken-en-benaderen",
+ "secties": [
+  "Informaticawetenschappen",
+  "Raad het getal",
+  "De bisectiemethode",
+  "De secantmethode",
+  "Oefeningen met pen en papier",
+  "Samenvatting"
+ ],
+ "leerplandoelen": [],
+ "interactief": true,
+ "python": true,
+ "oefeningen": true
+}

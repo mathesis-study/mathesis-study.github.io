@@ -1,0 +1,3082 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Zoeken en benaderen</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=299336ef5701" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=299336ef5701" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=299336ef5701" />
+<link rel="stylesheet" href="python-oefeningen.css?v=299336ef5701" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk"></p> <h1>Zoeken en benaderen</h1> </header>
+</p>
+<!--
+...... section Informaticawetenschappen ......
+-->
+<h4 id="autosec-2"><span class="sectionnumber">I&#x2003;</span>Informaticawetenschappen</h4>
+<a id="mkpiweb-autopage-2"></a>
+<!--
+...... subsection Van programma naar algoritme ......
+-->
+<h5 id="autosec-3"><span class="sectionnumber">1&#x2003;</span>Van programma naar algoritme</h5>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<p>
+Je kent de bouwstenen van Python. Maar wat schrijf je ermee op? Daar gaat de informatica over.
+</p>
+
+<p>
+Een <b>algoritme</b> is een methode die een probleem stap voor stap oplost, zo precies dat een computer ze kan uitvoeren. Een programma is een algoritme in één bepaalde taal.
+</p>
+
+<p>
+<div class=tekst-met-figuur>
+</p>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:273pt ; ">
+
+<a id="mkpiweb-autopage-4"></a>
+
+<p>
+Enkele bekende algoritmen:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Euclides: de
+grootste gemene deler;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> sorteren: een
+lijst van klein naar groot;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> routeplanner:
+de snelste weg;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> zoeken: snel
+iets terugvinden.
+</p>
+</li>
+</ul>
+
+</div>
+<div class="minipage" style="vertical-align:middle ; justify-content:flex-start ; width:212pt ; ">
+
+<a id="mkpiweb-autopage-5"></a>
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                  4
+    7
+         5                3
+S             6               D
+    2
+                          4
+             3
+
+snelste route: 2 + 3 + 4 = 9 min
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+
+</div>
+
+<p>
+</div>
+</p>
+<!--
+...... subsection Wat doen we in dit hoofdstuk? ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Wat doen we in dit hoofdstuk?</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+Geen nieuwe Python, enkel:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> variabelen;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <kbd>if</kbd>;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <kbd>while</kbd>.
+</p>
+</li>
+</ul>
+
+<p>
+Nieuw is de <b>manier van denken</b>.
+</p>
+
+<p>
+Drie ideee&#x0308;n:
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <b>raden door te halveren</b>: \(1\) tot \(100\) in hoogstens \(7\) pogingen;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <b>een nulwaarde zoeken door te halveren</b>: de bisectiemethode;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> <b>benaderen met een rechte</b>: de secantmethode, veel sneller.
+</p>
+</li>
+</ul>
+
+<p>
+Bij elk idee twee vragen:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>juist</b>: werkt het altijd?
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>snel</b>: hoeveel stappen zijn er nodig?
+</p>
+</li>
+</ul>
+
+
+<div class="aside">
+
+<p>
+Eén regel zetten we voor je klaar: die geeft een wiskundige functie een naam, zodat je ze kunt gebruiken zoals <kbd>abs()</kbd> of <kbd>round()</kbd>.
+</p>
+
+</div>
+<!--
+...... section Raad het getal ......
+-->
+<h4 id="autosec-9"><span class="sectionnumber">II&#x2003;</span>Raad het getal</h4>
+<a id="mkpiweb-autopage-9"></a>
+<!--
+...... subsection Een slimme strategie ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">1&#x2003;</span>Een slimme strategie</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+Iemand denkt aan een getal van \(1\) tot \(100\). Jij raadt en hoort enkel <em>te hoog</em>, <em>te laag</em> of <em>juist</em>.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <span class="opl opl-fill" ><b>één voor één</b>: werkt altijd, maar tot \(100\) pogingen;</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <span class="opl opl-fill" ><b>telkens het midden</b>: elke gok sluit de helft uit.</span>
+</p>
+</li>
+</ul>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="raadspel" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+1    2    3    4    5    6    7    8    9    10   gok 50: te laag
+11   12   13   14   15   16   17   18   19   20
+                                                  gok 75: te hoog
+                                                  gok 62: te laag
+21   22   23   24   25   26   27   28   29   30
+                                                  gok 68: te laag
+31   32   33   34   35   36   37   38   39   40   over: 69 tot 74
+41   42   43   44   45   46   47   48   49   50
+
+51   52   53   54   55   56   57   58   59   60
+
+61   62   63   64   65   66   67   68 69 70
+
+71 72 73 74 75           76   77   78   79   80
+
+81   82   83   84   85   86   87   88   89   90
+
+91   92   93   94   95   96   97   98   99 100
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een vakje om te gokken. Bij <em>Computer raadt</em> kies je zelf een getal.</figcaption> </figure>
+</p>
+
+<p>
+Na vier gokken blijven er hoogstens zes getallen over.
+</p>
+<!--
+...... subsection Waarom hoogstens zeven pogingen? ......
+-->
+<h5 id="autosec-14"><span class="sectionnumber">2&#x2003;</span>Waarom hoogstens zeven pogingen?</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+Elke gok halveert wat nog kan:
+</p>
+
+<p>
+\[ 100 \xrightarrow {\text {gok 1}} 50 \xrightarrow {\text {gok 2}} 25 \xrightarrow {\text {gok 3}} 12 \xrightarrow {\text {gok 4}} 6 \xrightarrow {\text {gok 5}} 3 \xrightarrow {\text {gok 6}}
+1 \]
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <span class="opl opl-fill" >na \(6\) gokken blijft er <b>één getal</b> over;</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <span class="opl opl-fill" >gok \(7\) is dus <b>zeker juist</b>.</span>
+</p>
+</li>
+</ul>
+
+<p>
+Twee keer zoveel getallen? <span class="opl opl-fill" >Maar <b>één gok extra</b>.</span>
+</p>
+
+<p>
+\[ \begin {array}{r|r|r} \text {getallen} &amp; \text {aftellen} &amp; \text {halveren} \\ \hline 100 &amp; 100 &amp; \opl [0pt]{7} \\ 1\,000 &amp; 1\,000 &amp; \opl [0pt]{10} \\ 1\,000\,000
+&amp; 1\,000\,000 &amp; \opl [0pt]{20} \\ 8\,000\,000\,000 &amp; 8\,000\,000\,000 &amp; \opl [0pt]{33} \end {array} \]
+</p>
+
+<p>
+<span class="opl opl-fill" >Met \(33\) vragen vind je <b>één mens op de hele wereld</b>.</span>
+</p>
+
+
+<div class="aside">
+
+<p>
+Voor de hele wereldbevolking moet je wel iedereen op een rij kunnen zetten.
+</p>
+
+</div>
+<!--
+...... subsection Halveren en logaritmen ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">3&#x2003;</span>Halveren en logaritmen</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+Met \(n\) pogingen vind je een getal uit \(2^n - 1\) mogelijkheden. <span class="aside">Waarom? Teken de boom in oefening&nbsp;<a href="index.html#oef:raad-boom">2</a>.</span> Hoeveel pogingen heb je nodig
+voor \(N\) getallen?
+</p>
+
+<p>
+\[ 2^n - 1 \geq N \iff 2^n \geq N + 1 \iff n \geq \opl [0pt]{\log _2 (N+1)} \]
+</p>
+
+<p>
+<span class="opl opl-fill" >Het aantal pogingen is \(\log _2(N+1)\), <b>naar boven afgerond</b>.</span>
+</p>
+
+<p>
+\[ \begin {array}{r|r|r} N &amp; \log _2(N+1) &amp; \text {pogingen} \\ \hline 100 &amp; \opl [0pt]{6.66} &amp; 7 \\ 1\,000 &amp; \opl [0pt]{9.97} &amp; 10 \\ 1\,000\,000 &amp; \opl
+[0pt]{19.93} &amp; 20 \\ 8\,000\,000\,000 &amp; \opl [0pt]{32.90} &amp; 33 \end {array} \]
+</p>
+
+<p>
+Tien keer zoveel getallen? <span class="opl opl-fill" >Maar \(\log _2 10 \approx 3.3\) pogingen extra.</span>
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="pogingen" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+pogingen
+        aftellen
+  8
+                        halveren
+  7
+  6
+                        log2 (N + 1)
+  5
+  4
+  3
+  2
+  1
+
+        15   31    63                  127   N
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(N\) over de as en lees af hoeveel pogingen halveren nodig heeft. Verdubbel \(N\) en zet aftellen erbij om te
+vergelijken.</figcaption> </figure>
+</p>
+
+<p>
+Het aantal stappen groeit als een logaritme: binair zoeken is <b>logaritmisch</b>.
+</p>
+
+
+<div class="aside">
+
+<p>
+Op het rekentoestel: \(\log _2 x = \dfrac {\log x}{\log 2}\).
+</p>
+
+</div>
+<!--
+...... subsection Binair zoeken ......
+-->
+<h5 id="autosec-19"><span class="sectionnumber">4&#x2003;</span>Binair zoeken</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+Deze strategie heet <b>binair zoeken</b>: vergelijk met het midden en houd één helft over.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+                             midden
+                                                                   gezocht: 50
+4   9     15       22   28    35      41    50   57    63     72
+                                                                   35 < 50: te laag
+
+        valt weg                           zoek hier verder
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Werkt enkel als de hoop <b>gerangschikt</b> is:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> getallen van klein naar groot;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> woorden in een woordenboek;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> namen in een klaslijst.
+</p>
+</li>
+</ul>
+
+<p>
+Zonder volgorde? <span class="opl opl-fill" >Dan valt er niets te halveren.</span>
+</p>
+
+<p>
+Waarom <em>binair</em>? <span class="opl opl-fill" ><b>Links</b> of <b>rechts</b>, dus twee (bi) keuzes.</span>
+</p>
+
+
+<div class="aside">
+
+<p>
+Een lijst ordenen om er sneller in te zoeken, deden de Babylonie&#x0308;rs rond 200 voor Christus al. Binair zoeken als algoritme werd voor het eerst vermeld in 1946, door John Mauchly, een van de bouwers van de ENIAC. Het
+bleek moeilijker dan het lijkt: de gepubliceerde versies werkten enkel voor lijsten met \(1\), \(3\), \(7\), \(15\), &#x2026; elementen, tot Derrick Lehmer in 1960 een versie gaf die voor elke lengte werkt.
+</p>
+
+</div>
+<!--
+...... subsection De computer raadt ......
+-->
+<h5 id="autosec-23"><span class="sectionnumber">5&#x2003;</span>De computer raadt</h5>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<a id="sec:computer-raadt"></a>
+
+<p>
+Eerst zelf op papier: oefening&nbsp;<a href="index.html#oef:raad-op-papier">1</a>.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <kbd>geheim</kbd>: het getal dat de computer zoekt;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <kbd>links</kbd> en <kbd>rechts</kbd>: het kleinste en grootste getal dat nog kan;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> de <kbd>if</kbd> zegt <em>te hoog</em> of <em>te laag</em>.
+</p>
+</li>
+</ul>
+
+<p>
+Stap met de bugknop door de code.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="raadstrook" data-hoogte="3.5rem" data-ingebed="1"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+    links   gok   rechts
+
+1                   geheim   100
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Grijs valt weg, blauw kan nog, oranje is de gok.</figcaption> </figure>
+</p>
+
+<div class="python-oefening python-codeblok" data-python="code-1"><div class="python-startcode"><pre class="pythoncode" data-stappen="regel" data-grafiek="raadstrook"><code>geheim = 71
+links = 1
+rechts = 100
+gok = (links + rechts) // 2
+pogingen = 1
+while gok != geheim:
+    if gok &lt; geheim:
+        links = gok + 1
+    else:
+        rechts = gok - 1
+    gok = (links + rechts) // 2
+    pogingen += 1
+print("Gevonden:", gok, "na", pogingen, "pogingen")</code></pre></div></div>
+
+<p>
+Waarom <kbd>//</kbd>? <span class="opl opl-fill" >Gehele deling: <kbd>151 // 2</kbd> is \(75\), niet \(75.5\).</span>
+</p>
+
+<p>
+Waarom <kbd>gok + 1</kbd>? <span class="opl opl-fill" >Van <kbd>gok</kbd> weten we al dat het niet juist is.</span>
+</p>
+
+<p>
+Speelt de computer vals? <span class="opl opl-fill" >Nee: hij vergelijkt enkel met <kbd>geheim</kbd>.</span>
+</p>
+<!--
+...... subsection Pen-en-papieroefeningen ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">6&#x2003;</span>Pen-en-papieroefeningen</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<div class="cursus-oefenbalk"></div>
+
+<div class="cursus-oefeningenpdf"><a href="N01_ZoekenEnBenaderen_Oefeningen1.pdf" download="N01_ZoekenEnBenaderen_Oefeningen1.pdf"></a></div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-28">Oefening 1</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<a id="oef:raad-op-papier"></a>
+
+<p>
+Voer dit programma uit op papier. Noteer bij elke gok <kbd>links</kbd>, <kbd>rechts</kbd> en <kbd>gok</kbd>. Controleer daarna op de site met de bugknop bij <a href="#sec:computer-raadt"><em>De computer
+raadt</em></a>.
+</p>
+
+<pre class="pythoncode" data-vast="1"><code>geheim = <span class="py-getal">71</span>
+links = <span class="py-getal">1</span>
+rechts = <span class="py-getal">100</span>
+gok = (links + rechts) // <span class="py-getal">2</span>
+pogingen = <span class="py-getal">1</span>
+<span class="py-sleutelwoord">while</span> gok != geheim:
+    <span class="py-sleutelwoord">if</span> gok &lt; geheim:
+        links = gok + <span class="py-getal">1</span>
+    <span class="py-sleutelwoord">else</span>:
+        rechts = gok - <span class="py-getal">1</span>
+    gok = (links + rechts) // <span class="py-getal">2</span>
+    pogingen += <span class="py-getal">1</span>
+<span class="py-functie">print</span>(<span class="py-string">"Gevonden:"</span>, gok, <span class="py-string">"na"</span>, pogingen, <span class="py-string">"pogingen"</span>)</code></pre>
+
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(50\), \(75\), \(62\), \(68\), \(71\)</span>
+</p>
+
+<p>
+\[ \begin {array}{c|c|c|l} \texttt {links} &amp; \texttt {rechts} &amp; \texttt {gok} &amp; \\ \hline 1 &amp; 100 &amp; 50 &amp; \text {te laag} \\ 51 &amp; 100 &amp; 75 &amp; \text {te hoog}
+\\ 51 &amp; 74 &amp; 62 &amp; \text {te laag} \\ 63 &amp; 74 &amp; 68 &amp; \text {te laag} \\ 69 &amp; 74 &amp; 71 &amp; \text {juist} \end {array} \]
+</p>
+
+<p>
+Het programma vindt \(71\) na \(5\) pogingen.
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-29">Oefening 2</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<a id="oef:raad-boom"></a>
+
+<p>
+Het programma raadt een getal van \(1\) tot \(15\). Teken een boom: bovenaan de eerste gok, daaronder de gok na <em>te laag</em> links en na <em>te hoog</em> rechts, enzovoort.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Hoeveel getallen vindt het programma bij de eerste, de tweede, de derde en de vierde gok?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(1\), \(2\), \(4\) en \(8\)</span>
+</p>
+<div class="center">
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+gok 1                               8
+
+gok 2               4                                 12
+
+gok 3       2               6               10                  14
+
+gok 4   1       3       5       7       9        11        13        15
+--><img
+     src="mkpiweb-images/image-6.svg"
+     alt="(-tikz-&nbsp;diagram)"
+     style=""
+     class="lateximage"
+></span>
+</p>
+</div>
+<p>
+Elk niveau van de boom telt twee keer zoveel getallen als het vorige.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Leg met de boom uit waarom je met \(4\) pogingen hoogstens \(15\) getallen aankunt. Hoeveel zijn het er met \(5\) pogingen?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(1 + 2 + 4 + 8 = 15\); met \(5\) pogingen \(31\)</span> Met \(4\) pogingen heeft de boom \(4\) niveaus, samen \(1 + 2 + 4 + 8 = 15 = 2^4 - 1\) getallen. Een vijfde niveau telt \(16\)
+getallen, dus met \(5\) pogingen zijn het er \(15 + 16 = 31 = 2^5 - 1\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-33">Oefening 3</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+Het programma raadt een getal van \(1\) tot \(100\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Welke getallen vindt het bij de tweede gok?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(25\) en \(75\)</span> Na <em>te hoog</em> bij \(50\) is de gok \((1 + 49) \mathbin {//} 2 = 25\), na <em>te laag</em> is ze \((51 + 100) \mathbin {//} 2 = 75\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Geef een getal waarvoor het programma \(7\) pogingen nodig heeft.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">bijvoorbeeld \(100\)</span> Voor \(100\) zijn de gokken \(50\), \(75\), \(88\), \(94\), \(97\), \(99\) en \(100\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Voor hoeveel getallen heeft het \(7\) pogingen nodig?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(37\)</span> Met \(6\) pogingen vindt het hoogstens \(2^6 - 1 = 63\) getallen. De overige \(100 - 63 = 37\) getallen vindt het pas bij de zevende gok.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-34">Oefening 4</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+Iemand past in het programma uit <em>De computer raadt</em> de regel <kbd>links = gok + 1</kbd> aan tot <kbd>links = gok</kbd>.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Voer het aangepaste programma uit op papier, met <kbd>geheim = 100</kbd>. Noteer bij elke gok <kbd>links</kbd>, <kbd>rechts</kbd> en <kbd>gok</kbd>.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">het programma blijft \(99\) gokken</span>
+</p>
+<p>
+\[ \begin {array}{c|c|c|l} \texttt {links} &amp; \texttt {rechts} &amp; \texttt {gok} &amp; \\ \hline 1 &amp; 100 &amp; 50 &amp; \text {te laag} \\ 50 &amp; 100 &amp; 75 &amp; \text {te laag}
+\\ 75 &amp; 100 &amp; 87 &amp; \text {te laag} \\ 87 &amp; 100 &amp; 93 &amp; \text {te laag} \\ 93 &amp; 100 &amp; 96 &amp; \text {te laag} \\ 96 &amp; 100 &amp; 98 &amp; \text {te laag} \\
+98 &amp; 100 &amp; 99 &amp; \text {te laag} \\ 99 &amp; 100 &amp; 99 &amp; \text {te laag} \\ 99 &amp; 100 &amp; 99 &amp; \dots \end {array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Leg uit wat er misgaat.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\((99 + 100) \mathbin {//} 2 = 99\), dus <kbd>links</kbd> schuift niet meer op</span> Zodra <kbd>rechts</kbd> één meer is dan <kbd>links</kbd>, is de gok gelijk aan <kbd>links</kbd>.
+Is die te laag, dan krijgt <kbd>links</kbd> opnieuw dezelfde waarde en verandert er niets meer: de lus stopt nooit. Met <kbd>links = gok + 1</kbd> valt de gok zelf weg, en wordt het interval bij elke gok kleiner.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 5 ......
+-->
+<h6 id="autosec-35">Oefening 5</h6>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p>
+In deze gerangschikte lijst zoeken we \(40\) met binair zoeken.
+</p>
+
+<p>
+\[ \begin {array}{c|*{15}{c}} \text {plaats} &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 &amp; 6 &amp; 7 &amp; 8 &amp; 9 &amp; 10 &amp; 11 &amp; 12 &amp; 13 &amp; 14 &amp; 15 \\ \hline \text
+{getal} &amp; 3 &amp; 7 &amp; 11 &amp; 14 &amp; 19 &amp; 23 &amp; 28 &amp; 31 &amp; 36 &amp; 42 &amp; 47 &amp; 53 &amp; 58 &amp; 64 &amp; 70 \end {array} \]
+</p>
+
+<p>
+<kbd>links</kbd> en <kbd>rechts</kbd> zijn nu plaatsen in de lijst, en het midden is de plaats <kbd>(links + rechts) // 2</kbd>.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Noteer bij elke stap <kbd>links</kbd>, <kbd>rechts</kbd>, het midden en het getal dat daar staat.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">het midden is achtereenvolgens \(8\), \(12\), \(10\) en \(9\)</span>
+</p>
+<p>
+\[ \begin {array}{c|c|c|c|l} \texttt {links} &amp; \texttt {rechts} &amp; \text {midden} &amp; \text {getal} &amp; \\ \hline 1 &amp; 15 &amp; 8 &amp; 31 &amp; \text {te klein} \\ 9 &amp; 15
+&amp; 12 &amp; 53 &amp; \text {te groot} \\ 9 &amp; 11 &amp; 10 &amp; 42 &amp; \text {te groot} \\ 9 &amp; 9 &amp; 9 &amp; 36 &amp; \text {te klein} \\ 10 &amp; 9 &amp; &amp; &amp; \end
+{array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Hoe merk je dat \(40\) niet in de lijst staat? Welke voorwaarde zet je daarom in de <kbd>while</kbd>?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord"><kbd>links</kbd> komt voorbij <kbd>rechts</kbd>; <kbd>while links <= rechts:</kbd></span> Na de laatste stap is <kbd>links</kbd> groter dan <kbd>rechts</kbd>: er blijft geen enkele
+plaats meer over. De lus mag dus enkel doorgaan zolang <kbd>links <= rechts</kbd>. Het programma uit <em>De computer raadt</em> heeft die voorwaarde niet nodig, want daar zit het geheim altijd tussen \(1\) en \(100\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 6 ......
+-->
+<h6 id="autosec-36">Oefening 6</h6>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p>
+Speel met je buur het raadspel met de getallen van \(1\) tot \(100\). Wie raadt, schrijft de getallen op een strook en streept na elk antwoord weg wat niet meer kan.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Speel drie keer met de strategie <em>één voor één</em> en drie keer met <em>telkens het midden</em>. Noteer telkens het aantal pogingen.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">halveren: nooit meer dan \(7\)</span> Met <em>één voor één</em> kan het van \(1\) tot \(100\) pogingen duren, gemiddeld ongeveer \(50\). Met <em>telkens het midden</em> zijn het er nooit meer
+dan \(7\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Verzamel de resultaten van de klas. Wat is per strategie het gemiddelde?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">ongeveer \(50.5\) tegenover ongeveer \(5.8\)</span> Kiest je buur elk getal even vaak, dan is het gemiddelde bij <em>één voor één</em> \(50.5\). Bij <em>telkens het midden</em> vind je \(1\)
+getal bij de eerste gok, \(2\) bij de tweede, \(4\), \(8\), \(16\) en \(32\) bij de volgende, en de overige \(37\) bij de zevende. Gemiddeld is dat
+</p>
+<p>
+\[ \frac {1 \cdot 1 + 2 \cdot 2 + 4 \cdot 3 + 8 \cdot 4 + 16 \cdot 5 + 32 \cdot 6 + 37 \cdot 7}{100} = \frac {580}{100} = 5.8 \]
+</p>
+<p>
+pogingen. De resultaten van de klas liggen daar in de buurt.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... subsection Programmeeroefeningen ......
+-->
+<h5 id="autosec-37"><span class="sectionnumber">7&#x2003;</span>Programmeeroefeningen</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<div class="cursus-oefenbalk"></div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 7 ......
+-->
+<div class="python-oefening-kop"><h6 id="autosec-38">Oefening 7</h6><a class="pres-knop python-notebook-link" href="N01_ZoekenEnBenaderen_Oefeningen.ipynb" download="N01_ZoekenEnBenaderen_Oefeningen.ipynb" data-colab="mathesis-study/mathesis-study.github.io/main"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download oefennotebook</a></div>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<div class="python-oefening" data-python="computer-raadt">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Denk aan een getal van \(1\) tot \(100\). Schrijf een programma dat dat getal raadt door telkens het midden te nemen. Na elke gok antwoord je met <kbd>h</kbd> (mijn getal is hoger), <kbd>l</kbd> (mijn
+getal is lager) of <kbd>j</kbd> (juist). Toon op het einde het aantal pogingen.
+</p>
+
+</div>
+
+<p>
+<b>Denk vooraf na:</b> Hoeveel pogingen heeft je programma hoogstens nodig?
+</p>
+
+<div class="hint">
+
+<p>
+Vertrek van het programma hierboven. Wat komt er in de plaats van <kbd>geheim</kbd>?
+</p>
+</div>
+
+<div class="hint">
+
+<p>
+Stel de vraag in de voorwaarde van de lus niet, maar in de lus zelf. Dan heb je voor de lus al een eerste antwoord nodig.
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>links = 1
+rechts = 100
+gok = (links + rechts) // 2
+pogingen = 1
+antwoord = input("Is het " + str(gok) + "? ")
+while antwoord != "j":
+    ...
+print("Gevonden na", pogingen, "pogingen")</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>links = 1
+rechts = 100
+gok = (links + rechts) // 2
+pogingen = 1
+antwoord = input("Is het " + str(gok) + "? (h/l/j) ")
+while antwoord != "j":
+    if antwoord == "h":
+        links = gok + 1
+    else:
+        rechts = gok - 1
+    gok = (links + rechts) // 2
+    pogingen += 1
+    antwoord = input("Is het " + str(gok) + "? (h/l/j) ")
+print("Gevonden na", pogingen, "pogingen")</code></pre></div>
+
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 8 ......
+-->
+<h6 id="autosec-39">Oefening 8</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<div class="python-oefening" data-python="hoeveel-pogingen" data-input="1000">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Vraag een geheel getal \(n\): het aantal mogelijkheden. Toon hoeveel pogingen binair zoeken hoogstens nodig heeft. Tel daarvoor hoe vaak je \(n\) met <kbd>//</kbd> door \(2\) kunt delen voor er \(0\)
+overblijft.
+</p>
+
+</div>
+
+<p>
+<b>Denk vooraf na:</b> Wat verwacht je bij \(100\), bij \(1000\) en bij \(1\)?
+</p>
+
+<div class="hint">
+
+<p>
+Een <kbd>while</kbd>-lus met een teller: zolang \(n\) groter is dan \(0\), deel je \(n\) door \(2\) en tel je één op bij de teller.
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>n = int(input("Aantal mogelijkheden: "))
+pogingen = 0
+while ...:
+    ...
+print("Hoogstens", pogingen, "pogingen")</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>n = int(input("Aantal mogelijkheden: "))
+pogingen = 0
+while n &gt; 0:
+    n = n // 2
+    pogingen += 1
+print("Hoogstens", pogingen, "pogingen")</code></pre></div>
+
+</div>
+
+</div>
+<!--
+...... section De bisectiemethode ......
+-->
+<h4 id="autosec-40"><span class="sectionnumber">III&#x2003;</span>De bisectiemethode</h4>
+<a id="mkpiweb-autopage-40"></a>
+<!--
+...... subsection Een vergelijking zonder algebra ......
+-->
+<h5 id="autosec-41"><span class="sectionnumber">1&#x2003;</span>Een vergelijking zonder algebra</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+Voor welke \(x\) is \(2^x = x^2\)? Met wat proberen vind je \(x = 2\) en \(x = 4\), want \(2^2 = 2^2\) en \(2^4 = 16 = 4^2\). Maar er is nog een derde oplossing, met een negatieve \(x\). Teken je de grafieken van \(y =
+2^x\) en \(y = x^2\), dan zie je ze snijden in de buurt van \(-0.77\).
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="snijpunten" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+           y
+                                y = 2x
+          16
+                   y = x2
+          12
+
+          8
+
+          4
+
+
+−2   −1        1   2    3   4     5      x
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x\) over de \(x\)-as en vergelijk \(2^x\) met \(x^2\). De band onder de as toont waar \(2^x\) het grootst
+is.</figcaption> </figure>
+</p>
+
+<p>
+Probeer die derde oplossing met algebra te vinden: het lukt niet. Geen enkele rekenregel brengt \(x\) uit de exponent en uit het kwadraat tegelijk. Dat is geen uitzondering. De meeste vergelijkingen uit de praktijk kun je niet exact
+oplossen.
+</p>
+
+<p>
+Een computer kan wel iets anders: heel snel heel veel rekenen. We zoeken dus een <b>numerieke methode</b>: een algoritme dat de oplossing zo dicht benadert als we willen, bijvoorbeeld tot op \(12\) cijfers na de komma.
+</p>
+<!--
+...... subsection Het idee: halveer het interval ......
+-->
+<h5 id="autosec-45"><span class="sectionnumber">2&#x2003;</span>Het idee: halveer het interval</h5>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p>
+Kijk naar de grafiek links van het snijpunt: daar ligt \(2^x\) onder \(x^2\). Rechts ervan ligt \(2^x\) erboven. In \(x = -1\) is \(2^{-1} = 0.5\) kleiner dan \((-1)^2 = 1\); in \(x = 0\) is \(2^0 = 1\) groter dan \(0^2 = 0\).
+Het snijpunt ligt dus ergens in het interval \([-1, 0]\).
+</p>
+
+<p>
+Nu doen we wat we bij het raden deden. We nemen het midden \(-0.5\). Daar is \(2^{-0.5} \approx 0.71\) groter dan \(0.25\): we zitten rechts van het snijpunt. Het snijpunt ligt dus in de linkerhelft \([-1, -0.5]\). Zo
+gaan we verder:
+</p>
+
+<p>
+\[ [-1,\,0] \to [-1,\,-0.5] \to [-1,\,-0.75] \to [-0.875,\,-0.75] \to [-0.8125,\,-0.75] \to \cdots \]
+</p>
+
+<p>
+Elk interval is half zo breed als het vorige en bevat nog altijd het snijpunt. Dit is de <b>bisectiemethode</b> of <em>halveringsmethode</em>.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="bisectie" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+                                  y
+    2
+x                                     2x
+                                 1
+
+
+                                0.5
+
+
+    −1   −0.75   −0.5   −0.25              x
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op Halveer en volg hoe het interval rond het snijpunt krimpt. Met Inzoomen volgt het beeld het interval, zodat je ook na
+twintig stappen nog ziet wat er gebeurt.</figcaption> </figure>
+</p>
+<!--
+...... subsection Welke helft kies je? ......
+-->
+<h5 id="autosec-49"><span class="sectionnumber">3&#x2003;</span>Welke helft kies je?</h5>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+We kennen het snijpunt niet, dus we kunnen niet zien in welke helft het ligt. We weten wel hoe de grafieken liggen: links van het snijpunt is \(2^x &lt; x^2\), rechts ervan is \(2^x &gt; x^2\). Het volstaat dus om in het midden
+\(m\) te vergelijken:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> is \(2^m &gt; m^2\), dan ligt \(m\) rechts van het snijpunt en wordt \(m\) de nieuwe rechtergrens;
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> anders ligt \(m\) links van het snijpunt en wordt \(m\) de nieuwe linkergrens.
+</p>
+</li>
+</ul>
+
+<p>
+In Python heet de linkergrens <kbd>links</kbd>, de rechtergrens <kbd>rechts</kbd> en het midden <kbd>midden</kbd>. Het programma hieronder is één ronde van de methode. Het geeft <kbd>links</kbd> en
+<kbd>rechts</kbd> zelf geen waarde: die krijgt het van de figuur erboven, die het interval bijhoudt. Na elke uitvoering neemt de figuur het nieuwe interval over.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="bisectie-stap" data-hoogte="20rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+                   y
+    2
+x                          2x
+                  1
+
+                 0.5
+
+
+ −1      −0.5                   x
+links   midden    rechts
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">De figuur houdt het interval bij en geeft <kbd>links</kbd> en <kbd>rechts</kbd> aan de code eronder. Voer de code uit, of
+stap er met de bugknop regel per regel door: elke uitvoering is één ronde. Versleep <kbd>links</kbd> of <kbd>rechts</kbd> om met een ander interval te beginnen.</figcaption> </figure>
+</p>
+
+<div class="python-oefening python-codeblok" data-python="code-2"><div class="python-startcode"><pre class="pythoncode" data-stappen="regel" data-grafiek="bisectie-stap"><code>midden = (links + rechts) / 2
+if 2 ** midden &gt; midden ** 2:
+    rechts = midden
+else:
+    links = midden
+print(links, rechts)</code></pre></div></div>
+
+<p>
+Vanuit \([-1, 0]\) toont het programma <kbd>-1 -0.5</kbd>: het snijpunt ligt in de linkerhelft. Voer je het nog eens uit, dan begint het met die nieuwe waarden van <kbd>links</kbd> en <kbd>rechts</kbd>, en halveert het
+opnieuw. Zo herhaal je met de hand wat straks een <kbd>while</kbd>-lus voor je doet: de code blijft dezelfde, enkel de waarden in <kbd>links</kbd> en <kbd>rechts</kbd> gaan van ronde tot ronde mee.
+</p>
+
+<p>
+Het verschil met raden: hier deel je met <kbd>/</kbd> en niet met <kbd>//</kbd>, want \(x\) is een kommagetal. En het midden valt niet af: het wordt zelf een grens.
+</p>
+<!--
+...... subsection Wanneer stop je? ......
+-->
+<h5 id="autosec-53"><span class="sectionnumber">4&#x2003;</span>Wanneer stop je?</h5>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Na één stap is het interval \(\tfrac 12\) breed, na twee stappen \(\tfrac 14\), na \(n\) stappen \(\tfrac {1}{2^n}\). Het snijpunt ligt altijd in het interval. Is het interval smaller dan \(10^{-12}\), dan kennen we het
+snijpunt dus tot op \(12\) cijfers na de komma. Omdat \(2^{40} \approx 1.1 \cdot 10^{12}\), is dat na \(40\) stappen.
+</p>
+
+<p>
+We weten dus niet hoeveel keer we moeten herhalen, wel wanneer we klaar zijn. Dat is werk voor een <kbd>while</kbd>-lus, met de voorwaarde <kbd>rechts - links > 1e-12</kbd>. In Python schrijf je \(10^{-12}\) als
+<kbd>1e-12</kbd>. Die schrijfwijze is geen nieuwe instructie, enkel een kortere notatie voor het getal <kbd>0.000000000001</kbd>. Zo is <kbd>1.2e23</kbd> het getal \(1.2 \cdot 10^{23}\).
+</p>
+
+
+<div class="aside">
+
+<p>
+Vraag niet te veel. Een <kbd>float</kbd> bewaart ongeveer \(16\) beduidende cijfers. Rond \(-0.77\) liggen twee opeenvolgende kommagetallen dus zo’n \(10^{-16}\) uit elkaar. Vraag je een interval smaller dan \(10^{-17}\),
+dan kan het interval nooit zo smal worden en stopt de lus nooit.
+</p>
+
+</div>
+<!--
+...... subsection Het programma ......
+-->
+<h5 id="autosec-54"><span class="sectionnumber">5&#x2003;</span>Het programma</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p>
+Hieronder staat de volledige methode, met een ruimere nauwkeurigheid van \(0.001\), zodat je er met de bugknop door kunt stappen. Let in de strook op de vergelijking van de <kbd>if</kbd>: ze beslist bij elke ronde welke grens
+verschuift.
+</p>
+<div class="python-oefening python-codeblok" data-python="code-3"><div class="python-startcode"><pre class="pythoncode" data-stappen="regel"><code>links = -1
+rechts = 0
+stappen = 0
+while rechts - links &gt; 0.001:
+    midden = (links + rechts) / 2
+    if 2 ** midden &gt; midden ** 2:
+        rechts = midden
+    else:
+        links = midden
+    stappen += 1
+print("x ligt tussen", links, "en", rechts)
+print("na", stappen, "stappen")</code></pre></div></div>
+
+<p>
+Met de nauwkeurigheid \(10^{-12}\) en een <kbd>print</kbd> in de lus zie je elk interval voorbijkomen. Voer dit programma uit en kijk hoe de cijfers vooraan één voor één vast komen te staan.
+</p>
+<div class="python-oefening python-codeblok" data-python="code-4"><div class="python-startcode"><pre class="pythoncode"><code>links = -1
+rechts = 0
+while rechts - links &gt; 1e-12:
+    midden = (links + rechts) / 2
+    if 2 ** midden &gt; midden ** 2:
+        rechts = midden
+    else:
+        links = midden
+    print(links, rechts)
+print("x =", round(links, 12))</code></pre></div></div>
+<!--
+...... subsection Van snijpunt naar nulwaarde ......
+-->
+<h5 id="autosec-55"><span class="sectionnumber">6&#x2003;</span>Van snijpunt naar nulwaarde</h5>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+Dezelfde methode vindt een <b>nulwaarde</b> van een functie \(f\), een \(x\) met \(f(x) = 0\). Een snijpunt van \(2^x\) en \(x^2\) is trouwens een nulwaarde van \(f(x) = 2^x - x^2\).
+</p>
+
+<p>
+Het idee steunt op één eigenschap. Is \(f\) continu, dus zonder sprongen, en heeft \(f\) in de uiteinden van een interval een verschillend teken, dan moet de grafiek ergens in dat interval de \(x\)-as snijden. Dat is de
+<b>tussenwaardestelling</b>. Bernard Bolzano bewees ze in 1817, lang voor er computers waren; de bisectiemethode is er rechtstreeks op gebouwd.
+</p>
+
+<p>
+De keuze van de helft wordt dan: heeft \(f(\texttt {midden})\) hetzelfde teken als \(f(\texttt {links})\), dan ligt de nulwaarde rechts van het midden. Anders ligt ze links.
+</p>
+
+<p>
+Hoe test je of twee getallen hetzelfde teken hebben? Vermenigvuldig ze:
+</p>
+
+<p>
+\[ \begin {array}{cc|c|l} f(\texttt {links}) &amp; f(\texttt {midden}) &amp; \text {product} &amp; \\ \hline - &amp; - &amp; + &amp; \text {zelfde teken: nulwaarde rechts van het midden} \\ +
+&amp; + &amp; + &amp; \text {zelfde teken: nulwaarde rechts van het midden} \\ - &amp; + &amp; - &amp; \text {tekenwissel: nulwaarde links van het midden} \\ + &amp; - &amp; - &amp; \text
+{tekenwissel: nulwaarde links van het midden} \end {array} \]
+</p>
+
+<p>
+Is het product positief, dan hebben ze hetzelfde teken.
+</p>
+
+<p>
+Om niet telkens het hele voorschrift te herhalen, geven we de functie in Python een naam. De eerste regel hieronder zetten we in de oefeningen voor je klaar; daarna schrijf je gewoon <kbd>f(links)</kbd> en
+<kbd>f(midden)</kbd>, zoals je <kbd>abs(x)</kbd> of <kbd>round(x, 2)</kbd> schrijft. Het programma voert één stap uit, vanuit \([-3, -2]\). Stap er met de bugknop door: bij de <kbd>if</kbd> zie je
+<kbd>f_links</kbd> en <kbd>f_midden</kbd> en de uitkomst van de test.
+</p>
+<div class="python-oefening python-codeblok" data-python="code-5"><div class="python-startcode"><pre class="pythoncode" data-stappen="regel"><code>f = lambda x: x ** 3 - 8 * x - 3
+links = -3
+rechts = -2
+midden = (links + rechts) / 2
+f_links = f(links)               # -6
+f_midden = f(midden)             # 1.375
+if f_links * f_midden &gt; 0:       # zelfde teken
+    links = midden
+else:                            # tekenwissel
+    rechts = midden
+print(links, rechts)             # -3 -2.5</code></pre></div></div>
+
+<p>
+Het product is \(-6 \cdot 1.375 = -8.25\): een tekenwissel, dus de nulwaarde ligt in \([-3, -2.5]\).
+</p>
+
+
+<div class="aside">
+
+<p>
+<kbd>lambda x:</kbd> betekent: een functie met parameter <kbd>x</kbd>, die de waarde na de dubbele punt teruggeeft. Zelf functies schrijven komt later; hier gebruik je er enkel een. Het voordeel: wil je de nulwaarde van een
+andere functie, dan pas je maar één regel aan. Precies dat maakt de bisectiemethode tot een algemene methode.
+</p>
+
+</div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="tekenwissel" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+                  y
+                 15                 f
+                 10
+                  5
+−2.618             −0.382
+−4   −3   −2   −1       1   2   3   4   x
+                 −5
+                −10
+                −15
+--><img
+    src="mkpiweb-images/image-10.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(l\) en \(r\) over de \(x\)-as. Is er een tekenwissel, dan tonen de stippen de middens van de bisectiemethode en
+de nulwaarde die ze vindt.</figcaption> </figure>
+</p>
+
+<p>
+De figuur toont \(f(x) = x^3 - 8x - 3\), met drie nulwaarden. Twee dingen vallen op:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Liggen er meerdere nulwaarden in het interval, dan vindt de methode er één, maar je kiest niet welke.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Zonder tekenwissel kan de methode niet starten. Toch kunnen er nulwaarden in het interval liggen: in \([-1, 4]\) is \(f\) in beide uiteinden positief, en er liggen er twee tussen.
+</p>
+</li>
+</ul>
+
+<p>
+Een goede start vraagt dus een beetje wiskunde: een schets van de grafiek of een tabel met functiewaarden.
+</p>
+<!--
+...... subsection Programmeeroefeningen ......
+-->
+<h5 id="autosec-59"><span class="sectionnumber">7&#x2003;</span>Programmeeroefeningen</h5>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<div class="cursus-oefenbalk"></div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 9 ......
+-->
+<h6 id="autosec-60">Oefening 9</h6>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<div class="python-oefening" data-python="bisectie-snijpunt">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Schrijf een programma dat de \(x\) met \(2^x = x^2\) in het interval \([-1, 0]\) bepaalt tot op \(12\) cijfers na de komma. Toon \(x\) en het aantal stappen.
+</p>
+
+</div>
+
+<p>
+<b>Denk vooraf na:</b> Hoeveel stappen verwacht je?
+</p>
+
+<div class="hint">
+
+<p>
+Welke lus gebruik je: een <kbd>for</kbd>- of een <kbd>while</kbd>-lus? Wanneer stopt ze?
+</p>
+</div>
+
+<div class="hint">
+
+<p>
+Vergelijk in het midden \(2^x\) met \(x^2\). Is \(2^x\) het grootst, dan zit je rechts van het snijpunt.
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>links = -1
+rechts = 0
+stappen = 0
+while ...:
+    midden = ...
+    if ...:
+        ...
+    else:
+        ...
+    stappen += 1
+print("x =", round(links, 12), "na", stappen, "stappen")</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>links = -1
+rechts = 0
+stappen = 0
+while rechts - links &gt; 1e-12:
+    midden = (links + rechts) / 2
+    if 2 ** midden &gt; midden ** 2:
+        rechts = midden
+    else:
+        links = midden
+    stappen += 1
+print("x =", round(links, 12), "na", stappen, "stappen")</code></pre></div>
+
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 10 ......
+-->
+<h6 id="autosec-61">Oefening 10</h6>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<div class="python-oefening" data-python="wortel-twee">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Bepaal \(\sqrt {2}\) tot op \(12\) cijfers na de komma met de bisectiemethode, zonder <kbd>** 0.5</kbd> of een functie voor de vierkantswortel. Gebruik enkel dat \(\sqrt {2}\) het positieve getal \(x\) is
+met \(x \cdot x = 2\).
+</p>
+
+</div>
+
+<p>
+<b>Denk vooraf na:</b> In welk interval met gehele grenzen ligt \(\sqrt {2}\)?
+</p>
+
+<div class="hint">
+
+<p>
+Is \(\texttt {midden} \cdot \texttt {midden}\) kleiner dan \(2\), dan ligt \(\sqrt {2}\) rechts van het midden.
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>links = ...
+rechts = ...
+while ...:
+    ...
+print("wortel 2 =", round(links, 12))</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>links = 1
+rechts = 2
+while rechts - links &gt; 1e-12:
+    midden = (links + rechts) / 2
+    if midden * midden &lt; 2:
+        links = midden
+    else:
+        rechts = midden
+print("wortel 2 =", round(links, 12))</code></pre></div>
+
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 11 ......
+-->
+<h6 id="autosec-62">Oefening 11</h6>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<div class="python-oefening" data-python="derdegraad">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> De functie \(f(x) = x^3 - 8x - 3\) heeft drie nulwaarden. Bepaal de kleinste tot op \(12\) cijfers na de komma. Kies zelf een interval met gehele grenzen en toon ook het aantal stappen.
+</p>
+
+</div>
+
+<p>
+<b>Denk vooraf na:</b> Bereken \(f(-4)\), \(f(-3)\), \(f(-2)\), &#x2026; In welk interval wisselt het teken voor het eerst?
+</p>
+
+<div class="hint">
+
+<p>
+\(f(-3) = -6\) en \(f(-2) = 5\): de kleinste nulwaarde ligt in \([-3, -2]\).
+</p>
+</div>
+
+<div class="hint">
+
+<p>
+Vergelijk het teken van <kbd>f(midden)</kbd> met het teken van <kbd>f(links)</kbd>. Twee getallen hebben hetzelfde teken als hun product positief is.
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>f = lambda x: x ** 3 - 8 * x - 3
+
+links = ...
+rechts = ...
+stappen = 0
+while rechts - links &gt; 1e-12:
+    midden = (links + rechts) / 2
+    if ...:
+        ...
+    else:
+        ...
+    stappen += 1
+print("x =", round(links, 12), "na", stappen, "stappen")</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>f = lambda x: x ** 3 - 8 * x - 3
+
+links = -3
+rechts = -2
+stappen = 0
+while rechts - links &gt; 1e-12:
+    midden = (links + rechts) / 2
+    if f(links) * f(midden) &gt; 0:
+        links = midden
+    else:
+        rechts = midden
+    stappen += 1
+print("x =", round(links, 12), "na", stappen, "stappen")</code></pre></div>
+
+</div>
+
+</div>
+<!--
+...... section De secantmethode ......
+-->
+<h4 id="autosec-63"><span class="sectionnumber">IV&#x2003;</span>De secantmethode</h4>
+<a id="mkpiweb-autopage-63"></a>
+<!--
+...... subsection Halveren is traag ......
+-->
+<h5 id="autosec-64"><span class="sectionnumber">1&#x2003;</span>Halveren is traag</h5>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p>
+De bisectiemethode werkt altijd, zolang er een tekenwissel is. Maar ze is traag: \(40\) stappen voor \(12\) decimalen. Elke stap levert één bit op, en je hebt ongeveer \(3.3\) bits nodig voor één decimaal cijfer.
+</p>
+
+<p>
+Ze gooit ook informatie weg. Stel dat \(f(\texttt {links}) = -100\) en \(f(\texttt {rechts}) = 0.01\). Dan ligt de nulwaarde vrijwel zeker vlak bij <kbd>rechts</kbd>. De bisectiemethode kijkt enkel naar het teken en
+neemt toch het midden.
+</p>
+<!--
+...... subsection Een rechte door twee punten ......
+-->
+<h5 id="autosec-65"><span class="sectionnumber">2&#x2003;</span>Een rechte door twee punten</h5>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<p>
+De <b>secantmethode</b> gebruikt ook de grootte van de functiewaarden. Ze vertrekt van twee benaderingen \(x_0\) en \(x_1\) en trekt de rechte door \(\bigl (x_0, f(x_0)\bigr )\) en \(\bigl (x_1, f(x_1)\bigr )\).
+Zo’n rechte door twee punten van een grafiek heet een <em>secante</em>. Waar die rechte de \(x\)-as snijdt, ligt de volgende benadering \(x_2\).
+</p>
+
+<p>
+De secante heeft richtingscoe&#x0308;fficie&#x0308;nt
+</p>
+
+<p>
+\[ m = \frac {f(x_1) - f(x_0)}{x_1 - x_0} \]
+</p>
+
+<p>
+en vergelijking
+</p>
+
+<p>
+\[ s \leftrightarrow y - f(x_1) = m\,(x - x_1).         \]
+</p>
+
+<p>
+Stel \(y = 0\) en los op naar \(x\):
+</p>
+
+<p>
+\[ x_2 = x_1 - \frac {f(x_1)}{m} = x_1 - f(x_1) \cdot \frac {x_1 - x_0}{f(x_1) - f(x_0)}.                \]
+</p>
+
+<p>
+Daarna herhalen we met \(x_1\) en \(x_2\), dan met \(x_2\) en \(x_3\), enzovoort. Er is geen interval meer: we houden telkens de twee laatste benaderingen bij.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="secant" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-11"
+    class="lateximagesource"
+><!--
+ y
+ 3                           f
+
+ 2
+
+ 1
+           x0
+     0.5   1    x1.5
+                  2    x21       x
+−1
+
+−2
+--><img
+    src="mkpiweb-images/image-11.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x_0\) en \(x_1\) over de \(x\)-as, of klik op Volgende stap. De secante door de twee punten snijdt de \(x\)-as in
+de volgende benadering. Kies bovenaan een andere functie.</figcaption> </figure>
+</p>
+
+<p>
+Voor \(f(x) = x^2 - 2\) met \(x_0 = 1\) en \(x_1 = 2\) is \(f(x_0) = -1\) en \(f(x_1) = 2\). Dan is
+</p>
+
+<p>
+\[ x_2 = 2 - 2 \cdot \frac {2 - 1}{2 - (-1)} = 2 - \frac {2}{3} = \frac {4}{3} \approx 1.333.                 \]
+</p>
+
+<p>
+Een stap later is \(x_3 = 1.4\), en daarna \(x_4 \approx 1.41463\). Vergelijk met \(\sqrt {2} \approx 1.41421\).
+</p>
+<!--
+...... subsection Het programma ......
+-->
+<h5 id="autosec-69"><span class="sectionnumber">3&#x2003;</span>Het programma</h5>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+Het programma houdt \(x_0\) en \(x_1\) bij in <kbd>x0</kbd> en <kbd>x1</kbd>, en \(f(x_0)\) en \(f(x_1)\) in <kbd>f0</kbd> en <kbd>f1</kbd>. De functie zelf staat bovenaan, net als bij de bisectiemethode. Na elke stap
+schuift alles één plaats op: de oude <kbd>x1</kbd> wordt <kbd>x0</kbd>, de nieuwe benadering wordt <kbd>x1</kbd>. We stoppen wanneer twee opeenvolgende benaderingen bijna gelijk zijn.
+</p>
+<div class="python-oefening python-codeblok" data-python="code-6"><div class="python-startcode"><pre class="pythoncode" data-stappen="regel"><code>f = lambda x: x * x - 2
+x0 = 1
+x1 = 2
+stappen = 0
+while abs(x1 - x0) &gt; 0.001:
+    f0 = f(x0)
+    f1 = f(x1)
+    x2 = x1 - f1 * (x1 - x0) / (f1 - f0)
+    x0 = x1
+    x1 = x2
+    stappen += 1
+print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre></div></div>
+
+<p>
+De volgorde van <kbd>x0 = x1</kbd> en <kbd>x1 = x2</kbd> is belangrijk. Draai je ze om, dan is de oude <kbd>x1</kbd> al overschreven wanneer je hem in <kbd>x0</kbd> wilt stoppen. Dat is hetzelfde probleem als bij het
+omwisselen van twee variabelen.
+</p>
+<!--
+...... subsection Een wedstrijd ......
+-->
+<h5 id="autosec-70"><span class="sectionnumber">4&#x2003;</span>Een wedstrijd</h5>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+We laten beide methoden \(\sqrt {2}\) zoeken, als nulwaarde van \(f(x) = x^2 - 2\), en tellen na elke stap hoeveel cijfers na de komma al juist zijn.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="wedstrijd" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-12"
+    class="lateximagesource"
+><!--
+                   16
+
+
+
+
+juiste decimalen
+                   12
+
+
+                   8
+                                                           bisectie
+                                                           secant
+                   4
+
+
+                   0
+                        0   5   10   15   20     25   30    35        40
+                                          stap
+--><img
+    src="mkpiweb-images/image-12.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op Start en volg na elke stap het aantal juiste decimalen van beide methoden. Kies bovenaan welke vergelijking ze
+oplossen.</figcaption> </figure>
+</p>
+
+<p>
+De bisectiemethode wint gestaag, ongeveer drie decimalen per tien stappen. De secantmethode begint even traag, maar versnelt: bij elke stap komen er ongeveer anderhalve keer zoveel juiste cijfers bij als er al waren. Na \(7\)
+stappen heeft ze alle cijfers die een <kbd>float</kbd> kan bewaren.
+</p>
+<!--
+...... subsection Wanneer het misgaat ......
+-->
+<h5 id="autosec-74"><span class="sectionnumber">5&#x2003;</span>Wanneer het misgaat</h5>
+<a id="mkpiweb-autopage-74"></a>
+
+
+<p>
+Snelheid heeft een prijs. De secantmethode houdt geen interval bij, dus niets garandeert dat de nulwaarde tussen \(x_0\) en \(x_1\) blijft. Twee dingen kunnen misgaan.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>De secante is horizontaal.</b> Is \(f(x_0) = f(x_1)\), dan snijdt de rechte de \(x\)-as niet en deel je door nul. Voor \(x^2 - 2\) gebeurt dat al met \(x_0 = -1\) en \(x_1 = 1\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>De benadering springt weg.</b> Is de secante bijna horizontaal, dan ligt haar snijpunt met de \(x\)-as ver weg, soms bij een andere nulwaarde of nergens in de buurt. Probeer het in
+de figuur met \(x^3 - 8x - 3\) en \(x_0\) en \(x_1\) rond de top.
+</p>
+</li>
+</ul>
+
+<div class="python-oefening python-codeblok" data-python="code-7"><div class="python-startcode"><pre class="pythoncode"><code>f = lambda x: x * x - 2
+x0 = -1
+x1 = 1
+f0 = f(x0)
+f1 = f(x1)
+x2 = x1 - f1 * (x1 - x0) / (f1 - f0)
+# ZeroDivisionError: division by zero</code></pre></div></div>
+
+<p>
+De bisectiemethode is traag maar zeker, de secantmethode snel maar onbetrouwbaar. Echte software combineert ze: ze neemt een secantstap zolang die binnen een veilig interval blijft, en halveert anders.
+</p>
+
+
+<div class="aside">
+
+<p>
+Die combinatie heet de methode van Brent, naar Richard Brent, die ze in 1973 beschreef. Ze zit onder meer in de Pythonbibliotheek SciPy, in de functie <kbd>brentq</kbd>.
+</p>
+
+</div>
+<!--
+...... subsection Programmeeroefeningen ......
+-->
+<h5 id="autosec-75"><span class="sectionnumber">6&#x2003;</span>Programmeeroefeningen</h5>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<div class="cursus-oefenbalk"></div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 12 ......
+-->
+<h6 id="autosec-76">Oefening 12</h6>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<div class="python-oefening" data-python="secant-wortel-twee">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Bepaal \(\sqrt {2}\) met de secantmethode, vanuit \(x_0 = 1\) en \(x_1 = 2\). Stop wanneer twee opeenvolgende benaderingen minder dan \(10^{-12}\) verschillen. Toon het resultaat en het aantal stappen.
+</p>
+
+</div>
+
+<p>
+<b>Denk vooraf na:</b> Hoeveel stappen had de bisectiemethode nodig voor dezelfde nauwkeurigheid? En de secantmethode?
+</p>
+
+<div class="hint">
+
+<p>
+Bereken in elke ronde eerst <kbd>f0</kbd> en <kbd>f1</kbd>, dan <kbd>x2</kbd>, en schuif daarna op.
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>f = lambda x: x * x - 2
+
+x0 = 1
+x1 = 2
+stappen = 0
+while ...:
+    f0 = ...
+    f1 = ...
+    x2 = ...
+    ...
+    stappen += 1
+print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>f = lambda x: x * x - 2
+
+x0 = 1
+x1 = 2
+stappen = 0
+while abs(x1 - x0) &gt; 1e-12:
+    f0 = f(x0)
+    f1 = f(x1)
+    x2 = x1 - f1 * (x1 - x0) / (f1 - f0)
+    x0 = x1
+    x1 = x2
+    stappen += 1
+print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre></div>
+
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 13 ......
+-->
+<h6 id="autosec-77">Oefening 13</h6>
+<a id="mkpiweb-autopage-77"></a>
+
+
+<div class="python-oefening" data-python="secant-snijpunt">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Zoek opnieuw de \(x\) met \(2^x = x^2\), nu met de secantmethode vanuit \(x_0 = -1\) en \(x_1 = 0\). Stop wanneer twee opeenvolgende benaderingen minder dan \(10^{-12}\) verschillen. Toon \(x\) tot
+op \(12\) cijfers na de komma en het aantal stappen.
+</p>
+
+</div>
+
+<p>
+<b>Denk vooraf na:</b> Van welke functie zoek je een nulwaarde?
+</p>
+
+<div class="hint">
+
+<p>
+Het snijpunt van \(2^x\) en \(x^2\) is een nulwaarde van \(f(x) = 2^x - x^2\). Vul dat voorschrift in na <kbd>lambda x:</kbd>.
+</p>
+</div>
+
+<div class="hint">
+
+<p>
+De lus is dezelfde als bij \(\sqrt {2}\). Enkel de functie en de startwaarden veranderen.
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>f = lambda x: ...
+
+x0 = -1
+x1 = 0
+stappen = 0
+while ...:
+    ...
+print("x =", round(x1, 12), "na", stappen, "stappen")</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>f = lambda x: 2 ** x - x ** 2
+
+x0 = -1
+x1 = 0
+stappen = 0
+while abs(x1 - x0) &gt; 1e-12:
+    f0 = f(x0)
+    f1 = f(x1)
+    x2 = x1 - f1 * (x1 - x0) / (f1 - f0)
+    x0 = x1
+    x1 = x2
+    stappen += 1
+print("x =", round(x1, 12), "na", stappen, "stappen")</code></pre></div>
+
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 14 ......
+-->
+<h6 id="autosec-78">Oefening 14</h6>
+<a id="mkpiweb-autopage-78"></a>
+
+
+<div class="python-oefening" data-python="secant-veilig">
+
+<div class="python-opgave">
+
+<p>
+<b>Opgave.</b> Het programma hieronder crasht met een deling door nul. Pas het aan zodat het in dat geval niet crasht, maar <kbd>De secante is horizontaal</kbd> toont. Test ook met \(x_0 = 1\) en \(x_1 = 2\): dan
+moet het gewoon \(\sqrt {2}\) vinden.
+</p>
+
+</div>
+
+<p>
+<b>Denk vooraf na:</b> Welke waarden hebben <kbd>f(x0)</kbd> en <kbd>f(x1)</kbd> bij \(x_0 = -1\) en \(x_1 = 1\)?
+</p>
+
+<div class="hint">
+
+<p>
+Je mag in de voorwaarde van de lus ook <kbd>and</kbd> gebruiken. Wat moet er nog waar zijn om verder te rekenen?
+</p>
+</div>
+
+<div class="hint">
+
+<p>
+Na de lus weet je niet meteen waarom ze stopte. Test het daarom opnieuw met een <kbd>if</kbd>.
+</p>
+</div>
+
+<div class="python-startcode">
+
+<pre class="pythoncode"><code>f = lambda x: x * x - 2
+
+x0 = -1
+x1 = 1
+stappen = 0
+while abs(x1 - x0) &gt; 1e-12:
+    f0 = f(x0)
+    f1 = f(x1)
+    x2 = x1 - f1 * (x1 - x0) / (f1 - f0)
+    x0 = x1
+    x1 = x2
+    stappen += 1
+print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre>
+
+</div>
+
+<div class="python-modelcode" hidden><pre class="pythoncode"><code>f = lambda x: x * x - 2
+
+x0 = -1
+x1 = 1
+stappen = 0
+while abs(x1 - x0) &gt; 1e-12 and f(x1) != f(x0):
+    f0 = f(x0)
+    f1 = f(x1)
+    x2 = x1 - f1 * (x1 - x0) / (f1 - f0)
+    x0 = x1
+    x1 = x2
+    stappen += 1
+if abs(x1 - x0) &gt; 1e-12:
+    print("De secante is horizontaal")
+else:
+    print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre></div>
+
+</div>
+
+</div>
+<!--
+...... section Oefeningen met pen en papier ......
+-->
+<h4 id="autosec-79"><span class="sectionnumber">V&#x2003;</span>Oefeningen met pen en papier</h4>
+<a id="mkpiweb-autopage-79"></a>
+
+
+<p>
+Een algoritme begrijp je pas echt als je het een paar stappen zelf uitvoert. Gebruik een rekenmachine voor de berekeningen, niet voor het algoritme.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-80">Oefeningen</h6>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 15 ......
+-->
+<h6 id="autosec-81">Oefening 15</h6>
+<a id="mkpiweb-autopage-81"></a>
+
+
+<p>
+Hoeveel pogingen heb je met binair zoeken hoogstens nodig om een getal van \(1\) tot \(500\) te raden? En van \(1\) tot \(512\)?
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(9\) en \(10\)</span> Met \(n\) pogingen vind je een getal uit hoogstens \(2^n - 1\) mogelijkheden. Omdat \(2^8 - 1 = 255 &lt; 500 \leq 511 = 2^9 - 1\), volstaan \(9\) pogingen voor
+\(500\) getallen. Voor \(512\) getallen is dat net één te weinig: je hebt er \(10\) nodig.
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 16 ......
+-->
+<h6 id="autosec-82">Oefening 16</h6>
+<a id="mkpiweb-autopage-82"></a>
+
+
+<p>
+Iemand denkt aan \(23\), tussen \(1\) en \(100\). Schrijf de gokken van het programma uit <em>De computer raadt</em> op, met telkens <kbd>links</kbd> en <kbd>rechts</kbd>.
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(50\), \(25\), \(12\), \(18\), \(21\), \(23\)</span>
+</p>
+
+<p>
+\[ \begin {array}{c|c|c|l} \texttt {links} &amp; \texttt {rechts} &amp; \texttt {gok} &amp; \\ \hline 1 &amp; 100 &amp; 50 &amp; \text {te hoog} \\ 1 &amp; 49 &amp; 25 &amp; \text {te hoog} \\
+1 &amp; 24 &amp; 12 &amp; \text {te laag} \\ 13 &amp; 24 &amp; 18 &amp; \text {te laag} \\ 19 &amp; 24 &amp; 21 &amp; \text {te laag} \\ 22 &amp; 24 &amp; 23 &amp; \text {juist} \end {array} \]
+</p>
+
+<p>
+Het programma vindt \(23\) na \(6\) pogingen.
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 17 ......
+-->
+<h6 id="autosec-83">Oefening 17</h6>
+<a id="mkpiweb-autopage-83"></a>
+
+
+<p>
+We zoeken \(\sqrt [3]{10}\), de nulwaarde van \(f(x) = x^3 - 10\). Voer drie stappen van de bisectiemethode uit, vanuit het interval \([2, 3]\).
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\([2.125,\, 2.25]\)</span>
+</p>
+
+<p>
+\[ \begin {array}{c|c|c|c|l} \text {stap} &amp; \text {interval} &amp; m &amp; f(m) &amp; \\ \hline 1 &amp; [2,\, 3] &amp; 2.5 &amp; 5.625 &amp; \text {positief: nieuwe rechtergrens} \\ 2
+&amp; [2,\, 2.5] &amp; 2.25 &amp; 1.390625 &amp; \text {positief: nieuwe rechtergrens} \\ 3 &amp; [2,\, 2.25] &amp; 2.125 &amp; -0.404296875 &amp; \text {negatief: nieuwe linkergrens} \end
+{array} \]
+</p>
+
+<p>
+Na drie stappen ligt \(\sqrt [3]{10}\) in \([2.125,\, 2.25]\). Inderdaad is \(\sqrt [3]{10} \approx 2.154\).
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 18 ......
+-->
+<h6 id="autosec-84">Oefening 18</h6>
+<a id="mkpiweb-autopage-84"></a>
+
+
+<p>
+Je start de bisectiemethode met een interval van breedte \(1\). Na hoeveel stappen is het interval smaller dan \(10^{-6}\)?
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(20\) stappen</span> Na \(n\) stappen is het interval \(\tfrac {1}{2^n}\) breed. We zoeken de kleinste \(n\) met \(2^n &gt; 10^6\). Omdat \(2^{19} = 524\,288\) en \(2^{20} =
+1\,048\,576\), is dat \(n = 20\).
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 19 ......
+-->
+<h6 id="autosec-85">Oefening 19</h6>
+<a id="mkpiweb-autopage-85"></a>
+
+
+<p>
+We zoeken \(\sqrt {5}\) als nulwaarde van \(f(x) = x^2 - 5\). Voer twee stappen van de secantmethode uit, vanuit \(x_0 = 2\) en \(x_1 = 3\).
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(x_2 = 2.2\) en \(x_3 \approx 2.2308\)</span> Met \(f(2) = -1\) en \(f(3) = 4\) is
+</p>
+
+<p>
+\[ x_2 = 3 - 4 \cdot \frac {3 - 2}{4 - (-1)} = 3 - 0.8 = 2.2.        \]
+</p>
+
+<p>
+Met \(f(2.2) = -0.16\) is
+</p>
+
+<p>
+\[ x_3 = 2.2 - (-0.16) \cdot \frac {2.2 - 3}{-0.16 - 4} = 2.2 + \frac {0.128}{4.16} \approx 2.2308.             \]
+</p>
+
+<p>
+Vergelijk met \(\sqrt {5} \approx 2.2361\).
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 20 ......
+-->
+<h6 id="autosec-86">Oefening 20</h6>
+<a id="mkpiweb-autopage-86"></a>
+
+
+<p>
+Leg uit waarom de bisectiemethode niet kan starten voor \(f(x) = x^2 - 2\) op het interval \([-2, 2]\), terwijl er toch twee nulwaarden in liggen. Kan de secantmethode vanuit \(x_0 = -2\) en \(x_1 = 2\) wel starten?
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">geen tekenwissel; de secante is horizontaal</span> Omdat \(f(-2) = f(2) = 2\), is er geen tekenwissel: de methode weet niet welke helft ze moet kiezen. De secantmethode loopt hier ook vast: de
+secante door \((-2, 2)\) en \((2, 2)\) is horizontaal, dus \(f(x_1) - f(x_0) = 0\) en je deelt door nul.
+</p>
+</div>
+
+</div>
+<!--
+...... section Samenvatting ......
+-->
+<h4 id="autosec-87"><span class="sectionnumber">VI&#x2003;</span>Samenvatting</h4>
+<a id="mkpiweb-autopage-87"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Een <b>algoritme</b> is een methode die een computer stap voor stap kan uitvoeren. We beoordelen het op twee vragen: werkt het altijd, en hoeveel stappen heeft het nodig?
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Binair zoeken</b> raadt telkens het midden van wat nog kan. Het werkt enkel in een gerangschikte hoop. Met \(n\) pogingen vind je een getal uit \(2^n - 1\) mogelijkheden: \(7\)
+voor \(100\), \(20\) voor een miljoen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De <b>bisectiemethode</b> halveert een interval met een tekenwissel, tot het smal genoeg is. Ze werkt altijd voor een continue functie, maar ze is traag: \(40\) stappen voor \(12\)
+decimalen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> De <b>secantmethode</b> neemt als volgende benadering het snijpunt van de secante met de \(x\)-as. Ze is veel sneller, maar kan mislukken bij een horizontale secante of een slechte start.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> In Python gebruikten we enkel wat je al kende: variabelen die een interval bijhouden, een <kbd>while</kbd> met een stopvoorwaarde en een <kbd>if</kbd> die kiest. De regel <kbd>f =
+lambda x: &#x2026;</kbd> geeft de functie een naam; wie een andere functie wil, past enkel die regel aan.
+</p>
+</li>
+</ul>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=299336ef5701"></script>
+<script src="vendor/jsxgraphcore.js?v=299336ef5701"></script>
+<script src="interactieve-grafieken.js?v=299336ef5701"></script>
+<script src="hoofdstuk.interactief.js?v=299336ef5701"></script>
+<script src="python-config.js?v=299336ef5701"></script>
+<script src="codemirror-python.js?v=299336ef5701"></script>
+<script src="python-oefeningen.js?v=299336ef5701"></script>
+</body>
+</html>
