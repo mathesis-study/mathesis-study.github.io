@@ -1,0 +1,20 @@
+{
+ "titel": "Vierkantsvergelijkingen",
+ "hoofdstuk": null,
+ "code": null,
+ "vak": "Keuze",
+ "domein": "KeuzevakWiskunde",
+ "domeinnaam": "Keuzevak Wiskunde",
+ "url": "keuzevak-wiskunde/vierkantsvergelijkingen",
+ "secties": [
+  "Een vergelijking met \\(x^2\\)",
+  "Ontbinden met de AC-methode",
+  "De discriminantmethode",
+  "Een oplossing is al bekend",
+  "Controlelijst"
+ ],
+ "leerplandoelen": [],
+ "interactief": true,
+ "python": false,
+ "oefeningen": true
+}

@@ -1,0 +1,2665 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vierkantsvergelijkingen</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=df54ff73711d" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=df54ff73711d" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=df54ff73711d" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\hfill \square }\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk"></p> <h1>Vierkantsvergelijkingen</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+     y
+              y = ax2 + bx + c
+
+
+
+
+x1       x2
+                x
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+
+<p>
+\(ax^2+bx+c=0\)
+</p>
+
+<p>
+\(\displaystyle x=\frac {-b\pm \sqrt {b^2-4ac}}{2a}\)
+</p>
+</div>
+<!--
+...... section Een vergelijking met ......
+-->
+<h4 id="autosec-5"><span class="sectionnumber">I&#x2003;</span>Een vergelijking met \(x^2\)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+Een rechthoekige moestuin is \(3\) m langer dan breed en heeft een oppervlakte van \(40\) m\(^2\). Hoe breed is hij?
+</p>
+
+<p>
+Noemen we de breedte \(x\) (in meter), dan is de lengte \(x+3\).
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+x   40 m2
+
+
+
+    x+3
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+De oppervlakte geeft
+</p>
+
+<p>
+\[ x(x+3)=40.    \]
+</p>
+
+<p>
+We werken de haakjes uit en brengen alles naar links:
+</p>
+
+<p>
+\[ x^2+3x-40=0.       \]
+</p>
+
+<p>
+Dit is een <b>vierkantsvergelijking</b>: een vergelijking die na herleiding de vorm
+</p>
+
+<p>
+\[ ax^2+bx+c=0 \qquad (a\neq 0) \]
+</p>
+
+<p>
+heeft. We noemen dit de <b>standaardvorm</b>. De getallen \(a\), \(b\) en \(c\) zijn de <b>coe&#x0308;fficie&#x0308;nten</b>.
+</p>
+
+<p>
+We leren drie werkwijzen om zo’n vergelijking op te lossen.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>Ontbinden met de AC-methode.</b> Dit gaat snel, maar lukt niet altijd.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>De discriminantmethode.</b> Werkt altijd en zegt hoeveel oplossingen er zijn.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>Een oplossing is al bekend.</b> Met één oplossing vind je de andere door twee termen te delen.
+</p>
+</li>
+</ul>
+
+<p>
+Probeer eerst de AC-methode. Lukt het niet na twee of drie minuten, dan schakel je over op de discriminant. Ken je al een oplossing, dan is de derde werkwijze het snelst.
+</p>
+
+<p>
+Alle werkwijzen steunen op dezelfde regel, het <b>nulproduct</b>:
+</p>
+
+<p>
+\[ A\cdot B=0 \iff A=0 \ \text {of}\ B=0.         \]
+</p>
+<!--
+...... section Ontbinden met de AC-methode ......
+-->
+<h4 id="autosec-9"><span class="sectionnumber">II&#x2003;</span>Ontbinden met de AC-methode</h4>
+<a id="mkpiweb-autopage-9"></a>
+<!--
+...... subsection Het idee ......
+-->
+<h5 id="autosec-10"><span class="sectionnumber">1&#x2003;</span>Het idee</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+We werken een product van twee factoren uit:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                             (x + 2)(3x + 2) = 3x2 + 2x + 6x + 4
+                                                                                                            = 3x2 + 8x + 4.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+(x+2)(3x+2) &amp;= 3x^2+2x+6x+4 \\ &amp;= 3x^2+8x+4.
+\end{align*}
+De middelste term \(8x\) is dus de som van twee termen: \(6x\) en \(2x\). Hun coe&#x0308;fficie&#x0308;nten hebben som \(6+2=8=b\) en product \(6\cdot 2=12=a\cdot c\).
+</p>
+
+<p>
+Nu draaien we dit om, met dezelfde vergelijking. We vertrekken van \(3x^2+8x+4\) en zoeken twee getallen met som \(b=8\) en product \(a\cdot c=12\). Dat zijn \(6\) en \(2\). We splitsen de middelste term en groeperen:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                             3x2 + 8x + 4 = 3x2 + 6x + 2x + 4
+                                                                                                          = 3x(x + 2) + 2(x + 2)
+                                                                                                          = (x + 2)(3x + 2).
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+3x^2+8x+4 &amp;= 3x^2+6x+2x+4 \\ &amp;= 3x(x+2)+2(x+2) \\ &amp;= (x+2)(3x+2).
+\end{align*}
+Zo staat er weer een product, en dat lossen we op met het nulproduct.
+</p>
+
+<p>
+Dit werkt voor elke vergelijking \(ax^2+bx+c=0\). We zoeken twee getallen \(m\) en \(n\) met som \(b\) en product \(a\cdot c\). Daarmee splitsen we de middelste term en ontbinden we door te groeperen.
+</p>
+<!--
+...... subsection Stappenplan ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">2&#x2003;</span>Stappenplan</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Breng alles naar links: \(ax^2+bx+c=0\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Bereken \(A=a\cdot c\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Zoek \(m\) en \(n\) met \(m+n=b\) en \(mn=A\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Splits \(bx\) als \(mx+nx\): \(ax^2+mx+nx+c\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Groepeer per twee, haal per paar de gemeenschappelijke factor uit en haal dan de gemeenschappelijke haakjes uit.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> Los het product \((\cdot )(\cdot )=0\) op met het nulproduct.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+<div class="voorbeeld"> Los op met de AC-methode: \(3x^2+8x+4=0\).
+</p>
+
+<p>
+<b>Stap 1.</b> Alles staat al links, dus \(a=3\), \(b=8\) en \(c=4\).
+</p>
+
+<p>
+<b>Stap 2.</b> \(A=a\cdot c=3\cdot 4=12\).
+</p>
+
+<p>
+<b>Stap 3.</b> We zoeken \(m\) en \(n\) met \(m+n=8\) en \(mn=12\). We schrijven de factorparen van \(12\) in een tabel:
+</p>
+<div class="center">
+<table>
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:      1px solid black">\(m\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(n\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">\(m+n\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:      1px solid black">1</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">12</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">13</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:      1px solid black">2</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">6</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black"><b>8</b></td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:      1px solid black">3</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">4</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black">7</td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdc"></td>
+<td class="tdc"></td>
+<td class="tdc"></td>
+</tr>
+</table>
+
+</div>
+
+<p>
+Dus \(m=6\) en \(n=2\).
+</p>
+
+<p>
+<b>Stap 4.</b> We splitsen de middelste term:
+</p>
+
+<p>
+\[ 3x^2+8x+4=3x^2+\underbrace {6x+2x}_{8x}+4.        \]
+</p>
+
+<p>
+<b>Stap 5.</b> We groeperen per twee en ontbinden:
+</p>
+
+<p>
+\[ (3x^2+6x)+(2x+4)=3x(x+2)+2(x+2)=(x+2)(3x+2).           \]
+</p>
+
+<p>
+<b>Stap 6.</b> Het nulproduct geeft
+</p>
+
+<p>
+\[ (x+2)(3x+2)=0 \iff x+2=0 \ \text {of}\ 3x+2=0 \iff x=-2 \ \text {of}\ x=-\frac {2}{3}.    \]
+</p>
+
+<p>
+<b>Controle.</b> Voor \(x=-2\) vinden we \(3\cdot 4+8\cdot (-2)+4=12-16+4=0\). Voor \(x=-\dfrac {2}{3}\) vinden we \(3\cdot \dfrac {4}{9}-\dfrac {16}{3}+4=\dfrac {4}{3}-\dfrac {16}{3}+\dfrac
+{12}{3}=0\). </div>
+</p>
+<!--
+...... subsection Terug naar de tuin ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">4&#x2003;</span>Terug naar de tuin</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+We lossen de vergelijking van de tuin op met de AC-methode.
+</p>
+
+<p>
+<b>Stap 1.</b> We lezen \(a\), \(b\) en \(c\) af:
+</p>
+
+<p>
+\[ \begin {array}{cccc} x^2 &amp; +3x &amp; -40 &amp; =0 \\ \uparrow &amp; \uparrow &amp; \uparrow &amp; \\ a=1 &amp; b=3 &amp; c=-40 &amp; \end {array} \]
+</p>
+
+<p>
+<b>Stap 2.</b> We berekenen \(A\):
+</p>
+
+<p>
+\[ \Rightarrow \quad A=a\cdot c=1\cdot (-40)=-40.            \]
+</p>
+
+<p>
+<b>Stap 3.</b> We zoeken \(m\) en \(n\) met
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                           m + n = b = 3,
+                                                                                                            m · n = A = −40.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+m+n &amp;= b = 3, \\ m\cdot n &amp;= A = -40.
+\end{align*}
+Het product is negatief, dus \(m\) en \(n\) hebben een verschillend teken. De som is positief, dus het grootste getal is positief. Het paar \(m=8\) en \(n=-5\) voldoet.
+</p>
+
+<p>
+<b>Stap 4 tot 6.</b> We splitsen, ontbinden en lossen op:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                            x2 + 3x − 40 = 0 ⇐⇒ x2 + 8x − 5x − 40 = 0
+                                                                                                               ⇐⇒ x(x + 8) − 5(x + 8) = 0
+                                                                                                               ⇐⇒ (x + 8)(x − 5) = 0
+                                                                                                               ⇐⇒ x = −8 of x = 5.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2+3x-40=0 &amp;\iff x^2+8x-5x-40=0 \\ &amp;\iff x(x+8)-5(x+8)=0 \\ &amp;\iff (x+8)(x-5)=0 \\ &amp;\iff x=-8 \ \text {of}\ x=5.
+\end{align*}
+
+</p>
+
+<p>
+Een breedte kan niet negatief zijn:
+</p>
+
+<p>
+\[ x=-8\ \lightning \]
+</p>
+
+<p>
+De tuin is dus \(5\) m breed en \(8\) m lang. Controle: \(5\cdot 8=40\).
+</p>
+
+<p>
+<span class="aside">Bij \(a=1\) hoef je niet te splitsen: \(m\) en \(n\) staan dan meteen in de factoren, zoals \((x+8)(x-5)\).</span>
+</p>
+<!--
+...... subsection Probeer het zelf ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">5&#x2003;</span>Probeer het zelf</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+Los op met de AC-methode: \(2x^2+5x-3=0\).
+</p>
+
+<p>
+<b>Stap 1.</b> We lezen de coe&#x0308;fficie&#x0308;nten af:
+</p>
+
+<p>
+\[ a=\opl [1cm]{2},\qquad b=\opl [1cm]{5},\qquad c=\opl [1cm]{-3}.       \]
+</p>
+
+<p>
+<b>Stap 2.</b> Het product is \(A=a\cdot c=\opl [2cm]{-6}\).
+</p>
+
+<p>
+<b>Stap 3.</b> We zoeken \(m+n=5\) en \(mn=-6\):
+</p>
+
+<p>
+\[ m=\opl [1cm]{6}\qquad \text {en}\qquad n=\opl [1cm]{-1}.         \]
+</p>
+
+<p>
+<b>Stap 4.</b> We splitsen de middelste term:
+</p>
+
+<p>
+\[ 2x^2+5x-3=2x^2+\opl [2.5cm]{6x-x}-3.         \]
+</p>
+
+<p>
+<b>Stap 5.</b> We groeperen en ontbinden:
+</p>
+
+<p>
+\[ \opl [5cm]{2x(x+3)-(x+3)}=\opl [3.5cm]{(x+3)(2x-1)}.        \]
+</p>
+
+<p>
+<b>Stap 6.</b> Het nulproduct geeft
+</p>
+
+<p>
+\[ x=\opl [1.5cm]{-3}\qquad \text {of}\qquad x=\opl [1.5cm]{\frac {1}{2}}.    \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-18">Oefening 1</h6>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Los op door te ontbinden in factoren. Hier is \(a=1\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(x^2+5x+6=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-2\) of \(x=-3\)</span> We zoeken \(m+n=5\) en \(mn=6\). Dat geeft \(m=2\) en \(n=3\). Dus \((x+2)(x+3)=0\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(x^2-7x+12=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=3\) of \(x=4\)</span> We zoeken \(m+n=-7\) en \(mn=12\). Dat geeft \(m=-3\) en \(n=-4\). Dus \((x-3)(x-4)=0\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(x^2+3x-28=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-7\) of \(x=4\)</span> We zoeken \(m+n=3\) en \(mn=-28\). Dat geeft \(m=7\) en \(n=-4\). Dus \((x+7)(x-4)=0\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(x^2-2x-35=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-5\) of \(x=7\)</span> We zoeken \(m+n=-2\) en \(mn=-35\). Dat geeft \(m=5\) en \(n=-7\). Dus \((x+5)(x-7)=0\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(x^2+8x+15=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-3\) of \(x=-5\)</span> We zoeken \(m+n=8\) en \(mn=15\). Dat geeft \(m=3\) en \(n=5\). Dus \((x+3)(x+5)=0\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-19">Oefening 2</h6>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p>
+Los op met de AC-methode. Hier is \(a\neq 1\). <span class="hint">Maak een tabel met de factorparen van \(A=a\cdot c\) tot je \(m+n=b\) vindt. Is \(A\) negatief, dan hebben \(m\) en \(n\) een verschillend teken.</span>
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(2x^2+7x+3=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-\dfrac {1}{2}\) of \(x=-3\)</span> \(A=6\) en \(m+n=7\), dus \(m=1\) en \(n=6\).
+</p>
+<p>
+\[ 2x^2+x+6x+3=x(2x+1)+3(2x+1)=(2x+1)(x+3). \]
+</p>
+<p>
+Het nulproduct geeft \(x=-\dfrac {1}{2}\) of \(x=-3\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(3x^2-2x-8=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-\dfrac {4}{3}\) of \(x=2\)</span> \(A=-24\) en \(m+n=-2\), dus \(m=4\) en \(n=-6\).
+</p>
+<p>
+\[ 3x^2+4x-6x-8=x(3x+4)-2(3x+4)=(3x+4)(x-2). \]
+</p>
+<p>
+Het nulproduct geeft \(x=-\dfrac {4}{3}\) of \(x=2\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(4x^2-12x+8=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=1\) of \(x=2\)</span> \(A=32\) en \(m+n=-12\), dus \(m=-4\) en \(n=-8\).
+</p>
+<p>
+\[ 4x^2-4x-8x+8=4x(x-1)-8(x-1)=(x-1)(4x-8)=4(x-1)(x-2). \]
+</p>
+<p>
+Het nulproduct geeft \(x=1\) of \(x=2\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(5x^2+13x+8=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-1\) of \(x=-\dfrac {8}{5}\)</span> \(A=40\) en \(m+n=13\), dus \(m=5\) en \(n=8\).
+</p>
+<p>
+\[ 5x^2+5x+8x+8=5x(x+1)+8(x+1)=(x+1)(5x+8). \]
+</p>
+<p>
+Het nulproduct geeft \(x=-1\) of \(x=-\dfrac {8}{5}\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(6x^2-7x-3=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-\dfrac {1}{3}\) of \(x=\dfrac {3}{2}\)</span> \(A=-18\) en \(m+n=-7\), dus \(m=2\) en \(n=-9\).
+</p>
+<p>
+\[ 6x^2+2x-9x-3=2x(3x+1)-3(3x+1)=(3x+1)(2x-3). \]
+</p>
+<p>
+Het nulproduct geeft \(x=-\dfrac {1}{3}\) of \(x=\dfrac {3}{2}\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... section De discriminantmethode ......
+-->
+<h4 id="autosec-20"><span class="sectionnumber">III&#x2003;</span>De discriminantmethode</h4>
+<a id="mkpiweb-autopage-20"></a>
+<!--
+...... subsection Wanneer ontbinden niet lukt ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">1&#x2003;</span>Wanneer ontbinden niet lukt</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+Bekijk \(x^2-6x+2=0\). Voor de AC-methode zoeken we \(m+n=-6\) en \(mn=2\). De gehele getallen \(-1\) en \(-2\) hebben product \(2\), maar hun som is \(-3\). Er is geen paar dat past.
+</p>
+
+<p>
+Toch heeft de vergelijking oplossingen. Daarvoor gebruiken we een formule die altijd werkt. We berekenen eerst de <b>discriminant</b>
+</p>
+
+<p>
+\[ D=b^2-4ac.    \]
+</p>
+
+<p>
+De discriminant beslist hoeveel ree&#x0308;le oplossingen er zijn:
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Is \(D&gt;0\), dan zijn er twee verschillende ree&#x0308;le oplossingen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Is \(D=0\), dan is er één (dubbele) oplossing.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Is \(D&lt;0\), dan zijn er geen ree&#x0308;le oplossingen.
+</p>
+</li>
+</ul>
+
+<p>
+Voor \(D\geq 0\) zijn de oplossingen
+</p>
+
+<p>
+\[ \boxed {x=\frac {-b\pm \sqrt {D}}{2a}}.          \]
+</p>
+
+<p>
+Op de grafiek van \(y=x^2-6x+c\) zien we wat \(D\) doet. Hier is \(D=36-4c\): een andere \(c\) schuift de parabool op en neer. De top ligt op hoogte \(-\frac {D}{4a}\), dus hoe groter \(D\), hoe dieper de top. De nulpunten
+liggen symmetrisch rond de as \(x=-\frac {b}{2a}\), telkens op afstand \(\frac {\sqrt {D}}{2a}\).
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="discriminant-parabool" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+y   x=3
+          D = −8
+          D=0
+
+
+
+          D = 28
+              x
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep de schuifknop \(D\) of de top \(T\). De parabool \(y=x^2-6x+c\) schuift op en neer, en onder de grafiek staat
+telkens de vergelijking met haar oplossingen.</figcaption> </figure>
+</p>
+
+<p>
+<span class="aside">De getallen \(m\) en \(n\) van de AC-methode bestaan precies wanneer \(D\) het kwadraat van een geheel getal is. Bij \(x^2-6x+2=0\) is \(D=28\), en dat is geen kwadraat. Zo verklaart de discriminant
+waarom ontbinden daar niet lukte.</span>
+</p>
+<!--
+...... subsection Stappenplan ......
+-->
+<h5 id="autosec-25"><span class="sectionnumber">2&#x2003;</span>Stappenplan</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Schrijf \(ax^2+bx+c=0\) en lees \(a\), \(b\) en \(c\) af, met hun tekens.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Bereken \(D=b^2-4ac\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Bepaal het teken van \(D\) en besluit hoeveel oplossingen er zijn.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Bereken de oplossingen met de formule.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Controleer in de oorspronkelijke vergelijking.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Voorbeeld 1 ......
+-->
+<h5 id="autosec-26"><span class="sectionnumber">3&#x2003;</span>Voorbeeld 1</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+<div class="voorbeeld"> Los op met de discriminant: \(x^2-6x+2=0\).
+</p>
+
+<p>
+<b>Stap 1.</b> We lezen \(a\), \(b\) en \(c\) af:
+</p>
+
+<p>
+\[ \begin {array}{cccc} x^2 &amp; -6x &amp; +2 &amp; =0 \\ \uparrow &amp; \uparrow &amp; \uparrow &amp; \\ a=1 &amp; b=-6 &amp; c=2 &amp; \end {array} \]
+</p>
+
+<p>
+<b>Stap 2.</b> We berekenen de discriminant:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                      D = b2 − 4ac
+                                                                                                        = (−6)2 − 4 · 1 · 2
+                                                                                                        = 36 − 8
+                                                                                                        = 28.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+D &amp;= b^2-4ac \\ &amp;= (-6)^2-4\cdot 1\cdot 2 \\ &amp;= 36-8 \\ &amp;= 28.
+\end{align*}
+
+</p>
+
+<p>
+<b>Stap 3.</b> Omdat \(D=28&gt;0\), zijn er twee verschillende ree&#x0308;le oplossingen.
+</p>
+
+<p>
+<b>Stap 4.</b> We vullen de formule in en vereenvoudigen met \(\sqrt {28}=\sqrt {4\cdot 7}=2\sqrt {7}\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                               √
+                                                                                                          −b ± D
+                                                                                                       x=
+                                                                                                             2a
+                                                                                                                   √
+                                                                                                          −(−6) ± 28
+                                                                                                        =
+                                                                                                               2·1
+                                                                                                               √
+                                                                                                          6±2 7
+                                                                                                        =
+                                                                                                             2
+                                                                                                             √
+                                                                                                        = 3 ± 7.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x &amp;= \frac {-b\pm \sqrt {D}}{2a} \\ &amp;= \frac {-(-6)\pm \sqrt {28}}{2\cdot 1} \\ &amp;= \frac {6\pm 2\sqrt {7}}{2} \\ &amp;= 3\pm \sqrt {7}.
+\end{align*}
+
+</p>
+
+<p>
+<b>Controle.</b> Voor \(x=3+\sqrt {7}\) is \(x^2=16+6\sqrt {7}\), dus
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                 √          √
+                                                                                            x2 − 6x + 2 = (16 + 6 7) − 6(3 + 7) + 2
+                                                                                                                √          √
+                                                                                                        = 16 + 6 7 − 18 − 6 7 + 2
+                                                                                                       = 0.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2-6x+2 &amp;= (16+6\sqrt {7})-6(3+\sqrt {7})+2 \\ &amp;= 16+6\sqrt {7}-18-6\sqrt {7}+2 \\ &amp;= 0.
+\end{align*}
+Voor \(x=3-\sqrt {7}\) is \(x^2=16-6\sqrt {7}\), dus
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                 √          √
+                                                                                            x2 − 6x + 2 = (16 − 6 7) − 6(3 − 7) + 2
+                                                                                                                √          √
+                                                                                                        = 16 − 6 7 − 18 + 6 7 + 2
+                                                                                                       = 0.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2-6x+2 &amp;= (16-6\sqrt {7})-6(3-\sqrt {7})+2 \\ &amp;= 16-6\sqrt {7}-18+6\sqrt {7}+2 \\ &amp;= 0.
+\end{align*}
+</div>
+</p>
+<!--
+...... subsection Voorbeeld 2 ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 2</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+<div class="voorbeeld"> Los op: \(4x^2-12x+9=0\).
+</p>
+
+<p>
+<b>Stap 1.</b> We lezen \(a\), \(b\) en \(c\) af:
+</p>
+
+<p>
+\[ \begin {array}{cccc} 4x^2 &amp; -12x &amp; +9 &amp; =0 \\ \uparrow &amp; \uparrow &amp; \uparrow &amp; \\ a=4 &amp; b=-12 &amp; c=9 &amp; \end {array} \]
+</p>
+
+<p>
+<b>Stap 2.</b> We berekenen de discriminant:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                   D = b2 − 4ac
+                                                                                                     = (−12)2 − 4 · 4 · 9
+                                                                                                     = 144 − 144
+                                                                                                     = 0.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+D &amp;= b^2-4ac \\ &amp;= (-12)^2-4\cdot 4\cdot 9 \\ &amp;= 144-144 \\ &amp;= 0.
+\end{align*}
+
+</p>
+
+<p>
+<b>Stap 3.</b> Omdat \(D=0\), is er één oplossing.
+</p>
+
+<p>
+<b>Stap 4.</b> We vullen de formule in. Omdat \(\pm \sqrt {0}\) niets verandert, krijgen we twee keer dezelfde waarde:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                              √
+                                                                                                         −b ± D
+                                                                                                    x=
+                                                                                                            2a
+                                                                                                                   √
+                                                                                                        −(−12) ±       0
+                                                                                                      =
+                                                                                                           2·4
+                                                                                                        12
+                                                                                                      =
+                                                                                                         8
+                                                                                                        3
+                                                                                                      = .
+                                                                                                        2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x &amp;= \frac {-b\pm \sqrt {D}}{2a} \\ &amp;= \frac {-(-12)\pm \sqrt {0}}{2\cdot 4} \\ &amp;= \frac {12}{8} \\ &amp;= \frac {3}{2}.
+\end{align*}
+</div>
+</p>
+<!--
+...... subsection Voorbeeld 3 ......
+-->
+<h5 id="autosec-28"><span class="sectionnumber">5&#x2003;</span>Voorbeeld 3</h5>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+<div class="voorbeeld"> Los op: \(x^2+2x+5=0\).
+</p>
+
+<p>
+<b>Stap 1.</b> We lezen \(a\), \(b\) en \(c\) af:
+</p>
+
+<p>
+\[ \begin {array}{cccc} x^2 &amp; +2x &amp; +5 &amp; =0 \\ \uparrow &amp; \uparrow &amp; \uparrow &amp; \\ a=1 &amp; b=2 &amp; c=5 &amp; \end {array} \]
+</p>
+
+<p>
+<b>Stap 2.</b> We berekenen de discriminant:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                          D = b2 − 4ac
+                                                                                            = 22 − 4 · 1 · 5
+                                                                                            = 4 − 20
+                                                                                            = −16.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+D &amp;= b^2-4ac \\ &amp;= 2^2-4\cdot 1\cdot 5 \\ &amp;= 4-20 \\ &amp;= -16.
+\end{align*}
+
+</p>
+
+<p>
+<b>Stap 3.</b> Omdat \(D=-16&lt;0\), zijn er geen ree&#x0308;le oplossingen.
+</p>
+
+<p>
+<b>Stap 4.</b> De formule laat zien waarom:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                  √
+                                                                                             −b ± D
+                                                                                          x=
+                                                                                                2a
+                                                                                                  √
+                                                                                             −2 ± −16
+                                                                                           =
+                                                                                                 2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x &amp;= \frac {-b\pm \sqrt {D}}{2a} \\ &amp;= \frac {-2\pm \sqrt {-16}}{2}\ \lightning
+\end{align*}
+Een negatief getal heeft geen ree&#x0308;le vierkantswortel. </div>
+</p>
+<!--
+...... subsection Probeer het zelf ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">6&#x2003;</span>Probeer het zelf</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+Los op met de discriminant: \(2x^2-5x+2=0\).
+</p>
+
+<p>
+<b>Stap 1.</b> We lezen de coe&#x0308;fficie&#x0308;nten af:
+</p>
+
+<p>
+\[ a=\opl [1cm]{2},\qquad b=\opl [1cm]{-5},\qquad c=\opl [1cm]{2}.        \]
+</p>
+
+<p>
+<b>Stap 2.</b> De discriminant is
+</p>
+
+<p>
+\[ D=b^2-4ac=\opl [5cm]{(-5)^2-4\cdot 2\cdot 2=25-16=9}.       \]
+</p>
+
+<p>
+<b>Stap 3.</b> Omdat \(D&gt;0\), zijn er \(\opl [1cm]{2}\) ree&#x0308;le oplossingen.
+</p>
+
+<p>
+<b>Stap 4.</b> We vullen de formule in:
+</p>
+
+<p>
+\[ x=\frac {-b\pm \sqrt {D}}{2a}=\opl [4cm]{\frac {5\pm \sqrt {9}}{4}=\frac {5\pm 3}{4}}.   \]
+</p>
+
+<p>
+Dus
+</p>
+
+<p>
+\[ x=\opl [1.5cm]{2}\qquad \text {of}\qquad x=\opl [1.5cm]{\frac {1}{2}}.         \]
+</p>
+
+<p>
+<b>Stap 5.</b> We controleren \(x=2\):
+</p>
+
+<p>
+\[ 2\cdot 2^2-5\cdot 2+2=\opl [3cm]{8-10+2=0}.      \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-30"><span class="sectionnumber">7&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-31">Oefening 3</h6>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+Los op met de discriminant. Hier is \(a=1\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(x^2-6x+5=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=1\) of \(x=5\)</span> \(D=(-6)^2-4\cdot 1\cdot 5=36-20=16&gt;0\). Dus
+</p>
+<p>
+\[ x=\frac {6\pm \sqrt {16}}{2}=\frac {6\pm 4}{2}. \]
+</p>
+<p>
+Dat geeft \(x=5\) of \(x=1\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(x^2-6x+2=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=3+\sqrt {7}\) of \(x=3-\sqrt {7}\)</span> \(D=36-8=28&gt;0\). Dus
+</p>
+<p>
+\[ x=\frac {6\pm \sqrt {28}}{2}=\frac {6\pm 2\sqrt {7}}{2}=3\pm \sqrt {7}. \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(x^2+4x+7=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">geen ree&#x0308;le oplossingen</span> \(D=4^2-4\cdot 1\cdot 7=16-28=-12&lt;0\). Er zijn dus geen ree&#x0308;le oplossingen:
+</p>
+<p>
+\[ x=\frac {-4\pm \sqrt {-12}}{2}\ \lightning \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(x^2-10x+25=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=5\) (dubbele oplossing)</span> \(D=(-10)^2-4\cdot 1\cdot 25=100-100=0\). Dus
+</p>
+<p>
+\[ x=\frac {10}{2}=5. \]
+</p>
+<p>
+Dit is een dubbele oplossing.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(x^2+2x-11=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-1+2\sqrt {3}\) of \(x=-1-2\sqrt {3}\)</span> \(D=2^2-4\cdot 1\cdot (-11)=4+44=48&gt;0\), en \(\sqrt {48}=4\sqrt {3}\). Dus
+</p>
+<p>
+\[ x=\frac {-2\pm 4\sqrt {3}}{2}=-1\pm 2\sqrt {3}. \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-32">Oefening 4</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p>
+Los op met de discriminant. Hier is \(a\neq 1\). <span class="hint">Werk \(D=b^2-4ac\) eerst volledig uit voor je de wortel neemt, en let op de tekens van \(b\) en \(c\).</span>
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(2x^2-9x+10=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=2\) of \(x=\dfrac {5}{2}\)</span> \(D=(-9)^2-4\cdot 2\cdot 10=81-80=1&gt;0\). Dus
+</p>
+<p>
+\[ x=\frac {9\pm 1}{4}. \]
+</p>
+<p>
+Dat geeft \(x=\dfrac {5}{2}\) of \(x=2\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(3x^2+4x+2=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">geen ree&#x0308;le oplossingen</span> \(D=4^2-4\cdot 3\cdot 2=16-24=-8&lt;0\). Er zijn dus geen ree&#x0308;le oplossingen:
+</p>
+<p>
+\[ x=\frac {-4\pm \sqrt {-8}}{6}\ \lightning \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(4x^2-4x+1=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=\dfrac {1}{2}\) (dubbele oplossing)</span> \(D=(-4)^2-4\cdot 4\cdot 1=16-16=0\). Dus
+</p>
+<p>
+\[ x=\frac {4}{8}=\frac {1}{2}. \]
+</p>
+<p>
+Dit is een dubbele oplossing.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(5x^2-5x+1=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=\dfrac {5+\sqrt {5}}{10}\) of \(x=\dfrac {5-\sqrt {5}}{10}\)</span> \(D=(-5)^2-4\cdot 5\cdot 1=25-20=5&gt;0\). Dus
+</p>
+<p>
+\[ x=\frac {5\pm \sqrt {5}}{10}. \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(6x^2+7x-3=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=\dfrac {1}{3}\) of \(x=-\dfrac {3}{2}\)</span> \(D=7^2-4\cdot 6\cdot (-3)=49+72=121&gt;0\). Dus
+</p>
+<p>
+\[ x=\frac {-7\pm 11}{12}. \]
+</p>
+<p>
+Dat geeft \(x=\dfrac {4}{12}=\dfrac {1}{3}\) of \(x=-\dfrac {18}{12}=-\dfrac {3}{2}\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Een oplossing is al bekend ......
+-->
+<h4 id="autosec-33"><span class="sectionnumber">IV&#x2003;</span>Een oplossing is al bekend</h4>
+<a id="mkpiweb-autopage-33"></a>
+<!--
+...... subsection Het idee ......
+-->
+<h5 id="autosec-34"><span class="sectionnumber">1&#x2003;</span>Het idee</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+Stel dat je bij de tuin vermoedt dat de breedte \(5\) m is. We controleren dat in \(x^2+3x-40=0\):
+</p>
+
+<p>
+\[ 5^2+3\cdot 5-40=25+15-40=0.       \]
+</p>
+
+<p>
+Dus \(x_1=5\) is een oplossing. Dan is \(x-5\) een <b>factor</b>:
+</p>
+
+<p>
+\[ x^2+3x-40=(x-5)(\ \cdot \ ).       \]
+</p>
+
+<p>
+We zoeken de tweede factor. Daarvoor kijken we enkel naar twee termen.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Deel de term met \(x^2\) door \(x\). Dat geeft \(x\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Deel de constante term \(-40\) door \(-5\). Dat geeft \(8\).
+</p>
+</li>
+</ul>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+         delen door x
+
+x2 +3x −40 = ( x −5 ) · ( x + 8 )
+
+                delen door −5
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+De tweede factor is dus \(x+8\). Werk uit ter controle:
+</p>
+
+<p>
+\[ (x-5)(x+8)=x^2+8x-5x-40=x^2+3x-40.         \]
+</p>
+
+<p>
+Het nulproduct geeft de andere oplossing: \(x+8=0\), dus \(x=-8\). We hoefden geen \(m\) en \(n\) te zoeken en geen discriminant uit te rekenen.
+</p>
+<!--
+...... subsection Stappenplan ......
+-->
+<h5 id="autosec-38"><span class="sectionnumber">2&#x2003;</span>Stappenplan</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Ken je een oplossing \(x_1\)? Controleer door ze in te vullen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Schrijf \(ax^2+bx+c=(x-x_1)(\ \cdot \ )\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Deel de term met \(x^2\) door \(x\). Dat is de eerste term van de tweede factor.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Deel de constante term \(c\) door \(-x_1\). Dat is de tweede term van de tweede factor.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Werk het product uit als controle.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> Los de tweede factor \(=0\) op.
+</p>
+</li>
+</ul>
+
+<p>
+<span class="aside">De middelste term van het product komt vanzelf goed, omdat \(x_1\) echt een oplossing is. Klopt de controle in stap 5 niet, dan was \(x_1\) geen oplossing. Deze werkwijze kan niet als \(x_1=0\), want je
+kan niet delen door \(0\). Dan is \(c=0\) en kan je \(x\) buitenbrengen.</span>
+</p>
+<!--
+...... subsection Voorbeeld ......
+-->
+<h5 id="autosec-39"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+<div class="voorbeeld"> Los op: \(3x^2-5x-2=0\), als je weet dat \(x_1=2\) een oplossing is.
+</p>
+
+<p>
+<b>Stap 1.</b> We controleren of \(x_1=2\) een oplossing is:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                               3 · 22 − 5 · 2 − 2 = 3 · 4 − 10 − 2
+                                                                                                                = 12 − 10 − 2
+                                                                                                                = 0.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+3\cdot 2^2-5\cdot 2-2 &amp;= 3\cdot 4-10-2 \\ &amp;= 12-10-2 \\ &amp;= 0.
+\end{align*}
+Dus \(x-2\) is een factor.
+</p>
+
+<p>
+<b>Stap 2.</b> We schrijven de ontbinding met een lege plaats:
+</p>
+
+<p>
+\[ 3x^2-5x-2=(x-2)(\ \cdot \ ).      \]
+</p>
+
+<p>
+<b>Stap 3.</b> We delen de term met \(x^2\) door \(x\):
+</p>
+
+<p>
+\[ \frac {3x^2}{x}=3x.         \]
+</p>
+
+<p>
+<b>Stap 4.</b> We delen de constante term door \(-2\):
+</p>
+
+<p>
+\[ \frac {-2}{-2}=1.      \]
+</p>
+
+<p>
+Zo vullen we de lege plaats in:
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+         delen door x
+
+3x2 −5x −2 = ( x −2 ) · ( 3x + 1 )
+
+                delen door −2
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+<b>Stap 5.</b> We werken uit als controle:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                (x − 2)(3x + 1) = 3x2 + x − 6x − 2
+                                                                               = 3x2 − 5x − 2.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+(x-2)(3x+1) &amp;= 3x^2+x-6x-2 \\ &amp;= 3x^2-5x-2.
+\end{align*}
+
+</p>
+
+<p>
+<b>Stap 6.</b> We lossen de tweede factor op:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                            1
+                                                              3x + 1 = 0 ⇐⇒ 3x = −1 ⇐⇒ x = − .
+                                                                                            3
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+3x+1=0 &amp;\iff 3x=-1 \iff x=-\frac {1}{3}.
+\end{align*}
+
+</p>
+
+<p>
+De oplossingen zijn \(x=2\) en \(x=-\dfrac {1}{3}\). </div>
+</p>
+<!--
+...... subsection Probeer het zelf ......
+-->
+<h5 id="autosec-43"><span class="sectionnumber">4&#x2003;</span>Probeer het zelf</h5>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+Los op: \(2x^2-5x-3=0\), als je weet dat \(x_1=3\) een oplossing is.
+</p>
+
+<p>
+<b>Stap 1.</b> We controleren \(x_1=3\):
+</p>
+
+<p>
+\[ 2\cdot 3^2-5\cdot 3-3=\opl [3cm]{18-15-3=0}.          \]
+</p>
+
+<p>
+<b>Stap 2.</b> We schrijven
+</p>
+
+<p>
+\[ 2x^2-5x-3=(x-3)(\ \cdot \ ).       \]
+</p>
+
+<p>
+<b>Stap 3.</b> \(2x^2\) gedeeld door \(x\) is \(\opl [1.5cm]{2x}\).
+</p>
+
+<p>
+<b>Stap 4.</b> \(-3\) gedeeld door \(-3\) is \(\opl [1cm]{1}\).
+</p>
+
+<p>
+<b>Stap 5.</b> We werken uit als controle:
+</p>
+
+<p>
+\[ (x-3)\opl [2cm]{(2x+1)}=\opl [6cm]{2x^2+x-6x-3=2x^2-5x-3}.               \]
+</p>
+
+<p>
+<b>Stap 6.</b> De tweede factor geeft
+</p>
+
+<p>
+\[ \opl [2cm]{2x+1}=0 \iff x=\opl [1.5cm]{-\frac {1}{2}}.              \]
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-44"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 5 ......
+-->
+<h6 id="autosec-45">Oefening 5</h6>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p>
+Je kent één oplossing. Gebruik ze om de andere te vinden.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(x^2-7x+10=0\), met \(x_1=2\).
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=2\) of \(x=5\)</span> Controle: \(2^2-7\cdot 2+10=0\). Dan is \(x^2\) gedeeld door \(x\) gelijk aan \(x\), en \(10\) gedeeld door \(-2\) gelijk aan \(-5\). Dus \(x^2-7x+10=(x-2)(x-5)\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(x^2+x-6=0\), met \(x_1=2\).
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=2\) of \(x=-3\)</span> Controle: \(2^2+2-6=0\). De eerste term is \(x\) en de tweede is \(-6\) gedeeld door \(-2\), dus \(3\). Dus \(x^2+x-6=(x-2)(x+3)\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(2x^2+x-3=0\), met \(x_1=1\).
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=1\) of \(x=-\dfrac {3}{2}\)</span> Controle: \(2\cdot 1^2+1-3=0\). De eerste term is \(2x\) en de tweede is \(-3\) gedeeld door \(-1\), dus \(3\). Dus \(2x^2+x-3=(x-1)(2x+3)\) en
+\(x=-\dfrac {3}{2}\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(3x^2-7x+2=0\), met \(x_1=2\).
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=2\) of \(x=\dfrac {1}{3}\)</span> Controle: \(3\cdot 2^2-7\cdot 2+2=0\). De eerste term is \(3x\) en de tweede is \(2\) gedeeld door \(-2\), dus \(-1\). Dus \(3x^2-7x+2=(x-2)(3x-1)\)
+en \(x=\dfrac {1}{3}\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(e)</span> \(2x^2+5x+2=0\), met \(x_1=-2\).
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-2\) of \(x=-\dfrac {1}{2}\)</span> Controle: \(2\cdot (-2)^2+5\cdot (-2)+2=0\). De factor is \(x+2\). De eerste term is \(2x\) en de tweede is \(2\) gedeeld door \(2\), dus \(1\). Dus
+\(2x^2+5x+2=(x+2)(2x+1)\) en \(x=-\dfrac {1}{2}\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 6 ......
+-->
+<h6 id="autosec-46">Oefening 6</h6>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+Zoek zelf een oplossing door eenvoudige getallen in te vullen. Gebruik daarna de andere werkwijze. <span class="hint">Probeer \(x=1\), \(x=-1\), \(x=2\) en \(x=-2\). Vul in tot de linkerkant \(0\) wordt.</span>
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> \(x^2-3x-4=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-1\) of \(x=4\)</span> Voor \(x=-1\) krijgen we \(1+3-4=0\). De factor is \(x+1\). De eerste term is \(x\) en de tweede is \(-4\) gedeeld door \(1\), dus \(-4\). Dus \(x^2-3x-4=(x+1)(x-4)\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> \(2x^2-3x-5=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-1\) of \(x=\dfrac {5}{2}\)</span> Voor \(x=-1\) krijgen we \(2+3-5=0\). De factor is \(x+1\). De eerste term is \(2x\) en de tweede is \(-5\) gedeeld door \(1\), dus \(-5\). Dus
+\(2x^2-3x-5=(x+1)(2x-5)\) en \(x=\dfrac {5}{2}\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> \(3x^2+2x-1=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=-1\) of \(x=\dfrac {1}{3}\)</span> Voor \(x=-1\) krijgen we \(3-2-1=0\). De factor is \(x+1\). De eerste term is \(3x\) en de tweede is \(-1\) gedeeld door \(1\), dus \(-1\). Dus
+\(3x^2+2x-1=(x+1)(3x-1)\) en \(x=\dfrac {1}{3}\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(5x^2-4x-1=0\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(x=1\) of \(x=-\dfrac {1}{5}\)</span> Voor \(x=1\) krijgen we \(5-4-1=0\). De factor is \(x-1\). De eerste term is \(5x\) en de tweede is \(-1\) gedeeld door \(-1\), dus \(1\). Dus
+\(5x^2-4x-1=(x-1)(5x+1)\) en \(x=-\dfrac {1}{5}\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Controlelijst ......
+-->
+<h4 id="autosec-47"><span class="sectionnumber">V&#x2003;</span>Controlelijst</h4>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+Loop dit na bij elke vergelijking die je oplost.
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Staat alles links, in de vorm \(ax^2+bx+c=0\)?
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Heb je de AC-methode geprobeerd voor je overschakelde?
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Heb je \(D\) juist berekend, en heb je uit het teken van \(D\) besloten hoeveel oplossingen er zijn?
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Ken je al een oplossing? Dan vind je de andere door twee termen te delen.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Heb je elke oplossing gecontroleerd in de oorspronkelijke vergelijking?
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefeningen ......
+-->
+<h6 id="autosec-48">Oefeningen</h6>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 7 ......
+-->
+<h6 id="autosec-49">Oefening 7</h6>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+Kies zelf \(a,b,c\in \mathbb {Z}\) met \(|a|\leq 5\), \(|b|\leq 12\) en \(|c|\leq 20\). Maak zo twee vergelijkingen \(ax^2+bx+c=0\). Los elke vergelijking op met de AC-methode en met de discriminant. Gebruik daarna
+één van de oplossingen om de andere te vinden met de derde werkwijze. Vergelijk de drie aanpakken. Bij welke vergelijking lukte ontbinden vlot, en hoe zag je dat aan \(D\)?
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=df54ff73711d"></script>
+<script src="vendor/jsxgraphcore.js?v=df54ff73711d"></script>
+<script src="interactieve-grafieken.js?v=df54ff73711d"></script>
+<script src="hoofdstuk.interactief.js?v=df54ff73711d"></script>
+</body>
+</html>
