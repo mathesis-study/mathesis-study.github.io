@@ -128,6 +128,9 @@
     var gevraagd = meter.offsetHeight;
     figuur.removeChild(meter);
     if (!gevraagd) gevraagd = 400;
+    // Een bewust lage grafiek, zoals een strook boven een codeblok, houdt
+    // haar hoogte: daar valt niets te krimpen.
+    if (gevraagd < MINIMUMHOOGTE) return gevraagd;
     var ruimte = Math.max(MINIMUMHOOGTE, window.innerHeight * 0.62);
     return Math.round(Math.max(MINIMUMHOOGTE, Math.min(gevraagd, ruimte)));
   }

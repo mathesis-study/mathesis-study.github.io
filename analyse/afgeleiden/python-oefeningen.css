@@ -277,3 +277,23 @@
 }
 .python-vooraf[hidden] { display: none; }
 .python-vooraf-label { margin-right: .15rem; }
+
+/* Een interactieve grafiek met de optie ingebed staat tussen de code en de
+   stapinterface, in dezelfde kolom als de code, zonder eigen kader. Het
+   bijschrift staat er als legende links onder. */
+.python-editor > .python-grafiek {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 1rem;
+  margin: .6rem 0 0 calc(2.5rem + .5rem);
+  /* lwarp.css geeft elke figure overflow-x: auto, en dan schuift ze ook
+     verticaal zodra een label een haartje buiten het bord steekt. */
+  overflow: visible;
+}
+.python-grafiek > .interactieve-grafiek-terugval,
+.python-grafiek > .interactieve-grafiek-bord { flex: 0 0 100%; }
+.python-grafiek > .interactieve-grafiek-bord { background: transparent; }
+.python-grafiek > .interactieve-grafiek-status {
+  flex: 0 0 100%; margin: .2rem 0 0; text-align: left; font-size: .85rem;
+}
+.python-grafiek > .interactieve-grafiek-uitleg {
+  flex: 1 1 auto; margin: .15rem 0 0; text-align: left; color: var(--kleur-zwak); font-size: .85rem;
+}

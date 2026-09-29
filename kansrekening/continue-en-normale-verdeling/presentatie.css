@@ -517,6 +517,17 @@ body.pres-klaar {
   border-radius: 0 var(--straal) var(--straal) 0;
 }
 
+/* De knop van \oefeningenpdf, rechts boven de reeks. */
+.cursus-oefeningenpdf {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 .5rem;
+}
+
+.cursus-oefeningenpdf .pres-knop {
+  text-decoration: none;
+}
+
 .slide[data-appendix] > .pres-appendix-download {
   grid-column: 2;
   grid-row: 1;
@@ -785,6 +796,13 @@ html:not([data-bladeren="kort"]) .slide:not([data-titelslide]) > .pres-korteinho
   color: var(--kleur-accent);
 }
 
+/* Een kop midden in een slide, zoals een gesterde \subsubsection*, krijgt
+ * ruimte boven zich. De kop die de slide opent, staat vooraan of meteen na
+ * het kruimelspoor en houdt haar marge van 0. */
+.slide > :is(h1, h2, h3, h4, h5, h6):not(:first-child):not(.pres-kruimel + *) {
+  margin-top: 1.5rem;
+}
+
 .slide p {
   margin: .55rem 0;
 }
@@ -803,12 +821,46 @@ html:not([data-bladeren="kort"]) .slide:not([data-titelslide]) > .pres-korteinho
   background: var(--kleur-achtergrond);
 }
 
-html[data-bladeren="kort"] .pres-oefening-navigatie:not([hidden]) {
+html[data-bladeren="kort"] .pres-oefening-navigatie:not([hidden]),
+.pres-oefening-navigatie[data-pdf]:not([hidden]) {
   display: flex;
 }
 
 .pres-oefening-navigatie .pres-knop {
   font-size: .82rem;
+}
+
+/* Met \oefeningenpdf staan de stappen links en de PDF-knop rechts. In Lang
+ * en Volledig blijft enkel de PDF-knop over, zonder kader. */
+.pres-oefening-stappen {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+}
+
+.pres-oefening-stappen[hidden] {
+  display: none;
+}
+
+.pres-oefening-navigatie .pres-oefening-pdf {
+  margin-left: auto;
+  text-decoration: none;
+}
+
+html:not([data-bladeren="kort"]) .pres-oefening-navigatie[data-pdf] {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+
+/* Past de balk niet op één lijn, dan zet presentatie.js data-krimp: eerst
+ * valt de tekst bij de PDF-knop weg, dan "oefening", dan het hele woord. */
+.pres-oefening-navigatie:is([data-krimp="1"], [data-krimp="2"], [data-krimp="3"]) .pres-oef-pdftekst,
+.pres-oefening-navigatie:is([data-krimp="2"], [data-krimp="3"]) .pres-oef-extra,
+.pres-oefening-navigatie[data-krimp="3"] .pres-oef-woord {
+  display: none;
 }
 
 .pres-oefening-teller {
@@ -1224,6 +1276,33 @@ html[data-oplossingen="compact"] .oplossing.pres-zonder-anker > .pres-antwoord {
   width: auto !important;
   min-width: 0;
   vertical-align: top !important;
+}
+
+/* Een stuk tekst met een figuur ernaast, op papier twee minipages. Op de site
+ * worden het twee kolommen die verticaal gecentreerd tegenover elkaar staan;
+ * op een smal scherm komt de figuur onder de tekst, zodat de vaste
+ * TeX-breedtes geen horizontale schuifbalk geven. */
+.tekst-met-figuur {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.tekst-met-figuur > .minipage {
+  width: auto !important;
+  min-width: 0;
+  margin: 0;
+}
+
+.tekst-met-figuur > p:empty {
+  display: none;
+}
+
+@media (max-width: 44rem) {
+  .tekst-met-figuur {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 /* Bij de verwante hoeken staan op papier een grafiek en een formulekader in
@@ -1792,6 +1871,14 @@ pre.pythonuitvoer code {
   padding: 0;
 }
 
+/* Een codeblok met [vast] heeft geen editor; mkpi --site kleurt het met
+ * dezelfde kleuren als de editor (codemirror-python.src.js). */
+pre.pythoncode .py-sleutelwoord,
+pre.pythoncode .py-functie { color: var(--kleur-accent); }
+pre.pythoncode .py-string { color: var(--kleur-goed); }
+pre.pythoncode .py-getal { color: var(--kleur-secundair, var(--kleur-accent)); }
+pre.pythoncode .py-commentaar { color: var(--kleur-zwak); }
+
 /* --- Rekentoestel (grm.sty) --------------------------------------------- */
 
 /* Toetsen, menu's en schermen van de TI-84. De soort van een toets
@@ -2263,6 +2350,8 @@ mjx-container .undefsign line {
   .pres-hulp,
   .pres-figuurbalk,
   .pres-appendix-download,
+  .cursus-oefeningenpdf,
+  .pres-oefening-pdf,
   .hulpmiddel-notebook,
   .pres-onthul,
   .pres-oog,

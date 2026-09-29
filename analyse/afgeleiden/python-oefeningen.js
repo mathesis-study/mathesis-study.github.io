@@ -1057,6 +1057,16 @@
     paneel.append(codekop);
     if (editor.voorafstrook) paneel.append(editor.voorafstrook);
     paneel.append(codevak);
+    // Een grafiek met de optie ingebed komt in het blok zelf, tussen de code
+    // en de stapinterface: ze toont wat de code op dat ogenblik doet.
+    if (editor.grafiek) {
+      const ingebed = document.querySelector('figure.interactieve-grafiek[data-ingebed][data-grafiek="' +
+        editor.grafiek + '"]');
+      if (ingebed) {
+        ingebed.classList.add("python-grafiek");
+        paneel.append(ingebed);
+      }
+    }
     // De stapinterface staat tussen de code en de uitvoer: bij het stappen lees
     // je van boven naar onder wat er is, wat er nu gebeurt en wat eruit komt.
     // Enkel [stap-per-regel] heeft ze; per instructie valt er tussen twee

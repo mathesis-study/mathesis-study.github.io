@@ -186,9 +186,20 @@
   cursor: pointer;
 }
 
-.interactieve-grafiek-knoppen button:hover,
-.interactieve-grafiek-bord button:hover {
+.interactieve-grafiek-knoppen button:hover:not(:disabled, [aria-disabled="true"]),
+.interactieve-grafiek-bord button:hover:not(:disabled, [aria-disabled="true"]) {
   border-color: var(--kleur-accent);
+}
+
+/* Een knop die nu niets kan doen, moet dat ook tonen; anders lijkt een klik
+ * erop een fout. Zelfde stand als de knoppen in de kopbalk. Met aria-disabled
+ * blijft de knop klikbaar, zodat de grafiek kan zeggen wat eerst moet. */
+.interactieve-grafiek-knoppen button:disabled,
+.interactieve-grafiek-bord button:disabled,
+.interactieve-grafiek-knoppen button[aria-disabled="true"],
+.interactieve-grafiek-bord button[aria-disabled="true"] {
+  opacity: .35;
+  cursor: default;
 }
 
 .interactieve-grafiek-knoppen button[aria-pressed="true"] {

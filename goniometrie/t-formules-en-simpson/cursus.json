@@ -1,5 +1,5 @@
 {
- "titel": "T -Formules en Formules van Simpson",
+ "titel": "T-formules en formules van Simpson",
  "hoofdstuk": 4,
  "code": "G04",
  "vak": "Wiskunde",
@@ -9,7 +9,7 @@
  "secties": [
   "T-formules (universele t-substitutie)",
   "Formules van Simpson (som–product en product–som)",
-  "Combineren: t -formules en Simpson"
+  "Combineren: t-formules en Simpson"
  ],
  "leerplandoelen": [
   "WD3_06.08.18",

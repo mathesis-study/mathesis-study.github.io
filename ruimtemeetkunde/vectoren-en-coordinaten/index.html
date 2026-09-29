@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Vectoren en coördinaten in de ruimte</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=29b268430fc4" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=afbdee01854a" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -263,6 +263,8 @@ MathJax = {
 <meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=afbdee01854a" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=afbdee01854a" />
 </head>
 <body>
 
@@ -382,7 +384,7 @@ MathJax = {
 
 \(\require {textcomp}\)
 
-\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math}{#2}}}\)
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
 
 \(\newcommand {\hint }[1]{\class {hint}{#1}}\)
 
@@ -1665,12 +1667,21 @@ Figuur:
 </p>
 
 <div class="oplossing">
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="coordinaten-kubus" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
 <div class="center">
 
 <p>
-<iframe src="./coordinaten_kubus.html?v=50692ddab109" style="display:block; width:80vw; height:47vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+<iframe src="./coordinaten_kubus.html?v=a7208588867d" style="display:block; width:80vw; height:47vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
 </p>
 </div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep de hoekpunten van de balk: een punt op een as verandert één coo&#x0308;rdinaat, een punt in een
+coo&#x0308;rdinaatvlak er twee. Sleep naast de balk om de figuur te draaien.</figcaption> </figure>
+</p>
 
 </div>
 <!--
@@ -2008,6 +2019,9 @@ Z}_{\text {zwaartepunt viervlak}} \qed
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=29b268430fc4"></script>
+<script src="presentatie.js?v=afbdee01854a"></script>
+<script src="vendor/jsxgraphcore.js?v=afbdee01854a"></script>
+<script src="interactieve-grafieken.js?v=afbdee01854a"></script>
+<script src="hoofdstuk.interactief.js?v=afbdee01854a"></script>
 </body>
 </html>

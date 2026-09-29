@@ -559,28 +559,57 @@
       var kinderen = Array.prototype.slice.call(slide.children);
       var groep = [];
       var gevraagd = false;
+      var pdf = null;
 
       function sluitGroep() {
-        if (groep.length < 2 || !gevraagd) { groep = []; gevraagd = false; return; }
+        if (groep.length < 2 || !gevraagd) {
+          if (groep.length) pdf = null;
+          groep = []; gevraagd = false; return;
+        }
         var reeks = el("div", "pres-oefeningen");
         var balk = el("nav", "pres-oefening-navigatie");
         balk.setAttribute("aria-label", "Oefeningen in deze reeks");
+        // Het opschrift krimpt in stappen (krimpBalk): "Vorige oefening",
+        // "Vorige", enkel de chevron. De naam blijft in aria-label en title.
+        function opschrift(woord) {
+          var tekst = el("span", "pres-oef-woord", woord);
+          tekst.appendChild(el("span", "pres-oef-extra", " oefening"));
+          return tekst;
+        }
         var vorige = el("button", "pres-knop");
         vorige.type = "button";
         vorige.setAttribute("aria-label", "Vorige oefening");
         vorige.title = "Vorige oefening";
         vorige.appendChild(icoon(ICOON.links));
-        vorige.appendChild(el("span", "pres-verberg-smalle-kolom", "Vorige oefening"));
+        vorige.appendChild(opschrift("Vorige"));
         var tellerOefeningen = el("span", "pres-oefening-teller");
         var volgende = el("button", "pres-knop");
         volgende.type = "button";
         volgende.setAttribute("aria-label", "Volgende oefening");
         volgende.title = "Volgende oefening";
-        volgende.appendChild(el("span", "pres-verberg-smalle-kolom", "Volgende oefening"));
+        volgende.appendChild(opschrift("Volgende"));
         volgende.appendChild(icoon(ICOON.rechts));
-        balk.appendChild(vorige);
-        balk.appendChild(tellerOefeningen);
-        balk.appendChild(volgende);
+        // De knop van \oefeningenpdf staat in de balk, rechts van de stappen.
+        // In Lang en Volledig blijft enkel die knop over.
+        var stappen = balk;
+        var link = pdf && pdf.querySelector("a");
+        if (link) {
+          stappen = el("div", "pres-oefening-stappen");
+          balk.appendChild(stappen);
+          link.className = "pres-knop pres-oefening-pdf";
+          link.textContent = "";
+          link.setAttribute("aria-label", "Download als PDF");
+          link.title = "Deze oefeningen zonder oplossingen, om af te drukken";
+          link.appendChild(icoon(ICOON.download));
+          link.appendChild(el("span", "pres-oef-pdftekst", "Download als PDF"));
+          balk.appendChild(link);
+          balk.dataset.pdf = "1";
+          pdf.remove();
+        }
+        pdf = null;
+        stappen.appendChild(vorige);
+        stappen.appendChild(tellerOefeningen);
+        stappen.appendChild(volgende);
         slide.insertBefore(reeks, groep[0]);
         reeks.appendChild(balk);
         groep.forEach(function (oefening, i) {
@@ -593,6 +622,7 @@
         reeks._vorige = vorige;
         reeks._volgende = volgende;
         reeks._teller = tellerOefeningen;
+        reeks._stappen = stappen;
         vorige.addEventListener("click", function () { zetOefening(reeks, reeks._index - 1); });
         volgende.addEventListener("click", function () { zetOefening(reeks, reeks._index + 1); });
         (slide._oefenreeksen || (slide._oefenreeksen = [])).push(reeks);
@@ -605,6 +635,10 @@
           groep.push(kind);
           return;
         }
+        if (kind.classList && kind.classList.contains("cursus-oefeningenpdf")) {
+          pdf = maakOefeningenPdf(kind);
+          return;
+        }
         sluitGroep();
         // Het merkteken zelf hoort niet in de slide te blijven staan.
         if (kind.classList && kind.classList.contains("cursus-oefenbalk")) {
@@ -614,8 +648,69 @@
       });
       sluitGroep();
       zetBalkNaastTitel(slide);
+      if (slide._oefenreeksen) volgBalkbreedte(slide);
     });
     zetAlleOefenreeksen();
+  }
+
+  // Een balk met opschriften past niet altijd op één lijn, zeker niet naast
+  // de titel. Dan vallen de opschriften in stappen weg (data-krimp): eerst de
+  // tekst bij de PDF-knop, dan "oefening", dan ook "Vorige" en "Volgende".
+  // Naast de titel mag de balk enkel de ruimte nemen die de titel op één
+  // regel overlaat; elders de breedte van haar eigen rij.
+  function krimpBalk(balk) {
+    if (!balk.offsetWidth) return;
+    var ouder = balk.parentElement;
+    var stijl = getComputedStyle(ouder);
+    var binnen = ouder.clientWidth - parseFloat(stijl.paddingLeft) - parseFloat(stijl.paddingRight);
+    var naastTitel = bladeren === "kort" && ouder.dataset.oefenkop && ouder.classList.contains("slide");
+    var beschikbaar = binnen;
+    if (naastTitel) {
+      var slide = ouder;
+      var titel = slide.querySelector(":scope > :is(h1, h2, h3, h4, h5, h6)");
+      var titelbreedte = 0;
+      if (titel) {
+        titel.style.width = "max-content";
+        titel.style.whiteSpace = "nowrap";
+        titelbreedte = titel.offsetWidth;
+        titel.style.width = titel.style.whiteSpace = "";
+      }
+      beschikbaar = binnen - titelbreedte - (parseFloat(stijl.columnGap) || 0);
+    }
+    for (var stap = 0; stap <= 3; stap++) {
+      balk.dataset.krimp = stap;
+      balk.style.width = "max-content";
+      var nodig = balk.offsetWidth;
+      balk.style.width = "";
+      if (nodig <= beschikbaar) break;
+    }
+  }
+
+  // Opnieuw meten zodra de slide in beeld komt of van breedte verandert.
+  function volgBalkbreedte(slide) {
+    if (!window.ResizeObserver) return;
+    var breedte = -1;
+    new ResizeObserver(function () {
+      if (slide.clientWidth === breedte) return;
+      breedte = slide.clientWidth;
+      krimpBalken(slide);
+    }).observe(slide);
+  }
+
+  function krimpBalken(slide) {
+    (slide._oefenreeksen || []).forEach(function (reeks) { krimpBalk(reeks._balk); });
+  }
+
+  // \oefeningenpdf: mkpi --site zette een link naar de PDF van de reeks, zonder
+  // oplossingen; hier wordt dat een knop boven de oefeningen.
+  function maakOefeningenPdf(merk) {
+    var link = merk.querySelector("a");
+    if (!link) return null;
+    link.className = "pres-knop";
+    link.textContent = "Download als PDF";
+    link.title = "Deze oefeningen zonder oplossingen, om af te drukken";
+    link.prepend(icoon(ICOON.download));
+    return merk;
   }
 
   // Vult de reeks de hele slide, dan hoort haar balk bij de titel: ze bedient
@@ -643,7 +738,8 @@
     nieuw = Math.max(0, Math.min(reeks._oefeningen.length - 1, nieuw));
     reeks._index = nieuw;
     var kort = bladeren === "kort";
-    reeks._balk.hidden = !kort;
+    reeks._balk.hidden = !kort && !reeks._balk.dataset.pdf;
+    if (reeks._stappen !== reeks._balk) reeks._stappen.hidden = !kort;
     reeks._oefeningen.forEach(function (oefening, i) {
       oefening.hidden = kort && i !== nieuw;
     });
@@ -656,6 +752,7 @@
     if (kort) {
       reeks._oefeningen[nieuw].dispatchEvent(new CustomEvent("pres:zichtbaar", { bubbles: true }));
     }
+    krimpBalk(reeks._balk);
     toonHintknop();
     zetBladerknoppen();
     planRanden();
@@ -953,18 +1050,41 @@
   function volgWiskundeOplossingen() {
     var waarnemer = new MutationObserver(function () {
       document.querySelectorAll(".opl-math:not([data-pres])").forEach(function (vak) {
+        // MathJax zet de klasse ook op de verborgen MathML voor schermlezers.
+        // Die kopie is geen vak: anders telt ze als extra, onzichtbare stap.
+        if (vak.closest("mjx-assistive-mml")) {
+          vak.classList.remove("opl-math");
+          return;
+        }
         vak.dataset.pres = "1";
         zetLosseOplossing(vak, oplossingenZichtbaar);
         // De groep zelf bevat enkel de letters van het antwoord; dichtgeklapt
         // valt daar niets te raken. Vang de klik daarom op de hele formule.
         var doel = vak.closest("mjx-container") || vak;
+        if (doel.classList.contains("pres-oplformule")) return;
         doel.classList.add("pres-oplformule");
-        doel.addEventListener("click", function () {
-          zetLosseOplossing(vak, vak.classList.contains("pres-verborgen"));
+        doel.addEventListener("click", function (e) {
+          var geraakt = geraakteWiskundeOplossing(doel, e);
+          if (geraakt) zetLosseOplossing(geraakt, geraakt.classList.contains("pres-verborgen"));
         });
       });
     });
     waarnemer.observe(document.body, { childList: true, subtree: true });
+  }
+
+  // Het vak van een \opl in een formule is de \bbox rond haar groep. Een
+  // klik opent enkel het vak waarin ze valt; staat er maar één vak in de
+  // formule, dan telt een klik op de hele formule.
+  function geraakteWiskundeOplossing(formule, e) {
+    var vakken = formule.querySelectorAll(".opl-math");
+    if (vakken.length === 1) return vakken[0];
+    var marge = 4;
+    return Array.prototype.find.call(vakken, function (vak) {
+      var kader = (vak.parentNode && vak.parentNode.closest("[data-mml-node='mpadded']")) || vak;
+      var r = kader.getBoundingClientRect();
+      return e.clientX >= r.left - marge && e.clientX <= r.right + marge &&
+             e.clientY >= r.top - marge && e.clientY <= r.bottom + marge;
+    }) || null;
   }
 
   // Een te brede formule in display krimpt met de CSS mee tot ze past, maar
@@ -1077,7 +1197,20 @@
     }
   }
 
+  // Vakken met \opl[samen] in dezelfde formule gaan samen open en dicht,
+  // bij een klik en bij ↓ en ↑; de andere vakken elk apart.
   function zetLosseOplossing(vak, toon) {
+    var formule = vak.classList.contains("opl-optie-samen") && vak.closest("mjx-container");
+    if (formule) {
+      formule.querySelectorAll(".opl-math.opl-optie-samen").forEach(function (lid) {
+        zetEenLosseOplossing(lid, toon);
+      });
+    } else {
+      zetEenLosseOplossing(vak, toon);
+    }
+  }
+
+  function zetEenLosseOplossing(vak, toon) {
     vak.classList.toggle("pres-verborgen", !toon);
     vak.setAttribute("aria-pressed", String(toon));
     vak.setAttribute("aria-label", toon ? "Antwoord verbergen" : "Antwoord tonen");
@@ -1559,6 +1692,9 @@
   // gebeurtenis naar interactieve-grafieken.js, dat weet wat de beginstand is.
   function bereidGrafiekenVoor() {
     document.querySelectorAll(".interactieve-grafiek").forEach(function (fig) {
+      // Een ingebedde grafiek hoort bij haar codeblok, niet bij de figuren:
+      // geen Groot, geen Reset, en ze telt niet mee bij het bladeren.
+      if (fig.hasAttribute("data-ingebed")) return;
       fig.classList.add("pres-figuur");
       var balk = el("div", "pres-figuurbalk");
 
@@ -2100,6 +2236,9 @@
     }
     var oefening = document.getElementById(id);
     if (!oefening) return false;
+    // Een \label in een oefening van een bladerreeks: toon die oefening.
+    var omhullend = oefening.closest(".cursus-oefening");
+    if (omhullend && omhullend.parentElement._oefeningen) oefening = omhullend;
     // Het anker van een \label (lwarp schrijft een lege <a id>): toon de slide
     // waarin het staat en scrol ernaartoe. Hoort het bij een kop, dan naar de
     // kop, anders valt die net boven het beeld. Tussen beide staan enkel
