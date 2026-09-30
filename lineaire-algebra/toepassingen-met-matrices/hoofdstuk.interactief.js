@@ -512,16 +512,25 @@
     var JAREN = 40;
     var KLASSEN = ["0j", "1j", "2j", "3j", "4j"];
 
+    var HOOGTE = 430;
     var bord = ctx.maakBord({
-      begrenzing: [-6, 430, JAREN + 6, -60],
+      begrenzing: [-6, HOOGTE, JAREN + 6, -60],
       assen: false
     });
     assenMet(ctx, bord, "jaar", "aantal");
 
+    // De verticale schaal: 1 zolang alles op het bord past. Toont de knop een
+    // verdubbeling, dan rekt de as op tot de hele kromme in beeld staat, en
+    // schuift alles wat een vaste hoogte had evenredig mee.
+    var schaal = 1;
+    function hoog(y) {
+      return function () { return y * schaal; };
+    }
+
     // Onderaan links: daar is het bord leeg, en de knoppen Groot en Reset
     // zweven rechtsboven over de figuur.
     var schuif = bord.create("slider",
-      [[2, -38], [16, -38], [0.1, 0.4, 1]], {
+      [[2, hoog(-38)], [16, hoog(-38)], [0.1, 0.4, 1]], {
         name: "overleving eieren", snapWidth: 0.05, withTicks: false,
         size: 6, precision: 2,
         label: { fontSize: 13 }
@@ -561,11 +570,15 @@
       strokeWidth: 2, dash: 2, fixed: true, highlight: false
     }), "secante");
 
+    // Op een opgerekte as ligt het startaantal tegen de x-as en zou het
+    // opschrift over de as vallen.
+    function opSchaal() { return schaal === 1; }
     ctx.stijl(bord.create("segment", [[0, 360], [JAREN, 360]], {
-      strokeWidth: 1.5, dash: 1, fixed: true, highlight: false
+      strokeWidth: 1.5, dash: 1, fixed: true, highlight: false, visible: opSchaal
     }), "hulp");
     ctx.stijl(bord.create("text", [0.4, 372, "startaantal 360"], {
-      anchorX: "left", fixed: true, highlight: false, fontSize: 13
+      anchorX: "left", fixed: true, highlight: false, fontSize: 13,
+      visible: opSchaal
     }), "hulp");
     ctx.stijl(bord.create("text", [JAREN + 0.6,
       function () { return totaal(rijen[JAREN]); }, "totaal"], {
@@ -593,7 +606,7 @@
 
     ctx.stijl(bord.create("segment",
       [[function () { return jaar(); }, 0],
-       [function () { return jaar(); }, 420]], {
+       [function () { return jaar(); }, hoog(420)]], {
         strokeWidth: 1.5, dash: 2, fixed: true, highlight: false
       }), "hulp");
     ctx.stijl(bord.create("point",
@@ -617,18 +630,140 @@
       kromEieren.dataY = zs;
     }
 
+    // De halveringstijd of verdubbelingstijd als trap, vanaf het startaantal.
+    // Bij een halvering loopt een trede eerst horizontaal tot de kromme de
+    // helft bereikt en dan verticaal naar dat niveau; bij een verdubbeling
+    // eerst verticaal naar het dubbele en dan horizontaal tot de kromme het
+    // haalt. Zo ligt de kromme telkens onder de trede, en staan de duur boven
+    // de horizontale stap en de factor naast de verticale in vrije ruimte.
+    // Blijven die tijden gelijk, dan is de evolutie exponentieel. Het snijpunt
+    // komt uit een logaritmische interpolatie tussen twee jaren, want tussen
+    // twee jaren groeit of krimpt de populatie met een vaste factor.
+    var tijdAan = false;
+    var MAXTREDEN = 12;
+    var trap = ctx.stijl(bord.create("curve", [[], []], {
+      strokeWidth: 2, dash: 2, fixed: true, highlight: false, visible: false
+    }), "punt");
+    var treden = [];
+    for (var t = 0; t < MAXTREDEN; t++) {
+      treden.push({
+        punt: ctx.stijl(bord.create("point", [0, 0], {
+          name: "", size: 3, fixed: true, highlight: false, withLabel: false,
+          layer: 9
+        }), "punt"),
+        duur: ctx.stijl(bord.create("text", [0, 0, ""], {
+          anchorX: "middle", fixed: true, highlight: false, fontSize: 12,
+          visible: false
+        }), "punt"),
+        factor: ctx.stijl(bord.create("text", [0, 0, ""], {
+          anchorX: "left", anchorY: "middle", fixed: true, highlight: false,
+          fontSize: 12, visible: false
+        }), "punt")
+      });
+    }
+    // Pas verbergen na het kleuren: een punt dat verborgen gekleurd wordt,
+    // krijgt bij het tonen de standaardkleuren van JSXGraph.
+    treden.forEach(function (trede) {
+      trede.punt.setAttribute({ visible: false });
+    });
+
+    function groeit() {
+      return totaal(rijen[JAREN]) > totaal(rijen[0]);
+    }
+
+    // De jaren (met decimalen) waarop het totaal telkens de helft of het
+    // dubbele van het vorige niveau bereikt, met die niveaus erbij.
+    function snijpunten() {
+      var dubbel = groeit();
+      var niveau = totaal(rijen[0]);
+      var uit = [];
+      var n = 1;
+      while (uit.length < MAXTREDEN) {
+        var doel = dubbel ? 2 * niveau : niveau / 2;
+        while (n <= JAREN && (dubbel ? totaal(rijen[n]) < doel
+                                     : totaal(rijen[n]) > doel)) n++;
+        if (n > JAREN) break;
+        var a = Math.log(totaal(rijen[n - 1]));
+        var b = Math.log(totaal(rijen[n]));
+        uit.push({ jaar: n - 1 + (Math.log(doel) - a) / (b - a), niveau: doel });
+        niveau = doel;
+      }
+      return uit;
+    }
+
+    function tekenTrap() {
+      var sp = tijdAan ? snijpunten() : [];
+      var dubbel = groeit();
+      var xs = [];
+      var ys = [];
+      var vorig = { jaar: 0, niveau: totaal(rijen[0]) };
+      // Een trede die in de hoogte nauwelijks te zien is, krijgt geen opschrift.
+      var leesbaar = 0.06 * HOOGTE * schaal;
+      treden.forEach(function (trede, i) {
+        var s = sp[i];
+        var zichtbaar = !!s;
+        if (s) {
+          // De hoek van de trede: rechtsboven bij een halvering, linksboven
+          // bij een verdubbeling.
+          var hoek = dubbel ? { jaar: vorig.jaar, niveau: s.niveau }
+                            : { jaar: s.jaar, niveau: vorig.niveau };
+          xs.push(vorig.jaar, hoek.jaar, s.jaar, NaN);
+          ys.push(vorig.niveau, hoek.niveau, s.niveau, NaN);
+          trede.punt.setPosition(window.JXG.COORDS_BY_USER, [s.jaar, s.niveau]);
+          var ruim = Math.abs(s.niveau - vorig.niveau) > leesbaar &&
+                     s.jaar - vorig.jaar > 2.5;
+          trede.duur.setText(Math.round(s.jaar - vorig.jaar) + " jaar");
+          trede.duur.setCoords((vorig.jaar + s.jaar) / 2,
+            hoek.niveau + 0.035 * HOOGTE * schaal);
+          trede.duur.setAttribute({ visible: ruim, anchorY: "bottom" });
+          trede.factor.setText(dubbel ? "×2" : "÷2");
+          // Links van een verdubbeling, behalve tegen de y-as: daar staan
+          // de getallen van de as, die ook rechts nog over de as uitsteken.
+          var links = dubbel && hoek.jaar > 1.5;
+          var tegenAs = hoek.jaar < 1.5;
+          trede.factor.setCoords(
+            hoek.jaar + (links ? -0.4 : tegenAs ? 2 : 0.4),
+            (vorig.niveau + s.niveau) / 2);
+          trede.factor.setAttribute({
+            visible: ruim, anchorX: links ? "right" : "left"
+          });
+          vorig = s;
+        } else {
+          trede.duur.setAttribute({ visible: false });
+          trede.factor.setAttribute({ visible: false });
+        }
+        trede.punt.setAttribute({ visible: zichtbaar });
+      });
+      trap.dataX = xs;
+      trap.dataY = ys;
+      trap.setAttribute({ visible: tijdAan && xs.length > 0 });
+    }
+
+    function pasSchaalAan() {
+      var hoogste = 0;
+      rijen.forEach(function (P) { hoogste = Math.max(hoogste, totaal(P)); });
+      schaal = tijdAan && groeit() ? Math.max(1, 1.12 * hoogste / HOOGTE) : 1;
+      var begrenzing = [-6, HOOGTE * schaal, JAREN + 6, -60 * schaal];
+      bord.presBegrenzing = begrenzing.slice();
+      bord.setBoundingBox(begrenzing, false);
+    }
+
     // Zoals bij de migratiematrix: het rekenwerk hoort bij het verzetten van de
     // schuifknop, de tekstregel bij elke update van het bord.
     function hertekenen() {
       rijen = verloop();
       tekenKrommen();
+      pasSchaalAan();
+      tekenTrap();
+      tijdKnop.textContent = groeit() ? "Verdubbelingstijd" : "Halveringstijd";
       bord.update();
     }
 
-    // De stap van het gekozen jaar, zoals in de cursus: P_n = L · P_{n-1},
-    // met L uitgeschreven. Een macht L^n zou hier enkel onleesbare decimalen
-    // geven; zo zie je bovendien de overlevingskans van de eieren, die met de
-    // schuifknop meeverandert, op haar plaats in de matrix staan (vet).
+    // Het gekozen jaar, zoals in de cursus: P_n = L^n · P_0, en daarna met L
+    // en P_0 uitgeschreven. De macht blijft een exponent op de matrix: L^n
+    // uitrekenen zou enkel onleesbare decimalen geven. Zo zie je bovendien de
+    // overlevingskans van de eieren, die met de schuifknop meeverandert, op
+    // haar plaats in de matrix staan (vet).
     var formule = document.createElement("div");
     formule.className = "leslie-formule";
     formule.style.cssText = "text-align:center;overflow-x:auto;margin:0.4rem 0";
@@ -667,8 +802,9 @@
       var n = jaar();
       var tex = "P_{" + n + "}=";
       if (n > 0) {
-        tex += "L\\cdot P_{" + (n - 1) + "}=" + matrixTex(lesliematrix()) +
-          kolomTex(rijen[n - 1]) + "=";
+        var macht = n > 1 ? "^{" + n + "}" : "";
+        tex += "L" + macht + "\\cdot P_{0}=" + matrixTex(lesliematrix()) +
+          macht + kolomTex(rijen[0]) + "=";
       }
       tex += kolomTex(rijen[n]) +
         "\\begin{matrix}0j\\\\1j\\\\2j\\\\3j\\\\4j\\end{matrix}" +
@@ -690,7 +826,19 @@
       var n = jaar();
       var P = rijen[n];
       toonFormule();
-      var groeit = totaal(rijen[JAREN]) > totaal(rijen[0]);
+      var sp = tijdAan ? snijpunten() : [];
+      var vorigJaar = 0;
+      var duren = sp.map(function (s) {
+        var d = ctx.getal(s.jaar - vorigJaar, 1);
+        vorigJaar = s.jaar;
+        return d;
+      });
+      var trapTekst = !tijdAan ? ""
+        : sp.length === 0
+          ? " Binnen " + JAREN + " jaar " + (groeit() ? "verdubbelt" : "halveert") +
+            " de populatie geen enkele keer."
+          : " " + (groeit() ? "Verdubbelen" : "Halveren") + " duurt telkens " +
+            duren.join(", ") + " jaar.";
       ctx.toon("Overlevingskans van de eieren: " +
         ctx.getal(eiOverleving(), 2) + ". Na " + n + " jaar: " +
         KLASSEN.map(function (naam, i) {
@@ -698,10 +846,10 @@
         }).join(", ") + ", samen " +
         samen(P) +
         " vogels. " +
-        (groeit
+        (groeit()
           ? "Met deze overlevingskans groeit de populatie."
           : "Met deze overlevingskans krimpt de populatie: bij 0.4 halveert " +
-            "ze ongeveer om de 16 jaar en sterft de soort uit."));
+            "ze ongeveer om de 16 jaar en sterft de soort uit.") + trapTekst);
     }
 
     bord.on("update", werkBij);
@@ -716,18 +864,18 @@
     ctx.knop("Volgend jaar", function () { zetJaar(Math.min(JAREN, jaar() + 1)); });
     ctx.knop("Na 16 jaar", function () { zetJaar(16); });
     ctx.knop("Na 32 jaar", function () { zetJaar(32); });
-    ctx.knop("Overleving 0.4", function () {
-      schuif.setValue(0.4);
+    var tijdKnop = ctx.knop("Halveringstijd", function () {
+      tijdAan = !tijdAan;
+      tijdKnop.setAttribute("aria-pressed", String(tijdAan));
       hertekenen();
       werkBij();
     });
-    ctx.knop("Overleving 0.7", function () {
-      schuif.setValue(0.7);
-      hertekenen();
-      werkBij();
-    });
+    tijdKnop.setAttribute("aria-pressed", "false");
+    tijdKnop.style.marginLeft = "1.2rem";
 
     function herstel() {
+      tijdAan = false;
+      tijdKnop.setAttribute("aria-pressed", "false");
       schuif.setValue(0.4);
       hertekenen();
       zetJaar(16);
