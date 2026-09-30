@@ -2080,6 +2080,9 @@
     if (!opties.vanHash) history.replaceState(null, "", "#" + slide.id);
     document.title = zonderWiskunde(slide.dataset.titel) + " · " + basisTitel;
     bewaar("slide", slide.id);
+    document.dispatchEvent(new CustomEvent("pres:slide", {
+      detail: { id: slide.id, titel: zonderWiskunde(slide.dataset.titel) }
+    }));
   }
 
   // De teller en de voortgangsbalk rekenen in elke bladerstand in slides,

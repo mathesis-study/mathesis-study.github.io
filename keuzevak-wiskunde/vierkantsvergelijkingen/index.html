@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Vierkantsvergelijkingen</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=df54ff73711d" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=d251b3beb3f7" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -263,8 +263,9 @@ MathJax = {
 <meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=df54ff73711d" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=df54ff73711d" />
+<meta name="mathesis-statistieken" content="mathesis" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=d251b3beb3f7" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=d251b3beb3f7" />
 </head>
 <body>
 
@@ -974,43 +975,10 @@ Dit werkt voor elke vergelijking \(ax^2+bx+c=0\). We zoeken twee getallen \(m\) 
 <p>
 <b>Stap 3.</b> We zoeken \(m\) en \(n\) met \(m+n=8\) en \(mn=12\). We schrijven de factorparen van \(12\) in een tabel:
 </p>
-<div class="center">
-<table>
 
-<tr style="display:none"><th>.</th></tr>
-
-<tr class="hline">
-<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:      1px solid black">\(m\)</td>
-<td class="tdc tvertbarr" style="border-right: 1px solid black">\(n\)</td>
-<td class="tdc tvertbarr" style="border-right: 1px solid black">\(m+n\)</td>
-</tr>
-
-<tr class="hline">
-<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:      1px solid black">1</td>
-<td class="tdc tvertbarr" style="border-right: 1px solid black">12</td>
-<td class="tdc tvertbarr" style="border-right: 1px solid black">13</td>
-</tr>
-
-<tr>
-<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:      1px solid black">2</td>
-<td class="tdc tvertbarr" style="border-right: 1px solid black">6</td>
-<td class="tdc tvertbarr" style="border-right: 1px solid black"><b>8</b></td>
-</tr>
-
-<tr>
-<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:      1px solid black">3</td>
-<td class="tdc tvertbarr" style="border-right: 1px solid black">4</td>
-<td class="tdc tvertbarr" style="border-right: 1px solid black">7</td>
-</tr>
-
-<tr class="hline" aria-hidden="true">
-<td class="tdc"></td>
-<td class="tdc"></td>
-<td class="tdc"></td>
-</tr>
-</table>
-
-</div>
+<p>
+\[ \begin {array}{r|ccc} m &amp; 12 &amp; 6 &amp; 4 \\ n &amp; 1 &amp; 2 &amp; 3 \\ \hline m+n &amp; 13 &amp; \boxed {8} &amp; 7 \end {array} \]
+</p>
 
 <p>
 Dus \(m=6\) en \(n=2\).
@@ -1021,7 +989,7 @@ Dus \(m=6\) en \(n=2\).
 </p>
 
 <p>
-\[ 3x^2+8x+4=3x^2+\underbrace {6x+2x}_{8x}+4.        \]
+\[ 3x^2+8x+4=3x^2+\underbrace {6x+2x}_{8x}+4.         \]
 </p>
 
 <p>
@@ -1029,7 +997,7 @@ Dus \(m=6\) en \(n=2\).
 </p>
 
 <p>
-\[ (3x^2+6x)+(2x+4)=3x(x+2)+2(x+2)=(x+2)(3x+2).           \]
+\[ (3x^2+6x)+(2x+4)=3x(x+2)+2(x+2)=(x+2)(3x+2).            \]
 </p>
 
 <p>
@@ -1037,7 +1005,7 @@ Dus \(m=6\) en \(n=2\).
 </p>
 
 <p>
-\[ (x+2)(3x+2)=0 \iff x+2=0 \ \text {of}\ 3x+2=0 \iff x=-2 \ \text {of}\ x=-\frac {2}{3}.    \]
+\[ (x+2)(3x+2)=0 \iff x+2=0 \ \text {of}\ 3x+2=0 \iff x=-2 \ \text {of}\ x=-\frac {2}{3}.              \]
 </p>
 
 <p>
@@ -1047,8 +1015,8 @@ Dus \(m=6\) en \(n=2\).
 <!--
 ...... subsection Terug naar de tuin ......
 -->
-<h5 id="autosec-15"><span class="sectionnumber">4&#x2003;</span>Terug naar de tuin</h5>
-<a id="mkpiweb-autopage-15"></a>
+<h5 id="autosec-13"><span class="sectionnumber">4&#x2003;</span>Terug naar de tuin</h5>
+<a id="mkpiweb-autopage-13"></a>
 
 
 <p>
@@ -1094,7 +1062,15 @@ We lossen de vergelijking van de tuin op met de AC-methode.
 \begin{align*}
 m+n &amp;= b = 3, \\ m\cdot n &amp;= A = -40.
 \end{align*}
-Het product is negatief, dus \(m\) en \(n\) hebben een verschillend teken. De som is positief, dus het grootste getal is positief. Het paar \(m=8\) en \(n=-5\) voldoet.
+Het product is negatief, dus \(m\) en \(n\) hebben een verschillend teken. De som is positief, dus het grootste getal is positief. We schrijven de factorparen van \(40\) in een tabel:
+</p>
+
+<p>
+\[ \begin {array}{r|cccc} m &amp; 40 &amp; 20 &amp; 10 &amp; 8 \\ n &amp; -1 &amp; -2 &amp; -4 &amp; -5 \\ \hline m+n &amp; 39 &amp; 18 &amp; 6 &amp; \boxed {3} \end {array} \]
+</p>
+
+<p>
+Het paar \(m=8\) en \(n=-5\) voldoet.
 </p>
 
 <p>
@@ -1107,7 +1083,7 @@ Het product is negatief, dus \(m\) en \(n\) hebben een verschillend teken. De so
 
 
 
-                                                                                            x2 + 3x − 40 = 0 ⇐⇒ x2 + 8x − 5x − 40 = 0
+                                                                                             x2 + 3x − 40 = 0 ⇐⇒ x2 + 8x − 5x − 40 = 0
                                                                                                                ⇐⇒ x(x + 8) − 5(x + 8) = 0
                                                                                                                ⇐⇒ (x + 8)(x − 5) = 0
                                                                                                                ⇐⇒ x = −8 of x = 5.
@@ -1143,8 +1119,8 @@ De tuin is dus \(5\) m breed en \(8\) m lang. Controle: \(5\cdot 8=40\).
 <!--
 ...... subsection Probeer het zelf ......
 -->
-<h5 id="autosec-16"><span class="sectionnumber">5&#x2003;</span>Probeer het zelf</h5>
-<a id="mkpiweb-autopage-16"></a>
+<h5 id="autosec-14"><span class="sectionnumber">5&#x2003;</span>Probeer het zelf</h5>
+<a id="mkpiweb-autopage-14"></a>
 
 
 <p>
@@ -1156,7 +1132,7 @@ Los op met de AC-methode: \(2x^2+5x-3=0\).
 </p>
 
 <p>
-\[ a=\opl [1cm]{2},\qquad b=\opl [1cm]{5},\qquad c=\opl [1cm]{-3}.       \]
+\[ a=\opl [1cm]{2},\qquad b=\opl [1cm]{5},\qquad c=\opl [1cm]{-3}.         \]
 </p>
 
 <p>
@@ -1164,7 +1140,16 @@ Los op met de AC-methode: \(2x^2+5x-3=0\).
 </p>
 
 <p>
-<b>Stap 3.</b> We zoeken \(m+n=5\) en \(mn=-6\):
+<b>Stap 3.</b> We zoeken \(m+n=5\) en \(mn=-6\). Vul de tabel met de factorparen van \(-6\) aan:
+</p>
+
+<p>
+\[ \begin {array}{r|cccc} m &amp; 1 &amp; 2 &amp; 3 &amp; 6 \\ n &amp; -6 &amp; -3 &amp; -2 &amp; -1 \\ \hline m+n &amp; \opl [samen]{-5} &amp; \opl [samen]{-1} &amp; \opl [samen]{1} &amp; \opl
+[samen]{\boxed {5}} \end {array} \]
+</p>
+
+<p>
+Dus
 </p>
 
 <p>
@@ -1192,13 +1177,13 @@ Los op met de AC-methode: \(2x^2+5x-3=0\).
 </p>
 
 <p>
-\[ x=\opl [1.5cm]{-3}\qquad \text {of}\qquad x=\opl [1.5cm]{\frac {1}{2}}.    \]
+\[ x=\opl [1.5cm]{-3}\qquad \text {of}\qquad x=\opl [1.5cm]{\frac {1}{2}}.          \]
 </p>
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-17"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-17"></a>
+<h5 id="autosec-15"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-15"></a>
 
 
 <div class="cursus-oefening">
@@ -1209,8 +1194,8 @@ Los op met de AC-methode: \(2x^2+5x-3=0\).
 <!--
 ...... subsubsection Oefening 1 ......
 -->
-<h6 id="autosec-18">Oefening 1</h6>
-<a id="mkpiweb-autopage-18"></a>
+<h6 id="autosec-16">Oefening 1</h6>
+<a id="mkpiweb-autopage-16"></a>
 
 
 <p>
@@ -1224,7 +1209,31 @@ Los op door te ontbinden in factoren. Hier is \(a=1\).
 </p>
 <div class="oplossing">
 <p>
-<span class="oplantwoord">\(x=-2\) of \(x=-3\)</span> We zoeken \(m+n=5\) en \(mn=6\). Dat geeft \(m=2\) en \(n=3\). Dus \((x+2)(x+3)=0\).
+<span class="oplantwoord">\(x=-2\) of \(x=-3\)</span> \(A=6\) en \(b=5\), dus \(mn=6\) en \(m+n=5\).
+</p>
+<p>
+\[ \begin {array}{r|cc} m &amp; 1 &amp; 2 \\ n &amp; 6 &amp; 3 \\ \hline m+n &amp; 7 &amp; \boxed {5} \end {array} \]
+</p>
+<p>
+Dus \(m=2\) en \(n=3\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                x2 + 5x + 6 = 0 ⇐⇒ (x + 2)(x + 3) = 0
+                                                                                               ⇐⇒ x = −2 of x = −3.
+
+
+-->
+
+<p>
+
+\begin{align*}
+x^2+5x+6=0 &amp;\iff (x+2)(x+3)=0 \\ &amp;\iff x=-2 \ \text {of}\ x=-3.
+\end{align*}
+
 </p>
 </div>
 </li>
@@ -1235,7 +1244,31 @@ Los op door te ontbinden in factoren. Hier is \(a=1\).
 </p>
 <div class="oplossing">
 <p>
-<span class="oplantwoord">\(x=3\) of \(x=4\)</span> We zoeken \(m+n=-7\) en \(mn=12\). Dat geeft \(m=-3\) en \(n=-4\). Dus \((x-3)(x-4)=0\).
+<span class="oplantwoord">\(x=3\) of \(x=4\)</span> \(A=12\) en \(b=-7\), dus \(mn=12\) en \(m+n=-7\).
+</p>
+<p>
+\[ \begin {array}{r|ccc} m &amp; -1 &amp; -2 &amp; -3 \\ n &amp; -12 &amp; -6 &amp; -4 \\ \hline m+n &amp; -13 &amp; -8 &amp; \boxed {-7} \end {array} \]
+</p>
+<p>
+Dus \(m=-3\) en \(n=-4\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                               x2 − 7x + 12 = 0 ⇐⇒ (x − 3)(x − 4) = 0
+                                                                                                ⇐⇒ x = 3 of x = 4.
+
+
+-->
+
+<p>
+
+\begin{align*}
+x^2-7x+12=0 &amp;\iff (x-3)(x-4)=0 \\ &amp;\iff x=3 \ \text {of}\ x=4.
+\end{align*}
+
 </p>
 </div>
 </li>
@@ -1246,7 +1279,31 @@ Los op door te ontbinden in factoren. Hier is \(a=1\).
 </p>
 <div class="oplossing">
 <p>
-<span class="oplantwoord">\(x=-7\) of \(x=4\)</span> We zoeken \(m+n=3\) en \(mn=-28\). Dat geeft \(m=7\) en \(n=-4\). Dus \((x+7)(x-4)=0\).
+<span class="oplantwoord">\(x=-7\) of \(x=4\)</span> \(A=-28\) en \(b=3\), dus \(mn=-28\) en \(m+n=3\).
+</p>
+<p>
+\[ \begin {array}{r|ccc} m &amp; 28 &amp; 14 &amp; 7 \\ n &amp; -1 &amp; -2 &amp; -4 \\ \hline m+n &amp; 27 &amp; 12 &amp; \boxed {3} \end {array} \]
+</p>
+<p>
+Dus \(m=7\) en \(n=-4\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                               x2 + 3x − 28 = 0 ⇐⇒ (x + 7)(x − 4) = 0
+                                                                                                ⇐⇒ x = −7 of x = 4.
+
+
+-->
+
+<p>
+
+\begin{align*}
+x^2+3x-28=0 &amp;\iff (x+7)(x-4)=0 \\ &amp;\iff x=-7 \ \text {of}\ x=4.
+\end{align*}
+
 </p>
 </div>
 </li>
@@ -1257,7 +1314,31 @@ Los op door te ontbinden in factoren. Hier is \(a=1\).
 </p>
 <div class="oplossing">
 <p>
-<span class="oplantwoord">\(x=-5\) of \(x=7\)</span> We zoeken \(m+n=-2\) en \(mn=-35\). Dat geeft \(m=5\) en \(n=-7\). Dus \((x+5)(x-7)=0\).
+<span class="oplantwoord">\(x=-5\) of \(x=7\)</span> \(A=-35\) en \(b=-2\), dus \(mn=-35\) en \(m+n=-2\).
+</p>
+<p>
+\[ \begin {array}{r|cc} m &amp; 1 &amp; 5 \\ n &amp; -35 &amp; -7 \\ \hline m+n &amp; -34 &amp; \boxed {-2} \end {array} \]
+</p>
+<p>
+Dus \(m=5\) en \(n=-7\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                               x2 − 2x − 35 = 0 ⇐⇒ (x + 5)(x − 7) = 0
+                                                                                                ⇐⇒ x = −5 of x = 7.
+
+
+-->
+
+<p>
+
+\begin{align*}
+x^2-2x-35=0 &amp;\iff (x+5)(x-7)=0 \\ &amp;\iff x=-5 \ \text {of}\ x=7.
+\end{align*}
+
 </p>
 </div>
 </li>
@@ -1268,7 +1349,31 @@ Los op door te ontbinden in factoren. Hier is \(a=1\).
 </p>
 <div class="oplossing">
 <p>
-<span class="oplantwoord">\(x=-3\) of \(x=-5\)</span> We zoeken \(m+n=8\) en \(mn=15\). Dat geeft \(m=3\) en \(n=5\). Dus \((x+3)(x+5)=0\).
+<span class="oplantwoord">\(x=-3\) of \(x=-5\)</span> \(A=15\) en \(b=8\), dus \(mn=15\) en \(m+n=8\).
+</p>
+<p>
+\[ \begin {array}{r|cc} m &amp; 1 &amp; 3 \\ n &amp; 15 &amp; 5 \\ \hline m+n &amp; 16 &amp; \boxed {8} \end {array} \]
+</p>
+<p>
+Dus \(m=3\) en \(n=5\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                               x2 + 8x + 15 = 0 ⇐⇒ (x + 3)(x + 5) = 0
+                                                                                               ⇐⇒ x = −3 of x = −5.
+
+
+-->
+
+<p>
+
+\begin{align*}
+x^2+8x+15=0 &amp;\iff (x+3)(x+5)=0 \\ &amp;\iff x=-3 \ \text {of}\ x=-5.
+\end{align*}
+
 </p>
 </div>
 <p>
@@ -1287,8 +1392,8 @@ Los op door te ontbinden in factoren. Hier is \(a=1\).
 <!--
 ...... subsubsection Oefening 2 ......
 -->
-<h6 id="autosec-19">Oefening 2</h6>
-<a id="mkpiweb-autopage-19"></a>
+<h6 id="autosec-17">Oefening 2</h6>
+<a id="mkpiweb-autopage-17"></a>
 
 
 <p>
@@ -1302,13 +1407,34 @@ Los op met de AC-methode. Hier is \(a\neq 1\). <span class="hint">Maak een tabel
 </p>
 <div class="oplossing">
 <p>
-<span class="oplantwoord">\(x=-\dfrac {1}{2}\) of \(x=-3\)</span> \(A=6\) en \(m+n=7\), dus \(m=1\) en \(n=6\).
+<span class="oplantwoord">\(x=-\dfrac {1}{2}\) of \(x=-3\)</span> \(A=6\) en \(b=7\), dus \(mn=6\) en \(m+n=7\).
 </p>
 <p>
-\[ 2x^2+x+6x+3=x(2x+1)+3(2x+1)=(2x+1)(x+3). \]
+\[ \begin {array}{r|cc} m &amp; 1 &amp; 2 \\ n &amp; 6 &amp; 3 \\ \hline m+n &amp; \boxed {7} &amp; 5 \end {array} \]
 </p>
 <p>
-Het nulproduct geeft \(x=-\dfrac {1}{2}\) of \(x=-3\).
+Dus \(m=1\) en \(n=6\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                      2x2 + 7x + 3 = 0 ⇐⇒ 2x2 + x + 6x + 3 = 0
+                                                                                                       ⇐⇒ x(2x + 1) + 3(2x + 1) = 0
+                                                                                                       ⇐⇒ (2x + 1)(x + 3) = 0
+                                                                                                                  1
+                                                                                                       ⇐⇒ x = −     of x = −3.
+                                                                                                                  2
+
+-->
+
+<p>
+
+\begin{align*}
+2x^2+7x+3=0 &amp;\iff 2x^2+x+6x+3=0 \\ &amp;\iff x(2x+1)+3(2x+1)=0 \\ &amp;\iff (2x+1)(x+3)=0 \\ &amp;\iff x=-\dfrac {1}{2} \ \text {of}\ x=-3.
+\end{align*}
+
 </p>
 </div>
 </li>
@@ -1319,13 +1445,34 @@ Het nulproduct geeft \(x=-\dfrac {1}{2}\) of \(x=-3\).
 </p>
 <div class="oplossing">
 <p>
-<span class="oplantwoord">\(x=-\dfrac {4}{3}\) of \(x=2\)</span> \(A=-24\) en \(m+n=-2\), dus \(m=4\) en \(n=-6\).
+<span class="oplantwoord">\(x=-\dfrac {4}{3}\) of \(x=2\)</span> \(A=-24\) en \(b=-2\), dus \(mn=-24\) en \(m+n=-2\).
 </p>
 <p>
-\[ 3x^2+4x-6x-8=x(3x+4)-2(3x+4)=(3x+4)(x-2). \]
+\[ \begin {array}{r|cccc} m &amp; 1 &amp; 2 &amp; 3 &amp; 4 \\ n &amp; -24 &amp; -12 &amp; -8 &amp; -6 \\ \hline m+n &amp; -23 &amp; -10 &amp; -5 &amp; \boxed {-2} \end {array} \]
 </p>
 <p>
-Het nulproduct geeft \(x=-\dfrac {4}{3}\) of \(x=2\).
+Dus \(m=4\) en \(n=-6\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                      3x2 − 2x − 8 = 0 ⇐⇒ 3x2 + 4x − 6x − 8 = 0
+                                                                                                       ⇐⇒ x(3x + 4) − 2(3x + 4) = 0
+                                                                                                       ⇐⇒ (3x + 4)(x − 2) = 0
+                                                                                                                  4
+                                                                                                       ⇐⇒ x = −     of x = 2.
+                                                                                                                  3
+
+-->
+
+<p>
+
+\begin{align*}
+3x^2-2x-8=0 &amp;\iff 3x^2+4x-6x-8=0 \\ &amp;\iff x(3x+4)-2(3x+4)=0 \\ &amp;\iff (3x+4)(x-2)=0 \\ &amp;\iff x=-\dfrac {4}{3} \ \text {of}\ x=2.
+\end{align*}
+
 </p>
 </div>
 </li>
@@ -1336,13 +1483,34 @@ Het nulproduct geeft \(x=-\dfrac {4}{3}\) of \(x=2\).
 </p>
 <div class="oplossing">
 <p>
-<span class="oplantwoord">\(x=1\) of \(x=2\)</span> \(A=32\) en \(m+n=-12\), dus \(m=-4\) en \(n=-8\).
+<span class="oplantwoord">\(x=1\) of \(x=2\)</span> \(A=32\) en \(b=-12\), dus \(mn=32\) en \(m+n=-12\).
 </p>
 <p>
-\[ 4x^2-4x-8x+8=4x(x-1)-8(x-1)=(x-1)(4x-8)=4(x-1)(x-2). \]
+\[ \begin {array}{r|ccc} m &amp; -1 &amp; -2 &amp; -4 \\ n &amp; -32 &amp; -16 &amp; -8 \\ \hline m+n &amp; -33 &amp; -18 &amp; \boxed {-12} \end {array} \]
 </p>
 <p>
-Het nulproduct geeft \(x=1\) of \(x=2\).
+Dus \(m=-4\) en \(n=-8\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                      4x2 − 12x + 8 = 0 ⇐⇒ 4x2 − 4x − 8x + 8 = 0
+                                                                                                        ⇐⇒ 4x(x − 1) − 8(x − 1) = 0
+                                                                                                        ⇐⇒ (x − 1)(4x − 8) = 0
+                                                                                                        ⇐⇒ 4(x − 1)(x − 2) = 0
+                                                                                                        ⇐⇒ x = 1 of x = 2.
+
+
+-->
+
+<p>
+
+\begin{align*}
+4x^2-12x+8=0 &amp;\iff 4x^2-4x-8x+8=0 \\ &amp;\iff 4x(x-1)-8(x-1)=0 \\ &amp;\iff (x-1)(4x-8)=0 \\ &amp;\iff 4(x-1)(x-2)=0 \\ &amp;\iff x=1 \ \text {of}\ x=2.
+\end{align*}
+
 </p>
 </div>
 </li>
@@ -1353,13 +1521,34 @@ Het nulproduct geeft \(x=1\) of \(x=2\).
 </p>
 <div class="oplossing">
 <p>
-<span class="oplantwoord">\(x=-1\) of \(x=-\dfrac {8}{5}\)</span> \(A=40\) en \(m+n=13\), dus \(m=5\) en \(n=8\).
+<span class="oplantwoord">\(x=-1\) of \(x=-\dfrac {8}{5}\)</span> \(A=40\) en \(b=13\), dus \(mn=40\) en \(m+n=13\).
 </p>
 <p>
-\[ 5x^2+5x+8x+8=5x(x+1)+8(x+1)=(x+1)(5x+8). \]
+\[ \begin {array}{r|cccc} m &amp; 1 &amp; 2 &amp; 4 &amp; 5 \\ n &amp; 40 &amp; 20 &amp; 10 &amp; 8 \\ \hline m+n &amp; 41 &amp; 22 &amp; 14 &amp; \boxed {13} \end {array} \]
 </p>
 <p>
-Het nulproduct geeft \(x=-1\) of \(x=-\dfrac {8}{5}\).
+Dus \(m=5\) en \(n=8\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                      5x2 + 13x + 8 = 0 ⇐⇒ 5x2 + 5x + 8x + 8 = 0
+                                                                                                        ⇐⇒ 5x(x + 1) + 8(x + 1) = 0
+                                                                                                        ⇐⇒ (x + 1)(5x + 8) = 0
+                                                                                                                          8
+                                                                                                        ⇐⇒ x = −1 of x = − .
+                                                                                                                          5
+
+-->
+
+<p>
+
+\begin{align*}
+5x^2+13x+8=0 &amp;\iff 5x^2+5x+8x+8=0 \\ &amp;\iff 5x(x+1)+8(x+1)=0 \\ &amp;\iff (x+1)(5x+8)=0 \\ &amp;\iff x=-1 \ \text {of}\ x=-\dfrac {8}{5}.
+\end{align*}
+
 </p>
 </div>
 </li>
@@ -1370,13 +1559,34 @@ Het nulproduct geeft \(x=-1\) of \(x=-\dfrac {8}{5}\).
 </p>
 <div class="oplossing">
 <p>
-<span class="oplantwoord">\(x=-\dfrac {1}{3}\) of \(x=\dfrac {3}{2}\)</span> \(A=-18\) en \(m+n=-7\), dus \(m=2\) en \(n=-9\).
+<span class="oplantwoord">\(x=-\dfrac {1}{3}\) of \(x=\dfrac {3}{2}\)</span> \(A=-18\) en \(b=-7\), dus \(mn=-18\) en \(m+n=-7\).
 </p>
 <p>
-\[ 6x^2+2x-9x-3=2x(3x+1)-3(3x+1)=(3x+1)(2x-3). \]
+\[ \begin {array}{r|ccc} m &amp; 1 &amp; 2 &amp; 3 \\ n &amp; -18 &amp; -9 &amp; -6 \\ \hline m+n &amp; -17 &amp; \boxed {-7} &amp; -3 \end {array} \]
 </p>
 <p>
-Het nulproduct geeft \(x=-\dfrac {1}{3}\) of \(x=\dfrac {3}{2}\).
+Dus \(m=2\) en \(n=-9\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                     6x2 − 7x − 3 = 0 ⇐⇒ 6x2 + 2x − 9x − 3 = 0
+                                                                                                      ⇐⇒ 2x(3x + 1) − 3(3x + 1) = 0
+                                                                                                      ⇐⇒ (3x + 1)(2x − 3) = 0
+                                                                                                                 1       3
+                                                                                                      ⇐⇒ x = −     of x = .
+                                                                                                                 3       2
+
+-->
+
+<p>
+
+\begin{align*}
+6x^2-7x-3=0 &amp;\iff 6x^2+2x-9x-3=0 \\ &amp;\iff 2x(3x+1)-3(3x+1)=0 \\ &amp;\iff (3x+1)(2x-3)=0 \\ &amp;\iff x=-\dfrac {1}{3} \ \text {of}\ x=\dfrac {3}{2}.
+\end{align*}
+
 </p>
 </div>
 <p>
@@ -1389,13 +1599,13 @@ Het nulproduct geeft \(x=-\dfrac {1}{3}\) of \(x=\dfrac {3}{2}\).
 <!--
 ...... section De discriminantmethode ......
 -->
-<h4 id="autosec-20"><span class="sectionnumber">III&#x2003;</span>De discriminantmethode</h4>
-<a id="mkpiweb-autopage-20"></a>
+<h4 id="autosec-18"><span class="sectionnumber">III&#x2003;</span>De discriminantmethode</h4>
+<a id="mkpiweb-autopage-18"></a>
 <!--
 ...... subsection Wanneer ontbinden niet lukt ......
 -->
-<h5 id="autosec-21"><span class="sectionnumber">1&#x2003;</span>Wanneer ontbinden niet lukt</h5>
-<a id="mkpiweb-autopage-21"></a>
+<h5 id="autosec-19"><span class="sectionnumber">1&#x2003;</span>Wanneer ontbinden niet lukt</h5>
+<a id="mkpiweb-autopage-19"></a>
 
 
 <p>
@@ -1488,8 +1698,8 @@ waarom ontbinden daar niet lukte.</span>
 <!--
 ...... subsection Stappenplan ......
 -->
-<h5 id="autosec-25"><span class="sectionnumber">2&#x2003;</span>Stappenplan</h5>
-<a id="mkpiweb-autopage-25"></a>
+<h5 id="autosec-23"><span class="sectionnumber">2&#x2003;</span>Stappenplan</h5>
+<a id="mkpiweb-autopage-23"></a>
 
 
 <ul class="enumerate" style="list-style-type:none">
@@ -1531,8 +1741,8 @@ waarom ontbinden daar niet lukte.</span>
 <!--
 ...... subsection Voorbeeld 1 ......
 -->
-<h5 id="autosec-26"><span class="sectionnumber">3&#x2003;</span>Voorbeeld 1</h5>
-<a id="mkpiweb-autopage-26"></a>
+<h5 id="autosec-24"><span class="sectionnumber">3&#x2003;</span>Voorbeeld 1</h5>
+<a id="mkpiweb-autopage-24"></a>
 
 
 <p>
@@ -1670,8 +1880,8 @@ x^2-6x+2 &amp;= (16-6\sqrt {7})-6(3-\sqrt {7})+2 \\ &amp;= 16-6\sqrt {7}-18+6\sq
 <!--
 ...... subsection Voorbeeld 2 ......
 -->
-<h5 id="autosec-27"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 2</h5>
-<a id="mkpiweb-autopage-27"></a>
+<h5 id="autosec-25"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 2</h5>
+<a id="mkpiweb-autopage-25"></a>
 
 
 <p>
@@ -1756,8 +1966,8 @@ x &amp;= \frac {-b\pm \sqrt {D}}{2a} \\ &amp;= \frac {-(-12)\pm \sqrt {0}}{2\cdo
 <!--
 ...... subsection Voorbeeld 3 ......
 -->
-<h5 id="autosec-28"><span class="sectionnumber">5&#x2003;</span>Voorbeeld 3</h5>
-<a id="mkpiweb-autopage-28"></a>
+<h5 id="autosec-26"><span class="sectionnumber">5&#x2003;</span>Voorbeeld 3</h5>
+<a id="mkpiweb-autopage-26"></a>
 
 
 <p>
@@ -1836,8 +2046,8 @@ Een negatief getal heeft geen ree&#x0308;le vierkantswortel. </div>
 <!--
 ...... subsection Probeer het zelf ......
 -->
-<h5 id="autosec-29"><span class="sectionnumber">6&#x2003;</span>Probeer het zelf</h5>
-<a id="mkpiweb-autopage-29"></a>
+<h5 id="autosec-27"><span class="sectionnumber">6&#x2003;</span>Probeer het zelf</h5>
+<a id="mkpiweb-autopage-27"></a>
 
 
 <p>
@@ -1890,8 +2100,8 @@ Dus
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-30"><span class="sectionnumber">7&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-30"></a>
+<h5 id="autosec-28"><span class="sectionnumber">7&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-28"></a>
 
 
 <div class="cursus-oefening">
@@ -1902,8 +2112,8 @@ Dus
 <!--
 ...... subsubsection Oefening 3 ......
 -->
-<h6 id="autosec-31">Oefening 3</h6>
-<a id="mkpiweb-autopage-31"></a>
+<h6 id="autosec-29">Oefening 3</h6>
+<a id="mkpiweb-autopage-29"></a>
 
 
 <p>
@@ -2001,8 +2211,8 @@ Dit is een dubbele oplossing.
 <!--
 ...... subsubsection Oefening 4 ......
 -->
-<h6 id="autosec-32">Oefening 4</h6>
-<a id="mkpiweb-autopage-32"></a>
+<h6 id="autosec-30">Oefening 4</h6>
+<a id="mkpiweb-autopage-30"></a>
 
 
 <p>
@@ -2097,13 +2307,13 @@ Dat geeft \(x=\dfrac {4}{12}=\dfrac {1}{3}\) of \(x=-\dfrac {18}{12}=-\dfrac {3}
 <!--
 ...... section Een oplossing is al bekend ......
 -->
-<h4 id="autosec-33"><span class="sectionnumber">IV&#x2003;</span>Een oplossing is al bekend</h4>
-<a id="mkpiweb-autopage-33"></a>
+<h4 id="autosec-31"><span class="sectionnumber">IV&#x2003;</span>Een oplossing is al bekend</h4>
+<a id="mkpiweb-autopage-31"></a>
 <!--
 ...... subsection Het idee ......
 -->
-<h5 id="autosec-34"><span class="sectionnumber">1&#x2003;</span>Het idee</h5>
-<a id="mkpiweb-autopage-34"></a>
+<h5 id="autosec-32"><span class="sectionnumber">1&#x2003;</span>Het idee</h5>
+<a id="mkpiweb-autopage-32"></a>
 
 
 <p>
@@ -2176,8 +2386,8 @@ Het nulproduct geeft de andere oplossing: \(x+8=0\), dus \(x=-8\). We hoefden ge
 <!--
 ...... subsection Stappenplan ......
 -->
-<h5 id="autosec-38"><span class="sectionnumber">2&#x2003;</span>Stappenplan</h5>
-<a id="mkpiweb-autopage-38"></a>
+<h5 id="autosec-36"><span class="sectionnumber">2&#x2003;</span>Stappenplan</h5>
+<a id="mkpiweb-autopage-36"></a>
 
 
 <ul class="enumerate" style="list-style-type:none">
@@ -2231,8 +2441,8 @@ kan niet delen door \(0\). Dan is \(c=0\) en kan je \(x\) buitenbrengen.</span>
 <!--
 ...... subsection Voorbeeld ......
 -->
-<h5 id="autosec-39"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
-<a id="mkpiweb-autopage-39"></a>
+<h5 id="autosec-37"><span class="sectionnumber">3&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-37"></a>
 
 
 <p>
@@ -2371,8 +2581,8 @@ De oplossingen zijn \(x=2\) en \(x=-\dfrac {1}{3}\). </div>
 <!--
 ...... subsection Probeer het zelf ......
 -->
-<h5 id="autosec-43"><span class="sectionnumber">4&#x2003;</span>Probeer het zelf</h5>
-<a id="mkpiweb-autopage-43"></a>
+<h5 id="autosec-41"><span class="sectionnumber">4&#x2003;</span>Probeer het zelf</h5>
+<a id="mkpiweb-autopage-41"></a>
 
 
 <p>
@@ -2421,8 +2631,8 @@ Los op: \(2x^2-5x-3=0\), als je weet dat \(x_1=3\) een oplossing is.
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-44"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-44"></a>
+<h5 id="autosec-42"><span class="sectionnumber">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-42"></a>
 
 
 <div class="cursus-oefening">
@@ -2433,8 +2643,8 @@ Los op: \(2x^2-5x-3=0\), als je weet dat \(x_1=3\) een oplossing is.
 <!--
 ...... subsubsection Oefening 5 ......
 -->
-<h6 id="autosec-45">Oefening 5</h6>
-<a id="mkpiweb-autopage-45"></a>
+<h6 id="autosec-43">Oefening 5</h6>
+<a id="mkpiweb-autopage-43"></a>
 
 
 <p>
@@ -2514,8 +2724,8 @@ en \(x=\dfrac {1}{3}\).
 <!--
 ...... subsubsection Oefening 6 ......
 -->
-<h6 id="autosec-46">Oefening 6</h6>
-<a id="mkpiweb-autopage-46"></a>
+<h6 id="autosec-44">Oefening 6</h6>
+<a id="mkpiweb-autopage-44"></a>
 
 
 <p>
@@ -2578,8 +2788,8 @@ Zoek zelf een oplossing door eenvoudige getallen in te vullen. Gebruik daarna de
 <!--
 ...... section Controlelijst ......
 -->
-<h4 id="autosec-47"><span class="sectionnumber">V&#x2003;</span>Controlelijst</h4>
-<a id="mkpiweb-autopage-47"></a>
+<h4 id="autosec-45"><span class="sectionnumber">V&#x2003;</span>Controlelijst</h4>
+<a id="mkpiweb-autopage-45"></a>
 
 
 <p>
@@ -2629,8 +2839,8 @@ Loop dit na bij elke vergelijking die je oplost.
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-48">Oefeningen</h6>
-<a id="mkpiweb-autopage-48"></a>
+<h6 id="autosec-46">Oefeningen</h6>
+<a id="mkpiweb-autopage-46"></a>
 
 
 <div class="cursus-oefening">
@@ -2641,8 +2851,8 @@ Loop dit na bij elke vergelijking die je oplost.
 <!--
 ...... subsubsection Oefening 7 ......
 -->
-<h6 id="autosec-49">Oefening 7</h6>
-<a id="mkpiweb-autopage-49"></a>
+<h6 id="autosec-47">Oefening 7</h6>
+<a id="mkpiweb-autopage-47"></a>
 
 
 <p>
@@ -2657,9 +2867,10 @@ Kies zelf \(a,b,c\in \mathbb {Z}\) met \(|a|\leq 5\), \(|b|\leq 12\) en \(|c|\le
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=df54ff73711d"></script>
-<script src="vendor/jsxgraphcore.js?v=df54ff73711d"></script>
-<script src="interactieve-grafieken.js?v=df54ff73711d"></script>
-<script src="hoofdstuk.interactief.js?v=df54ff73711d"></script>
+<script src="presentatie.js?v=d251b3beb3f7"></script>
+<script src="statistieken.js?v=d251b3beb3f7"></script>
+<script src="vendor/jsxgraphcore.js?v=d251b3beb3f7"></script>
+<script src="interactieve-grafieken.js?v=d251b3beb3f7"></script>
+<script src="hoofdstuk.interactief.js?v=d251b3beb3f7"></script>
 </body>
 </html>
