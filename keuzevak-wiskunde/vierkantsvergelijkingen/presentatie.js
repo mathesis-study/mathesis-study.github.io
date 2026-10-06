@@ -323,7 +323,6 @@
   }
 
   function maakSlides(stroom) {
-    var kinderen = Array.prototype.slice.call(stroom.children);
     var huidige = null;
     var inAppendix = false;
     var appendixPdf = "";
@@ -380,7 +379,9 @@
       };
       blok.remove();
     });
-    kinderen = Array.prototype.slice.call(stroom.children);
+    // Ook losse tekst (bijvoorbeeld formules na een rekenmachineknop)
+    // hoort bij de lopende slide en mag niet boven de slides achterblijven.
+    var kinderen = Array.prototype.slice.call(stroom.childNodes);
 
     function kopgegevens(kop) {
       var nummer = "";
@@ -430,7 +431,7 @@
     }
 
     function voegGroepToe(groep) {
-      var groepskinderen = Array.prototype.slice.call(groep.children);
+      var groepskinderen = Array.prototype.slice.call(groep.childNodes);
       var koppen = groepskinderen.filter(function (kind) {
         return kind.matches && kind.matches(KOPPEN);
       });
@@ -1107,6 +1108,53 @@
     waarnemer.observe(document.body, { childList: true, subtree: true });
   }
 
+  // In de PDF staat \qed aan de rechtermarge van een display. MathJax kan dat
+  // niet zelf: \tag* houdt links evenveel ruimte vrij als rechts, waardoor de
+  // formule te breed wordt en er een schuifbalk komt. cursus.cls geeft het
+  // vakje daarom de klasse mathesis-qed, en hier schuift het naar de rechterrand
+  // van zijn formule. Een formule die zelf schuift, laat het vakje staan waar
+  // het staat: de rechterrand is dan niet de rand van de tekening.
+  function plaatsBlokje(houder) {
+    var blokje = houder.querySelector("svg .mathesis-qed");
+    if (!blokje) return;
+    if (blokje.dataset.basis === undefined) blokje.dataset.basis = blokje.getAttribute("transform") || "";
+    var basis = blokje.dataset.basis;
+    blokje.setAttribute("transform", basis);
+
+    var vak = houder.getBoundingClientRect();
+    if (!vak.width || houder.scrollWidth > houder.clientWidth + 1) return;
+    var schaal = blokje.getScreenCTM();
+    if (!schaal || !schaal.a) return;
+    var rechts = vak.left + houder.clientLeft + houder.clientWidth;
+    var ruimte = (rechts - blokje.getBoundingClientRect().right) / schaal.a;
+    if (ruimte < 1) return;
+    blokje.setAttribute("transform", basis + " translate(" + ruimte.toFixed(1) + ",0)");
+  }
+
+  function volgBlokjes() {
+    if (!window.ResizeObserver) return;
+    var gezien = new WeakSet();
+    var maat = new ResizeObserver(function (lijst) {
+      lijst.forEach(function (waarneming) {
+        var doel = waarneming.target;
+        plaatsBlokje(doel.tagName === "MJX-CONTAINER" ? doel : doel.parentElement);
+      });
+    });
+    function zoek() {
+      document.querySelectorAll('mjx-container[display="true"]').forEach(function (houder) {
+        if (gezien.has(houder) || !houder.querySelector("svg .mathesis-qed")) return;
+        gezien.add(houder);
+        maat.observe(houder);
+        // De svg krimpt mee met de slide (zie volgBredeFormules) zonder dat de
+        // houder van maat verandert.
+        var svg = houder.querySelector(":scope > svg");
+        if (svg) maat.observe(svg);
+      });
+    }
+    new MutationObserver(zoek).observe(document.body, { childList: true, subtree: true });
+    zoek();
+  }
+
   // Voor een formule onder ONDERGRENS_FORMULE moet schuiven, geven de marges
   // rond haar plaats af: de strook tussen podium en slide, de binnenrand van de
   // slide en die van een oplossing. Ze krimpen samen met de formule, zodat die
@@ -1394,29 +1442,109 @@
     } };
   }
 
-  // Ligt de stap nog niet in beeld, dan scrollt de toets ernaartoe: vooruit
+  // Hoeveel er nog gescrold moet worden voor de stap in beeld staat: vooruit
   // tot de onderrand van haar element zichtbaar is, terug tot de bovenrand.
-  // Zonder stap wacht de sprong naar de buurslide tot de pagina helemaal naar
-  // onder of naar boven gescrold is.
-  function scrollNaarStap(doel, richting, pagina, nu) {
+  // Zonder stap is het de ruimte tot het einde of het begin van de slide.
+  function scrollAfstand(doel, richting, nu) {
     var ruimte = richting > 0 ? podium.scrollHeight - podium.clientHeight - nu : nu;
-    var afstand = ruimte;
-    if (doel) {
-      var p = plaatsInPodium(doel, nu);
-      afstand = Math.min(ruimte, richting > 0
-        ? p.onder - (podium.clientHeight - STAPRAND)
-        : STAPRAND - p.boven);
+    if (!doel) {
+      // Zonder stap telt de witruimte van het podium zelf niet mee: een slide
+      // die helemaal in beeld staat, hoeft niet eerst nog te scrollen.
+      var podiumStijl = getComputedStyle(podium);
+      return ruimte - (parseFloat(richting > 0 ? podiumStijl.paddingBottom : podiumStijl.paddingTop) || 0);
     }
+    var p = plaatsInPodium(doel, nu);
+    return Math.min(ruimte, richting > 0
+      ? p.onder - (podium.clientHeight - STAPRAND)
+      : STAPRAND - p.boven);
+  }
+
+  // Ligt de stap nog niet in beeld, dan scrolt de toets ernaartoe. Zonder stap
+  // wacht de sprong naar de buurslide tot de pagina helemaal naar onder of
+  // naar boven gescrold is.
+  function scrollNaarStap(doel, richting, pagina, nu) {
+    var afstand = scrollAfstand(doel, richting, nu);
     if (afstand <= 1) return false;
-    var stapgrootte = pagina ? podium.clientHeight * 0.85 : 80;
+    var stapgrootte = pagina ? podium.clientHeight * PAGINASTAP : 80;
     scrollDoel = nu + richting * Math.min(afstand, stapgrootte);
-    podium.scrollTo({ top: scrollDoel });
     clearTimeout(scrollDoelTimer);
     scrollDoelTimer = setTimeout(function () { scrollDoel = null; }, 800);
+    if (pagina) animeerScroll(scrollDoel);
+    else podium.scrollTo({ top: scrollDoel });
     return true;
   }
 
-  function stap(richting, pagina) {
+  // Page Down en Page Up (de toetsen van een presenter) scrollen een deel van
+  // het scherm in een rustige, vloeiende beweging in plaats van in een sprong.
+  var PAGINASTAP = 0.4;
+  var scrollAnimatie = null;
+  var SCROLLSNELHEID = 450;
+
+  function stopAnimatie() {
+    if (!scrollAnimatie) return;
+    cancelAnimationFrame(scrollAnimatie);
+    scrollAnimatie = null;
+  }
+
+  function animeerScroll(doel) {
+    stopAnimatie();
+    var van = podium.scrollTop;
+    var duur = Math.max(250, Math.abs(doel - van) / SCROLLSNELHEID * 1000);
+    var begin = null;
+    function frame(tijd) {
+      if (begin === null) begin = tijd;
+      var t = Math.min(1, (tijd - begin) / duur);
+      var zacht = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      podium.scrollTo({ top: van + (doel - van) * zacht, behavior: "instant" });
+      scrollAnimatie = t < 1 ? requestAnimationFrame(frame) : null;
+    }
+    scrollAnimatie = requestAnimationFrame(frame);
+  }
+
+  // Houdt de lezer een verticale toets ingedrukt, dan scrolt de pagina rustig
+  // door tot hij loslaat of tot het doel (de volgende stap of het einde van de
+  // slide) in beeld staat. Een herhaling die geen scroll is, doet niets: een
+  // ingedrukte toets mag geen stappen of slides doorjagen.
+  var houdScroll = null;
+
+  function stopHoudScroll() {
+    if (!houdScroll) return;
+    cancelAnimationFrame(houdScroll.raf);
+    houdScroll = null;
+  }
+
+  function startHoudScroll(doel, richting, toets) {
+    stopHoudScroll();
+    stopAnimatie();
+    clearTimeout(scrollDoelTimer);
+    scrollDoel = null;
+    var vorige = null;
+    var houd = { toets: toets, raf: 0 };
+    function frame(tijd) {
+      var nu = podium.scrollTop;
+      var afstand = scrollAfstand(doel, richting, nu);
+      var dt = vorige === null ? 16 : Math.min(tijd - vorige, 50);
+      vorige = tijd;
+      if (afstand <= 1) { houdScroll = null; return; }
+      var deel = Math.min(afstand, SCROLLSNELHEID * dt / 1000);
+      podium.scrollTo({ top: nu + richting * deel, behavior: "instant" });
+      houd.raf = requestAnimationFrame(frame);
+    }
+    houdScroll = houd;
+    houd.raf = requestAnimationFrame(frame);
+  }
+
+  function stap(richting, pagina, toets, herhaling) {
+    if (herhaling) {
+      if (houdScroll) return;
+      var nuHerhaling = scrollDoel !== null ? scrollDoel : podium.scrollTop;
+      var gekozen = volgendeStap(richting, nuHerhaling);
+      if (scrollAfstand(gekozen.doel, richting, nuHerhaling) > 1) {
+        startHoudScroll(gekozen.doel, richting, toets);
+      }
+      return;
+    }
+    stopHoudScroll();
     var nu = scrollDoel !== null ? scrollDoel : podium.scrollTop;
     var volgende = volgendeStap(richting, nu);
     if (!scrollNaarStap(volgende.doel, richting, pagina, nu)) volgende.doe();
@@ -2081,7 +2209,7 @@
     document.title = zonderWiskunde(slide.dataset.titel) + " · " + basisTitel;
     bewaar("slide", slide.id);
     document.dispatchEvent(new CustomEvent("pres:slide", {
-      detail: { id: slide.id, titel: zonderWiskunde(slide.dataset.titel) }
+      detail: { id: slide.id, titel: zonderWiskunde(slide.dataset.titel), aantal: n }
     }));
   }
 
@@ -3051,6 +3179,13 @@
   /* --- Toetsen en gebaren ---------------------------------------------- */
 
   function bindToetsen() {
+    document.addEventListener("keyup", function (e) {
+      if (houdScroll && houdScroll.toets === e.key) stopHoudScroll();
+    });
+    window.addEventListener("blur", stopHoudScroll);
+    ["wheel", "touchstart", "pointerdown"].forEach(function (naam) {
+      podium.addEventListener(naam, stopAnimatie, { passive: true });
+    });
     document.addEventListener("keydown", function (e) {
       if (e.ctrlKey || e.altKey || e.metaKey) return;
       var doel = e.target;
@@ -3113,9 +3248,9 @@
         // Het podium heeft zelf de focus niet om te scrollen, dus doen we het
         // hier, afgewisseld met de stappen op de pagina.
         case "ArrowDown": case "PageDown":
-          stap(1, e.key === "PageDown"); break;
+          stap(1, e.key === "PageDown", e.key, e.repeat); break;
         case "ArrowUp": case "PageUp":
-          stap(-1, e.key === "PageUp"); break;
+          stap(-1, e.key === "PageUp", e.key, e.repeat); break;
         case "Home": naarPositie(0); break;
         case "End": naarPositie(aantalPosities() - 1); break;
         case "k": case "K": zetBladeren("kort", true); break;
@@ -3213,6 +3348,7 @@
     bereidOplossingenVoor();
     volgWiskundeOplossingen();
     volgBredeFormules();
+    volgBlokjes();
     bereidFigurenVoor();
     bereidFiguurgevallenVoor();
     bereidGrafiekenVoor();

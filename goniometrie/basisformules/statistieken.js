@@ -4,16 +4,15 @@
  * web/site.txt `statistieken = <code>` heeft. Het telscript van GoatCounter
  * laadt pas over http(s), dus een lokaal geopend bestand meldt niets.
  *
- * Naast de paginalading telt GoatCounter hier wat de lezer doet, als
- * gebeurtenissen met een pad per soort:
- *   slide/<pagina>/<slide>      een slide die minstens 3 seconden in beeld was
- *   oplossing/<pagina>/<slide>  een oplossing of invulvak dat opengaat
- *   oplossing/alle              meerdere tegelijk (de toets o)
- *   antwoord/<pagina>/<slide>   enkel het korte antwoord van een oplossing
- *   knop/<naam>                 een knop in de kopbalk, bij een figuur of rekenmachine
- *   python/<actie>              een codeblok dat loopt of stapt
- *   grafiek/<naam>              een interactieve grafiek waar de lezer mee speelt
- * Elke slide en grafiek telt hoogstens één keer per paginalading.
+ * De telling is met opzet grof: per hoofdstuk, niet per slide of per knop.
+ * Naast de paginalading, die GoatCounter zelf telt, komen er per lading
+ * hoogstens drie gebeurtenissen bij:
+ *   oplossing/<pagina>          de lezer opende minstens één oplossing
+ *   interactief/<pagina>        de lezer gebruikte een codeblok, een
+ *                               interactieve grafiek of de rekenmachine
+ *   gelezen/<pagina>/<deel>     bij het verlaten: welk deel van de slides
+ *                               minstens 3 seconden in beeld was, afgerond
+ *                               naar beneden op 0, 25, 50, 75 of 90 procent
  */
 (function () {
   "use strict";
@@ -23,15 +22,19 @@
 
   var klaar = false;
   var wachtrij = [];
+  var geteld = {};
 
   function verstuur(gegevens) {
     window.goatcounter.count({ path: gegevens[0], title: gegevens[1], event: true });
   }
 
+  // Elk pad telt hoogstens één keer per paginalading.
   function tel(pad, titel) {
+    if (geteld[pad]) return;
+    geteld[pad] = true;
     var gegevens = [pad, titel || ""];
     if (klaar && window.goatcounter && window.goatcounter.count) verstuur(gegevens);
-    else if (wachtrij.length < 50) wachtrij.push(gegevens);
+    else wachtrij.push(gegevens);
   }
 
   // Het telscript van GoatCounter telt zelf de paginalading. Het wordt hier
@@ -52,64 +55,70 @@
     return location.pathname.replace(/index\.html$/, "").replace(/^\/+|\/+$/g, "") || "hoofdpagina";
   }
 
-  function slideVan(element) {
-    return element && element.closest ? element.closest("[data-titel]") : null;
-  }
-
-  function naam(tekst) {
-    return tekst.replace(/\s*\([^)]*\)\s*$/, "").toLowerCase()
-      .normalize("NFD").replace(/[̀-ͯ]/g, "")
-      .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  }
-
-  function slideNaam(slide) {
-    return slide && slide.id ? slide.id : "onbekend";
-  }
-
-  /* --- Slides: alleen wie even blijft staan telt mee ------------------- */
+  /* --- Gelezen: welk deel van de slides even in beeld was --------------- */
 
   var gezien = {};
+  var aantalGezien = 0;
+  var aantalSlides = 0;
   var wacht = null;
 
-  document.addEventListener("pres:slide", function (e) {
+  function volgSlide(slide) {
     clearTimeout(wacht);
-    var slide = e.detail;
-    if (!slide || !slide.id || gezien[slide.id]) return;
+    if (!slide || !slide.id) return;
+    aantalSlides = slide.aantal || aantalSlides;
+    if (gezien[slide.id]) return;
     wacht = setTimeout(function () {
       if (document.visibilityState !== "visible") return;
       gezien[slide.id] = true;
-      tel("slide/" + pagina() + "/" + slide.id, slide.titel);
+      aantalGezien++;
     }, 3000);
-  });
+  }
 
-  /* --- Knoppen ---------------------------------------------------------- */
+  document.addEventListener("pres:slide", function (e) { volgSlide(e.detail); });
 
-  document.addEventListener("click", function (e) {
-    if (!e.target.closest) return;
-    var knop = e.target.closest("button");
-    if (!knop) return;
-    var python = /\bpython-(uitvoerknop|bugknop|stapknop)\b/.exec(knop.className);
-    if (python) {
-      tel("python/" + (python[1] === "uitvoerknop" ? "uitvoeren"
-        : python[1] === "bugknop" ? "regel-voor-regel" : "stappen"), pagina());
-      return;
-    }
-    if (!knop.matches(".pres-knop, .interactieve-grafiek button")) return;
-    var tekst = naam(knop.getAttribute("aria-label") || knop.title || knop.textContent || "");
-    if (tekst) tel("knop/" + tekst, pagina());
-  }, true);
+  // presentatie.js meldt de eerste slide al voor dit script geladen is. De
+  // hash wijst ze aan, want die zet het bij elke slidewissel.
+  function beginSlide() {
+    var slides = document.querySelectorAll(".slide[data-titel]");
+    if (!slides.length) return;
+    var doel = location.hash && document.getElementById(decodeURIComponent(location.hash.slice(1)));
+    var slide = (doel && doel.closest(".slide[data-titel]")) ||
+      document.querySelector(".slide.pres-actief[data-titel]") || slides[0];
+    volgSlide({ id: slide.id, aantal: slides.length });
+  }
 
-  /* --- Interactieve grafieken ------------------------------------------ */
+  function deelGelezen() {
+    var procent = aantalGezien / aantalSlides * 100;
+    return [90, 75, 50, 25].filter(function (grens) { return procent >= grens; })[0] || 0;
+  }
 
-  var gespeeld = {};
+  // GoatCounter verstuurt met sendBeacon, dus dit komt ook bij het verlaten
+  // nog aan. Is het telscript dan nog niet geladen, dan valt het weg.
+  function meldGelezen() {
+    if (!aantalSlides || !klaar) return;
+    var deel = deelGelezen();
+    tel("gelezen/" + pagina() + "/" + deel, "minstens " + deel + "% van de slides");
+  }
 
-  document.addEventListener("pointerdown", function (e) {
-    var figuur = e.target.closest && e.target.closest("figure.interactieve-grafiek");
-    var id = figuur && figuur.dataset.grafiek;
-    if (!id || gespeeld[id]) return;
-    gespeeld[id] = true;
-    tel("grafiek/" + id, pagina());
-  }, true);
+  /* --- Interactie: codeblokken, grafieken en de rekenmachine ------------ */
+
+  var INTERACTIEF = "figure.interactieve-grafiek, .pres-rekenmachine";
+
+  function interactie() {
+    tel("interactief/" + pagina(), "codeblok, grafiek of rekenmachine");
+  }
+
+  function waarneemInteractie() {
+    document.addEventListener("click", function (e) {
+      var knop = e.target.closest && e.target.closest("button");
+      if (knop && /\bpython-(uitvoerknop|bugknop|stapknop)\b/.test(knop.className)) interactie();
+    }, true);
+    ["pointerdown", "keydown"].forEach(function (soort) {
+      document.addEventListener(soort, function (e) {
+        if (e.target.closest && e.target.closest(INTERACTIEF)) interactie();
+      }, true);
+    });
+  }
 
   /* --- Oplossingen ------------------------------------------------------ */
 
@@ -121,42 +130,34 @@
   // niet telt.
   var OPLOSSING = ".oplossing, .opl, .opl-math";
 
-  function klasseErbij(record, klasse) {
-    var was = (record.oldValue || "").split(/\s+/).indexOf(klasse) >= 0;
-    return !was && record.target.classList.contains(klasse);
-  }
-
-  function klasseEraf(record, klasse) {
-    var was = (record.oldValue || "").split(/\s+/).indexOf(klasse) >= 0;
-    return was && !record.target.classList.contains(klasse);
+  function heeftKlasse(lijst, klasse) {
+    return (lijst || "").split(/\s+/).indexOf(klasse) >= 0;
   }
 
   function waarneemOplossingen() {
-    new MutationObserver(function (records) {
-      var geopend = [];
-      var antwoorden = [];
-      records.forEach(function (r) {
+    var waarnemer = new MutationObserver(function (records) {
+      var open = records.some(function (r) {
         var doel = r.target;
-        if (!doel.matches) return;
-        if (doel.matches(OPLOSSING) && klasseEraf(r, "pres-verborgen")) geopend.push(doel);
-        else if (doel.matches(".pres-oplanker") && klasseErbij(r, "pres-kortopen")) antwoorden.push(doel);
+        if (!doel.matches) return false;
+        if (doel.matches(OPLOSSING)) {
+          return heeftKlasse(r.oldValue, "pres-verborgen") && !doel.classList.contains("pres-verborgen");
+        }
+        return doel.matches(".pres-oplanker") &&
+          !heeftKlasse(r.oldValue, "pres-kortopen") && doel.classList.contains("pres-kortopen");
       });
-      if (geopend.length > 1) {
-        tel("oplossing/alle", pagina());
-      } else if (geopend.length === 1) {
-        var slide = slideVan(geopend[0]);
-        tel("oplossing/" + pagina() + "/" + slideNaam(slide), slide ? slide.dataset.titel : "");
-      }
-      if (antwoorden.length === 1) {
-        var kort = slideVan(antwoorden[0]);
-        tel("antwoord/" + pagina() + "/" + slideNaam(kort), kort ? kort.dataset.titel : "");
-      }
-    }).observe(document.body, { subtree: true, attributes: true,
-                                attributeFilter: ["class"], attributeOldValue: true });
+      if (!open) return;
+      tel("oplossing/" + pagina(), "oplossing geopend");
+      waarnemer.disconnect();
+    });
+    waarnemer.observe(document.body, { subtree: true, attributes: true,
+                                       attributeFilter: ["class"], attributeOldValue: true });
   }
 
   function start() {
     laad();
+    beginSlide();
+    waarneemInteractie();
+    window.addEventListener("pagehide", meldGelezen);
     var begonnen = false;
     function eerste() {
       if (begonnen) return;

@@ -446,6 +446,97 @@
 
   /* --- 2. Minor en cofactor ---------------------------------------------- */
 
+  G.registreer("det-tekenpatroon", function (ctx) {
+    // Echte knoppen voor elk vakje; de formule krijgt gewone MathJax-notatie.
+    // De HTML-laag houdt haar lettergrootte bij herschalen en in Groot.
+    matrixBord(ctx);
+    var i = 1, j = 1;
+    var generatie = 0, wachtrij = Promise.resolve();
+    var stijlId = "det-tekenpatroon-stijl";
+    if (!document.getElementById(stijlId)) {
+      var stijl = document.createElement("style");
+      stijl.id = stijlId;
+      stijl.textContent = `
+        .det-tekenpatroon { position:absolute; inset:0; display:flex;
+          align-items:center; justify-content:center; gap:4.25rem; padding:2rem 1rem;
+          color:var(--grafiek-tekst); background:var(--grafiek-vlak); }
+        .det-tekenmatrix { display:grid; grid-template-columns:repeat(3,3rem);
+          gap:.35rem; padding:.5rem; border-inline:2px solid currentColor;
+          border-radius:.7rem; flex-shrink:0; }
+        .det-tekenmatrix button { font:inherit; font-size:2rem; width:3rem;
+          height:3rem; padding:0; color:inherit; background:transparent;
+          border:1px solid transparent; border-radius:.3rem; cursor:pointer; }
+        .det-tekenmatrix button[aria-pressed="true"] {
+          background:var(--kleur-knop-actief-vlak, #dbeafe);
+          color:var(--grafiek-punt); border-color:var(--grafiek-punt); }
+        .det-tekenmatrix button:focus-visible { outline:3px solid var(--grafiek-punt); }
+        .det-cofactorstappen { font-size:1.25rem; min-width:0; }
+        .det-cofactorstappen mjx-container { margin:0 !important; }
+        .det-cofactorstappen mjx-script { font-size:85%; }
+        @media (max-width:650px) { .det-tekenpatroon { gap:2.25rem; padding:1.5rem .5rem; }
+          .det-cofactorstappen { font-size:1.2rem; }
+          .det-tekenmatrix { grid-template-columns:repeat(3,2.5rem); }
+          .det-tekenmatrix button { width:2.5rem; height:2.5rem; } }
+        @media (max-width:450px) { .det-tekenpatroon { flex-direction:column; gap:1.75rem; } }
+      `;
+      document.head.appendChild(stijl);
+    }
+    var laag = document.createElement("div");
+    laag.className = "det-tekenpatroon";
+    var matrix = document.createElement("div");
+    matrix.className = "det-tekenmatrix";
+    var formule = document.createElement("div");
+    formule.className = "det-cofactorstappen";
+    laag.appendChild(matrix);
+    laag.appendChild(formule);
+    ctx.element.appendChild(laag);
+    var vakjes = [];
+    for (var r = 1; r <= 3; r++) {
+      for (var k = 1; k <= 3; k++) {
+        (function (r, k) {
+          var knop = document.createElement("button");
+          knop.type = "button";
+          knop.textContent = teken(r, k) > 0 ? "+" : "−";
+          knop.dataset.rij = r;
+          knop.dataset.kolom = k;
+          knop.setAttribute("aria-label", "Rij " + r + ", kolom " + k);
+          knop.addEventListener("click", function () { kies(r, k); });
+          matrix.appendChild(knop);
+          vakjes.push(knop);
+        }(r, k));
+      }
+    }
+    function werkBij() {
+      vakjes.forEach(function (knop) {
+        knop.setAttribute("aria-pressed", String(+knop.dataset.rij === i && +knop.dataset.kolom === j));
+      });
+      var nummer = ++generatie;
+      var a = "A_{" + i + j + "}", m = "M_{" + i + j + "}";
+      var regels = [
+        "A_{ij}&=(-1)^{i+j}M_{ij}",
+        a + "&=(-1)^{" + i + "+" + j + "}" + m,
+        "&=(-1)^{" + (i + j) + "}" + m,
+        "&=" + (teken(i,j) > 0 ? "+" : "-") + m
+      ];
+      // Serialiseer MathJax en sla achterhaalde klikken over.
+      wachtrij = wachtrij.then(function () {
+        if (nummer !== generatie) return;
+        window.MathJax.typesetClear([formule]);
+        formule.textContent = "\\[\\begin{aligned}" + regels.join("\\\\[0.35em]") +
+          "\\end{aligned}\\]";
+        return window.MathJax.typesetPromise([formule]);
+      }).catch(function (fout) { console.error(fout); });
+      ctx.toon("Rij i = " + i + ", kolom j = " + j + ": i + j = " + (i+j) +
+        ((i+j)%2 === 0 ? " is even." : " is oneven."));
+    }
+    function kies(r, k) { i = r; j = k; werkBij(); }
+    ctx.knop("Volgend teken", function () {
+      kies(j < 3 ? i : i < 3 ? i+1 : 1, j < 3 ? j+1 : 1);
+    });
+    werkBij();
+    return { reset: function () { kies(1, 1); } };
+  });
+
   // Klik op een element: zijn rij en kolom worden geschrapt, de minor staat
   // ernaast en daaronder het teken uit (−1)^(i+j). Het tekenpatroon kan als
   // schaakbord over de matrix. In de variant voor de adjunctmatrix verzamel

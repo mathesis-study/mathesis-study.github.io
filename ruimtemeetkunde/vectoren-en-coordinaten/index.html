@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Vectoren en coördinaten in de ruimte</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=09cc801a3cad" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=30745979ce17" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -252,9 +252,10 @@ MathJax = {
 </script>
 
 
+<script src="mathjax-accenten.js?v=30745979ce17"></script>
 <script
           id="MathJax-script"
-          src="tex-svg-full.js"
+          src="tex-svg-full.js?v=30745979ce17"
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
@@ -264,8 +265,8 @@ MathJax = {
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
 <meta name="mathesis-statistieken" content="mathesis" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=09cc801a3cad" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=09cc801a3cad" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=30745979ce17" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=30745979ce17" />
 </head>
 <body>
 
@@ -427,7 +428,7 @@ MathJax = {
 
 \(\newcommand {\bgcot }{\operatorname {bgcot}}\)
 
-\(\newcommand {\qed }{\hfill \square }\)
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
 
 \(\newcommand {\markeercellen }[4][.35]{}\)
 
@@ -1135,7 +1136,7 @@ Merk op: Deze ree&#x0308;le vectorruimte is isomorf met de vectorruimte van de v
 <div class="oplossing">
 
 <p>
-\[f: \mathcal {V} \to \Sigma _O: \vec {OA} \mapsto \vec {A}\]
+\[ f:   \mathcal {V} \to \Sigma _O: \vec {OA} \mapsto \vec {A} \]
 </p>
 
 <p>
@@ -1298,6 +1299,8 @@ Formule:
 
 </div>
 
+<div class="figuur-bewijs breed"><div>
+
 <p>
 Figuur:
 </p>
@@ -1305,11 +1308,13 @@ Figuur:
 <div class="center">
 
 <p>
-<iframe src="./verschil_plaatsvectoren.html?v=96cba5877ec1" style="display:block; width:50vw; height:40vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+<iframe data-verhouding="275/142" src="./verschil_plaatsvectoren.html?v=1feaacc562f6" allowfullscreen loading="lazy"></iframe>
 </p>
 </div>
 
 </div>
+
+</div><div>
 
 <p>
 Bewijs:
@@ -1323,16 +1328,15 @@ Bewijs:
 
 
 
-                                                             ⃗ = BO
-                                                            BA    ⃗ + OA
-                                                                       ⃗                                                                  (Chasles-Möbius)
-                                                                =− ⃗
-                                                                  OB + ⃗
-                                                                      OA                                                                  (tegengestelde vector)
-                                                                   ⃗ +A
-                                                                = −B  ⃗                                                                   (definitie plaatsvector)
-                                                                 ⃗ − B.
-                                                                =A   ⃗
+                                                           ⃗ = BO
+                                                          BA    ⃗ + OA
+                                                                     ⃗                                                   (Chasles-Möbius)
+                                                                   ⃗ + OA
+                                                              = − OB    ⃗                                                (tegengestelde vector)
+                                                                 ⃗ +A
+                                                              = −B  ⃗                                                    (definitie plaatsvector)
+                                                               ⃗− ⃗
+                                                              =A  B.
 
 
 
@@ -1348,6 +1352,8 @@ Bewijs:
 
 </p>
 </div>
+
+</div></div>
 <!--
 ...... section Bijzondere plaatsvectoren ......
 -->
@@ -1368,6 +1374,8 @@ Formule:
 \[ \boxed {\overrightarrow {M}=\frac {\overrightarrow {A}+\overrightarrow {B}}{2}} \]
 </p>
 
+<div class="figuur-bewijs breed"><div>
+
 <p>
 Figuur:
 </p>
@@ -1375,16 +1383,22 @@ Figuur:
 <div class="center">
 
 <p>
-<iframe src="./midden_lijnstuk.html?v=0af91bbe6a29" style="display:block; width:50vw; height:23vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+<iframe data-verhouding="128/75" src="./midden_lijnstuk.html?v=725359245b1b" allowfullscreen loading="lazy"></iframe>
 </p>
 </div>
 
 </div>
+
+</div><div>
 
 <p>
 Bewijs:
 </p>
 <div class="oplossing">
+
+<p>
+\[ M \text { is midden van }[AB] \]
+</p>
 
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
 
@@ -1393,20 +1407,20 @@ Bewijs:
 
 
 
-                                                          M is midden van [AB] ⇐⇒                                                                  ⃗ = M⃗B
-                                                                                                                                                  AM
-                                                                                 ⇐⇒                                                            ⃗ −A
-                                                                                                                                               M  ⃗=B
-                                                                                                                                                    ⃗ −M
-                                                                                                                                                       ⃗
+                                                                ⇐⇒                                                          ⃗ = M⃗B
+                                                                                                                           AM
+                                                                ⇐⇒                                                      ⃗ −A
+                                                                                                                        M  ⃗=B
+                                                                                                                             ⃗ −M
+                                                                                                                                ⃗
 
-                                                                                 ⇐⇒                                                                 ⃗ =A
-                                                                                                                                                   2M  ⃗+B
-                                                                                                                                                         ⃗
-                                                                                                                                                        ⃗ ⃗
-                                                                                 ⇐⇒                                                                 ⃗ = A+B
-                                                                                                                                                    M
-                                                                                                                                                         2
+                                                                ⇐⇒                                                          ⃗ =A
+                                                                                                                           2M  ⃗+B
+                                                                                                                                 ⃗
+                                                                                                                                ⃗ ⃗
+                                                                ⇐⇒                                                          ⃗ = A+B
+                                                                                                                            M
+                                                                                                                                 2
 
 
 -->
@@ -1415,13 +1429,15 @@ Bewijs:
 <p>
 
 \begin{align*}
-M \text { is midden van }[AB] &amp;\iff &amp; \vec {AM}&amp;=\vec {MB}\\ &amp;\iff &amp; \vec M-\vec A&amp;=\vec B-\vec M \\ &amp;\iff &amp; 2\vec M&amp;=\vec A+\vec B \\ &amp;\iff &amp; \vec
-M&amp;=\dfrac {\vec A+\vec B}{2}
+&amp;\iff &amp; \vec {AM}&amp;=\vec {MB}\\ &amp;\iff &amp; \vec M-\vec A&amp;=\vec B-\vec M \\ &amp;\iff &amp; 2\vec M&amp;=\vec A+\vec B \\ &amp;\iff &amp; \vec M&amp;=\dfrac {\vec A+\vec
+B}{2}
 \end{align*}
 
 </p>
 
 </div>
+
+</div></div>
 <!--
 ...... subsection Zwaartepunt van een driehoek ......
 -->
@@ -1437,6 +1453,8 @@ Formule:
 \[ \boxed {\overrightarrow {Z}=\frac {\overrightarrow {A}+\overrightarrow {B}+\overrightarrow {C}}{3}} \]
 </p>
 
+<div class="figuur-bewijs "><div>
+
 <p>
 Figuur:
 </p>
@@ -1444,11 +1462,13 @@ Figuur:
 <div class="center">
 
 <p>
-<iframe src="./zwaartepunt_driehoek.html?v=ce8397350f64" style="display:block; width:50vw; height:30vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+<iframe data-verhouding="96/96" src="./zwaartepunt_driehoek.html?v=ce8397350f64" allowfullscreen loading="lazy"></iframe>
 </p>
 </div>
 
 </div>
+
+</div><div>
 
 <p>
 Bewijs:
@@ -1462,31 +1482,30 @@ Bewijs:
 
 
 
-                                                                                         ⃗ = 2 AM
-                                                                                        AZ   3
-                                                                                                ⃗                                                   (eigenschap zwaartelijn, zie A)
+                                                                                      ⃗ = 2 AM
+                                                                                     AZ   3
+                                                                                             ⃗                                     (eigenschap zwaartelijn, zie A)
 
-                                         ⇐⇒                                          ⃗ −A
-                                                                                     Z  ⃗ = 2 (M
-                                                                                               ⃗ − A)
-                                                                                                   ⃗
-                                                                                            3
+                                       ⇐⇒                                          ⃗ −A
+                                                                                   Z         ⃗ − A)
+                                                                                      ⃗ = 2 (M   ⃗
+                                                                                          3
 
-                                         ⇐⇒                                               ⃗ =A
-                                                                                          Z  ⃗+2M⃗ −2A⃗
-                                                                                               3    3
-                                                                                                 ⃗+2M
-                                                                                            = 13 A   ⃗
-                                                                                                   3
-                                                                                                       ⃗ +C
-                                                                                                       B   ⃗
-                                                                                                 ⃗+2
-                                                                                            = 13 A 3     2
-                                                                                                ⃗+B
-                                                                                                A ⃗ +C
-                                                                                                     ⃗
-                                                                                            =          .
-                                                                                                  3
+                                       ⇐⇒                                              ⃗ =A
+                                                                                       Z  ⃗+2M⃗ −2A⃗
+                                                                                            3    3
+                                                                                              ⃗+2M
+                                                                                         = 13 A   ⃗
+                                                                                                3
+                                                                                                    ⃗ +C
+                                                                                                    B   ⃗
+                                                                                              ⃗+2
+                                                                                         = 13 A 3     2
+                                                                                             ⃗+B
+                                                                                             A ⃗ +C
+                                                                                                  ⃗
+                                                                                         =          .
+                                                                                               3
 
 
 -->
@@ -1502,6 +1521,8 @@ Bewijs:
 
 </p>
 </div>
+
+</div></div>
 <!--
 ...... subsection Zwaartepunt van een viervlak ......
 -->
@@ -1517,6 +1538,8 @@ Formule:
 \[ \boxed {\overrightarrow {Z}=\frac {\overrightarrow {A}+\overrightarrow {B}+\overrightarrow {C}+\overrightarrow {D}}{4}} \]
 </p>
 
+<div class="figuur-bewijs "><div>
+
 <p>
 Figuur:
 </p>
@@ -1524,11 +1547,13 @@ Figuur:
 <div class="center">
 
 <p>
-<iframe src="./zwaartepunt_viervlak.html?v=535532132769" style="display:block; width:80vw; height:43vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
+<iframe data-verhouding="162/195" src="./zwaartepunt_viervlak.html?v=535532132769" allowfullscreen loading="lazy"></iframe>
 </p>
 </div>
 
 </div>
+
+</div><div>
 
 <p>
 Bewijs:
@@ -1542,31 +1567,31 @@ Bewijs:
 
 
 
-                                                                                       ⃗ = 3 AZ
-                                                                                      AZ   4
-                                                                                              ⃗1                                                      (eigenschap zwaartelijn, zie B)
+                                                                                    ⃗ = 3 AZ
+                                                                                   AZ   4
+                                                                                           ⃗1                                       (eigenschap zwaartelijn, zie B)
 
-                                        ⇐⇒                                         ⃗ −A
-                                                                                   Z  ⃗ = 3 (Z⃗1 − A)
-                                                                                                   ⃗
-                                                                                          4
+                                       ⇐⇒                                           ⃗ = 3 (Z⃗1 − A)
+                                                                                 ⃗ −A
+                                                                                 Z               ⃗
+                                                                                        4
 
-                                        ⇐⇒                                              ⃗ =A
-                                                                                        Z  ⃗ + 3 Z⃗1 − 3 A
-                                                                                                         ⃗
-                                                                                               4       4
-                                                                                               ⃗ + 3 Z⃗1
-                                                                                          = 41 A   4
-                                                                                                     ⃗ +C
-                                                                                                     B  ⃗+⃗
-                                                                                                          D
-                                                                                               ⃗+3
-                                                                                          = 14 A 4      3
-                                                                                              ⃗+B
-                                                                                              A ⃗ +C⃗+⃗
-                                                                                                      D
-                                                                                          =             .
-                                                                                                  4
+                                       ⇐⇒                                            ⃗ =A
+                                                                                     Z  ⃗ + 3 Z⃗1 − 3 A
+                                                                                                      ⃗
+                                                                                            4       4
+                                                                                            ⃗ + 3 Z⃗1
+                                                                                       = 41 A   4
+                                                                                                  ⃗ +C
+                                                                                                  B  ⃗ +D
+                                                                                                        ⃗
+                                                                                            ⃗+3
+                                                                                       = 14 A 4      3
+                                                                                           ⃗+B
+                                                                                           A ⃗ +C⃗+⃗
+                                                                                                   D
+                                                                                       =             .
+                                                                                               4
 
 
 -->
@@ -1582,6 +1607,8 @@ Bewijs:
 
 </p>
 </div>
+
+</div></div>
 <!--
 ...... section Geijkte ruimte ......
 -->
@@ -1830,26 +1857,18 @@ De drie zwaartelijnen van een driehoek \(ABC\) gaan door één punt \(Z\), het <
 <span class="cursus-buiten-inhoudstafel"></span>
 </p>
 <!--
-...... subsection Figuur ......
--->
-<h5 id="autosec-48">Figuur</h5>
-<a id="mkpiweb-autopage-48"></a>
-<div class="center">
-
-<p>
-<iframe src="./zwaartepunt_driehoek_bewijs.html?v=2b7e9d6b1017" style="display:block; width:50vw; height:30vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy"></iframe>
-</p>
-</div>
-
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
-<!--
 ...... subsection Bewijs ......
 -->
-<h5 id="autosec-50">Bewijs</h5>
-<a id="mkpiweb-autopage-50"></a>
+<h5 id="autosec-48">Bewijs</h5>
+<a id="mkpiweb-autopage-48"></a>
 
+
+<div class="figuur-bewijs "><div>
+
+<p>
+<iframe data-verhouding="123/137" src="./zwaartepunt_driehoek_bewijs.html?v=2b7e9d6b1017" allowfullscreen loading="lazy"></iframe>
+</p>
+</div><div>
 
 <p>
 \(M\) midden van \([BC]\) en \(N\) midden van \([AC]\)
@@ -1861,24 +1880,24 @@ De drie zwaartelijnen van een driehoek \(ABC\) gaan door één punt \(Z\), het <
 
 
 
-                                                                        ⇒    [AM ] en [BN ] snijden elkaar in een punt Z
+                                                                              ⇒      [AM ] en [BN ] snijden elkaar in een punt Z
 
-                                                                             CM   CN    1
-                                                                                =     =
-                                                                             CB   CA    2
-                                                                        ⇒    ∆CM N ∼ ∆CBA met factor 12
-                                                                        ⇒    M N ∥ AB en M N = 21 AB
-                                                                        ⇒    ∆ZM N ∼ ∆ZAB met factor 12
-                                                                        ⇒    ZM = 12 AZ
-                                                                        ⇒    AM = AZ + ZM = 32 AZ
-                                                                        ⇒    AZ = 23 ⃗
-                                                                              ⃗     AM
+                                                                                     CM   CN    1
+                                                                                        =     =
+                                                                                     CB   CA    2
+                                                                              ⇒      ∆CM N ∼ ∆CBA met factor 12
+                                                                              ⇒      M N ∥ AB en M N = 21 AB
+                                                                              ⇒      ∆ZM N ∼ ∆ZAB met factor 12
+                                                                              ⇒      ZM = 12 AZ
+                                                                              ⇒      AM = AZ + ZM = 32 AZ
+                                                                              ⇒      AZ = 23 ⃗
+                                                                                      ⃗     AM
 
-                                                                             Idem voor elk paar zwaartelijnen
-                                                                        ⇒    elke zwaartelijn gaat door het punt op 23 van [AM ]
-                                                                        ⇒     de drie zwaartelijnen gaan door één punt Z □
-                                                                              |                    {z                  }
-                                                                                          zwaartepunt driehoek
+                                                                                     Idem voor elk paar zwaartelijnen
+                                                                              ⇒      elke zwaartelijn gaat door het punt op 23 van [AM ]
+                                                                              ⇒      de drie zwaartelijnen gaan door één punt Z                                                                □
+                                                                                     |                    {z                  }
+                                                                                                  zwaartepunt driehoek
 
 
 
@@ -1896,11 +1915,12 @@ De drie zwaartelijnen van een driehoek \(ABC\) gaan door één punt \(Z\), het <
 \end{align*}
 
 </p>
+</div></div>
 <!--
 ...... section Zwaartelijnen van een viervlak ......
 -->
-<h4 id="autosec-51"><span class="sectionnumber">B&#x2003;</span>Zwaartelijnen van een viervlak</h4>
-<a id="mkpiweb-autopage-51"></a>
+<h4 id="autosec-49"><span class="sectionnumber">B&#x2003;</span>Zwaartelijnen van een viervlak</h4>
+<a id="mkpiweb-autopage-49"></a>
 
 
 <a id="app:zwaartelijnen-viervlak"></a>
@@ -1911,8 +1931,8 @@ De drie zwaartelijnen van een driehoek \(ABC\) gaan door één punt \(Z\), het <
 <!--
 ...... subsection Stelling ......
 -->
-<h5 id="autosec-52">Stelling</h5>
-<a id="mkpiweb-autopage-52"></a>
+<h5 id="autosec-50">Stelling</h5>
+<a id="mkpiweb-autopage-50"></a>
 
 
 <p>
@@ -1927,11 +1947,13 @@ De vier zwaartelijnen van een viervlak \(ABCD\) gaan door één punt \(Z\), het 
 <span class="cursus-buiten-inhoudstafel"></span>
 </p>
 <!--
-...... subsection Figuur ......
+...... subsection Bewijs ......
 -->
-<h5 id="autosec-53">Figuur</h5>
-<a id="mkpiweb-autopage-53"></a>
+<h5 id="autosec-51">Bewijs</h5>
+<a id="mkpiweb-autopage-51"></a>
 
+
+<div class="figuur-bewijs "><div>
 
 <div class="pres-figuurgevallen" data-figuurgevallen data-keuzenaam="Figuur" data-camera="delen">
 
@@ -1953,15 +1975,7 @@ In de driehoek \(ABM\) is \(Z_1Z_2 \parallel AB\).
 
 </div>
 
-<p>
-<span class="cursus-buiten-inhoudstafel"></span>
-</p>
-<!--
-...... subsection Bewijs ......
--->
-<h5 id="autosec-54">Bewijs</h5>
-<a id="mkpiweb-autopage-54"></a>
-
+</div><div>
 
 <p>
 \(M\) midden van \([CD]\), \(Z_1\) zwaartepunt van \(\Delta BCD\) en \(Z_2\) zwaartepunt van \(\Delta ACD\)
@@ -1973,27 +1987,27 @@ In de driehoek \(ABM\) is \(Z_1Z_2 \parallel AB\).
 
 
 
-                                                   ⇒     Z1 ∈ [BM ] en M Z1 = 13 M B                                                        (zie A)
-                                                   ⇒     Z2 ∈ [AM ] en M Z2 = 13 M A
-                                                   ⇒     [AZ1 ] en [BZ2 ] liggen in het vlak ABM
-                                                   ⇒     [AZ1 ] en [BZ2 ] snijden elkaar in een punt Z
+                                                      ⇒       Z1 ∈ [BM ] en M Z1 = 13 M B                                                                   (zie A)
+                                                      ⇒       Z2 ∈ [AM ] en M Z2 = 13 M A
+                                                      ⇒       [AZ1 ] en [BZ2 ] liggen in het vlak ABM
+                                                      ⇒       [AZ1 ] en [BZ2 ] snijden elkaar in een punt Z
 
-                                                         M Z1   M Z2   1
-                                                              =      =
-                                                         MB      MA    3
-                                                   ⇒     ∆M Z1 Z2 ∼ ∆M BA met factor 31
-                                                   ⇒     Z1 Z2 ∥ AB en Z1 Z2 = 13 AB
-                                                   ⇒     ∆ZZ1 Z2 ∼ ∆ZAB met factor 13
-                                                   ⇒     ZZ1 = 13 AZ
-                                                   ⇒     AZ1 = AZ + ZZ1 = 34 AZ
-                                                   ⇒      ⃗       ⃗1
-                                                         AZ = 43 AZ
+                                                              M Z1   M Z2   1
+                                                                   =      =
+                                                              MB      MA    3
+                                                      ⇒       ∆M Z1 Z2 ∼ ∆M BA met factor 31
+                                                      ⇒       Z1 Z2 ∥ AB en Z1 Z2 = 13 AB
+                                                      ⇒       ∆ZZ1 Z2 ∼ ∆ZAB met factor 13
+                                                      ⇒       ZZ1 = 13 AZ
+                                                      ⇒       AZ1 = AZ + ZZ1 = 34 AZ
+                                                      ⇒        ⃗       ⃗1
+                                                              AZ = 43 AZ
 
-                                                         Idem voor elk paar zwaartelijnen
-                                                   ⇒     elke zwaartelijn gaat door het punt op 34 van [AZ1 ]
-                                                   ⇒     de vier zwaartelijnen gaan door één punt Z □
-                                                         |                    {z                  }
-                                                                       zwaartepunt viervlak
+                                                              Idem voor elk paar zwaartelijnen
+                                                      ⇒       elke zwaartelijn gaat door het punt op 34 van [AZ1 ]
+                                                      ⇒       de vier zwaartelijnen gaan door één punt Z                                                                                             □
+                                                              |                    {z                  }
+                                                                            zwaartepunt viervlak
 
 
 
@@ -2013,6 +2027,7 @@ Z}_{\text {zwaartepunt viervlak}} \qed
 \end{align*}
 
 </p>
+</div></div>
 
 <a id="mkpiweb-autofile-last"></a>
 </section>
@@ -2020,10 +2035,10 @@ Z}_{\text {zwaartepunt viervlak}} \qed
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=09cc801a3cad"></script>
-<script src="statistieken.js?v=09cc801a3cad"></script>
-<script src="vendor/jsxgraphcore.js?v=09cc801a3cad"></script>
-<script src="interactieve-grafieken.js?v=09cc801a3cad"></script>
-<script src="hoofdstuk.interactief.js?v=09cc801a3cad"></script>
+<script src="presentatie.js?v=30745979ce17"></script>
+<script src="statistieken.js?v=30745979ce17"></script>
+<script src="vendor/jsxgraphcore.js?v=30745979ce17"></script>
+<script src="interactieve-grafieken.js?v=30745979ce17"></script>
+<script src="hoofdstuk.interactief.js?v=30745979ce17"></script>
 </body>
 </html>

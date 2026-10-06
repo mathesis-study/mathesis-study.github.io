@@ -2397,3 +2397,45 @@ mjx-container .undefsign line {
 .pres-zijbalk a.pres-huidig .pres-tocnummer {
   color: inherit;
 }
+
+/* Een figuur links van het bewijs dat erbij hoort (appendix van R02). Op papier
+ * zijn het twee minipages; op de site twee bovenaan uitgelijnde kolommen, op
+ * een smal scherm onder elkaar. */
+.figuur-bewijs {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 5fr);
+  align-items: start;
+  gap: 1.5rem;
+}
+
+.figuur-bewijs.breed {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.figuur-bewijs > div {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+/* In de smalle figuurkolom passen de keuzeknoppen van een groep scènes niet op
+ * één regel; ze staan dan onder elkaar. */
+.figuur-bewijs .pres-figuurgevallen-schakelaar {
+  display: flex;
+  flex-direction: column;
+  overflow-x: visible;
+}
+
+.figuur-bewijs .pres-figuurgevallen-keuze button {
+  border-right: 0;
+  border-bottom: 1px solid var(--kleur-lijn);
+}
+
+.figuur-bewijs .pres-figuurgevallen-keuze button:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 44rem) {
+  .figuur-bewijs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
