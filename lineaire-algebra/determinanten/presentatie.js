@@ -1045,32 +1045,54 @@
     if (vorige && vorige.classList.contains("pres-verborgen")) zetKort(vorige, true);
   }
 
-  // MathJax typezet pas nadat dit script gedraaid heeft, dus bestaan de
-  // .opl-math-groepen op dat moment nog niet. Deze waarnemer vangt ze op
-  // zodra ze in de pagina verschijnen.
-  function volgWiskundeOplossingen() {
-    var waarnemer = new MutationObserver(function () {
-      document.querySelectorAll(".opl-math:not([data-pres])").forEach(function (vak) {
-        // MathJax zet de klasse ook op de verborgen MathML voor schermlezers.
-        // Die kopie is geen vak: anders telt ze als extra, onzichtbare stap.
-        if (vak.closest("mjx-assistive-mml")) {
-          vak.classList.remove("opl-math");
-          return;
-        }
-        vak.dataset.pres = "1";
-        zetLosseOplossing(vak, oplossingenZichtbaar);
-        // De groep zelf bevat enkel de letters van het antwoord; dichtgeklapt
-        // valt daar niets te raken. Vang de klik daarom op de hele formule.
-        var doel = vak.closest("mjx-container") || vak;
-        if (doel.classList.contains("pres-oplformule")) return;
-        doel.classList.add("pres-oplformule");
-        doel.addEventListener("click", function (e) {
-          var geraakt = geraakteWiskundeOplossing(doel, e);
-          if (geraakt) zetLosseOplossing(geraakt, geraakt.classList.contains("pres-verborgen"));
+  // MathJax typezet pas nadat dit script gedraaid heeft, en een figuur of
+  // rekenmachine zet later nog formules. Eén waarnemer bekijkt daarom wat er
+  // in de pagina bijkomt, en enkel dat: een wijziging elders, zoals de teller
+  // bij een slidewissel, kost zo niets. Wat er bijkomt, krijgt het gedrag van
+  // \opl in een formule, de ondergrens van een brede formule en het blokje
+  // van \qed.
+  function volgWiskunde() {
+    var qed = volgBlokjes();
+    function verwerk(wortel) {
+      binnen(wortel, ".opl-math:not([data-pres])").forEach(bereidWiskundeOplossingVoor);
+      binnen(wortel, 'mjx-container[display="true"] > svg:not([data-pres-krimp])').forEach(bereidBredeFormuleVoor);
+      if (qed) binnen(wortel, 'mjx-container[display="true"]').forEach(qed);
+    }
+    new MutationObserver(function (mutaties) {
+      mutaties.forEach(function (mutatie) {
+        mutatie.addedNodes.forEach(function (knoop) {
+          if (knoop.nodeType === 1 && knoop.isConnected) verwerk(knoop);
         });
       });
+    }).observe(document.body, { childList: true, subtree: true });
+    verwerk(document.body);
+  }
+
+  // De elementen onder wortel die passen, met wortel zelf erbij.
+  function binnen(wortel, selector) {
+    var lijst = Array.prototype.slice.call(wortel.querySelectorAll(selector));
+    if (wortel.matches(selector)) lijst.unshift(wortel);
+    return lijst;
+  }
+
+  function bereidWiskundeOplossingVoor(vak) {
+    // MathJax zet de klasse ook op de verborgen MathML voor schermlezers.
+    // Die kopie is geen vak: anders telt ze als extra, onzichtbare stap.
+    if (vak.closest("mjx-assistive-mml")) {
+      vak.classList.remove("opl-math");
+      return;
+    }
+    vak.dataset.pres = "1";
+    zetLosseOplossing(vak, oplossingenZichtbaar);
+    // De groep zelf bevat enkel de letters van het antwoord; dichtgeklapt
+    // valt daar niets te raken. Vang de klik daarom op de hele formule.
+    var doel = vak.closest("mjx-container") || vak;
+    if (doel.classList.contains("pres-oplformule")) return;
+    doel.classList.add("pres-oplformule");
+    doel.addEventListener("click", function (e) {
+      var geraakt = geraakteWiskundeOplossing(doel, e);
+      if (geraakt) zetLosseOplossing(geraakt, geraakt.classList.contains("pres-verborgen"));
     });
-    waarnemer.observe(document.body, { childList: true, subtree: true });
   }
 
   // Het vak van een \opl in een formule is de \bbox rond haar groep. Een
@@ -1095,17 +1117,16 @@
   // CSS doet de rest bij elke maatverandering, zonder resize-handler.
   var ONDERGRENS_FORMULE = 0.75;
 
-  function volgBredeFormules() {
-    var waarnemer = new MutationObserver(function () {
-      document.querySelectorAll('mjx-container[display="true"] > svg:not([data-pres-krimp])').forEach(function (svg) {
-        var breedte = /^([0-9.]+)ex$/.exec(svg.getAttribute("width") || "");
-        if (!breedte) return;
-        svg.dataset.presKrimp = "1";
-        svg.style.minWidth = (parseFloat(breedte[1]) * ONDERGRENS_FORMULE).toFixed(3) + "ex";
-        planRanden();
-      });
-    });
-    waarnemer.observe(document.body, { childList: true, subtree: true });
+  function bereidBredeFormuleVoor(svg) {
+    var breedte = /^([0-9.]+)ex$/.exec(svg.getAttribute("width") || "");
+    if (!breedte) return;
+    svg.dataset.presKrimp = "1";
+    svg.style.minWidth = (parseFloat(breedte[1]) * ONDERGRENS_FORMULE).toFixed(3) + "ex";
+    // Enkel een formule in een getoonde slide telt voor de randen: een slide
+    // buiten beeld wordt gemeten wanneer ze getoond wordt, en een venster
+    // zoals de rekenmachine valt er buiten.
+    var slide = svg.closest(".slide");
+    if (slide && slide.classList.contains("pres-actief")) planRanden();
   }
 
   // In de PDF staat \qed aan de rechtermarge van een display. MathJax kan dat
@@ -1131,8 +1152,9 @@
     blokje.setAttribute("transform", basis + " translate(" + ruimte.toFixed(1) + ",0)");
   }
 
+  // Geeft de functie die een nieuwe display-formule met een blokje volgt.
   function volgBlokjes() {
-    if (!window.ResizeObserver) return;
+    if (!window.ResizeObserver) return null;
     var gezien = new WeakSet();
     var maat = new ResizeObserver(function (lijst) {
       lijst.forEach(function (waarneming) {
@@ -1140,19 +1162,15 @@
         plaatsBlokje(doel.tagName === "MJX-CONTAINER" ? doel : doel.parentElement);
       });
     });
-    function zoek() {
-      document.querySelectorAll('mjx-container[display="true"]').forEach(function (houder) {
-        if (gezien.has(houder) || !houder.querySelector("svg .mathesis-qed")) return;
-        gezien.add(houder);
-        maat.observe(houder);
-        // De svg krimpt mee met de slide (zie volgBredeFormules) zonder dat de
-        // houder van maat verandert.
-        var svg = houder.querySelector(":scope > svg");
-        if (svg) maat.observe(svg);
-      });
-    }
-    new MutationObserver(zoek).observe(document.body, { childList: true, subtree: true });
-    zoek();
+    return function (houder) {
+      if (gezien.has(houder) || !houder.querySelector("svg .mathesis-qed")) return;
+      gezien.add(houder);
+      maat.observe(houder);
+      // De svg krimpt mee met de slide (zie bereidBredeFormuleVoor) zonder
+      // dat de houder van maat verandert.
+      var svg = houder.querySelector(":scope > svg");
+      if (svg) maat.observe(svg);
+    };
   }
 
   // Voor een formule onder ONDERGRENS_FORMULE moet schuiven, geven de marges
@@ -1184,7 +1202,31 @@
     var links = vak.left + parseFloat(stijl.borderLeftWidth) + parseFloat(stijl.paddingLeft) - binnen;
     var rechts = binnen + podium.clientWidth -
       (vak.right - parseFloat(stijl.borderRightWidth) - parseFloat(stijl.paddingRight));
-    podium.style.setProperty("--pres-buiten", Math.max(0, Math.min(links, rechts)) + "px");
+    // Enkel bij een andere waarde: elke wijziging laat de stijl herberekenen.
+    var buiten = Math.max(0, Math.min(links, rechts)) + "px";
+    if (podium.style.getPropertyValue("--pres-buiten") !== buiten) {
+      podium.style.setProperty("--pres-buiten", buiten);
+    }
+
+    var formules = actief.map(function (slide) {
+      return slide.querySelectorAll('mjx-container[display="true"] > svg[data-pres-krimp]');
+    });
+    function nodig(svg) {
+      return parseFloat(getComputedStyle(svg).minWidth) / ONDERGRENS_FORMULE + 1;
+    }
+    // Snelle weg: staan de marges vol en past elke formule al, dan blijft
+    // dat zo en valt er niets te meten of te zetten. Dat lezen kost enkel de
+    // layout die het beeld toch nodig heeft. Een gesloten oplossing kan dat
+    // niet zeggen, want ze telt mee alsof ze open stond (zie hieronder).
+    var snel = actief.every(function (slide, i) {
+      return !parseFloat(slide.style.getPropertyValue("--pres-krimp") || "0") &&
+        !slide.querySelector(".oplossing.pres-verborgen") &&
+        Array.prototype.every.call(formules[i], function (svg) {
+          var breedte = svg.parentElement.clientWidth;
+          return !breedte || nodig(svg) <= breedte;
+        });
+    });
+    if (snel) return;
 
     // Een gesloten oplossing telt mee, ook als ze compact geen plaats inneemt:
     // anders verspringt de hele slide wanneer ze opengaat. Tijdens de meting
@@ -1192,9 +1234,6 @@
     // tijdens de meting hoger; presentatie.css zet de scroll anchoring dan
     // uit, anders schuift de browser het beeld mee.
     document.documentElement.classList.add("pres-randmeting");
-    var formules = actief.map(function (slide) {
-      return slide.querySelectorAll('mjx-container[display="true"] > svg[data-pres-krimp]');
-    });
     function meet(krimp) {
       actief.forEach(function (slide) { slide.style.setProperty("--pres-krimp", krimp); });
       return formules.map(function (lijst) {
@@ -1207,11 +1246,11 @@
     actief.forEach(function (slide, i) {
       var krimp = 0;
       formules[i].forEach(function (svg, k) {
-        var nodig = parseFloat(getComputedStyle(svg).minWidth) / ONDERGRENS_FORMULE + 1;
+        var minimum = nodig(svg);
         var breedte = ruim[i][k], winst = krap[i][k] - breedte;
         // Een formule zonder breedte staat in iets wat niet getoond wordt.
-        if (!breedte || nodig <= breedte) return;
-        var nu = winst > 0 ? (nodig - breedte) / (winst + (1 - ONDERGRENS_FORMULE) * nodig) : 1;
+        if (!breedte || minimum <= breedte) return;
+        var nu = winst > 0 ? (minimum - breedte) / (winst + (1 - ONDERGRENS_FORMULE) * minimum) : 1;
         krimp = Math.max(krimp, Math.min(1, nu));
       });
       slide.style.setProperty("--pres-krimp", krimp.toFixed(4));
@@ -2140,6 +2179,87 @@
     });
   }
 
+  /* --- Wiskunde per slide ---------------------------------------------- */
+
+  // MathJax zet bij het laden alle formules van het hoofdstuk, in één taak
+  // van soms seconden, terwijl de lezer er maar één slide van ziet. Daarom
+  // krijgt elke slide hier eerst de klasse die MathJax overslaat; enkel de
+  // getoonde slides verliezen ze. De rest volgt in een wachtrij wanneer de
+  // browser niets te doen heeft, vanaf de huidige slide vooruit, en een slide
+  // die in beeld komt voor ze aan de beurt was, wordt meteen gezet.
+  // window.mathesisWiskunde is klaar wanneer alles gezet is (headless-site
+  // wacht erop); de merktekens mathesis:wiskunde-zichtbaar en -alles maken
+  // het meetbaar (bin/meet-site.js).
+  var WACHTKLASSE = "mathjax_ignore";
+  var wiskundeWacht = [];
+  var wiskundeBegonnen = false;
+  var wiskundeKlaar = null;
+
+  function stelWiskundeUit() {
+    var mj = window.MathJax;
+    // Zonder MathJax, of als de eerste beurt al voorbij is, valt er niets uit
+    // te stellen.
+    if (!mj || !mj.startup || !mj.startup.promise || document.readyState !== "loading") return;
+    slides.forEach(function (slide) { slide.classList.add(WACHTKLASSE); });
+    wiskundeWacht = slides.slice();
+    window.mathesisWiskunde = new Promise(function (klaar) { wiskundeKlaar = klaar; });
+    function begin() {
+      wiskundeBegonnen = true;
+      merk("mathesis:wiskunde-zichtbaar");
+      zetWiskunde(zichtbaar.map(function (j) { return slides[j]; }));
+      volgendeWiskunde();
+    }
+    mj.startup.promise.then(begin, begin);
+    // Op papier staan alle slides; dat kan niet wachten.
+    window.addEventListener("beforeprint", function () { zetWiskunde(wiskundeWacht.slice()); });
+  }
+
+  function merk(naam) {
+    if (window.performance && performance.mark) performance.mark(naam);
+  }
+
+  // Haalt de slides uit de wachtrij en zet hun formules, synchroon, zodat een
+  // figuur die daarna gebouwd wordt ze al vindt. Voor de eerste beurt van
+  // MathJax volstaat het de klasse weg te halen.
+  function zetWiskunde(lijst) {
+    var nu = lijst.filter(function (slide) { return slide.classList.contains(WACHTKLASSE); });
+    if (!nu.length) return;
+    nu.forEach(function (slide) {
+      slide.classList.remove(WACHTKLASSE);
+      wiskundeWacht.splice(wiskundeWacht.indexOf(slide), 1);
+    });
+    if (!wiskundeBegonnen) return;
+    try {
+      window.MathJax.typeset(nu);
+    } catch (fout) {
+      // typeset kan niet als MathJax eerst nog iets moet laden.
+      window.MathJax.typesetPromise(nu).catch(function (f) { console.error(f); });
+    }
+  }
+
+  function volgendeWiskunde() {
+    if (!wiskundeWacht.length) {
+      if (wiskundeKlaar) {
+        merk("mathesis:wiskunde-alles");
+        wiskundeKlaar();
+        wiskundeKlaar = null;
+      }
+      return;
+    }
+    var beurt = function () {
+      // De eerstvolgende slide vanaf de huidige, met de klok mee.
+      var n = slides.length;
+      var afstand = function (slide) { return (slides.indexOf(slide) - index + n) % n; };
+      var volgende = wiskundeWacht.reduce(function (beste, slide) {
+        return afstand(slide) < afstand(beste) ? slide : beste;
+      });
+      zetWiskunde([volgende]);
+      volgendeWiskunde();
+    };
+    if (window.requestIdleCallback) window.requestIdleCallback(beurt, { timeout: 1000 });
+    else setTimeout(beurt, 30);
+  }
+
   /* --- Navigatie -------------------------------------------------------- */
 
   // Opties: vanHash (de adresbalk wees de slide aan), vanScroll (de lezer
@@ -2157,6 +2277,7 @@
         if (pagina.indexOf(j) < 0) slides[j].classList.remove("pres-actief");
       });
       zichtbaar = pagina;
+      zetWiskunde(pagina.map(function (j) { return slides[j]; }));
       zichtbaar.forEach(function (j) {
         slides[j].classList.add("pres-actief");
         // Een grafiek die in de pagina zelf tekent, kon zolang haar slide
@@ -3341,14 +3462,13 @@
 
     maakSlides(stroom);
     if (!slides.length) return;
+    stelWiskundeUit();
     bereidOefeningenVoor();
     maakSecties();
     zetKruimels();
     bereidHulpmiddelenVoor();
     bereidOplossingenVoor();
-    volgWiskundeOplossingen();
-    volgBredeFormules();
-    volgBlokjes();
+    volgWiskunde();
     bereidFigurenVoor();
     bereidFiguurgevallenVoor();
     bereidGrafiekenVoor();

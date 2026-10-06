@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Matrices en determinanten</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=60fbc712664f" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=d2c40c4b2a77" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -252,11 +252,11 @@ MathJax = {
 </script>
 
 
-<script src="mathjax-accenten.js?v=60fbc712664f"></script>
-<script src="mathjax-nicematrix.js?v=60fbc712664f"></script>
+<script src="mathjax-accenten.js?v=d2c40c4b2a77"></script>
+<script src="mathjax-nicematrix.js?v=d2c40c4b2a77"></script>
 <script
           id="MathJax-script"
-          src="tex-svg-full.js?v=60fbc712664f"
+          src="tex-svg-full.js?v=d2c40c4b2a77"
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
@@ -266,9 +266,9 @@ MathJax = {
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
 <meta name="mathesis-statistieken" content="mathesis" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=60fbc712664f" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=60fbc712664f" />
-<link rel="stylesheet" href="matrixrekenmachine.css?v=60fbc712664f" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=d2c40c4b2a77" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=d2c40c4b2a77" />
+<link rel="stylesheet" href="matrixrekenmachine.css?v=d2c40c4b2a77" />
 </head>
 <body>
 
@@ -4013,8 +4013,8 @@ De determinant is dus
 </p>
 
 <p>
-</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element: we ontwikkelen naar zijn rij. Met <em>Volgende term</em> licht telkens één element op, met zijn minor
-en zijn cofactor. Ontwikkel daarna naar een andere rij of kolom en vergelijk. Welke keuze vraagt het minste rekenwerk?</figcaption> </figure>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element: we ontwikkelen naar zijn rij, en de hele berekening staat eronder. Klik daarna op een element van die rij
+voor de berekening van zijn cofactor. Ontwikkel ook naar een andere rij of kolom en vergelijk. Welke keuze vraagt het minste rekenwerk?</figcaption> </figure>
 </p>
 
 <p>
@@ -4096,15 +4096,58 @@ We ontwikkelen naar de eerste rij, omdat er een nul in staat.
 
 
 <p>
-Voor een determinant van orde 3 bestaat er een kortere weg. Schrijf de eerste twee kolommen nog eens rechts van de determinant. Vermenigvuldig dan de elementen op elk van de drie dalende diagonalen, en tel die producten op.
-Trek daarna de producten van de drie stijgende diagonalen af.
+Ontwikkel \(\det A\) naar de eerste rij en werk de haakjes uit. Dan vind je zes termen:
 </p>
 
 <p>
-\[ \begin {pNiceMatrix}[columns-width=1.1em] a_{11}&amp;a_{12}&amp;a_{13}&amp;a_{11}&amp;a_{12}\\ a_{21}&amp;a_{22}&amp;a_{23}&amp;a_{21}&amp;a_{22}\\
-a_{31}&amp;a_{32}&amp;a_{33}&amp;a_{31}&amp;a_{32} \CodeAfter \celpijl {plusc}{1-1}{3-3} \celpijl {plusc}{1-2}{3-4} \celpijl {plusc}{1-3}{3-5} \end {pNiceMatrix} \qquad \begin
-{pNiceMatrix}[columns-width=1.1em] a_{11}&amp;a_{12}&amp;a_{13}&amp;a_{11}&amp;a_{12}\\ a_{21}&amp;a_{22}&amp;a_{23}&amp;a_{21}&amp;a_{22}\\ a_{31}&amp;a_{32}&amp;a_{33}&amp;a_{31}&amp;a_{32}
-\CodeAfter \celpijl {minusc}{3-1}{1-3} \celpijl {minusc}{3-2}{1-4} \celpijl {minusc}{3-3}{1-5} \end {pNiceMatrix} \]
+\[ \det A=a_{11}a_{22}a_{33}-a_{11}a_{23}a_{32}-a_{12}a_{21}a_{33}+a_{12}a_{23}a_{31}+a_{13}a_{21}a_{32}-a_{13}a_{22}a_{31}.                        \]
+</p>
+
+<p>
+Elke term is een product van drie elementen, met precies één element uit elke rij en één uit elke kolom. We zetten de drie termen met een plus en de drie met een min elk op hun plaats in de determinant:
+</p>
+
+<p>
+\[ \begin {array}{r@{\qquad }c@{\qquad }c@{\qquad }c} &amp; \begin {vmatrix}a_{11}&amp;\cdot &amp;\cdot \\ \cdot &amp;a_{22}&amp;\cdot \\ \cdot &amp;\cdot &amp;a_{33}\end {vmatrix} &amp; \begin
+{vmatrix}\cdot &amp;a_{12}&amp;\cdot \\ \cdot &amp;\cdot &amp;a_{23}\\ a_{31}&amp;\cdot &amp;\cdot \end {vmatrix} &amp; \begin {vmatrix}\cdot &amp;\cdot &amp;a_{13}\\ a_{21}&amp;\cdot
+&amp;\cdot \\ \cdot &amp;a_{32}&amp;\cdot \end {vmatrix}\\[1ex] \text {plus:} &amp; a_{11}a_{22}a_{33} &amp; a_{12}a_{23}a_{31} &amp; a_{13}a_{21}a_{32}\\[3ex] &amp; \begin {vmatrix}\cdot
+&amp;\cdot &amp;a_{13}\\ \cdot &amp;a_{22}&amp;\cdot \\ a_{31}&amp;\cdot &amp;\cdot \end {vmatrix} &amp; \begin {vmatrix}a_{11}&amp;\cdot &amp;\cdot \\ \cdot &amp;\cdot &amp;a_{23}\\ \cdot
+&amp;a_{32}&amp;\cdot \end {vmatrix} &amp; \begin {vmatrix}\cdot &amp;a_{12}&amp;\cdot \\ a_{21}&amp;\cdot &amp;\cdot \\ \cdot &amp;\cdot &amp;a_{33}\end {vmatrix}\\[1ex] \text {min:} &amp;
+a_{13}a_{22}a_{31} &amp; a_{11}a_{23}a_{32} &amp; a_{12}a_{21}a_{33} \end {array} \]
+</p>
+
+<p>
+Bij de plustermen herken je de <b>hoofddiagonaal</b> \(a_{11}a_{22}a_{33}\). De twee andere lopen evenwijdig ermee naar rechts beneden, maar breken af aan de rechterrand en lopen links verder: na \(a_{12}\) en
+\(a_{23}\) volgt \(a_{31}\). De mintermen doen hetzelfde rond de <b>nevendiagonaal</b> \(a_{31}a_{22}a_{13}\), nu naar rechts boven. Een diagonaal evenwijdig met de hoofddiagonaal noemen we hier ook een
+hoofddiagonaal, en een diagonaal evenwijdig met de nevendiagonaal een nevendiagonaal.
+</p>
+
+<p>
+Een gebroken diagonaal maken we heel door de eerste twee kolommen nog eens rechts van de determinant te schrijven. Dan staan de drie plustermen op de drie hoofddiagonalen en de drie mintermen op de drie nevendiagonalen:
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-12"
+    class="lateximagesource"
+><!--
+                                 − − −
+a11 a12 a13 a11 a12   a11 a12 a13 a11 a12
+a21 a22 a23 a21 a22   a21 a22 a23 a21 a22
+a31 a32 a33 a31 a32   a31 a32 a33 a31 a32
+           + + +
+--><img
+    src="mkpiweb-images/image-12.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+Zo krijgen we de <b>regel van Sarrus</b>: tel de producten van de drie hoofddiagonalen op en trek de producten van de drie nevendiagonalen af.
 </p>
 
 <p>
@@ -4112,16 +4155,16 @@ a_{31}&amp;a_{32}&amp;a_{33}&amp;a_{31}&amp;a_{32} \CodeAfter \celpijl {plusc}{1
 </p>
 
 <p>
-Ontwikkel je \(\det A\) naar de eerste rij en werk je de haakjes uit, dan vind je dezelfde zes termen.
+Elk element staat zo op één hoofddiagonaal en één nevendiagonaal: het komt in één plusterm en in één minterm voor.
 </p>
 
 <p>
-<figure class="interactieve-grafiek" data-grafiek="det-sarrus" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+<figure class="interactieve-grafiek" data-grafiek="det-sarrus" data-hoogte="28rem"> <div class="interactieve-grafiek-terugval">
 </p>
 
 <p>
-</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op <em>Volgende diagonaal</em>. Eerst lichten de drie dalende diagonalen op (met een plus), daarna de drie stijgende
-(met een min). Eronder groeit de berekening mee.</figcaption> </figure>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element: een diagonaal door dat element licht op, en eronder ook haar term in de formule. Klik nog eens op
+hetzelfde element voor de andere diagonaal erdoor. Je kan ook op een term van de formule klikken. Met <em>Volgende diagonaal</em> komen ze een voor een aan de beurt.</figcaption> </figure>
 </p>
 
 <p>
@@ -4130,8 +4173,8 @@ Ontwikkel je \(\det A\) naar de eerste rij en werk je de haakjes uit, dan vind j
 <!--
 ...... subsubsection Opmerking ......
 -->
-<h6 id="autosec-147">Opmerking</h6>
-<a id="mkpiweb-autopage-147"></a>
+<h6 id="autosec-150">Opmerking</h6>
+<a id="mkpiweb-autopage-150"></a>
 
 
 <p>
@@ -4145,8 +4188,8 @@ determinanten van orde 3.
 <!--
 ...... subsubsection Oefening ......
 -->
-<h6 id="autosec-148">Oefening</h6>
-<a id="mkpiweb-autopage-148"></a>
+<h6 id="autosec-151">Oefening</h6>
+<a id="mkpiweb-autopage-151"></a>
 
 
 <div class="cursus-oefening">
@@ -4157,8 +4200,8 @@ determinanten van orde 3.
 <!--
 ...... subsubsection Oefening 23 ......
 -->
-<h6 id="autosec-149">Oefening 23</h6>
-<a id="mkpiweb-autopage-149"></a>
+<h6 id="autosec-152">Oefening 23</h6>
+<a id="mkpiweb-autopage-152"></a>
 
 
 <p>
@@ -4203,8 +4246,8 @@ Controleer het voorbeeld en de oefening van de vorige paragraaf met de regel van
 <!--
 ...... subsection Eigenschappen van determinanten ......
 -->
-<h5 id="autosec-150"><span class="sectionnumber">5&#x2003;</span>Eigenschappen van determinanten</h5>
-<a id="mkpiweb-autopage-150"></a>
+<h5 id="autosec-153"><span class="sectionnumber">5&#x2003;</span>Eigenschappen van determinanten</h5>
+<a id="mkpiweb-autopage-153"></a>
 
 
 <p>
@@ -4227,8 +4270,8 @@ determinant, en klik pas dan op <em>Toon det</em>. Met <em>Kolommen</em> werk je
 <!--
 ...... subsubsection Eigenschappen ......
 -->
-<h6 id="autosec-151">Eigenschappen</h6>
-<a id="mkpiweb-autopage-151"></a>
+<h6 id="autosec-154">Eigenschappen</h6>
+<a id="mkpiweb-autopage-154"></a>
 
 
 <p>
@@ -4335,8 +4378,8 @@ maakt het parallellogram twee keer zo lang, en een veelvoud van de andere kolom 
 <!--
 ...... subsubsection Oefening ......
 -->
-<h6 id="autosec-152">Oefening</h6>
-<a id="mkpiweb-autopage-152"></a>
+<h6 id="autosec-155">Oefening</h6>
+<a id="mkpiweb-autopage-155"></a>
 
 
 <div class="cursus-oefening">
@@ -4347,8 +4390,8 @@ maakt het parallellogram twee keer zo lang, en een veelvoud van de andere kolom 
 <!--
 ...... subsubsection Oefening 24 ......
 -->
-<h6 id="autosec-153">Oefening 24</h6>
-<a id="mkpiweb-autopage-153"></a>
+<h6 id="autosec-156">Oefening 24</h6>
+<a id="mkpiweb-autopage-156"></a>
 
 
 <p>
@@ -4379,8 +4422,8 @@ De derde kolom is nu het dubbele van de tweede. Een determinant met twee evenred
 <!--
 ...... subsection Verlaging van de orde ......
 -->
-<h5 id="autosec-154"><span class="sectionnumber">6&#x2003;</span>Verlaging van de orde</h5>
-<a id="mkpiweb-autopage-154"></a>
+<h5 id="autosec-157"><span class="sectionnumber">6&#x2003;</span>Verlaging van de orde</h5>
+<a id="mkpiweb-autopage-157"></a>
 
 
 <p>
@@ -4393,8 +4436,8 @@ Met eigenschap 5 maken we nullen in een kolom. Staat er in een kolom nog maar é
 <!--
 ...... subsubsection Werkwijze ......
 -->
-<h6 id="autosec-155">Werkwijze</h6>
-<a id="mkpiweb-autopage-155"></a>
+<h6 id="autosec-158">Werkwijze</h6>
+<a id="mkpiweb-autopage-158"></a>
 
 
 <ul class="enumerate" style="list-style-type:none">
@@ -4437,8 +4480,8 @@ Met een spil \(1\) of \(-1\) blijven alle getallen geheel. Het kan ook met rijen
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-156">Voorbeeld</h6>
-<a id="mkpiweb-autopage-156"></a>
+<h6 id="autosec-159">Voorbeeld</h6>
+<a id="mkpiweb-autopage-159"></a>
 
 
 <p>
@@ -4490,8 +4533,8 @@ zodat je ze zo op papier kan overnemen. Kies ook eens een spil die geen \(1\) is
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-157">Oefeningen</h6>
-<a id="mkpiweb-autopage-157"></a>
+<h6 id="autosec-160">Oefeningen</h6>
+<a id="mkpiweb-autopage-160"></a>
 
 
 <div class="cursus-oefening">
@@ -4502,8 +4545,8 @@ zodat je ze zo op papier kan overnemen. Kies ook eens een spil die geen \(1\) is
 <!--
 ...... subsubsection Oefening 25 ......
 -->
-<h6 id="autosec-158">Oefening 25</h6>
-<a id="mkpiweb-autopage-158"></a>
+<h6 id="autosec-161">Oefening 25</h6>
+<a id="mkpiweb-autopage-161"></a>
 
 
 <p>
@@ -4811,8 +4854,8 @@ K_1\leftarrow K_1+K_2+K_3 \\ &amp;= (a+b+c) \begin{vmatrix} 1&amp;b&amp;c\\ 1&am
 <!--
 ...... subsubsection Oefening 26 ......
 -->
-<h6 id="autosec-159">Oefening 26</h6>
-<a id="mkpiweb-autopage-159"></a>
+<h6 id="autosec-162">Oefening 26</h6>
+<a id="mkpiweb-autopage-162"></a>
 
 
 <p>
@@ -4861,13 +4904,13 @@ Beide determinanten zijn dus gelijk aan \(kD\), en bijgevolg aan elkaar.
 <!--
 ...... section Meetkundige toepassingen ......
 -->
-<h4 id="autosec-160"><span class="sectionnumber">IV&#x2003;</span>Meetkundige toepassingen</h4>
-<a id="mkpiweb-autopage-160"></a>
+<h4 id="autosec-163"><span class="sectionnumber">IV&#x2003;</span>Meetkundige toepassingen</h4>
+<a id="mkpiweb-autopage-163"></a>
 <!--
 ...... subsection Vergelijking van een rechte door twee gegeven punten ......
 -->
-<h5 id="autosec-161"><span class="sectionnumber">1&#x2003;</span>Vergelijking van een rechte door twee gegeven punten</h5>
-<a id="mkpiweb-autopage-161"></a>
+<h5 id="autosec-164"><span class="sectionnumber">1&#x2003;</span>Vergelijking van een rechte door twee gegeven punten</h5>
+<a id="mkpiweb-autopage-164"></a>
 
 
 <p>
@@ -4876,8 +4919,8 @@ Beide determinanten zijn dus gelijk aan \(kD\), en bijgevolg aan elkaar.
 <!--
 ...... subsubsection Opstelling formule ......
 -->
-<h6 id="autosec-162">Opstelling formule</h6>
-<a id="mkpiweb-autopage-162"></a>
+<h6 id="autosec-165">Opstelling formule</h6>
+<a id="mkpiweb-autopage-165"></a>
 
 
 <p>
@@ -4931,8 +4974,8 @@ In determinantvorm:
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-163">Voorbeeld</h6>
-<a id="mkpiweb-autopage-163"></a>
+<h6 id="autosec-166">Voorbeeld</h6>
+<a id="mkpiweb-autopage-166"></a>
 
 
 <p>
@@ -4987,8 +5030,8 @@ coo&#x0308;rdinaten van \(P\) ingevuld. Wanneer is die nul?</figcaption> </figur
 <!--
 ...... subsection Collineariteit van drie punten ......
 -->
-<h5 id="autosec-164"><span class="sectionnumber">2&#x2003;</span>Collineariteit van drie punten</h5>
-<a id="mkpiweb-autopage-164"></a>
+<h5 id="autosec-167"><span class="sectionnumber">2&#x2003;</span>Collineariteit van drie punten</h5>
+<a id="mkpiweb-autopage-167"></a>
 
 
 <p>
@@ -4997,8 +5040,8 @@ coo&#x0308;rdinaten van \(P\) ingevuld. Wanneer is die nul?</figcaption> </figur
 <!--
 ...... subsubsection Formule ......
 -->
-<h6 id="autosec-165">Formule</h6>
-<a id="mkpiweb-autopage-165"></a>
+<h6 id="autosec-168">Formule</h6>
+<a id="mkpiweb-autopage-168"></a>
 
 
 <p>
@@ -5043,8 +5086,8 @@ coo&#x0308;rdinaten van \(P\) ingevuld. Wanneer is die nul?</figcaption> </figur
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-166">Voorbeeld</h6>
-<a id="mkpiweb-autopage-166"></a>
+<h6 id="autosec-169">Voorbeeld</h6>
+<a id="mkpiweb-autopage-169"></a>
 
 
 <p>
@@ -5104,8 +5147,8 @@ liggen.</figcaption> </figure>
 <!--
 ...... subsection Oppervlakte van een in een orthonormaal assenstelsel ......
 -->
-<h5 id="autosec-167"><span class="sectionnumber">3&#x2003;</span>Oppervlakte van een \(\Delta \) in een orthonormaal assenstelsel</h5>
-<a id="mkpiweb-autopage-167"></a>
+<h5 id="autosec-170"><span class="sectionnumber">3&#x2003;</span>Oppervlakte van een \(\Delta \) in een orthonormaal assenstelsel</h5>
+<a id="mkpiweb-autopage-170"></a>
 
 
 <p>
@@ -5114,11 +5157,11 @@ liggen.</figcaption> </figure>
 <!--
 ...... subsubsection Opstellen formule ......
 -->
-<h6 id="autosec-168">Opstellen formule</h6>
-<a id="mkpiweb-autopage-168"></a>
+<h6 id="autosec-171">Opstellen formule</h6>
+<a id="mkpiweb-autopage-171"></a>
 <div class="minipage" style="vertical-align:top ; justify-content:flex-start ; width:234pt ; ">
 
-<a id="mkpiweb-autopage-169"></a>
+<a id="mkpiweb-autopage-172"></a>
 
 <p>
 Met \(A(x_1,y_1)\), \(B(x_2,y_2)\) en \(C(x_3,y_3)\) (in een orthonormaal stelsel) geldt:
@@ -5151,11 +5194,11 @@ Met \(A(x_1,y_1)\), \(B(x_2,y_2)\) en \(C(x_3,y_3)\) (in een orthonormaal stelse
 </div>
 <div class="minipage" style="vertical-align:top ; justify-content:flex-start ; width:234pt ; ">
 
-<a id="mkpiweb-autopage-170"></a>
+<a id="mkpiweb-autopage-173"></a>
 
 <p>
 <span
-    id="lateximage-mkpiweb-12"
+    id="lateximage-mkpiweb-13"
     class="lateximagesource"
 ><!--
 y
@@ -5169,7 +5212,7 @@ y
                   C(x3 , y3 )
                                  x
 --><img
-    src="mkpiweb-images/image-12.svg"
+    src="mkpiweb-images/image-13.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
     class="lateximage"
@@ -5273,8 +5316,8 @@ Besluit:<br />
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-174">Voorbeeld</h6>
-<a id="mkpiweb-autopage-174"></a>
+<h6 id="autosec-177">Voorbeeld</h6>
+<a id="mkpiweb-autopage-177"></a>
 
 
 <p>
@@ -5333,8 +5376,8 @@ teken van de determinant als je \(B\) en \(C\) van plaats wisselt?</figcaption> 
 <!--
 ...... subsubsection Gevolg ......
 -->
-<h6 id="autosec-175">Gevolg</h6>
-<a id="mkpiweb-autopage-175"></a>
+<h6 id="autosec-178">Gevolg</h6>
+<a id="mkpiweb-autopage-178"></a>
 
 
 <p>
@@ -5351,16 +5394,16 @@ De oppervlakte van parallellogram \(ABCD\) met aangrenzende hoekpunten \(A(x_1,y
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=60fbc712664f"></script>
-<script src="statistieken.js?v=60fbc712664f"></script>
-<script src="vendor/jsxgraphcore.js?v=60fbc712664f"></script>
-<script src="interactieve-grafieken.js?v=60fbc712664f"></script>
-<script src="matrixbord.js?v=60fbc712664f"></script>
-<script src="hoofdstuk.interactief.js?v=60fbc712664f"></script>
-<script src="hoofdstuk.interactief.determinanten.js?v=60fbc712664f"></script>
-<script src="hoofdstuk.interactief.oefeningen.js?v=60fbc712664f"></script>
-<script src="hoofdstuk.interactief.transformaties.js?v=60fbc712664f"></script>
-<script src="matrixcas.js?v=60fbc712664f"></script>
-<script src="matrixrekenmachine.js?v=60fbc712664f"></script>
+<script src="presentatie.js?v=d2c40c4b2a77"></script>
+<script src="statistieken.js?v=d2c40c4b2a77"></script>
+<script src="vendor/jsxgraphcore.js?v=d2c40c4b2a77"></script>
+<script src="interactieve-grafieken.js?v=d2c40c4b2a77"></script>
+<script src="matrixbord.js?v=d2c40c4b2a77"></script>
+<script src="hoofdstuk.interactief.js?v=d2c40c4b2a77"></script>
+<script src="hoofdstuk.interactief.determinanten.js?v=d2c40c4b2a77"></script>
+<script src="hoofdstuk.interactief.oefeningen.js?v=d2c40c4b2a77"></script>
+<script src="hoofdstuk.interactief.transformaties.js?v=d2c40c4b2a77"></script>
+<script src="matrixcas.js?v=d2c40c4b2a77"></script>
+<script src="matrixrekenmachine.js?v=d2c40c4b2a77"></script>
 </body>
 </html>

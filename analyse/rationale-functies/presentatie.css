@@ -2102,6 +2102,19 @@ kbd.grm-pijl {
   height: auto;
 }
 
+/* Een eigen eigenschap erft naar alle nakomelingen, en elke wijziging van
+ * --pres-krimp of --pres-buiten liet de browser zo de stijl van elk element
+ * in de slide herberekenen. Bij een formule of een svg zijn dat er honderden,
+ * en geen ervan gebruikt die marges. Hier stopt de erfenis: een wijziging
+ * blijft bij de slide, haar tekst en haar oplossingen. */
+mjx-container,
+svg {
+  --pres-krimp: initial;
+  --pres-buiten: initial;
+  --pres-rand-min: initial;
+  --slide-rand: initial;
+}
+
 /* Wiskunde in de lopende tekst kan niet schuiven zonder de regel eromheen mee
  * te nemen, en ze breekt niet af. Ze krimpt daarom mee: MathJax levert een
  * SVG met een viewBox, dus schaalt de formule evenredig zodra ze breder is
@@ -2412,6 +2425,13 @@ mjx-container .undefsign line {
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
+/* Een interactieve grafiek links met de figuur die ze stuurt rechts, zoals de
+ * kost van het potje naast het potje zelf (A17_VerloopVanFuncties). */
+.figuur-bewijs.grafiek-figuur {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  align-items: center;
+}
+
 .figuur-bewijs > div {
   min-width: 0;
   overflow-x: auto;
@@ -2435,7 +2455,9 @@ mjx-container .undefsign line {
 }
 
 @media (max-width: 44rem) {
-  .figuur-bewijs {
+  .figuur-bewijs,
+  .figuur-bewijs.breed,
+  .figuur-bewijs.grafiek-figuur {
     grid-template-columns: minmax(0, 1fr);
   }
 }

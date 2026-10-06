@@ -469,33 +469,52 @@
     }
     instantie.element.style.width = breedte + "px";
     instantie.element.style.height = hoogte + "px";
-    instantie.borden.forEach(function (bord) {
-      try {
-        bord.resizeContainer(breedte, hoogte, true);
-        bord.setBoundingBox(bord.presBegrenzing, bord.presGelijkeSchaal);
-        bord.fullUpdate();
-      } catch (fout) { /* een bord dat net verdween, hoeft niets. */ }
-    });
+    // Een slide die terug in beeld komt, meldt dat langs drie wegen
+    // (pres:zichtbaar, de IntersectionObserver en de ResizeObserver), en elk
+    // bord opnieuw tekenen kost per figuur tientallen ms. Heeft het bord al
+    // precies deze maat, dan blijft de tekening zoals ze is.
+    var maat = breedte + "x" + hoogte;
+    if (instantie.maat !== maat) {
+      instantie.maat = maat;
+      instantie.borden.forEach(function (bord) {
+        try {
+          bord.resizeContainer(breedte, hoogte, true);
+          bord.setBoundingBox(bord.presBegrenzing, bord.presGelijkeSchaal);
+          bord.fullUpdate();
+        } catch (fout) { /* een bord dat net verdween, hoeft niets. */ }
+      });
+      if (instantie.api && typeof instantie.api.herschaal === "function") {
+        try { instantie.api.herschaal(); } catch (fout) { /* niets */ }
+      }
+    }
     var rij = instantie.figuur.closest(".center");
     if (rij) {
       var bordKader = instantie.element.getBoundingClientRect();
       var rijKader = rij.getBoundingClientRect();
-      var midden = bordKader.top - rijKader.top + bordKader.height / 2;
-      rij.style.setProperty("--grafiek-bordmidden", midden + "px");
-    }
-    if (instantie.api && typeof instantie.api.herschaal === "function") {
-      try { instantie.api.herschaal(); } catch (fout) { /* niets */ }
+      var midden = (bordKader.top - rijKader.top + bordKader.height / 2) + "px";
+      if (rij.style.getPropertyValue("--grafiek-bordmidden") !== midden) {
+        rij.style.setProperty("--grafiek-bordmidden", midden);
+      }
     }
   }
 
-  var gepland = false;
-  function planHerschalen() {
-    if (gepland) return;
-    gepland = true;
-    window.requestAnimationFrame(function () {
-      gepland = false;
-      instanties.forEach(herschaalInstantie);
-    });
+  // Bij een maatverandering van het venster alle figuren; bij een
+  // ResizeObserver enkel de figuren die ze meldt.
+  var gepland = null;
+  function planHerschalen(waarnemingen) {
+    var alles = !Array.isArray(waarnemingen);
+    if (!gepland) {
+      gepland = [];
+      window.requestAnimationFrame(function () {
+        var lijst = gepland;
+        gepland = null;
+        instanties.forEach(function (instantie) {
+          if (lijst.alles || lijst.indexOf(instantie.figuur) >= 0) herschaalInstantie(instantie);
+        });
+      });
+    }
+    if (alles) gepland.alles = true;
+    else waarnemingen.forEach(function (w) { gepland.push(w.target); });
   }
 
   function herstelInstantie(instantie) {

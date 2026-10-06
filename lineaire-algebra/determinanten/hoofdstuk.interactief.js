@@ -7,8 +7,11 @@
  * ziet hij bij elke stap welke elementen meedoen. Twee grafieken tonen de
  * determinant ook als oppervlakte, zodat de eigenschappen een beeld krijgen.
  *
- * Het werkblad voor matrices op een bord komt uit web/matrixbord.js, samen
- * met L01_Matrices. Dezelfde grafieken staan ook in het keuzevak Matrices en
+ * Elke matrix is een HTML-raster met echte knoppen tussen haken of strepen,
+ * en elke formule staat in MathJax, zoals bij det-minor; de figuren met een
+ * assenstelsel zetten hun formules in een tekstvak naast het bord. Kleine
+ * hulpjes komen uit web/matrixbord.js, samen met L01_Matrices. Dezelfde
+ * grafieken staan ook in het keuzevak Matrices en
  * determinanten, dat dit bestand via een link als deelmodule inleest; de
  * namen beginnen daarom allemaal met det-, zodat ze niet botsen met die van
  * L01.
@@ -23,40 +26,23 @@
   if (!G || !M) return;
 
   var ONDER = M.ONDER;
-  var BOVEN = M.BOVEN;
   var index = M.index;
   var el = M.el;
   var net = M.net;
   var haakjes = M.haakjes;
-  var maakWerkblad = M.maakWerkblad;
-  var klikPunt = M.klikPunt;
   var matrixBord = M.matrixBord;
 
   /* --- Kleine hulpjes ---------------------------------------------------- */
 
   function sub(n) { return index(n, ONDER); }
-  function sup(n) { return index(n, BOVEN); }
-  function lijnNaam(soort, n) { return (soort === "R" ? "R" : "K") + sub(n); }
   function minorNaam(i, j) { return "M" + sub(i) + sub(j); }
   function cofactorNaam(i, j) { return "A" + sub(i) + sub(j); }
   function teken(i, j) { return (i + j) % 2 === 0 ? 1 : -1; }
 
-  // (−1)²⁺³: het teken van de cofactor zoals de cursus het schrijft.
-  function tekenMacht(i, j) { return "(−1)" + sup(i) + "⁺" + sup(j); }
-
   function getal(x) { return net(String(x)); }
 
-  // Een som van getallen zoals je ze opschrijft: 12 − 12 + 4, niet
-  // 12 + −12 + 4.
-  function somTekst(getallen) {
-    return getallen.map(function (x, k) {
-      if (k === 0) return getal(x);
-      return (x < 0 ? " − " : " + ") + Math.abs(x);
-    }).join("");
-  }
-
-  // Regels van het bord als lopende tekst voor ctx.toon: elke regel wordt
-  // een zin, ook als ze op het bord zonder punt eindigt.
+  // Regels als lopende tekst voor ctx.toon: elke regel wordt een zin, ook
+  // als ze zonder punt eindigt.
   function zinnen(regels) {
     return regels.filter(Boolean).map(function (r) {
       r = r.trim();
@@ -96,12 +82,6 @@
   // zonder rij i?
   function origineel(r, geschrapt) { return r < geschrapt ? r : r + 1; }
 
-  // Een 2×2-determinant uitgeschreven: p·s − q·r.
-  function kruisTekst(m) {
-    return haakjes(m[0][0]) + "·" + haakjes(m[1][1]) + " − " +
-      haakjes(m[0][1]) + "·" + haakjes(m[1][0]);
-  }
-
   // Een willekeurige vierkante matrix met kleine gehele getallen en minstens
   // één nul, zodat er altijd iets te kiezen valt.
   function willekeurig(n) {
@@ -117,83 +97,368 @@
     return A;
   }
 
-  // Een lijnstuk tussen twee punten die van de toestand afhangen.
-  function lijnstuk(ctx, bord, a, b, rol, o) {
-    function punt(f) {
-      return bord.create("point", [
-        function () { return f()[0]; },
-        function () { return f()[1]; }
-      ], { visible: false, fixed: true, name: "", withLabel: false });
-    }
-    return ctx.stijl(bord.create("segment", [punt(a), punt(b)], {
-      strokeWidth: o.dikte || 2,
-      dash: o.streep || 0,
-      strokeOpacity: o.opaciteit || 1,
-      fixed: true, highlight: false,
-      visible: o.zichtbaar || true
-    }), rol);
-  }
-
-  // Regels tekst onder de matrices, gecentreerd. De inhoud zet de figuur in
-  // regels.tekst; de hoogte volgt uit de lay-out.
-  function maakRegels(wb, bord, aantal, y) {
-    var regels = { tekst: [] };
-    for (var k = 0; k < aantal; k++) {
-      (function (k) {
-        wb.tekst(bord, 0, function () { return y(k); },
-          function () { return regels.tekst[k] || ""; }, "tekst",
-          { factor: 0.85 });
-      }(k));
-    }
-    return regels;
-  }
-
-  // Een knop die aan of uit staat, zoals Letters of Tekenpatroon.
+  // Een knop die aan of uit staat, zoals Tekenpatroon.
   function schakel(knop, aan) {
     knop.setAttribute("aria-pressed", String(!!aan));
   }
 
-  /* --- Determinant in een tekstvak --------------------------------------- */
+  // Letters en Voorbeeld als één schakelaar met twee standen, die elkaar
+  // uitsluiten. kies(letters) zet de figuur in die stand. Wijzig A hoort
+  // enkel bij de getallen: een knop in s.wijzig staat bij Letters uit.
+  // s.stand(letters) zet enkel de knoppen, voor een Reset die zelf hertekent.
+  function letterSchakelaar(ctx, kies) {
+    var s = {};
+    var letterKnop = ctx.knop("Letters", function () { s.stand(true); kies(true); });
+    var voorbeeldKnop = ctx.knop("Voorbeeld", function () { s.stand(false); kies(false); });
+    var groep = document.createElement("span");
+    groep.className = "interactieve-grafiek-schakelaar";
+    groep.setAttribute("role", "group");
+    groep.setAttribute("aria-label", "Weergave van A");
+    letterKnop.parentNode.insertBefore(groep, letterKnop);
+    groep.appendChild(letterKnop);
+    groep.appendChild(voorbeeldKnop);
+    s.stand = function (letters) {
+      schakel(letterKnop, letters);
+      schakel(voorbeeldKnop, !letters);
+      if (s.wijzig) s.wijzig.disabled = letters;
+    };
+    s.stand(false);
+    return s;
+  }
 
-  // Op een bord met een assenstelsel staan de getallen van de determinant in
-  // een klein HTML-tabelletje tussen twee strepen. De kleuren komen uit de
-  // CSS-variabelen van de rollen, zodat ze de dag- en nachtstand volgen.
-  function detTabel(rijen, kolomkleuren) {
-    var html = '<table style="display:inline-table;vertical-align:middle;' +
-      'border-collapse:collapse;border:0;border-left:1.5px solid currentColor;' +
-      'border-right:1.5px solid currentColor;margin:0 .3em">';
-    rijen.forEach(function (rij) {
-      html += "<tr>" + rij.map(function (c, j) {
-        var kleur = kolomkleuren && kolomkleuren[j]
-          ? "color:var(--grafiek-" + kolomkleuren[j] + ");" : "";
-        return '<td style="' + kleur + 'border:0;padding:.05em .45em;' +
-          'text-align:right">' + c + "</td>";
-      }).join("") + "</tr>";
+  /* --- Wiskunde in LaTeX ------------------------------------------------- */
+
+  // Een getal als factor: een negatief getal tussen haakjes, 4\cdot(-3).
+  function fac(x) { return x < 0 ? "(" + x + ")" : String(x); }
+  function elTex(i, j) { return "a_{" + i + j + "}"; }
+  function minTex(i, j) { return "M_{" + i + j + "}"; }
+  function cofTex(i, j) { return "A_{" + i + j + "}"; }
+  function lijnTex(soort, n) { return (soort === "R" ? "R" : "K") + "_{" + n + "}"; }
+  function tekenMachtTex(i, j) { return "(-1)^{" + i + "+" + j + "}"; }
+
+  // Een stuk formule in de kleur van een rol: \class zet een CSS-klasse in
+  // de SVG van MathJax, en de klasse volgt de dag- en nachtstand.
+  function kleurTex(rol, s) { return "\\class{det-" + rol + "}{" + s + "}"; }
+
+  function rijenTex(rijen) {
+    return rijen.map(function (rij) { return rij.join("&"); }).join("\\\\");
+  }
+  function vmat(rijen) { return "\\begin{vmatrix}" + rijenTex(rijen) + "\\end{vmatrix}"; }
+  function pmat(rijen) { return "\\begin{pmatrix}" + rijenTex(rijen) + "\\end{pmatrix}"; }
+
+  // Een som zoals je ze opschrijft: 12-12+4, niet 12+(-12)+4.
+  function somTex(getallen) {
+    return getallen.map(function (x, k) {
+      if (k === 0) return String(x);
+      return (x < 0 ? "-" : "+") + Math.abs(x);
+    }).join("");
+  }
+
+  // Een 2×2-determinant uitgeschreven: p\cdot s-q\cdot r.
+  function kruisTex(m) {
+    return fac(m[0][0]) + "\\cdot " + fac(m[1][1]) + "-" +
+      fac(m[0][1]) + "\\cdot " + fac(m[1][0]);
+  }
+
+  // Het teken van de cofactor toegepast op de waarde m van de minor:
+  // +M wordt m, -M wordt -m, met -(-6) = 6 uitgeschreven.
+  function tekenUitTex(t, m) {
+    if (t > 0) return String(m);
+    return m < 0 ? "-(" + m + ")=" + (-m) : String(-m);
+  }
+
+  // Tekst met wiskunde als gewone zin voor ctx.toon, die een schermlezer
+  // voorleest: R_1 \leftarrow 2R_1 wordt R1 ← 2R1.
+  var PLAT = {
+    leftarrow: " ← ", leftrightarrow: " ↔ ", cdot: "·", det: "det ", ldots: "…",
+    mathsf: "", text: "", operatorname: "", vec: ""
+  };
+  function plat(s) {
+    return String(s)
+      .replace(/\\[()]/g, "")
+      .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, "$1/$2")
+      .replace(/\^\{([^{}]*)\}/g, "^($1)")
+      .replace(/\\([a-zA-Z]+)/g, function (heel, w) { return w in PLAT ? PLAT[w] : w; })
+      .replace(/\\[,;! ]/g, " ")
+      .replace(/[_{}]/g, "")
+      .replace(/-/g, "−")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
+  // Regels van een afleiding, uitgelijnd op het gelijkteken. Inline met
+  // \displaystyle: een display-formule laat presentatie.js bij elke klik de
+  // randen van de hele slide opnieuw meten.
+  function uitgelijnd(regels) {
+    regels = regels.filter(Boolean);
+    if (!regels.length) return "";
+    return "\\(\\displaystyle\\begin{aligned}" + regels.join("\\\\[0.35em]") +
+      "\\end{aligned}\\)";
+  }
+
+  /* --- HTML-matrices en formules ----------------------------------------- */
+
+  // MathJax zet na elkaar: een snelle reeks klikken mag geen verouderde
+  // formule achterlaten. Een beurt die al ingehaald is, valt weg, en van de
+  // rest wordt enkel vervangen wat echt veranderde. paren is een lijst van
+  // [element, tekst]; de tekst mag \(...\) bevatten. Alle zetters van dit
+  // bestand delen één wachtrij, want MathJax zet niet twee keer tegelijk.
+  var wachtrij = Promise.resolve();
+  function maakZetter() {
+    var generatie = 0;
+    return function (paren) {
+      var nummer = ++generatie;
+      wachtrij = wachtrij.then(function () {
+        if (nummer !== generatie) return;
+        var nieuw = paren.filter(function (p) { return p[0].detBron !== p[1]; });
+        if (!nieuw.length) return;
+        var MJ = window.MathJax;
+        if (!MJ || !MJ.typesetPromise) {
+          nieuw.forEach(function (p) {
+            p[0].detBron = p[1];
+            p[0].innerHTML = zonderBreuk(p[1]);
+          });
+          return;
+        }
+        // Eerst onzichtbaar zetten, in een kopie naast het doel met dezelfde
+        // opmaak, en pas dan de inhoud wisselen: anders staat de ruwe LaTeX
+        // een ogenblik in beeld en verspringt alles eromheen.
+        var kopieen = nieuw.map(function (p) {
+          var k = p[0].cloneNode(false);
+          k.removeAttribute("id");
+          k.setAttribute("aria-hidden", "true");
+          k.style.position = "absolute";
+          k.style.visibility = "hidden";
+          k.style.left = "0";
+          k.style.top = "0";
+          k.innerHTML = zonderBreuk(p[1]);
+          p[0].parentNode.appendChild(k);
+          return k;
+        });
+        return MJ.typesetPromise(kopieen).then(function () {
+          if (MJ.typesetClear) MJ.typesetClear(nieuw.map(function (p) { return p[0]; }));
+          nieuw.forEach(function (p, n) {
+            p[0].detBron = p[1];
+            p[0].textContent = "";
+            while (kopieen[n].firstChild) p[0].appendChild(kopieen[n].firstChild);
+            kopieen[n].remove();
+          });
+        }, function (fout) {
+          kopieen.forEach(function (k) { k.remove(); });
+          throw fout;
+        });
+      }).catch(function (fout) { console.error(fout); });
+      return wachtrij;
+    };
+  }
+
+  // Een leesteken na een formule hoort bij die formule: zonder deze omhulling
+  // breekt de browser de regel soms vlak voor de dubbele punt.
+  function zonderBreuk(tekst) {
+    var html = String(tekst).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return html.replace(/(\\\((?:(?!\\\))[\s\S])*\\\))([.,:;?!)]+)/g,
+      '<span class="det-heel">$1$2</span>');
+  }
+
+  function div(klasse) {
+    var d = document.createElement("div");
+    d.className = klasse;
+    return d;
+  }
+
+  // De laag over het (lege) bord waarin een figuur haar matrices en formules
+  // zet, zoals bij det-minor.
+  function maakLaag(ctx, klasse) {
+    matrixStijl();
+    matrixBord(ctx);
+    var laag = div("det-tekenpatroon" + (klasse ? " " + klasse : ""));
+    ctx.element.appendChild(laag);
+    return laag;
+  }
+
+  // Haken rond een raster van vakjes, gezet door MathJax zoals in een
+  // pmatrix of vmatrix: \left( en \right) rond een onzichtbare staaf zo hoog
+  // als het raster. Verandert het raster van hoogte (een andere orde, Groot,
+  // een smaller scherm), dan worden de haken opnieuw gezet. soort is
+  // "haken", "strepen" of "geen".
+  function maakHaken(raster, soort) {
+    var omhulsel = div("det-haken");
+    if (soort === "geen") {
+      omhulsel.appendChild(raster);
+      return omhulsel;
+    }
+    var links = div("det-haak"), rechts = div("det-haak");
+    omhulsel.appendChild(links);
+    omhulsel.appendChild(raster);
+    omhulsel.appendChild(rechts);
+    var teken = soort === "strepen" ? ["|", "|"] : ["(", ")"];
+    var zet = maakZetter();
+    var hoogte = 0;
+    function pas() {
+      var h = raster.getBoundingClientRect().height;
+      if (!h || Math.abs(h - hoogte) < 1) return;
+      hoogte = h;
+      // De staaf staat symmetrisch rond de as van de formule (0.25em), zodat
+      // de haak rond het midden van het raster komt.
+      var half = h / parseFloat(window.getComputedStyle(links).fontSize) / 2;
+      var staaf = "\\Rule{0em}{" + (half + 0.25).toFixed(2) + "em}{" +
+        (half - 0.25).toFixed(2) + "em}";
+      zet([[links, "\\(\\left" + teken[0] + staaf + "\\right.\\)"],
+           [rechts, "\\(\\left." + staaf + "\\right" + teken[1] + "\\)"]]).then(function () {
+        // MathJax rekent met zijn eigen ex; de laatste kleine afwijking
+        // vangt de hoogte van de SVG op.
+        [links, rechts].forEach(function (haak) {
+          var svg = haak.querySelector("svg");
+          if (!svg) return;
+          svg.style.height = hoogte + "px";
+          svg.style.width = "auto";
+          svg.style.verticalAlign = "top";
+        });
+      });
+    }
+    if (window.ResizeObserver) new window.ResizeObserver(pas).observe(raster);
+    else window.requestAnimationFrame(pas);
+    return omhulsel;
+  }
+
+  // Een matrix als raster van echte knoppen tussen haken, tussen strepen
+  // (een determinant) of zonder rand. Met o.klik(r, k) is elk vakje een knop
+  // met een label voor rij en kolom; zonder klik is het een vakje om te
+  // lezen. De orde mag veranderen: m.bouw(rijen, kolommen) legt het raster
+  // opnieuw. De inhoud gaat via de zetter (m.paren), de stand van elk vakje
+  // meteen (m.stand).
+  function htmlMatrix(o) {
+    var m = { raster: div("det-tekenmatrix"), R: 0, K: 0, vakjes: [] };
+    if (o.klasse) m.raster.classList.add(o.klasse);
+    m.element = maakHaken(m.raster, o.haken || "haken");
+    m.bouw = function (rijen, kolommen) {
+      if (rijen === m.R && kolommen === m.K) return;
+      if (window.MathJax && window.MathJax.typesetClear) {
+        window.MathJax.typesetClear([m.raster]);
+      }
+      m.R = rijen;
+      m.K = kolommen;
+      m.raster.textContent = "";
+      m.raster.style.gridTemplateColumns = "repeat(" + kolommen + ",var(--det-cel))";
+      m.vakjes = [];
+      for (var r = 1; r <= rijen; r++) {
+        for (var k = 1; k <= kolommen; k++) {
+          (function (r, k) {
+            var vak;
+            if (o.klik) {
+              vak = document.createElement("button");
+              vak.type = "button";
+              vak.setAttribute("aria-label", "Rij " + r + ", kolom " + k);
+              vak.addEventListener("click", function () { o.klik(r, k); });
+            } else {
+              vak = document.createElement("span");
+            }
+            vak.className = "det-vak";
+            vak.dataset.rij = r;
+            vak.dataset.kolom = k;
+            m.raster.appendChild(vak);
+            m.vakjes.push(vak);
+          }(r, k));
+        }
+      }
+    };
+    // inhoud(r, k): een getal, een tekst of \(...\) voor wiskunde.
+    m.paren = function (inhoud) {
+      return m.vakjes.map(function (vak) {
+        var tekst = String(inhoud(+vak.dataset.rij, +vak.dataset.kolom));
+        vak.classList.toggle("det-letters", tekst.indexOf("\\(") >= 0);
+        return [vak, tekst];
+      });
+    };
+    // stand(r, k) geeft { gekozen, vaag, merk: "punt" | "secante", teken }.
+    m.stand = function (stand) {
+      m.vakjes.forEach(function (vak) {
+        var s = stand(+vak.dataset.rij, +vak.dataset.kolom) || {};
+        if (o.klik) vak.setAttribute("aria-pressed", String(!!s.gekozen));
+        vak.classList.toggle("det-gekozen", !!s.gekozen);
+        vak.classList.toggle("det-vaag", !!s.vaag);
+        vak.classList.toggle("det-merk-punt", s.merk === "punt");
+        vak.classList.toggle("det-merk-secante", s.merk === "secante");
+        if (s.teken) vak.dataset.teken = s.teken; else delete vak.dataset.teken;
+      });
+    };
+    m.vak = function (r, k) { return m.vakjes[(r - 1) * m.K + (k - 1)]; };
+    if (o.rijen) m.bouw(o.rijen, o.kolommen);
+    return m;
+  }
+
+  // Een matrix met haar naam ervoor, zoals A = (...) of \det A = |...|.
+  function matrixGroep(matrix, naam) {
+    var g = div("det-matrixgroep");
+    g.naam = div("det-matrixnaam");
+    g.appendChild(g.naam);
+    g.appendChild(matrix.element);
+    g.naamTex = naam || "";
+    return g;
+  }
+
+  // Een paar regels tekst met wiskunde erin. Een lege regel valt weg.
+  function tekstRegels(ouder, aantal) {
+    var regels = [];
+    for (var k = 0; k < aantal; k++) {
+      var p = document.createElement("p");
+      ouder.appendChild(p);
+      regels.push(p);
+    }
+    return regels;
+  }
+
+  // Een tekstvak met formules op een bord met een assenstelsel, breedte
+  // pixels breed. Het staat op de plaats die schikBord vrijhoudt en laat de
+  // muis door naar het bord eronder. soorten zegt wat er onder elkaar staat:
+  // "f" een formule, "t" een regel tekst. p.schik() legt bord en vak samen
+  // neer, p.zet(teksten) vult de delen in die volgorde.
+  function maakPaneel(ctx, bord, plot, soorten, breedte, hoogte) {
+    matrixStijl();
+    var p = div("det-paneel");
+    var delen = soorten.map(function (s) {
+      var d = div(s === "f" ? "det-cofactorstappen" : "det-tekst");
+      p.appendChild(d);
+      return d;
     });
-    return html + "</table>";
+    ctx.element.appendChild(p);
+    var zet = maakZetter();
+    p.schik = function () {
+      var vak = schikBord(bord, plot, breedte, hoogte);
+      bord.fullUpdate();
+      var c = new window.JXG.Coords(window.JXG.COORDS_BY_USER, vak, bord);
+      var x = c.scrCoords[1], y = c.scrCoords[2];
+      var w = Math.min(breedte, bord.canvasWidth - 12);
+      // Naast het vlak staat het vak verticaal in het midden, op de hoogte
+      // die het vak ooit nodig had: zo springt het niet bij elke stap.
+      // Eronder staat het horizontaal in het midden.
+      if (vak.naast) y = Math.max(6, (bord.canvasHeight - hoogte) / 2);
+      else x = (bord.canvasWidth - w) / 2;
+      p.style.left = Math.round(x) + "px";
+      p.style.top = Math.round(y) + "px";
+      p.style.width = w + "px";
+    };
+    // Valt het vak hoger uit dan gedacht, dan krijgt het meer plaats. Het bord
+    // schuift dus enkel wanneer het vak groeit.
+    p.zet = function (teksten) {
+      return zet(teksten.map(function (t, k) { return [delen[k], t]; })).then(function () {
+        if (p.offsetHeight > hoogte + 1) {
+          hoogte = p.offsetHeight;
+          p.schik();
+        }
+      });
+    };
+    return p;
   }
 
-  function kleurtekst(tekst, rol) {
-    return '<span style="color:var(--grafiek-' + rol + ')">' + tekst + "</span>";
-  }
-
-  function tekstvak(ctx, bord, x, y, inhoud) {
-    var t = bord.create("text", [x, y, inhoud], {
-      anchorX: "left", anchorY: "top", fixed: true, highlight: false,
-      useMathJax: false, fontSize: 15,
-      cssStyle: "background:var(--kleur-vlak-zweef);padding:.35em .6em;" +
-        "line-height:1.55;border-radius:4px;white-space:nowrap"
-    });
-    return ctx.stijl(t, "tekst");
-  }
-
-  // Een sleepbaar roosterpunt dat binnen het bord blijft.
+  // Een sleepbaar roosterpunt dat binnen het bord blijft. De naam is LaTeX,
+  // zoals \vec v_1 of P_1.
   function roosterpunt(ctx, bord, xy, naam, rol, grens) {
     var p = ctx.stijl(bord.create("point", xy, {
-      name: naam, size: 4, showInfobox: false,
+      name: "\\(" + naam + "\\)", size: 4, showInfobox: false,
       snapToGrid: true, snapSizeX: 1, snapSizeY: 1,
       precision: { touch: 30, mouse: 6 },
-      label: { offset: [8, 12] }
+      label: { offset: [8, 12], useMathJax: true, fontSize: 18 }
     }), rol);
     p.on("drag", function () {
       var x = Math.max(grens[0], Math.min(grens[2], Math.round(p.X())));
@@ -234,6 +499,7 @@
       var boven = plot[1] + (hoog - dy) / 2;
       box = [links, boven, links + breed, boven - hoog];
       vak = [plot[2] + marge / s, plot[1]];
+      vak.naast = true;
     } else {
       var boven2 = plot[1] + (hoog - dy - (ph + marge) / s) / 2;
       var links2 = plot[0] - (breed - dx) / 2;
@@ -269,15 +535,14 @@
     var bord = ctx.maakBord({ begrenzing: PLOT, gelijkeschaal: true });
     eenheidsrooster(ctx, bord);
     var kleuren = ctx.kleuren();
-    var st = { vorige: "", vak: [PLOT[2], PLOT[1]] };
-    function schik() {
-      st.vak = schikBord(bord, PLOT, 320, opties.eigenschappen ? 300 : 200);
-      bord.fullUpdate();
-    }
+    var st = { vorige: null };
+    var paneel = maakPaneel(ctx, bord, PLOT, ["f", "t", "t"], 330,
+      opties.eigenschappen ? 300 : 200);
+    var schik = paneel.schik;
 
     var O = bord.create("point", [0, 0], { visible: false, fixed: true, name: "" });
-    var v1 = roosterpunt(ctx, bord, BEGIN[0], "v₁", "punt", GRENS);
-    var v2 = roosterpunt(ctx, bord, BEGIN[1], "v₂", "secante", GRENS);
+    var v1 = roosterpunt(ctx, bord, BEGIN[0], "\\vec v_1", "punt", GRENS);
+    var v2 = roosterpunt(ctx, bord, BEGIN[1], "\\vec v_2", "secante", GRENS);
     var S = bord.create("point", [
       function () { return v1.X() + v2.X(); },
       function () { return v1.Y() + v2.Y(); }
@@ -322,37 +587,44 @@
       visible: function () { return waarde() < 0; }
     }), "tekst");
 
-    function paneel() {
+    function werkPaneelBij() {
       var a = Math.round(v1.X()), c = Math.round(v1.Y());
       var b = Math.round(v2.X()), d = Math.round(v2.Y());
       var D = waarde();
-      var html = "A = (" + kleurtekst("v₁", "punt") + " " +
-        kleurtekst("v₂", "secante") + ")<br>det A = " +
-        detTabel([[getal(a), getal(b)], [getal(c), getal(d)]], ["punt", "secante"]) +
-        " = " + haakjes(a) + "·" + haakjes(d) + " − " + haakjes(b) + "·" +
-        haakjes(c) + " = <b>" + getal(D) + "</b><br>" +
-        "oppervlakte = |det A| = " + Math.abs(D) + "<br>";
+      function p(x) { return kleurTex("punt", x); }
+      function s(x) { return kleurTex("secante", x); }
+      var formule = uitgelijnd([
+        "A&=(" + p("\\vec v_1") + "\\ \\ " + s("\\vec v_2") + ")=" +
+          pmat([[p(a), s(b)], [p(c), s(d)]]),
+        "\\det A&=" + vmat([[p(a), s(b)], [p(c), s(d)]]) + "=" + fac(a) + "\\cdot " +
+          fac(d) + "-" + fac(b) + "\\cdot " + fac(c) + "=" + D,
+        "\\text{oppervlakte}&=|\\det A|=" + Math.abs(D)
+      ]);
+      var zin;
       if (D > 0) {
-        html += "det A &gt; 0: van v₁ naar v₂ draai je<br>tegen de wijzers van de klok in";
+        zin = "\\(\\det A>0\\): van \\(\\vec v_1\\) naar \\(\\vec v_2\\) draai je tegen de " +
+          "wijzers van de klok in.";
       } else if (D < 0) {
-        html += "det A &lt; 0: van v₁ naar v₂ draai je<br>met de wijzers van de klok mee";
+        zin = "\\(\\det A<0\\): van \\(\\vec v_1\\) naar \\(\\vec v_2\\) draai je met de " +
+          "wijzers van de klok mee.";
       } else {
-        html += "det A = 0: v₁ en v₂ liggen op één rechte,<br>er is geen parallellogram";
+        zin = "\\(\\det A=0\\): \\(\\vec v_1\\) en \\(\\vec v_2\\) liggen op één rechte, " +
+          "er is geen parallellogram.";
       }
-      if (st.vorige) html += "<br><br>" + st.vorige;
-      return html;
+      paneel.zet([formule, zin, st.vorige ? st.vorige.tex : ""]);
     }
-    tekstvak(ctx, bord, function () { return st.vak[0]; },
-      function () { return st.vak[1]; }, paneel);
 
     function beschrijving() {
       var D = waarde();
-      return "v₁ = (" + getal(Math.round(v1.X())) + ", " + getal(Math.round(v1.Y())) +
-        ") en v₂ = (" + getal(Math.round(v2.X())) + ", " + getal(Math.round(v2.Y())) +
+      return "v1 = (" + getal(Math.round(v1.X())) + ", " + getal(Math.round(v1.Y())) +
+        ") en v2 = (" + getal(Math.round(v2.X())) + ", " + getal(Math.round(v2.Y())) +
         "). det A = " + getal(D) + ", de oppervlakte van het parallellogram is " +
-        Math.abs(D) + "." + (st.vorige ? " " + st.vorige.replace(/<[^>]+>/g, " ") : "");
+        Math.abs(D) + "." + (st.vorige ? " " + st.vorige.tekst : "");
     }
-    bord.on("update", function () { ctx.toon(beschrijving()); });
+    bord.on("update", function () {
+      werkPaneelBij();
+      ctx.toon(beschrijving());
+    });
     function binnen(p, grens) {
       var g = grens || GRENS;
       return p[0] >= g[0] && p[0] <= g[2] && p[1] >= g[3] && p[1] <= g[1];
@@ -369,13 +641,13 @@
     });
     [v1, v2].forEach(function (v, k) {
       v.on("drag", function () {
-        st.vorige = "";
+        st.vorige = null;
         if (!binnen([S.X(), S.Y()], HOEK)) zetPunt(v, goed[k]);
       });
     });
 
     // Een kolombewerking: nieuwe v₁ en v₂, en in woorden wat er met de
-    // determinant gebeurt.
+    // determinant gebeurt. naam is LaTeX, uitleg tekst met wiskunde erin.
     function bewerk(naam, f, uitleg) {
       var oud = waarde();
       var p = [Math.round(v1.X()), Math.round(v1.Y())];
@@ -383,52 +655,59 @@
       var nieuw = f(p, q);
       var hoek = [nieuw[0][0] + nieuw[1][0], nieuw[0][1] + nieuw[1][1]];
       if (!binnen(nieuw[0]) || !binnen(nieuw[1]) || !binnen(hoek, HOEK)) {
-        st.vorige = naam + " past niet meer op het bord.<br>Maak v₁ en v₂ eerst wat korter.";
+        st.vorige = {
+          tex: "\\(" + naam + "\\) past niet meer op het bord. Maak \\(\\vec v_1\\) en " +
+            "\\(\\vec v_2\\) eerst wat korter.",
+          tekst: "Die bewerking past niet meer op het bord."
+        };
       } else {
         zetPunt(v1, nieuw[0]);
         zetPunt(v2, nieuw[1]);
-        st.vorige = "<b>" + naam + "</b>: det A gaat van " + getal(oud) + " naar " +
-          getal(waarde()) + ".<br>" + uitleg;
+        st.vorige = {
+          tex: "\\(" + naam + "\\): \\(\\det A\\) gaat van \\(" + oud + "\\) naar \\(" +
+            waarde() + "\\). " + uitleg,
+          tekst: "De determinant gaat van " + getal(oud) + " naar " + getal(waarde()) + "."
+        };
       }
       bord.update();
     }
 
+    var knoppen = [];
+    function bewerking(naam, f, uitleg) {
+      var knop = ctx.knop(naam, function () { bewerk(naam, f, uitleg); });
+      knoppen.push([knop, "\\(" + naam + "\\)"]);
+    }
     if (opties.eigenschappen) {
-      ctx.knop("K₁ ↔ K₂", function () {
-        bewerk("K₁ ↔ K₂", function (p, q) { return [q, p]; },
-          "Kolommen gewisseld: de draaizin keert om,<br>dus ook het teken. De oppervlakte blijft.");
-      });
-      ctx.knop("K₁ × 2", function () {
-        bewerk("K₁ ← 2K₁", function (p, q) { return [[2 * p[0], 2 * p[1]], q]; },
-          "Eén kolom maal 2: het parallellogram wordt<br>twee keer zo lang, de determinant ook.");
-      });
-      ctx.knop("K₁ × (−1)", function () {
-        bewerk("K₁ ← −K₁", function (p, q) { return [[-p[0], -p[1]], q]; },
-          "Eén kolom maal −1: de oppervlakte blijft,<br>de draaizin en dus het teken keren om.");
-      });
-      ctx.knop("K₂ + K₁", function () {
-        bewerk("K₂ ← K₂ + K₁", function (p, q) { return [p, [q[0] + p[0], q[1] + p[1]]]; },
-          "Een kolom erbij opgeteld: het parallellogram<br>schuift scheef, maar basis en hoogte blijven.<br>De determinant blijft gelijk.");
-      });
-      ctx.knop("K₂ − K₁", function () {
-        bewerk("K₂ ← K₂ − K₁", function (p, q) { return [p, [q[0] - p[0], q[1] - p[1]]]; },
-          "Een kolom ervan afgetrokken: het parallellogram<br>schuift terug. De determinant blijft gelijk.");
-      });
-      ctx.knop("A × 2", function () {
-        bewerk("A ← 2A", function (p, q) {
-          return [[2 * p[0], 2 * p[1]], [2 * q[0], 2 * q[1]]];
-        }, "Beide kolommen maal 2: twee keer zo breed<br>én twee keer zo hoog, dus det(2A) = 2²·det A.");
-      });
+      bewerking("K_1\\leftrightarrow K_2", function (p, q) { return [q, p]; },
+        "Kolommen gewisseld: de draaizin keert om, dus ook het teken. De oppervlakte blijft.");
+      bewerking("K_1\\leftarrow 2K_1", function (p, q) { return [[2 * p[0], 2 * p[1]], q]; },
+        "Eén kolom maal \\(2\\): het parallellogram wordt twee keer zo lang, de determinant ook.");
+      bewerking("K_1\\leftarrow -K_1", function (p, q) { return [[-p[0], -p[1]], q]; },
+        "Eén kolom maal \\(-1\\): de oppervlakte blijft, de draaizin en dus het teken keren om.");
+      bewerking("K_2\\leftarrow K_2+K_1", function (p, q) {
+        return [p, [q[0] + p[0], q[1] + p[1]]];
+      }, "Een kolom erbij opgeteld: het parallellogram schuift scheef, maar basis en hoogte " +
+        "blijven. De determinant blijft gelijk.");
+      bewerking("K_2\\leftarrow K_2-K_1", function (p, q) {
+        return [p, [q[0] - p[0], q[1] - p[1]]];
+      }, "Een kolom ervan afgetrokken: het parallellogram schuift terug. De determinant " +
+        "blijft gelijk.");
+      bewerking("A\\leftarrow 2A", function (p, q) {
+        return [[2 * p[0], 2 * p[1]], [2 * q[0], 2 * q[1]]];
+      }, "Beide kolommen maal \\(2\\): twee keer zo breed én twee keer zo hoog, dus " +
+        "\\(\\det(2A)=2^2\\cdot\\det A\\).");
+      maakZetter()(knoppen);
     }
 
     function herstel() {
       zetPunt(v1, BEGIN[0]);
       zetPunt(v2, BEGIN[1]);
-      st.vorige = "";
+      st.vorige = null;
       bord.update();
     }
 
     schik();
+    werkPaneelBij();
     ctx.toon(beschrijving());
     return {
       reset: herstel,
@@ -446,48 +725,131 @@
 
   /* --- 2. Minor en cofactor ---------------------------------------------- */
 
-  G.registreer("det-tekenpatroon", function (ctx) {
-    // Echte knoppen voor elk vakje; de formule krijgt gewone MathJax-notatie.
-    // De HTML-laag houdt haar lettergrootte bij herschalen en in Groot.
-    matrixBord(ctx);
-    var i = 1, j = 1;
-    var generatie = 0, wachtrij = Promise.resolve();
+  // De opmaak van een aanklikbare matrix met een formule ernaast, gedeeld door
+  // alle figuren met matrices. De grootte van een vakje is --det-cel; een
+  // figuur met veel matrices naast elkaar neemt det-klein.
+  function matrixStijl() {
     var stijlId = "det-tekenpatroon-stijl";
     if (!document.getElementById(stijlId)) {
       var stijl = document.createElement("style");
       stijl.id = stijlId;
       stijl.textContent = `
         .det-tekenpatroon { position:absolute; inset:0; display:flex;
-          align-items:center; justify-content:center; gap:4.25rem; padding:2rem 1rem;
+          align-items:center; justify-content:center;
+          gap:2rem 4.25rem; padding:2rem 1rem; overflow:auto;
           color:var(--grafiek-tekst); background:var(--grafiek-vlak); }
-        .det-tekenmatrix { display:grid; grid-template-columns:repeat(3,3rem);
-          gap:.35rem; padding:.5rem; border-inline:2px solid currentColor;
-          border-radius:.7rem; flex-shrink:0; }
-        .det-tekenmatrix button { font:inherit; font-size:2rem; width:3rem;
-          height:3rem; padding:0; color:inherit; background:transparent;
-          border:1px solid transparent; border-radius:.3rem; cursor:pointer; }
-        .det-tekenmatrix button[aria-pressed="true"] {
-          background:var(--kleur-knop-actief-vlak, #dbeafe);
+        .det-tekenpatroon.det-onder { flex-direction:column;
+          justify-content:safe center; gap:1.25rem; padding:1.25rem 1rem; }
+        .det-matrixnaam { flex-shrink:0; }
+        .det-tekenpatroon.det-smal { gap:1.5rem 2.5rem; }
+        .det-tekenpatroon.det-boven { justify-content:flex-start; padding-top:1rem; }
+        .det-blad { width:min(40rem,100%); display:flex; flex-direction:column;
+          align-items:flex-start; gap:.7rem; }
+        .det-blad > .det-rij { justify-content:flex-start; flex-wrap:wrap; gap:.75rem 1.5rem; }
+        .det-termvak { width:15rem; max-width:100%; display:flex; flex-direction:column;
+          align-self:flex-start; padding-top:.6rem;
+          gap:.6rem; }
+        .det-tekenmatrix { --det-cel:3rem; display:grid;
+          grid-template-columns:repeat(3,var(--det-cel)); gap:.35rem; padding:.4rem .15rem;
+          flex-shrink:0; }
+        .det-haken { display:flex; align-items:center; flex-shrink:0; }
+        .det-haak { font-size:1.5rem; line-height:0; display:flex; align-items:center; }
+        .det-haak mjx-container { display:block !important; margin:0 !important; }
+        .det-tekenmatrix.det-klein { --det-cel:2.6rem; }
+        .det-tekenmatrix button, .det-tekenmatrix .det-vak { font:inherit; font-size:2rem;
+          width:var(--det-cel); height:var(--det-cel); padding:0; color:inherit;
+          background:transparent; border:1px solid transparent; border-radius:.3rem;
+          position:relative; display:flex; align-items:center; justify-content:center;
+          box-sizing:border-box; white-space:nowrap; }
+        .det-tekenmatrix.det-klein .det-vak { font-size:1.65rem; }
+        .det-tekenmatrix button { cursor:pointer; }
+        .det-tekenmatrix button[aria-pressed="true"], .det-tekenmatrix .det-gekozen {
+          background:color-mix(in srgb, var(--grafiek-punt) 16%, transparent);
           color:var(--grafiek-punt); border-color:var(--grafiek-punt); }
         .det-tekenmatrix button:focus-visible { outline:3px solid var(--grafiek-punt); }
-        .det-cofactorstappen { font-size:1.25rem; min-width:0; }
+        .det-tekenmatrix .det-letters { font-size:1.35rem; }
+        .det-tekenmatrix mjx-container { margin:0 !important; }
+        .det-tekenmatrix .det-merk-punt {
+          background:color-mix(in srgb, var(--grafiek-punt) 18%, transparent); }
+        .det-tekenmatrix .det-merk-secante {
+          background:color-mix(in srgb, var(--grafiek-secante) 24%, transparent); }
+        .det-tekenmatrix .det-vaag { color:color-mix(in srgb, currentColor 28%, transparent); }
+        .det-tekenmatrix [data-teken]::after { content:attr(data-teken); position:absolute;
+          top:.05rem; right:.2rem; font-size:.95rem; line-height:1; font-weight:700;
+          color:var(--grafiek-punt); }
+        .det-tekenmatrix [data-teken="−"]::after { color:var(--grafiek-secante); }
+        .det-matrixgroep { display:flex; flex-wrap:wrap; align-items:center;
+          justify-content:center; gap:.5rem .9rem; flex-shrink:0; }
+        .det-matrixnaam { font-size:1.5rem; }
+        .det-matrixkolom { display:flex; flex-direction:column; align-items:center;
+          gap:.5rem; flex-shrink:0; }
+        .det-matrixkolom .det-matrixnaam { font-size:1.25rem; }
+        .det-matrixnaam:empty { display:none; }
+        .det-kolom { display:flex; flex-direction:column; gap:1rem; min-width:min(14rem,100%);
+          max-width:100%; }
+        .det-kolom > .det-tekst { width:0; min-width:100%; }
+        .det-rij { display:flex; align-items:center; justify-content:center;
+          flex-wrap:wrap; gap:1rem 1.25rem; }
+        .det-cofactorstappen { font-size:1.25rem; min-width:0; max-width:100%; }
+        .det-cofactorstappen:empty { display:none; }
         .det-cofactorstappen mjx-container { margin:0 !important; }
         .det-cofactorstappen mjx-script { font-size:85%; }
-        @media (max-width:650px) { .det-tekenpatroon { gap:2.25rem; padding:1.5rem .5rem; }
+        .det-tekst { font-size:1rem; line-height:1.45; max-width:34rem; }
+        .det-tekst p { margin:0 0 .4em; }
+        .det-tekst p:last-child { margin-bottom:0; }
+        .det-tekst p:empty { display:none; }
+        .det-onder > .det-tekst { text-align:center; }
+        .det-tekst .det-zwak, .det-cofactorstappen .det-zwak { color:var(--grafiek-zwak); }
+        .det-heel { white-space:nowrap; }
+        /* De verborgen MathML voor schermlezers is even breed als de formule
+           en zou de laag anders horizontaal laten schuiven. */
+        .det-tekenpatroon mjx-assistive-mml, .det-paneel mjx-assistive-mml {
+          width:1px !important; height:1px !important; }
+        .det-punt { color:var(--grafiek-punt); }
+        .det-secante { color:var(--grafiek-secante); }
+        .det-zwak { color:var(--grafiek-zwak); }
+        .det-sarrusblok { position:relative; display:flex; align-items:center; gap:.2rem; }
+        .det-sarrusuitlijning { display:grid; grid-template-columns:auto auto;
+          align-items:center; row-gap:.6rem; }
+        .det-sarruslinks { justify-self:end; }
+        .det-sarrusrechts { display:flex; align-items:center; gap:.5rem; }
+        .det-sarrusblok > svg { position:absolute; inset:0; width:100%; height:100%;
+          overflow:visible; pointer-events:none; }
+        .det-tekenmatrix .det-tweeling-punt { border:2px dashed var(--grafiek-punt); }
+        .det-tekenmatrix .det-tweeling-secante { border:2px dashed var(--grafiek-secante); }
+        .det-paneel { position:absolute; box-sizing:border-box; padding:.5rem .75rem;
+          border-radius:4px; background:var(--kleur-vlak-zweef); color:var(--grafiek-tekst);
+          pointer-events:none; display:flex; flex-direction:column; gap:.6rem; }
+        .det-paneel .det-cofactorstappen { font-size:1.1rem; }
+        .det-paneel .det-tekst { font-size:.95rem; }
+        .det-paneel > :empty { display:none; }
+        .interactieve-grafiek-knoppen button mjx-container { margin:0 !important; }
+        @media (max-width:650px) { .det-tekenpatroon { gap:1.5rem 2.25rem; padding:1.5rem .5rem; }
           .det-cofactorstappen { font-size:1.2rem; }
-          .det-tekenmatrix { grid-template-columns:repeat(3,2.5rem); }
-          .det-tekenmatrix button { width:2.5rem; height:2.5rem; } }
-        @media (max-width:450px) { .det-tekenpatroon { flex-direction:column; gap:1.75rem; } }
+          .det-tekenmatrix { --det-cel:2.5rem; }
+          .det-tekenmatrix.det-klein { --det-cel:2.2rem; }
+          .det-tekenmatrix .det-vak { font-size:1.6rem; } }
+        @media (max-width:450px) { .det-tekenpatroon { flex-direction:column;
+          justify-content:safe center; gap:1.25rem; } }
       `;
       document.head.appendChild(stijl);
     }
+  }
+
+  G.registreer("det-tekenpatroon", function (ctx) {
+    // Echte knoppen voor elk vakje; de formule krijgt gewone MathJax-notatie.
+    // De HTML-laag houdt haar lettergrootte bij herschalen en in Groot.
+    matrixBord(ctx);
+    var i = 1, j = 1;
+    var generatie = 0;
+    matrixStijl();
     var laag = document.createElement("div");
     laag.className = "det-tekenpatroon";
     var matrix = document.createElement("div");
     matrix.className = "det-tekenmatrix";
     var formule = document.createElement("div");
     formule.className = "det-cofactorstappen";
-    laag.appendChild(matrix);
+    laag.appendChild(maakHaken(matrix, "haken"));
     laag.appendChild(formule);
     ctx.element.appendChild(laag);
     var vakjes = [];
@@ -522,8 +884,10 @@
       wachtrij = wachtrij.then(function () {
         if (nummer !== generatie) return;
         window.MathJax.typesetClear([formule]);
-        formule.textContent = "\\[\\begin{aligned}" + regels.join("\\\\[0.35em]") +
-          "\\end{aligned}\\]";
+        // Inline met \displaystyle: een display-formule laat presentatie.js
+        // bij elke klik de randen van de hele slide opnieuw meten.
+        formule.textContent = "\\(\\displaystyle\\begin{aligned}" + regels.join("\\\\[0.35em]") +
+          "\\end{aligned}\\)";
         return window.MathJax.typesetPromise([formule]);
       }).catch(function (fout) { console.error(fout); });
       ctx.toon("Rij i = " + i + ", kolom j = " + j + ": i + j = " + (i+j) +
@@ -537,121 +901,192 @@
     return { reset: function () { kies(1, 1); } };
   });
 
-  // Klik op een element: zijn rij en kolom worden geschrapt, de minor staat
-  // ernaast en daaronder het teken uit (−1)^(i+j). Het tekenpatroon kan als
-  // schaakbord over de matrix. In de variant voor de adjunctmatrix verzamel
-  // je de cofactoren in een eigen matrix en transponeer je die daarna.
+  // Klik op een element: zijn rij en kolom vervagen en de minor staat ernaast
+  // in gewone MathJax-notatie, eerst met letters en dan met getallen.
+  G.registreer("det-minor", function (ctx) {
+    matrixBord(ctx);
+    matrixStijl();
+    var n = 3;
+    var A = kopie([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+    var i = 3, j = 1;
+    var generatie = 0;
+    var letters = false;
+    var laag = document.createElement("div");
+    laag.className = "det-tekenpatroon";
+    var matrix = document.createElement("div");
+    matrix.className = "det-tekenmatrix";
+    var formule = document.createElement("div");
+    formule.className = "det-cofactorstappen";
+    var naam = document.createElement("div");
+    naam.className = "det-matrixnaam";
+    naam.textContent = "\\(A=\\)";
+    var links = document.createElement("div");
+    links.className = "det-matrixgroep";
+    links.appendChild(naam);
+    links.appendChild(maakHaken(matrix, "haken"));
+    laag.appendChild(links);
+    laag.appendChild(formule);
+    ctx.element.appendChild(laag);
+    var vakjes = [];
+    for (var r = 1; r <= n; r++) {
+      for (var k = 1; k <= n; k++) {
+        (function (r, k) {
+          var knop = document.createElement("button");
+          knop.type = "button";
+          knop.dataset.rij = r;
+          knop.dataset.kolom = k;
+          knop.setAttribute("aria-label", "Rij " + r + ", kolom " + k);
+          knop.addEventListener("click", function () { kies(r, k); });
+          matrix.appendChild(knop);
+          vakjes.push(knop);
+        }(r, k));
+      }
+    }
+    function tex(x) { return x < 0 ? "(" + x + ")" : String(x); }
+    function werkBij() {
+      var m = minor(A, i, j);
+      vakjes.forEach(function (knop) {
+        var r = +knop.dataset.rij, k = +knop.dataset.kolom;
+        knop.classList.toggle("det-letters", letters);
+        knop.textContent = letters ? "\\(a_{" + r + k + "}\\)" : A[r - 1][k - 1];
+        knop.setAttribute("aria-pressed", String(r === i && k === j));
+        knop.style.opacity = (r === i || k === j) && !(r === i && k === j) ? "0.25" : "1";
+      });
+      var lettersRij = [], getallen = [];
+      for (var r = 1; r <= 2; r++) {
+        var l = [], g = [];
+        for (var k = 1; k <= 2; k++) {
+          l.push("a_{" + origineel(r, i) + origineel(k, j) + "}");
+          g.push(m[r - 1][k - 1]);
+        }
+        lettersRij.push(l.join("&"));
+        getallen.push(g.join("&"));
+      }
+      var regels = [
+        "M_{" + i + j + "}&=\\begin{vmatrix}" + lettersRij.join("\\\\") + "\\end{vmatrix}"
+      ];
+      if (letters) {
+        var w = function (r, k) { return "a_{" + origineel(r, i) + origineel(k, j) + "}"; };
+        regels.push("&=" + w(1, 1) + w(2, 2) + "-" + w(1, 2) + w(2, 1));
+      } else {
+        regels.push(
+          "&=\\begin{vmatrix}" + getallen.join("\\\\") + "\\end{vmatrix}",
+          "&=" + tex(m[0][0]) + "\\cdot" + tex(m[1][1]) + "-" + tex(m[0][1]) + "\\cdot" +
+            tex(m[1][0]) + "=" + det(m));
+      }
+      var nummer = ++generatie;
+      // Serialiseer MathJax en sla achterhaalde klikken over.
+      wachtrij = wachtrij.then(function () {
+        if (nummer !== generatie) return;
+        window.MathJax.typesetClear([formule, matrix]);
+        formule.textContent = "\\(\\displaystyle\\begin{aligned}" + regels.join("\\\\[0.35em]") +
+          "\\end{aligned}\\)";
+        return window.MathJax.typesetPromise([formule, matrix]);
+      }).catch(function (fout) { console.error(fout); });
+      ctx.toon("Schrap rij " + i + " en kolom " + j + ": de minor " + minorNaam(i, j) +
+        (letters ? " blijft over." : " is " + det(m) + "."));
+    }
+    function kies(r, k) { i = r; j = k; werkBij(); }
+    ctx.knop("Volgend element", function () {
+      kies(j < n ? i : i < n ? i + 1 : 1, j < n ? j + 1 : 1);
+    });
+    var weergave = letterSchakelaar(ctx, function (l) { letters = l; werkBij(); });
+    weergave.wijzig = ctx.knop("Wijzig A", function () { A = willekeurig(n); werkBij(); });
+    function herstel() {
+      A = kopie([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+      i = 3;
+      j = 1;
+      letters = false;
+      weergave.stand(false);
+      werkBij();
+    }
+    wachtrij = wachtrij.then(function () {
+      return window.MathJax.typesetPromise([naam]);
+    }).catch(function (fout) { console.error(fout); });
+    werkBij();
+    return { reset: herstel };
+  });
+
+  // Klik op een element: zijn rij en kolom vervagen, en ernaast staat zijn
+  // cofactor, het teken uit (−1)^(i+j) maal de minor. Het tekenpatroon kan
+  // als schaakbord over de matrix. In de variant voor de adjunctmatrix
+  // verzamel je de cofactoren in een eigen matrix en transponeer je die
+  // daarna.
   function cofactorFiguur(ctx, opties) {
-    var wb = maakWerkblad(ctx);
-    var bord = matrixBord(ctx);
     var n = 3;
     var A = kopie(opties.begin);
-    var st = { i: 0, j: 0, patroon: false, letters: false, adj: false, gedaan: {}, x: {} };
-    var TUSSEN = 1.2;
-    var Y = 1.3;
+    var st = { i: 0, j: 0, patroon: false, letters: false, adj: false, gedaan: {} };
+    // Bij de adjunctmatrix staat de matrix van cofactoren naast A, en de
+    // berekening van de gekozen cofactor eronder.
+    var laag = maakLaag(ctx, opties.verzamel ? "det-onder" : "det-smal");
+    var mA = htmlMatrix({
+      rijen: n, kolommen: n, klasse: opties.verzamel ? "det-klein" : "",
+      klik: function (r, k) { kies(r, k); }
+    });
+    var groep = matrixGroep(mA, "\\(A=\\)");
+    var kolom = div("det-kolom");
+    var formule = div("det-cofactorstappen");
+    var verzameld = div("det-cofactorstappen");
+    var tekst = div("det-tekst");
+    var regels = tekstRegels(tekst, 1);
+    kolom.appendChild(formule);
+    kolom.appendChild(tekst);
+    if (opties.verzamel) {
+      var boven = div("det-rij");
+      boven.appendChild(groep);
+      boven.appendChild(verzameld);
+      laag.appendChild(boven);
+    } else {
+      laag.appendChild(groep);
+    }
+    laag.appendChild(kolom);
+    var zet = maakZetter();
 
     function gekozen() { return st.i > 0; }
 
-    var mA = wb.matrix(bord, {
-      rijen: n, kolommen: n, naam: "A",
-      x: function () { return st.x.A; }, y: Y,
-      waarde: function (i, j) {
-        return st.letters ? el("a", i, j) : getal(A[i - 1][j - 1]);
-      },
-      opaciteit: function (i, j) {
-        if (!gekozen() || (i === st.i && j === st.j)) return 1;
-        return i === st.i || j === st.j ? 0.25 : 1;
-      }
-    });
-    var merk = mA.markeer("punt");
-
-    var mM = wb.matrix(bord, {
-      rijen: n - 1, kolommen: n - 1, haken: "strepen",
-      x: function () { return st.x.M; }, y: Y,
-      zichtbaar: gekozen,
-      naam: function () { return gekozen() ? minorNaam(st.i, st.j) : ""; },
-      waarde: function (r, k) {
-        if (!gekozen()) return "";
-        var i = origineel(r, st.i), j = origineel(k, st.j);
-        return st.letters ? el("a", i, j) : getal(A[i - 1][j - 1]);
-      }
-    });
-
-    var mC = null;
-    if (opties.verzamel) {
-      mC = wb.matrix(bord, {
-        rijen: n, kolommen: n,
-        x: function () { return st.x.C; }, y: Y,
-        naam: function () { return st.adj ? "adj A = (cofactoren)ᵀ" : "cofactoren"; },
-        waarde: function (i, j) {
-          var r = st.adj ? j : i, k = st.adj ? i : j;
-          if (st.letters) return cofactorNaam(r, k);
-          return st.gedaan[r + "," + k] ? getal(cofactor(A, r, k)) : "·";
-        }
+    // A_ij = (−1)^(i+j) M_ij, met de minor als determinant uitgeschreven.
+    // De adjunctfiguur heeft ook de matrix van cofactoren te tonen en zet
+    // dezelfde stappen daarom op twee regels.
+    function cofactorRegels() {
+      var i = st.i, j = st.j, t = teken(i, j);
+      var s = t > 0 ? "+" : "-";
+      var M = minor(A, i, j);
+      var mt = M.map(function (rij, r) {
+        return rij.map(function (x, k) {
+          return st.letters ? elTex(origineel(r + 1, i), origineel(k + 1, j)) : x;
+        });
       });
-    }
-
-    // Het schaakbord van tekens, klein rechtsboven in elke cel.
-    for (var i = 1; i <= n; i++) {
-      for (var j = 1; j <= n; j++) {
-        (function (i, j) {
-          wb.tekst(bord,
-            function () { return mA.celX(j) + 0.45; },
-            function () { return mA.celY(i) + 0.3; },
-            teken(i, j) > 0 ? "+" : "−", teken(i, j) > 0 ? "punt" : "secante",
-            { factor: 0.75, vet: true, visible: function () { return st.patroon; } });
-        }(i, j));
+      var kruis = st.letters
+        ? mt[0][0] + mt[1][1] + "-" + mt[0][1] + mt[1][0]
+        : kruisTex(M);
+      var eind = st.letters ? "" : tekenUitTex(t, det(M));
+      var begin = cofTex(i, j) + "&=" + tekenMachtTex(i, j) + "\\," + minTex(i, j);
+      if (opties.verzamel) {
+        return [begin + "=" + s + vmat(mt),
+                "&=" + s + "(" + kruis + ")" + (eind ? "=" + eind : "")];
       }
+      return [begin, "&=" + s + vmat(mt), "&=" + s + "(" + kruis + ")",
+              eind ? "&=" + eind : ""];
     }
 
-    // De geschrapte rij en kolom, zoals je ze op papier doorstreept.
-    lijnstuk(ctx, bord,
-      function () { return [mA.links() - 0.15, mA.celY(st.i || 1)]; },
-      function () { return [mA.links() + mA.breedte() + 0.15, mA.celY(st.i || 1)]; },
-      "secante", { dikte: 1.5, opaciteit: 0.7, zichtbaar: gekozen });
-    lijnstuk(ctx, bord,
-      function () { return [mA.celX(st.j || 1), mA.boven() + 0.15]; },
-      function () { return [mA.celX(st.j || 1), mA.boven() - mA.hoogte() - 0.15]; },
-      "secante", { dikte: 1.5, opaciteit: 0.7, zichtbaar: gekozen });
-
-    var regels = maakRegels(wb, bord, 3, function (k) { return Y - 2.4 - 0.8 * k; });
-
-    function breedte() {
-      var b = mA.volleBreedte() + TUSSEN + mM.volleBreedte();
-      if (mC) b += TUSSEN + mC.volleBreedte();
-      return b;
-    }
-
-    wb.venster(bord, function () { return [Math.max(breedte(), 11) + 0.4, 8.2]; });
-
-    function herplaats() {
-      var x = -breedte() / 2;
-      st.x.A = x + mA.volleBreedte() / 2;
-      x += mA.volleBreedte() + TUSSEN;
-      st.x.M = x + mM.volleBreedte() / 2;
-      x += mM.volleBreedte() + TUSSEN;
-      if (mC) st.x.C = x + mC.volleBreedte() / 2;
-    }
-
-    function minorTekst() {
-      var m = minor(A, st.i, st.j);
-      if (st.letters) {
-        var i1 = origineel(1, st.i), i2 = origineel(2, st.i);
-        var j1 = origineel(1, st.j), j2 = origineel(2, st.j);
-        return minorNaam(st.i, st.j) + " = " + el("a", i1, j1) + el("a", i2, j2) +
-          " − " + el("a", i1, j2) + el("a", i2, j1);
+    // De matrix van de cofactoren die al berekend zijn; na Transponeer de
+    // adjunctmatrix. De cofactor van het gekozen element licht op.
+    function verzameldTex() {
+      var rijen = [];
+      for (var r = 1; r <= n; r++) {
+        var rij = [];
+        for (var k = 1; k <= n; k++) {
+          var a = st.adj ? k : r, b = st.adj ? r : k;
+          var c;
+          if (st.letters) c = cofTex(a, b);
+          else if (st.gedaan[a + "," + b]) c = String(cofactor(A, a, b));
+          else c = kleurTex("zwak", cofTex(a, b));
+          if (a === st.i && b === st.j) c = kleurTex("punt", c);
+          rij.push(c);
+        }
+        rijen.push(rij);
       }
-      return minorNaam(st.i, st.j) + " = " + kruisTekst(m) + " = " + getal(det(m));
-    }
-
-    function cofactorTekst() {
-      var t = teken(st.i, st.j);
-      var basis = cofactorNaam(st.i, st.j) + " = " + tekenMacht(st.i, st.j) + " · " +
-        minorNaam(st.i, st.j) + " = " + (t > 0 ? "+" : "−") + minorNaam(st.i, st.j);
-      if (st.letters) return basis;
-      var m = det(minor(A, st.i, st.j));
-      if (t > 0) return basis + " = " + getal(m);
-      return basis + " = −" + haakjes(m) + " = " + getal(-m);
+      return uitgelijnd([(st.adj ? "\\operatorname{adj}A&=" : "[A_{ij}]&=") + pmat(rijen)]);
     }
 
     function allesGedaan() {
@@ -661,27 +1096,45 @@
       return true;
     }
 
-    function werkBij() {
-      if (gekozen()) merk.zet(st.i, st.j); else merk.verberg();
-      if (!gekozen()) {
-        regels.tekst = ["Klik op een element van A.", "", ""];
-      } else {
-        regels.tekst = [
-          "Schrap rij " + st.i + " en kolom " + st.j + " van A: wat overblijft, is de minor " +
-            minorNaam(st.i, st.j) + ".",
-          minorTekst(),
-          cofactorTekst()
-        ];
-      }
-      if (mC && st.adj && allesGedaan() && !st.letters) {
+    function zin() {
+      if (opties.verzamel && st.adj && allesGedaan() && !st.letters) {
         var D = det(A);
-        regels.tekst[0] = D === 0
-          ? "det A = 0: A heeft geen omgekeerde matrix."
-          : "det A = " + getal(D) + ", dus A⁻¹ = (1/" + getal(D) + ") · adj A.";
+        if (D === 0) return "\\(\\det A=0\\): \\(A\\) heeft geen inverse matrix.";
+        var breukTex = D < 0 ? "-\\frac{1}{" + (-D) + "}" : "\\frac{1}{" + D + "}";
+        return "\\(\\det A=" + D + "\\), dus \\(A^{-1}=" + breukTex + "\\operatorname{adj}A\\).";
       }
-      herplaats();
-      wb.pas();
-      ctx.toon(zinnen(regels.tekst));
+      if (!gekozen()) return "Klik op een element van \\(A\\).";
+      return "Schrap rij \\(" + st.i + "\\) en kolom \\(" + st.j + "\\) van \\(A\\): wat " +
+        "overblijft, is de minor \\(" + minTex(st.i, st.j) + "\\).";
+    }
+
+    function werkBij() {
+      mA.stand(function (r, k) {
+        var dit = r === st.i && k === st.j;
+        return {
+          gekozen: dit,
+          vaag: gekozen() && !dit && (r === st.i || k === st.j),
+          teken: st.patroon ? (teken(r, k) > 0 ? "+" : "−") : ""
+        };
+      });
+      var paren = mA.paren(function (r, k) {
+        return st.letters ? "\\(" + elTex(r, k) + "\\)" : getal(A[r - 1][k - 1]);
+      });
+      paren.push([groep.naam, groep.naamTex]);
+      paren.push([formule, uitgelijnd(gekozen() ? cofactorRegels()
+        : ["A_{ij}&=(-1)^{i+j}\\,M_{ij}"])]);
+      if (opties.verzamel) paren.push([verzameld, verzameldTex()]);
+      paren.push([regels[0], zin()]);
+      zet(paren);
+      if (!gekozen()) {
+        ctx.toon("Klik op een element van A.");
+      } else {
+        var m = det(minor(A, st.i, st.j));
+        ctx.toon("Schrap rij " + st.i + " en kolom " + st.j + ": de minor " +
+          minorNaam(st.i, st.j) + (st.letters ? "" : " is " + getal(m)) + ", de cofactor " +
+          cofactorNaam(st.i, st.j) + " is " + (teken(st.i, st.j) > 0 ? "+" : "−") +
+          minorNaam(st.i, st.j) + (st.letters ? "" : " = " + getal(teken(st.i, st.j) * m)) + ".");
+      }
     }
 
     function kies(i, j) {
@@ -690,17 +1143,6 @@
       st.gedaan[i + "," + j] = true;
       werkBij();
     }
-
-    bord.on("down", function (e) {
-      var p = klikPunt(bord, e);
-      if (!p) return;
-      var cel = mA.celVan(p[0], p[1]);
-      if (!cel && mC) {
-        cel = mC.celVan(p[0], p[1]);
-        if (cel && st.adj) cel = { rij: cel.kolom, kolom: cel.rij };
-      }
-      if (cel) kies(cel.rij, cel.kolom);
-    });
 
     ctx.knop("Volgend element", function () {
       if (!gekozen()) return kies(1, 1);
@@ -712,13 +1154,9 @@
       schakel(patroonKnop, st.patroon);
       werkBij();
     });
-    var letterKnop = ctx.knop("Letters", function () {
-      st.letters = !st.letters;
-      schakel(letterKnop, st.letters);
-      werkBij();
-    });
+    var weergave = letterSchakelaar(ctx, function (l) { st.letters = l; werkBij(); });
     var adjKnop = null;
-    if (mC) {
+    if (opties.verzamel) {
       ctx.knop("Alle cofactoren", function () {
         for (var i = 1; i <= n; i++) {
           for (var j = 1; j <= n; j++) st.gedaan[i + "," + j] = true;
@@ -731,7 +1169,7 @@
         werkBij();
       });
     }
-    ctx.knop("Wijzig A", function () {
+    weergave.wijzig = ctx.knop("Wijzig A", function () {
       A = willekeurig(n);
       st.gedaan = {};
       if (gekozen()) st.gedaan[st.i + "," + st.j] = true;
@@ -744,16 +1182,15 @@
       st.patroon = st.letters = st.adj = false;
       st.gedaan = {};
       schakel(patroonKnop, false);
-      schakel(letterKnop, false);
+      weergave.stand(false);
       if (adjKnop) schakel(adjKnop, false);
       werkBij();
     }
 
     schakel(patroonKnop, false);
-    schakel(letterKnop, false);
     if (adjKnop) schakel(adjKnop, false);
     werkBij();
-    return { reset: herstel, herschaal: wb.pas, kleur: wb.kleur };
+    return { reset: herstel };
   }
 
   G.registreer("det-cofactor", function (ctx) {
@@ -767,8 +1204,10 @@
 
   /* --- 3. Ontwikkelen naar een rij of kolom ------------------------------ */
 
-  // Kies een rij of kolom en loop de termen een voor een af: bij elke term
-  // lichten het element en zijn minor op. Een nul in de gekozen rij maakt een
+  // Kies een rij of kolom: meteen staat de hele ontwikkeling eronder, tot
+  // en met de uitkomst. Klik daarna op een element van die rij voor de
+  // berekening van zijn cofactor; die staat naast de matrix, op een vaste
+  // plaats, zodat er niets verspringt. Een nul in de gekozen rij maakt een
   // term meteen nul. Onderaan houdt de figuur bij welke rijen en kolommen al
   // geprobeerd zijn: het resultaat is telkens hetzelfde.
   G.registreer("det-laplace", function (ctx) {
@@ -776,62 +1215,35 @@
       3: [[1, -3, 5], [-2, 1, -2], [1, -5, 0]],
       4: [[2, 1, 0, 3], [1, 0, 0, 2], [4, 3, 1, 1], [0, 2, 0, 1]]
     };
-    var wb = maakWerkblad(ctx);
-    var bord = matrixBord(ctx);
-    var st = {
-      n: 3, A: kopie(BEGIN[3]), soort: "R", nr: 0, term: 0,
-      getoond: [], geprobeerd: [], x: {}
-    };
-    var TUSSEN = 1.2;
-    var Y = 1.5;
+    var st = { n: 3, A: kopie(BEGIN[3]), soort: "R", nr: 0, term: 0, geprobeerd: [] };
+    // Alles hangt aan de bovenkant en links, op een blad van vaste breedte:
+    // wat erbij komt, komt eronder of ernaast in een vak dat zijn plaats al
+    // had.
+    var laag = maakLaag(ctx, "det-onder det-boven");
+    var blad = div("det-blad");
+    var mA = htmlMatrix({ klik: function (r, k) { klik(r, k); } });
+    var groep = matrixGroep(mA, "\\(A=\\)");
+    var boven = div("det-rij");
+    var termvak = div("det-termvak");
+    var term = div("det-cofactorstappen");
+    var termTekst = div("det-tekst");
+    var termRegel = tekstRegels(termTekst, 1)[0];
+    termvak.appendChild(term);
+    termvak.appendChild(termTekst);
+    boven.appendChild(groep);
+    boven.appendChild(termvak);
+    var kop = div("det-tekst");
+    var kopRegel = tekstRegels(kop, 1)[0];
+    var som = div("det-cofactorstappen");
+    var tekst = div("det-tekst");
+    var regel = tekstRegels(tekst, 1)[0];
+    [boven, kop, som, tekst].forEach(function (d) { blad.appendChild(d); });
+    laag.appendChild(blad);
+    var zet = maakZetter();
 
     function positie(k) {
       return st.soort === "R" ? { i: st.nr, j: k } : { i: k, j: st.nr };
     }
-
-    var mA = wb.matrix(bord, {
-      rijen: function () { return st.n; }, kolommen: function () { return st.n; },
-      maxrijen: 4, maxkolommen: 4, naam: "A",
-      x: function () { return st.x.A; }, y: Y,
-      waarde: function (i, j) { return getal(st.A[i - 1][j - 1]); },
-      opaciteit: function (i, j) {
-        if (!st.term) return 1;
-        var p = positie(st.term);
-        if (i === p.i && j === p.j) return 1;
-        return i === p.i || j === p.j ? 0.25 : 1;
-      }
-    });
-    var merkLijn = mA.markeer("punt");
-    var merkTerm = mA.markeer("secante");
-
-    var mM = wb.matrix(bord, {
-      rijen: function () { return st.n - 1; }, kolommen: function () { return st.n - 1; },
-      maxrijen: 3, maxkolommen: 3, haken: "strepen",
-      x: function () { return st.x.M; }, y: Y,
-      zichtbaar: function () { return st.term > 0; },
-      naam: function () {
-        if (!st.term) return "";
-        var p = positie(st.term);
-        return minorNaam(p.i, p.j);
-      },
-      waarde: function (r, k) {
-        if (!st.term) return "";
-        var p = positie(st.term);
-        return getal(st.A[origineel(r, p.i) - 1][origineel(k, p.j) - 1]);
-      }
-    });
-
-    var regels = maakRegels(wb, bord, 5, function (k) { return Y - 2.9 - 0.75 * k; });
-
-    function breedte() { return mA.volleBreedte() + TUSSEN + mM.volleBreedte(); }
-    wb.venster(bord, function () { return [Math.max(breedte(), 13) + 0.4, 9.6]; });
-
-    function herplaats() {
-      var x = -breedte() / 2;
-      st.x.A = x + mA.volleBreedte() / 2;
-      st.x.M = x + mA.volleBreedte() + TUSSEN + mM.volleBreedte() / 2;
-    }
-
     function element(k) {
       var p = positie(k);
       return st.A[p.i - 1][p.j - 1];
@@ -840,114 +1252,132 @@
       var p = positie(k);
       return cofactor(st.A, p.i, p.j);
     }
-    function allesGetoond() {
-      for (var k = 1; k <= st.n; k++) if (!st.getoond[k]) return false;
-      return true;
+
+    // det A = a·A + a·A + ..., dan met de getallen van de gekozen rij, dan
+    // met de cofactoren uitgerekend, en de uitkomst. Bij een element 0 blijft
+    // de cofactor een naam, want die hoeft niemand uit te rekenen. De term
+    // die gekozen is, licht op in elke regel.
+    function somRegels() {
+      var symbolen = [], namen = [], getallen = [], producten = [];
+      for (var k = 1; k <= st.n; k++) {
+        var q = positie(k);
+        var a = element(k);
+        var delen = [
+          elTex(q.i, q.j) + cofTex(q.i, q.j),
+          fac(a) + "\\cdot " + cofTex(q.i, q.j),
+          fac(a) + "\\cdot " + (a !== 0 ? fac(cof(k)) : cofTex(q.i, q.j))
+        ];
+        if (k === st.term) delen = delen.map(function (d) { return kleurTex("secante", d); });
+        symbolen.push(delen[0]);
+        namen.push(delen[1]);
+        getallen.push(delen[2]);
+        producten.push(a * cof(k));
+      }
+      return ["\\det A&=" + symbolen.join("+"), "&=" + namen.join("+"),
+              "&=" + getallen.join("+"), "&=" + somTex(producten) + "=" + det(st.A)];
     }
 
-    function termDetail(k) {
+    function termRegels(k) {
       var p = positie(k);
-      var a = element(k);
-      if (a === 0) {
-        return el("a", p.i, p.j) + " = 0: deze term is 0, " + cofactorNaam(p.i, p.j) +
-          " hoef je niet uit te rekenen.";
-      }
-      var m = det(minor(st.A, p.i, p.j));
-      var t = teken(p.i, p.j);
-      var binnen = st.n === 3 ? kruisTekst(minor(st.A, p.i, p.j)) : getal(m);
-      var uit = cofactorNaam(p.i, p.j) + " = " + tekenMacht(p.i, p.j) + " · " +
-        minorNaam(p.i, p.j) + " = " + (t > 0 ? "+" : "−") + "(" + binnen + ") = " +
-        getal(t * m);
-      if (st.n === 4) uit += "   (de minor is een determinant van orde 3)";
+      if (element(k) === 0) return [];
+      var M = minor(st.A, p.i, p.j);
+      var m = det(M), t = teken(p.i, p.j);
+      var uit = [kleurTex("secante", cofTex(p.i, p.j)) + "&=" + tekenMachtTex(p.i, p.j) +
+        "\\," + vmat(M)];
+      if (st.n === 3) uit.push("&=" + (t > 0 ? "+" : "-") + "(" + kruisTex(M) + ")");
+      uit.push("&=" + tekenUitTex(t, m));
       return uit;
     }
 
     function werkBij() {
-      if (st.nr) {
-        if (st.soort === "R") merkLijn.zet(st.nr, 0); else merkLijn.zet(0, st.nr);
-      } else {
-        merkLijn.verberg();
-      }
-      if (st.term) {
-        var p = positie(st.term);
-        merkTerm.zet(p.i, p.j);
-      } else {
-        merkTerm.verberg();
-      }
-      var r = ["", "", "", "", ""];
+      mA.bouw(st.n, st.n);
+      mA.raster.classList.toggle("det-klein", st.n === 4);
+      var p = st.term ? positie(st.term) : null;
+      mA.stand(function (i, j) {
+        var inLijn = st.nr && (st.soort === "R" ? i === st.nr : j === st.nr);
+        var dit = p && i === p.i && j === p.j;
+        return {
+          merk: dit ? "secante" : inLijn ? "punt" : "",
+          vaag: p && !dit && (i === p.i || j === p.j)
+        };
+      });
+      var paren = mA.paren(function (i, j) { return getal(st.A[i - 1][j - 1]); });
+      var lijn = st.nr ? lijnTex(st.soort, st.nr) : "";
+      var woord = st.soort === "R" ? "rij" : "kolom";
+      var uitleg;
       if (!st.nr) {
-        r[0] = "Klik op een element: we ontwikkelen naar zijn " +
-          (st.soort === "R" ? "rij." : "kolom.");
-        r[1] = "Welke rij of kolom maakt het rekenwerk het kortst?";
+        uitleg = "Klik op een element: we ontwikkelen naar zijn " + woord + ". Welke " +
+          "rij of kolom maakt het rekenwerk het kortst?";
+      } else if (!st.term) {
+        uitleg = "Klik op een element van \\(" + lijn + "\\) voor de berekening van zijn " +
+          "cofactor.";
       } else {
-        var symbolen = [], getallen = [];
-        for (var k = 1; k <= st.n; k++) {
-          var q = positie(k);
-          symbolen.push(el("a", q.i, q.j) + "·" + cofactorNaam(q.i, q.j));
-          var a = element(k);
-          // Bij een element 0 blijft de cofactor een naam: die hoeft niemand
-          // uit te rekenen.
-          getallen.push(haakjes(a) + "·" +
-            (st.getoond[k] && a !== 0 ? haakjes(cof(k)) : cofactorNaam(q.i, q.j)));
-        }
-        r[0] = "Ontwikkeling naar " + lijnNaam(st.soort, st.nr) + ":  det A = " +
-          symbolen.join(" + ");
-        r[1] = "= " + getallen.join(" + ");
-        r[2] = st.term ? termDetail(st.term) : "Klik op Volgende term, of op een element van " +
-          lijnNaam(st.soort, st.nr) + ".";
-        if (allesGetoond()) {
-          var producten = [];
-          for (var t = 1; t <= st.n; t++) producten.push(element(t) * cof(t));
-          r[3] = "= " + somTekst(producten) + " = " + getal(det(st.A));
+        var q = positie(st.term);
+        if (element(st.term) === 0) {
+          uitleg = "\\(" + elTex(q.i, q.j) + "=0\\): deze term is \\(0\\), \\(" +
+            cofTex(q.i, q.j) + "\\) hoef je niet uit te rekenen.";
+        } else if (st.n === 4) {
+          uitleg = "De minor is een determinant van orde \\(3\\).";
+        } else {
+          uitleg = "";
         }
       }
-      if (st.geprobeerd.length) {
-        r[4] = "Al ontwikkeld: " + st.geprobeerd.map(function (g) {
-          return g.naam + " → " + getal(g.waarde);
-        }).join(",  ");
-      }
-      regels.tekst = r;
-      herplaats();
-      wb.pas();
-      ctx.toon(zinnen(r));
+      var al = st.geprobeerd.length ? "Al ontwikkeld: " + st.geprobeerd.map(function (g) {
+        return "\\(" + g.naam + "\\) geeft \\(" + g.waarde + "\\)";
+      }).join(", ") + "." : "";
+      paren.push([groep.naam, groep.naamTex]);
+      paren.push([term, st.term ? uitgelijnd(termRegels(st.term)) : ""]);
+      paren.push([termRegel, uitleg]);
+      paren.push([kopRegel, st.nr ? "Ontwikkeling naar \\(" + lijn + "\\):" : ""]);
+      paren.push([som, st.nr ? uitgelijnd(somRegels()) : ""]);
+      paren.push([regel, al]);
+      zet(paren);
+      ctx.toon(beschrijving());
     }
 
-    function toon(k) {
-      st.term = k;
-      st.getoond[k] = true;
-      if (allesGetoond()) {
-        var naam = lijnNaam(st.soort, st.nr);
+    function beschrijving() {
+      if (!st.nr) {
+        return "Klik op een element: we ontwikkelen naar zijn " +
+          (st.soort === "R" ? "rij." : "kolom.");
+      }
+      var t = "Ontwikkeling naar " + (st.soort === "R" ? "rij " : "kolom ") + st.nr +
+        ": det A = " + getal(det(st.A)) + ".";
+      if (st.term) {
+        var q = positie(st.term);
+        t += " Term " + st.term + ": " + el("a", q.i, q.j) + " = " + getal(element(st.term));
+        t += element(st.term) === 0 ? ", dus de term is 0."
+          : ", " + cofactorNaam(q.i, q.j) + " = " + getal(cof(st.term)) + ".";
+      }
+      return t;
+    }
+
+    function kiesLijn(nr, term) {
+      st.nr = nr;
+      st.term = term || 0;
+      if (nr) {
+        var naam = lijnTex(st.soort, nr);
         var al = st.geprobeerd.some(function (g) { return g.naam === naam; });
         if (!al) st.geprobeerd.push({ naam: naam, waarde: det(st.A) });
       }
       werkBij();
     }
 
-    function kiesLijn(nr) {
-      st.nr = nr;
-      st.term = 0;
-      st.getoond = [];
-      werkBij();
+    // Een klik buiten de gekozen rij kiest een nieuwe rij; een klik erbinnen
+    // toont de cofactor van dat element.
+    function klik(i, j) {
+      var nr = st.soort === "R" ? i : j;
+      if (nr === st.nr) {
+        st.term = st.soort === "R" ? j : i;
+        werkBij();
+      } else {
+        kiesLijn(nr);
+      }
     }
 
-    bord.on("down", function (e) {
-      var p = klikPunt(bord, e);
-      if (!p) return;
-      var cel = mA.celVan(p[0], p[1]);
-      if (!cel) return;
-      var nr = st.soort === "R" ? cel.rij : cel.kolom;
-      if (nr === st.nr) toon(st.soort === "R" ? cel.kolom : cel.rij);
-      else kiesLijn(nr);
-    });
-
     ctx.knop("Volgende term", function () {
-      if (!st.nr) kiesLijn(1);
-      toon(st.term % st.n + 1);
-    });
-    ctx.knop("Alle termen", function () {
-      if (!st.nr) kiesLijn(1);
-      for (var k = 1; k <= st.n; k++) st.getoond[k] = true;
-      toon(st.n);
+      if (!st.nr) return kiesLijn(1, 1);
+      st.term = st.term % st.n + 1;
+      werkBij();
     });
     var soortKnop = ctx.knop("Naar een kolom", function () {
       st.soort = st.soort === "R" ? "K" : "R";
@@ -978,36 +1408,61 @@
     }
 
     werkBij();
-    return { reset: herstel, herschaal: wb.pas, kleur: wb.kleur };
+    return { reset: herstel };
   });
 
   /* --- 4. De regel van Sarrus -------------------------------------------- */
 
-  // De eerste twee kolommen staan nog eens rechts van de determinant. Stap
-  // voor stap licht een diagonaal op: eerst de drie dalende (met een plus),
-  // dan de drie stijgende (met een min). Het product van elke diagonaal
-  // komt erbij in de som eronder.
+  // De eerste twee kolommen staan nog eens rechts van de determinant. Een
+  // diagonaal licht op bij een klik op een element (eerst een diagonaal door
+  // het aangeklikte vakje, bij een tweede klik op hetzelfde element de
+  // andere), bij een klik op haar term in de formule, of met Volgende
+  // diagonaal: eerst de drie hoofddiagonalen (met een plus), dan de drie
+  // nevendiagonalen (met een min). Een diagonaal die al aan bod kwam, blijft
+  // in de formule staan; wat nog niet aan bod kwam, staat als \cdots en is
+  // ook aanklikbaar.
   G.registreer("det-sarrus", function (ctx) {
     var BEGIN = [[3, -2, 1], [2, 1, 2], [3, 2, 4]];
-    var wb = maakWerkblad(ctx);
-    var bord = matrixBord(ctx);
     var A = kopie(BEGIN);
-    var st = { stap: 0, letters: false };
-
-    function tekstVan(i, j) {
-      return st.letters ? el("a", i, j) : getal(A[i - 1][j - 1]);
-    }
-
-    var mA = wb.matrix(bord, {
-      rijen: 3, kolommen: 3, haken: "strepen", x: -1.3, y: 1.1, naam: "det A",
-      waarde: tekstVan
+    var st = { getoond: [], k: -1, cel: null, letters: false };
+    var laag = maakLaag(ctx, "det-onder det-boven");
+    var mA = htmlMatrix({
+      rijen: 3, kolommen: 3, haken: "strepen", klasse: "det-klein",
+      klik: function (r, c) { klikCel(r, c); }
     });
-    var mK = wb.matrix(bord, {
-      rijen: 3, kolommen: 2, haken: "geen", rol: "zwak",
-      x: function () { return mA.X() + mA.breedte() / 2 + 0.45 + 1.3; }, y: 1.1,
-      naam: "K₁ en K₂ nog eens", naamrol: "zwak",
-      waarde: tekstVan
+    var mK = htmlMatrix({
+      rijen: 3, kolommen: 2, haken: "geen", klasse: "det-klein",
+      klik: function (r, c) { klikCel(r, c + 3); }
     });
+    mK.vakjes.forEach(function (v) {
+      var c = +v.dataset.kolom;
+      v.setAttribute("aria-label", "Rij " + v.dataset.rij + ", kolom " + (c + 3) +
+        ", kopie van kolom " + c);
+    });
+    var blok = div("det-sarrusblok");
+    var SVG = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(SVG, "svg");
+    svg.setAttribute("aria-hidden", "true");
+    blok.appendChild(mA.element);
+    blok.appendChild(mK.element);
+    blok.appendChild(svg);
+    // De determinant en de berekening staan uitgelijnd op het gelijkteken,
+    // zoals in een align*: links \det A, rechts = met het blok, en daaronder
+    // de regels van de berekening, die elk met = beginnen. Het rooster heeft
+    // twee kolommen; het gelijkteken staat telkens vooraan in de rechter.
+    var uitlijning = div("det-sarrusuitlijning");
+    var links = div("det-cofactorstappen det-sarruslinks");
+    var rechts = div("det-sarrusrechts");
+    var is = div("det-cofactorstappen");
+    var formule = div("det-cofactorstappen det-sarrusformule");
+    rechts.appendChild(is);
+    rechts.appendChild(blok);
+    [links, rechts, div(""), formule].forEach(function (d) { uitlijning.appendChild(d); });
+    var tekst = div("det-tekst");
+    var regels = tekstRegels(tekst, 2);
+    laag.appendChild(uitlijning);
+    laag.appendChild(tekst);
+    var zet = maakZetter();
 
     // De zes diagonalen in het blok van vijf kolommen. Kolom 4 en 5 zijn
     // kolom 1 en 2.
@@ -1019,103 +1474,278 @@
       DIAGONALEN.push({ plus: false, cellen: [[1, 3 + d], [2, 2 + d], [3, 1 + d]] });
     });
 
-    function celX(c) { return c <= 3 ? mA.celX(c) : mK.celX(c - 3); }
     function echt(c) { return c > 3 ? c - 3 : c; }
+    function vak(r, c) { return c <= 3 ? mA.vak(r, c) : mK.vak(r, c - 3); }
+    function rest3(x) { return ((x % 3) + 3) % 3; }
+    function door(k, r, c) {
+      return DIAGONALEN[k].cellen.some(function (p) { return p[0] === r && p[1] === c; });
+    }
+    // De tweeling van een vakje: hetzelfde element in de andere kolom. Kolom 3
+    // heeft er geen.
+    function tweeling(c) { return c <= 2 ? c + 3 : c >= 4 ? c - 3 : 0; }
+    function rol(k) { return DIAGONALEN[k].plus ? "punt" : "secante"; }
 
-    DIAGONALEN.forEach(function (d, k) {
-      var a = d.cellen[0], b = d.cellen[2];
-      function uiteinde(verder) {
-        return function () {
-          var x0 = celX(a[1]), y0 = mA.celY(a[0]);
-          var x1 = celX(b[1]), y1 = mA.celY(b[0]);
-          var t = verder ? 1.2 : -0.2;
-          return [x0 + t * (x1 - x0), y0 + t * (y1 - y0)];
-        };
+    // Elk element a_ij ligt op één hoofddiagonaal (een plusterm) en één
+    // nevendiagonaal (een minterm), al is het soms via zijn kopie. Een diagonaal
+    // die door het aangeklikte vakje zelf loopt, komt eerst; een tweede klik
+    // op hetzelfde element, ook op zijn kopie, kiest de andere.
+    function klikCel(r, c) {
+      var j = echt(c);
+      var kandidaten = [rest3(j - r), 3 + rest3(j + r - 1)];
+      if (!door(kandidaten[0], r, c) && door(kandidaten[1], r, c)) kandidaten.reverse();
+      var zelfde = st.cel && st.cel.r === r && echt(st.cel.c) === j;
+      var k = zelfde && st.k === kandidaten[0] ? kandidaten[1] : kandidaten[0];
+      kies(k, { r: r, c: c });
+    }
+
+    function kies(k, cel) {
+      st.k = k;
+      st.cel = cel || null;
+      st.getoond[k] = true;
+      werkBij();
+    }
+
+    function alleGetoond() {
+      for (var k = 0; k < 6; k++) if (!st.getoond[k]) return false;
+      return true;
+    }
+
+    // De lijnen over de vakjes, gemeten in de lay-out van het blok; ze worden
+    // opnieuw getekend wanneer het blok van maat verandert. De gekozen
+    // diagonaal staat donker, de andere die al aan bod kwamen licht.
+    function tekenLijnen() {
+      var basis = blok.getBoundingClientRect();
+      if (!basis.width) return;
+      svg.setAttribute("viewBox", "0 0 " + basis.width + " " + basis.height);
+      svg.textContent = "";
+      function midden(c) {
+        var b = vak(c[0], c[1]).getBoundingClientRect();
+        return [b.left + b.width / 2 - basis.left, b.top + b.height / 2 - basis.top];
       }
-      lijnstuk(ctx, bord, uiteinde(false), uiteinde(true), d.plus ? "punt" : "secante", {
-        dikte: 3,
-        opaciteit: function () { return st.stap === k + 1 ? 0.9 : 0.3; },
-        zichtbaar: function () { return st.stap > k; }
+      DIAGONALEN.forEach(function (d, k) {
+        if (!st.getoond[k]) return;
+        var a = midden(d.cellen[0]), b = midden(d.cellen[2]);
+        var lijn = document.createElementNS(SVG, "line");
+        lijn.setAttribute("x1", a[0] - 0.2 * (b[0] - a[0]));
+        lijn.setAttribute("y1", a[1] - 0.2 * (b[1] - a[1]));
+        lijn.setAttribute("x2", b[0] + 0.2 * (b[0] - a[0]));
+        lijn.setAttribute("y2", b[1] + 0.2 * (b[1] - a[1]));
+        var dekking = st.k === k ? 0.85 : st.k < 0 ? 0.55 : 0.25;
+        lijn.setAttribute("style", "stroke:var(--grafiek-" + rol(k) +
+          ");stroke-width:3;stroke-linecap:round;opacity:" + dekking);
+        svg.appendChild(lijn);
       });
-    });
+    }
+    if (window.ResizeObserver) new window.ResizeObserver(tekenLijnen).observe(blok);
 
-    var regels = maakRegels(wb, bord, 3, function (k) { return -1.4 - 0.8 * k; });
-    wb.venster(bord, function () { return [12.5, 7.4]; });
-
-    function factoren(d) {
+    function waarde(c) { return A[c[0] - 1][echt(c[1]) - 1]; }
+    function lettersTex(d) {
+      return d.cellen.map(function (c) { return elTex(c[0], echt(c[1])); }).join("");
+    }
+    function factorenTekst(d) {
       return d.cellen.map(function (c) {
-        return st.letters ? el("a", c[0], echt(c[1])) : haakjes(A[c[0] - 1][echt(c[1]) - 1]);
+        return st.letters ? el("a", c[0], echt(c[1])) : haakjes(waarde(c));
       }).join(st.letters ? "" : "·");
     }
     function product(d) {
-      return d.cellen.reduce(function (p, c) { return p * A[c[0] - 1][echt(c[1]) - 1]; }, 1);
+      return d.cellen.reduce(function (p, c) { return p * waarde(c); }, 1);
     }
 
-    function regel(plus) {
-      var begin = plus ? 0 : 3;
-      var delen = [], waarden = [];
+    // Een plaats in de formule die even breed is, wat er ook staat: zicht is
+    // wat er nu staat, anderen wat er ooit kan staan (\cdots, de letters, de
+    // getallen). Die staan er onzichtbaar boven, in dezelfde stijl, en
+    // \overset centreert wat eronder staat; \smash houdt de hoogte van de
+    // regel buiten spel. Zo verspringt er niets wanneer een term verschijnt
+    // of wanneer je tussen letters en getallen wisselt.
+    function plaats(zicht, anderen) {
+      return "{\\smash{" + anderen.reduce(function (s, a) {
+        return "\\overset{\\displaystyle\\hphantom{" + a + "}}{" + s + "}";
+      }, zicht) + "}}";
+    }
+
+    // Een term van de formule: aanklikbaar via haar klasse, en in de kleur
+    // van haar diagonaal wanneer die gekozen is. Wat nog niet aan bod kwam,
+    // staat als \cdots.
+    function termTex(k, s, anderen) {
+      s = plaats(st.getoond[k] ? s : "\\cdots", ["\\cdots"].concat(anderen || [s]));
+      s = "\\class{det-diag-" + k + "}{" + s + "}";
+      return st.k === k ? kleurTex(rol(k), s) : s;
+    }
+
+    function getallenTex(d) {
+      return d.cellen.map(function (c) { return fac(waarde(c)); }).join("\\cdot ");
+    }
+
+    // +(… + … + …) voor de hoofddiagonalen, −(… + … + …) voor de
+    // nevendiagonalen.
+    function groepTex(plus) {
+      var begin = plus ? 0 : 3, delen = [];
       for (var k = begin; k < begin + 3; k++) {
-        delen.push(st.stap > k ? factoren(DIAGONALEN[k]) : "…");
-        waarden.push(product(DIAGONALEN[k]));
+        var d = DIAGONALEN[k], L = lettersTex(d), N = getallenTex(d);
+        delen.push(termTex(k, st.letters ? L : N, [L, N]));
       }
-      var uit = (plus ? "+ (" : "− (") + delen.join(" + ") + ")";
-      if (!st.letters && st.stap >= begin + 3) {
-        var s = waarden.reduce(function (a, b) { return a + b; }, 0);
-        uit += " = " + (plus ? "+" : "−") + "(" + somTekst(waarden) + ") = " +
-          (plus ? "" : "−") + haakjes(s);
+      return (plus ? "+" : "-") + "\\bigl(" + delen.join("+") + "\\bigr)";
+    }
+
+    // De producten van een groep als som, 12-12+4, elk getal aanklikbaar.
+    // Het teken van een getal dat nog niet aan bod kwam, is een plus, zoals
+    // in +(… + … + …); een min ervoor neemt dezelfde breedte in.
+    function productenTex(begin) {
+      var delen = [];
+      for (var k = begin; k < begin + 3; k++) {
+        var x = product(DIAGONALEN[k]);
+        var teken = x < 0 && st.getoond[k] ? "-" : "+";
+        delen.push(k === begin ? termTex(k, String(x))
+          : teken + termTex(k, String(Math.abs(x))));
       }
-      return uit;
+      return "(" + delen.join("") + ")";
+    }
+
+    function alle(begin) {
+      return st.getoond[begin] && st.getoond[begin + 1] && st.getoond[begin + 2];
+    }
+
+    function som(begin) {
+      var s = 0;
+      for (var k = begin; k < begin + 3; k++) s += product(DIAGONALEN[k]);
+      return s;
+    }
+
+    // Wat er bij de gekozen diagonaal te zeggen valt: haar term, en of ze
+    // door het aangeklikte vakje loopt of door zijn tweeling.
+    function uitleg() {
+      if (st.k < 0) {
+        return [alleGetoond() ? "Klik op een element of op een term voor zijn diagonaal."
+          : "Klik op een element, of op Volgende diagonaal.", ""];
+      }
+      var d = DIAGONALEN[st.k];
+      var term = lettersTex(d);
+      if (!st.letters) term += "=" + getallenTex(d) + "=" + product(d);
+      var eerste = (d.plus ? "Hoofddiagonaal, met een plus: "
+        : "Nevendiagonaal, met een min: ") + "\\(" + term + "\\).";
+      if (!st.cel) return [eerste, ""];
+      var r = st.cel.r, c = st.cel.c, naam = "\\(" + elTex(r, echt(c)) + "\\)";
+      var tweede = "";
+      if (!door(st.k, r, c)) {
+        tweede = tweeling(c) > 3
+          ? "Ze loopt door de kopie van " + naam + " in kolom \\(" + tweeling(c) + "\\). "
+          : "Ze loopt door " + naam + " zelf, in kolom \\(" + tweeling(c) + "\\). ";
+      }
+      tweede += "Klik nog eens op " + naam + " voor de " +
+        (d.plus ? "nevendiagonaal" : "hoofddiagonaal") + " erdoor.";
+      return [eerste, tweede];
     }
 
     function werkBij() {
-      var plus = 0, min = 0;
-      for (var k = 0; k < 3; k++) plus += product(DIAGONALEN[k]);
-      for (k = 3; k < 6; k++) min += product(DIAGONALEN[k]);
-      var slot = "";
-      if (st.stap === 0) slot = "Klik op Volgende diagonaal.";
-      else if (st.stap === 6 && !st.letters) {
-        slot = "det A = " + getal(plus) + " − " + haakjes(min) + " = " + getal(plus - min);
+      var gekozen = st.k >= 0 ? DIAGONALEN[st.k] : null;
+      function stand(c0) {
+        return function (r, c) {
+          c += c0;
+          var op = gekozen && door(st.k, r, c);
+          return { merk: op ? rol(st.k) : "", vaag: c > 3 && !op };
+        };
       }
-      regels.tekst = [regel(true), regel(false), slot];
-      wb.pas();
-      var d = DIAGONALEN[st.stap - 1];
-      ctx.toon(st.stap
-        ? "Diagonaal " + st.stap + " van 6, " + (d.plus ? "dalend, met een plus: " : "stijgend, met een min: ") +
-          factoren(d) + (st.letters ? "" : " = " + getal(product(d))) + ". " + zinnen(regels.tekst)
+      mA.stand(stand(0));
+      mK.stand(stand(3));
+      // Hetzelfde element in de andere kolom krijgt een gestippelde rand:
+      // zo zie je de term ook in de determinant zelf.
+      for (var r = 1; r <= 3; r++) {
+        for (var c = 1; c <= 5; c++) {
+          var v = vak(r, c), op = gekozen && door(st.k, r, c);
+          var tw = gekozen && !op && tweeling(c) && door(st.k, r, tweeling(c));
+          v.classList.toggle("det-tweeling-punt", !!tw && gekozen.plus);
+          v.classList.toggle("det-tweeling-secante", !!tw && !gekozen.plus);
+        }
+      }
+      var inhoud = function (r, k) {
+        return st.letters ? "\\(" + elTex(r, k) + "\\)" : getal(A[r - 1][k - 1]);
+      };
+      var paren = mA.paren(inhoud).concat(mK.paren(inhoud));
+      // Alle regels staan er van bij het begin, met \cdots waar nog niets
+      // staat. Met letters zijn er geen getallen, maar de regels houden hun
+      // hoogte, zodat de wissel niets verschuift.
+      var P = som(0), Mn = som(3);
+      function uitkomst(klaar, x) { return plaats(klaar ? x : "\\cdots", ["\\cdots", x]); }
+      var onder = ["=" + productenTex(0) + "-" + productenTex(3),
+        "=" + uitkomst(alle(0), String(P)) + "-" + uitkomst(alle(3), fac(Mn)) + "=" +
+          uitkomst(alleGetoond(), String(P - Mn)) + "\\vphantom{(}"];
+      var f = ["&=" + groepTex(true), "&\\phantom{=}{}" + groepTex(false)].concat(
+        onder.map(function (r) { return "&" + (st.letters ? "\\phantom{" + r + "}" : r); }));
+      var u = uitleg();
+      paren.push([links, "\\(\\det A\\)"], [is, "\\({}=\\)"]);
+      paren.push([formule, uitgelijnd(f)]);
+      paren.push([regels[0], u[0]], [regels[1], u[1]]);
+      zet(paren);
+      tekenLijnen();
+      ctx.toon(gekozen
+        ? (gekozen.plus ? "Hoofddiagonaal " + (st.k + 1) + " van 3, met een plus: "
+          : "Nevendiagonaal " + (st.k - 2) + " van 3, met een min: ") +
+          factorenTekst(gekozen) + (st.letters ? "" : " = " + getal(product(gekozen))) + "." +
+          (alleGetoond() && !st.letters ? " det A = " + getal(det(A)) + "." : "")
         : "De eerste twee kolommen staan nog eens rechts van de determinant. " +
-          "Klik op Volgende diagonaal.");
+          "Klik op een element of op Volgende diagonaal.");
     }
 
+    // Een klik op een term of op \cdots in de formule kiest die diagonaal.
+    // MathJax zet de klasse van \class op de groep in de SVG. Die groep is
+    // enkel zo groot als haar inktvlek: bij \cdots zijn dat drie puntjes, en
+    // tussen de lijnen van een letter raakt een klik geen pad. Daarom telt de
+    // term die het dichtst bij de klik ligt, tot op 0.6em, gemeten tot de
+    // rechthoek rond haar inkt. Zo is elke term een ruim aanraakgebied, ook
+    // op een telefoon.
+    function termBij(x, y) {
+      var grens = 0.6 * parseFloat(window.getComputedStyle(formule).fontSize);
+      var beste = -1;
+      formule.querySelectorAll("svg [class*='det-diag-']").forEach(function (g) {
+        var b = g.getBoundingClientRect();
+        var d = Math.max(b.left - x, x - b.right, b.top - y, y - b.bottom, 0);
+        var m = /det-diag-(\d)/.exec(g.getAttribute("class"));
+        if (m && d <= grens) {
+          grens = d;
+          beste = +m[1];
+        }
+      });
+      return beste;
+    }
+    formule.addEventListener("click", function (e) {
+      var k = termBij(e.clientX, e.clientY);
+      if (k >= 0) kies(k);
+    });
+    formule.addEventListener("pointermove", function (e) {
+      formule.style.cursor = termBij(e.clientX, e.clientY) >= 0 ? "pointer" : "";
+    });
+
     ctx.knop("Volgende diagonaal", function () {
-      st.stap = st.stap % 6 + 1;
-      werkBij();
+      if (st.k === 5 && alleGetoond()) st.getoond = [];
+      kies((st.k + 1) % 6);
     });
     ctx.knop("Alle diagonalen", function () {
-      st.stap = 6;
+      for (var k = 0; k < 6; k++) st.getoond[k] = true;
+      st.k = -1;
+      st.cel = null;
       werkBij();
     });
-    var letterKnop = ctx.knop("Letters", function () {
-      st.letters = !st.letters;
-      schakel(letterKnop, st.letters);
-      werkBij();
-    });
-    ctx.knop("Wijzig A", function () {
+    var weergave = letterSchakelaar(ctx, function (l) { st.letters = l; werkBij(); });
+    weergave.wijzig = ctx.knop("Wijzig A", function () {
       A = willekeurig(3);
-      st.stap = 0;
+      st.getoond = [];
+      st.k = -1;
+      st.cel = null;
       werkBij();
     });
 
     function herstel() {
       A = kopie(BEGIN);
-      st.stap = 0;
+      st.getoond = [];
+      st.k = -1;
+      st.cel = null;
       st.letters = false;
-      schakel(letterKnop, false);
+      weergave.stand(false);
       werkBij();
     }
 
-    schakel(letterKnop, false);
     werkBij();
-    return { reset: herstel, herschaal: wb.pas, kleur: wb.kleur };
+    return { reset: herstel, herschaal: tekenLijnen };
   });
 
   /* --- 5. Rij- en kolombewerkingen --------------------------------------- */
@@ -1127,63 +1757,40 @@
   G.registreer("det-rijbewerkingen", function (ctx) {
     var BEGIN = [[2, 1, 3], [1, 0, 2], [4, 1, 5]];
     var KS = [2, 3, -1, -2, 0];
-    var wb = maakWerkblad(ctx);
-    var bord = matrixBord(ctx);
     var st = {
       A: kopie(BEGIN), vorige: null, stap: "", uitleg: "", verborgen: false,
-      soort: "R", eerste: 0, tweede: 0, k: 0, x: {}, geschiedenis: []
+      soort: "R", eerste: 0, tweede: 0, k: 0, geschiedenis: []
     };
-    var TUSSEN = 1.1;
-    var Y = 1.2;
+    var laag = maakLaag(ctx, "det-onder");
+    var mV = htmlMatrix({ rijen: 3, kolommen: 3, haken: "strepen", klasse: "det-klein" });
+    var mA = htmlMatrix({
+      rijen: 3, kolommen: 3, haken: "strepen", klasse: "det-klein",
+      klik: function (i, j) { klik(i, j); }
+    });
+    // Voor en na de bewerking, met de waarde van de determinant eronder en
+    // de bewerking op de pijl ertussen.
+    var rij = div("det-rij");
+    var voor = div("det-matrixkolom");
+    var voorOnder = div("det-matrixnaam");
+    voor.appendChild(mV.element);
+    voor.appendChild(voorOnder);
+    var pijl = div("det-matrixnaam");
+    var na = div("det-matrixkolom");
+    var naOnder = div("det-matrixnaam");
+    na.appendChild(mA.element);
+    na.appendChild(naOnder);
+    rij.appendChild(voor);
+    rij.appendChild(pijl);
+    rij.appendChild(na);
+    var tekst = div("det-tekst");
+    var regels = tekstRegels(tekst, 3);
+    laag.appendChild(rij);
+    laag.appendChild(tekst);
+    var zet = maakZetter();
+    var zetK = maakZetter();
 
     function k() { return KS[st.k]; }
     function heeftVorige() { return st.vorige !== null; }
-
-    var mV = wb.matrix(bord, {
-      rijen: 3, kolommen: 3, haken: "strepen",
-      x: function () { return st.x.V; }, y: Y,
-      zichtbaar: heeftVorige,
-      naam: function () { return heeftVorige() ? "voor" : ""; }, naamrol: "zwak",
-      waarde: function (i, j) { return heeftVorige() ? getal(st.vorige[i - 1][j - 1]) : ""; }
-    });
-    var mA = wb.matrix(bord, {
-      rijen: 3, kolommen: 3, haken: "strepen",
-      x: function () { return st.x.A; }, y: Y,
-      naam: function () { return heeftVorige() ? "na" : "det A"; }, naamrol: "zwak",
-      waarde: function (i, j) { return getal(st.A[i - 1][j - 1]); }
-    });
-    var merk1 = mA.markeer("punt");
-    var merk2 = mA.markeer("secante");
-
-    wb.tekst(bord, function () { return st.x.P; }, Y + 0.45,
-      function () { return heeftVorige() ? st.stap : ""; }, "tekst", { factor: 0.85, vet: true });
-    wb.tekst(bord, function () { return st.x.P; }, Y - 0.2,
-      function () { return heeftVorige() ? "⟶" : ""; }, "zwak", { factor: 1.3 });
-    wb.tekst(bord, function () { return st.x.V; }, Y - 2.25,
-      function () { return heeftVorige() ? "det = " + getal(det(st.vorige)) : ""; }, "tekst",
-      { factor: 0.9 });
-    wb.tekst(bord, function () { return st.x.A; }, Y - 2.25,
-      function () { return "det = " + (st.verborgen ? "?" : getal(det(st.A))); }, "tekst",
-      { factor: 0.9, vet: true });
-
-    var regels = maakRegels(wb, bord, 3, function (n) { return Y - 3.1 - 0.75 * n; });
-
-    function pijlBreedte() { return heeftVorige() ? 2.8 : 0; }
-    function breedte() {
-      return (heeftVorige() ? mV.volleBreedte() + pijlBreedte() : 0) + mA.volleBreedte();
-    }
-    wb.venster(bord, function () { return [13, 8.6]; });
-
-    function herplaats() {
-      var x = -breedte() / 2;
-      if (heeftVorige()) {
-        st.x.V = x + mV.volleBreedte() / 2;
-        x += mV.volleBreedte();
-        st.x.P = x + pijlBreedte() / 2;
-        x += pijlBreedte();
-      }
-      st.x.A = x + mA.volleBreedte() / 2;
-    }
 
     function lijn(A, nr) {
       var uit = [];
@@ -1195,7 +1802,7 @@
         if (st.soort === "R") A[nr - 1][t] = waarden[t]; else A[t][nr - 1] = waarden[t];
       }
     }
-    function naam(nr) { return lijnNaam(st.soort, nr); }
+    function naam(nr) { return lijnTex(st.soort, nr); }
     function woord() { return st.soort === "R" ? "rij" : "kolom"; }
     function woorden() { return st.soort === "R" ? "rijen" : "kolommen"; }
 
@@ -1222,42 +1829,46 @@
 
     function selectieTekst() {
       if (!st.eerste) return "Klik op een " + woord() + " van de determinant.";
-      var t = "Gekozen: " + naam(st.eerste) + " (blauw)";
-      if (st.tweede) t += " en " + naam(st.tweede) + " (oranje)";
-      return t + ". k = " + getal(k()) + ".";
+      var t = "Gekozen: \\(" + naam(st.eerste) + "\\) (blauw)";
+      if (st.tweede) t += " en \\(" + naam(st.tweede) + "\\) (oranje)";
+      return t + ", \\(k=" + k() + "\\).";
     }
 
     function werkBij() {
-      if (st.eerste) {
-        if (st.soort === "R") merk1.zet(st.eerste, 0); else merk1.zet(0, st.eerste);
-      } else {
-        merk1.verberg();
+      mA.stand(function (i, j) {
+        var nr = st.soort === "R" ? i : j;
+        return { merk: nr === st.eerste ? "punt" : nr === st.tweede ? "secante" : "" };
+      });
+      var paren = mA.paren(function (i, j) { return getal(st.A[i - 1][j - 1]); });
+      voor.style.display = heeftVorige() ? "" : "none";
+      if (heeftVorige()) {
+        paren = paren.concat(mV.paren(function (i, j) { return getal(st.vorige[i - 1][j - 1]); }));
       }
-      if (st.tweede) {
-        if (st.soort === "R") merk2.zet(st.tweede, 0); else merk2.zet(0, st.tweede);
-      } else {
-        merk2.verberg();
-      }
+      var waarde = st.verborgen ? "\\,?" : String(det(st.A));
+      paren.push([voorOnder, heeftVorige() ? "\\(\\det=" + det(st.vorige) + "\\)" : ""]);
+      paren.push([pijl, heeftVorige() ? "\\(\\xrightarrow{\\ " + st.stap + "\\ }\\)" : ""]);
+      paren.push([naOnder, "\\(\\det" + (heeftVorige() ? "" : " A") + "=" + waarde + "\\)"]);
       var r = [selectieTekst(), "", ""];
       if (heeftVorige()) {
         if (st.verborgen) {
-          r[1] = "Denk vooraf na: wat wordt de determinant na " + st.stap + "?";
+          r[1] = "Denk vooraf na: wat wordt de determinant na \\(" + st.stap + "\\)?";
           r[2] = "Klik daarna op Toon det.";
         } else {
           r[1] = st.uitleg;
           var leeg = nulrij(st.A);
           var nul = evenredig(st.A);
           if (leeg) {
-            r[2] = naam(leeg) + " bevat enkel nullen, dus de determinant is 0.";
+            r[2] = "\\(" + naam(leeg) + "\\) bevat enkel nullen, dus de determinant is \\(0\\).";
           } else if (nul) {
-            r[2] = naam(nul[0]) + " en " + naam(nul[1]) + " zijn evenredig, dus de determinant is 0.";
+            r[2] = "\\(" + naam(nul[0]) + "\\) en \\(" + naam(nul[1]) +
+              "\\) zijn evenredig, dus de determinant is \\(0\\).";
           }
         }
       }
-      regels.tekst = r;
-      herplaats();
-      wb.pas();
-      ctx.toon(zinnen(r) + (st.verborgen ? "" : " det = " + getal(det(st.A)) + "."));
+      r.forEach(function (t, n) { paren.push([regels[n], t]); });
+      zet(paren);
+      ctx.toon(plat(r.filter(Boolean).join(" ")) +
+        (st.verborgen ? "" : " det = " + getal(det(st.A)) + "."));
     }
 
     function voerUit(stap, nieuw, uitleg) {
@@ -1273,22 +1884,18 @@
 
     function nodig(twee) {
       if (!st.eerste || (twee && !st.tweede)) {
-        regels.tekst = [selectieTekst(), twee
+        var t = twee
           ? "Deze bewerking heeft twee " + woorden() + " nodig: klik er nog een aan."
-          : "Klik eerst op een " + woord() + ".", ""];
-        wb.pas();
-        ctx.toon(zinnen(regels.tekst));
+          : "Klik eerst op een " + woord() + ".";
+        zet([[regels[0], selectieTekst()], [regels[1], t], [regels[2], ""]]);
+        ctx.toon(plat(selectieTekst()) + " " + t);
         return false;
       }
       return true;
     }
 
-    bord.on("down", function (e) {
-      var p = klikPunt(bord, e);
-      if (!p) return;
-      var cel = mA.celVan(p[0], p[1]);
-      if (!cel) return;
-      var nr = st.soort === "R" ? cel.rij : cel.kolom;
+    function klik(i, j) {
+      var nr = st.soort === "R" ? i : j;
       if (!st.eerste || st.tweede || nr === st.eerste) {
         st.eerste = nr;
         st.tweede = 0;
@@ -1296,7 +1903,7 @@
         st.tweede = nr;
       }
       werkBij();
-    });
+    }
 
     ctx.knop("Wissel", function () {
       if (!nodig(true)) return;
@@ -1304,35 +1911,39 @@
       var p = lijn(B, st.eerste), q = lijn(B, st.tweede);
       zetLijn(B, st.eerste, q);
       zetLijn(B, st.tweede, p);
-      voerUit(naam(st.eerste) + " ↔ " + naam(st.tweede), B,
+      voerUit(naam(st.eerste) + "\\leftrightarrow " + naam(st.tweede), B,
         "Twee " + woorden() + " verwisseld: de determinant verandert van teken.");
     });
     ctx.knop("Maal k", function () {
       if (!nodig(false)) return;
       var B = kopie(st.A);
       zetLijn(B, st.eerste, lijn(B, st.eerste).map(function (x) { return k() * x; }));
-      voerUit(naam(st.eerste) + " ← " + (k() === -1 ? "−" : getal(k())) + naam(st.eerste), B,
-        "Eén " + woord() + " maal " + getal(k()) + ": de determinant wordt ook met " +
-        getal(k()) + " vermenigvuldigd.");
+      voerUit(naam(st.eerste) + "\\leftarrow " + (k() === -1 ? "-" : k()) + naam(st.eerste), B,
+        "Eén " + woord() + " maal \\(" + k() + "\\): de determinant wordt ook met \\(" +
+        k() + "\\) vermenigvuldigd.");
     });
     ctx.knop("Tel k keer op", function () {
       if (!nodig(true)) return;
       var B = kopie(st.A);
       var q = lijn(B, st.tweede);
       zetLijn(B, st.eerste, lijn(B, st.eerste).map(function (x, t) { return x + k() * q[t]; }));
-      var factor = k() === 1 ? "" : (k() === -1 ? "" : getal(Math.abs(k())));
-      voerUit(naam(st.eerste) + " ← " + naam(st.eerste) + (k() < 0 ? " − " : " + ") +
+      var factor = Math.abs(k()) === 1 ? "" : Math.abs(k());
+      voerUit(naam(st.eerste) + "\\leftarrow " + naam(st.eerste) + (k() < 0 ? "-" : "+") +
         factor + naam(st.tweede), B,
         "Een veelvoud van een andere " + woord() + " opgeteld: de determinant blijft gelijk.");
     });
     var kKnop = ctx.knop("k = 2", function () {
       st.k = (st.k + 1) % KS.length;
-      kKnop.textContent = "k = " + getal(k());
+      zetKnopK();
       werkBij();
     });
+    function zetKnopK() {
+      kKnop.setAttribute("aria-label", "k = " + getal(k()));
+      zetK([[kKnop, "\\(k=" + k() + "\\)"]]);
+    }
     ctx.knop("Transponeer", function () {
-      voerUit("Aᵀ", M.getransponeerde(st.A),
-        "Rijen en kolommen van rol gewisseld: det Aᵀ = det A.");
+      voerUit("\\text{transponeren}", M.getransponeerde(st.A),
+        "Rijen en kolommen van rol gewisseld: \\(\\det A^{\\mathsf T}=\\det A\\).");
     });
     ctx.knop("Toon det", function () {
       st.verborgen = false;
@@ -1370,13 +1981,14 @@
       st.soort = "R";
       st.eerste = st.tweede = 0;
       st.k = 0;
-      kKnop.textContent = "k = 2";
+      zetKnopK();
       soortKnop.textContent = "Kolommen";
       werkBij();
     }
 
+    zetKnopK();
     werkBij();
-    return { reset: herstel, herschaal: wb.pas, kleur: wb.kleur };
+    return { reset: herstel };
   });
 
   /* --- 6. Verlaging van de orde ------------------------------------------ */
@@ -1405,11 +2017,21 @@
     maal: function (a, b) { return breuk(a.t * b.t, a.n * b.n); },
     deel: function (a, b) { return breuk(a.t * b.n, a.n * b.t); },
     nul: function (a) { return a.t === 0; },
-    tekst: function (a) { return net(a.n === 1 ? String(a.t) : a.t + "/" + a.n); },
+    een: function (a) { return a.t === 1 && a.n === 1; },
+    // In LaTeX: -\frac{3}{2}.
+    tex: function (a) {
+      if (a.n === 1) return String(a.t);
+      return (a.t < 0 ? "-" : "") + "\\frac{" + Math.abs(a.t) + "}{" + a.n + "}";
+    },
     // Als factor: een negatief getal of een breuk tussen haakjes.
     factor: function (a) {
-      var s = Q.tekst(a);
-      return a.t < 0 || a.n !== 1 ? "(" + s + ")" : s;
+      var s = Q.tex(a);
+      return a.t < 0 || a.n !== 1 ? "\\left(" + s + "\\right)" : s;
+    },
+    // In een vakje van de matrix: een geheel getal als tekst, een breuk
+    // als wiskunde.
+    vak: function (a) {
+      return a.n === 1 ? net(String(a.t)) : "\\(" + Q.tex(a) + "\\)";
     }
   };
   function naarQ(A) {
@@ -1438,10 +2060,19 @@
       [[3, 2, 0], [4, -2, 1], [1, 3, -4]],
       [[2, 3, 1, -1], [1, 2, 0, 3], [-3, 1, 2, 2], [4, 0, 1, 5]]
     ];
-    var wb = maakWerkblad(ctx);
-    var bord = matrixBord(ctx);
-    var st = { voorbeeld: 0, stadia: [], i: 0, j: 0, soort: "K", melding: "", x: {} };
-    var Y = 1.2;
+    var st = { voorbeeld: 0, stadia: [], i: 0, j: 0, soort: "K", melding: "" };
+    var laag = maakLaag(ctx, "det-smal");
+    var mB = htmlMatrix({ haken: "strepen", klik: function (i, j) { klik(i, j); } });
+    var groep = matrixGroep(mB, "");
+    var kolom = div("det-kolom");
+    var tekst = div("det-tekst");
+    var regels = tekstRegels(tekst, 4);
+    var einde = div("det-cofactorstappen");
+    kolom.appendChild(tekst);
+    kolom.appendChild(einde);
+    laag.appendChild(groep);
+    laag.appendChild(kolom);
+    var zet = maakZetter();
 
     function nu() { return st.stadia[st.stadia.length - 1]; }
     function orde() { return nu().B.length; }
@@ -1453,36 +2084,6 @@
     }
     begin(VOORBEELDEN[0]);
 
-    var mB = wb.matrix(bord, {
-      rijen: orde, kolommen: orde, maxrijen: 4, maxkolommen: 4, haken: "strepen",
-      x: function () { return st.x.B; }, y: Y,
-      waarde: function (i, j) { return Q.tekst(nu().B[i - 1][j - 1]); },
-      naam: function () {
-        return st.stadia.length === 1 ? "det A" : "stap " + (st.stadia.length - 1);
-      }, naamrol: "zwak"
-    });
-    // Eerst de kolom, dan de spil: zo ligt de spil bovenop.
-    var merkLijn = mB.markeer("secante");
-    var merkSpil = mB.markeer("punt");
-
-    // De factor die al voor de determinant staat, zoals −1 · |…|.
-    wb.tekst(bord, function () { return st.x.F; }, Y,
-      function () {
-        var f = nu().f;
-        return f.t === 1 && f.n === 1 ? "" : Q.factor(f) + " ·";
-      }, "tekst", { factor: 1.1 });
-
-    var regels = maakRegels(wb, bord, 4, function (n) { return Y - 2.9 - 0.72 * n; });
-    wb.venster(bord, function () { return [13.5, 9.8]; });
-
-    function herplaats() {
-      var f = nu().f;
-      var fb = f.t === 1 && f.n === 1 ? 0 : 1.6;
-      var totaal = fb + mB.volleBreedte();
-      st.x.F = -totaal / 2 + fb / 2;
-      st.x.B = -totaal / 2 + fb + mB.volleBreedte() / 2;
-    }
-
     // Alle elementen van de lijn door de spil, behalve de spil zelf, zijn 0?
     function klaarOmTeOntwikkelen() {
       var B = nu().B;
@@ -1493,69 +2094,82 @@
       return true;
     }
 
-    function einde() {
+    // De factor die al voor de determinant staat, zoals \det A = -2\cdot|…|.
+    function naamTex() {
+      var f = nu().f;
+      return "\\(\\det A=" + (Q.een(f) ? "" : Q.tex(f) + "\\cdot") + "\\)";
+    }
+
+    function eindeTex() {
       var s = nu();
       if (orde() > 2) return "";
-      var D = detQ(s.B);
-      var f = s.f;
-      var eind = Q.maal(f, D);
-      var voor = f.t === 1 && f.n === 1 ? "" : Q.factor(f) + " · ";
+      var eind = Q.maal(s.f, detQ(s.B));
+      var voor = Q.een(s.f) ? "" : Q.factor(s.f) + "\\cdot";
       var binnen = orde() === 2
-        ? Q.factor(s.B[0][0]) + "·" + Q.factor(s.B[1][1]) + " − " +
-          Q.factor(s.B[0][1]) + "·" + Q.factor(s.B[1][0])
-        : Q.tekst(s.B[0][0]);
-      return "Orde " + orde() + ": det A = " + voor + "(" + binnen + ") = " + Q.tekst(eind);
+        ? Q.factor(s.B[0][0]) + "\\cdot " + Q.factor(s.B[1][1]) + "-" +
+          Q.factor(s.B[0][1]) + "\\cdot " + Q.factor(s.B[1][0])
+        : Q.tex(s.B[0][0]);
+      return uitgelijnd(["\\det A&=" + voor + "(" + binnen + ")", "&=" + Q.tex(eind)]);
     }
 
     function werkBij() {
-      if (st.i) merkSpil.zet(st.i, st.j); else merkSpil.verberg();
-      if (st.i && orde() > 2) {
-        if (st.soort === "K") merkLijn.zet(0, st.j); else merkLijn.zet(st.i, 0);
-      } else {
-        merkLijn.verberg();
-      }
+      mB.bouw(orde(), orde());
+      var lijnAan = st.i && orde() > 2;
+      mB.stand(function (i, j) {
+        if (i === st.i && j === st.j) return { gekozen: true };
+        var inLijn = st.soort === "K" ? j === st.j : i === st.i;
+        return { merk: lijnAan && inLijn ? "secante" : "" };
+      });
+      var paren = mB.paren(function (i, j) { return Q.vak(nu().B[i - 1][j - 1]); });
       var stappen = st.stadia.slice(1).map(function (s, k) {
         return (k + 1) + ". " + s.stap;
       });
       var r = stappen.slice(-3);
-      while (r.length < 3) r.unshift("");
+      var slot = "";
+      var lijn = lijnTex(st.soort, st.soort === "K" ? st.j : st.i);
       if (st.melding) {
-        r.push(st.melding);
+        slot = st.melding;
       } else if (orde() <= 2) {
-        r.push(einde());
+        slot = "Orde \\(" + orde() + "\\): reken de determinant uit.";
       } else if (!st.i) {
-        r.push("Klik op een spil: liefst een 1 of −1, in een " +
-          (st.soort === "K" ? "kolom" : "rij") + " met veel nullen.");
+        slot = "Klik op een spil: liefst een \\(1\\) of \\(-1\\), in een " +
+          (st.soort === "K" ? "kolom" : "rij") + " met veel nullen.";
       } else if (klaarOmTeOntwikkelen()) {
-        r.push("Buiten de spil staan er enkel nullen in " + lijnNaam(st.soort, st.soort === "K" ? st.j : st.i) +
-          ": klik op Ontwikkel.");
+        slot = "Buiten de spil staan er enkel nullen in \\(" + lijn + "\\): klik op Ontwikkel.";
       } else {
-        r.push("Klik op Maak nullen: de andere elementen van " +
-          lijnNaam(st.soort, st.soort === "K" ? st.j : st.i) + " worden 0.");
+        slot = "Klik op Maak nullen: de andere elementen van \\(" + lijn + "\\) worden \\(0\\).";
       }
-      regels.tekst = r;
-      herplaats();
-      wb.pas();
-      ctx.toon(zinnen(stappen.concat([regels.tekst[3]])));
+      r.push(slot);
+      while (r.length < 4) r.push("");
+      r.forEach(function (t, k) { paren.push([regels[k], t]); });
+      paren.push([groep.naam, naamTex()]);
+      paren.push([einde, st.melding ? "" : eindeTex()]);
+      zet(paren);
+      var toon = stappen.concat([slot]);
+      if (orde() <= 2 && !st.melding) {
+        toon.push("det A = " + plat(Q.tex(Q.maal(nu().f, detQ(nu().B)))) + ".");
+      }
+      ctx.toon(plat(zinnen(toon)));
     }
 
     function nieuwStadium(B, f, stap) {
       st.stadia.push({ B: B, f: f, stap: stap });
     }
 
-    // R₂ ← R₂ − 2R₁, met een breuk tussen haakjes: R₂ ← R₂ − (3/2)R₁.
-    function bewerkingTekst(doel, factor, bron) {
+    // R_2 \leftarrow R_2-2R_1, met een breuk als coëfficiënt:
+    // R_2 \leftarrow R_2-\frac{3}{2}R_1.
+    function bewerkingTex(doel, factor, bron) {
       var min = factor.t > 0;
       var abs = breuk(Math.abs(factor.t), factor.n);
-      var f = abs.t === 1 && abs.n === 1 ? "" : (abs.n === 1 ? Q.tekst(abs) : "(" + Q.tekst(abs) + ")");
-      return doel + " ← " + doel + (min ? " − " : " + ") + f + bron;
+      var f = Q.een(abs) ? "" : Q.tex(abs);
+      return "\\(" + doel + "\\leftarrow " + doel + (min ? "-" : "+") + f + bron + "\\)";
     }
 
     ctx.knop("Maak nullen", function () {
       st.melding = "";
       if (orde() <= 2) return werkBij();
       if (!st.i) {
-        st.melding = "Kies eerst een spil: klik op een element dat niet 0 is.";
+        st.melding = "Kies eerst een spil: klik op een element dat niet \\(0\\) is.";
         return werkBij();
       }
       if (klaarOmTeOntwikkelen()) {
@@ -1571,17 +2185,17 @@
           if (t === st.i || Q.nul(B[t - 1][st.j - 1])) continue;
           var c = Q.deel(B[t - 1][st.j - 1], spil);
           for (var u = 0; u < orde(); u++) B[t - 1][u] = Q.min(B[t - 1][u], Q.maal(c, B[st.i - 1][u]));
-          ops.push(bewerkingTekst(lijnNaam("R", t), c, lijnNaam("R", st.i)));
+          ops.push(bewerkingTex(lijnTex("R", t), c, lijnTex("R", st.i)));
         } else {
           if (t === st.j || Q.nul(B[st.i - 1][t - 1])) continue;
           var d = Q.deel(B[st.i - 1][t - 1], spil);
           for (var v = 0; v < orde(); v++) B[v][t - 1] = Q.min(B[v][t - 1], Q.maal(d, B[v][st.j - 1]));
-          ops.push(bewerkingTekst(lijnNaam("K", t), d, lijnNaam("K", st.j)));
+          ops.push(bewerkingTex(lijnTex("K", t), d, lijnTex("K", st.j)));
         }
       }
       var zin = ops.join(", ") + ": de determinant blijft gelijk.";
-      if (spil.t !== spil.n && spil.t !== -spil.n) {
-        zin += " (Spil " + Q.tekst(spil) + ": daarom de breuken.)";
+      if (!Q.een(spil) && !Q.een(breuk(-spil.t, spil.n))) {
+        zin += " (Spil \\(" + Q.tex(spil) + "\\): daarom de breuken.)";
       }
       nieuwStadium(B, s.f, zin);
       werkBij();
@@ -1602,10 +2216,10 @@
       var spil = s.B[st.i - 1][st.j - 1];
       var t = teken(st.i, st.j);
       var f = Q.maal(Q.maal(s.f, breuk(t)), spil);
-      var lijnTekst = lijnNaam(st.soort, st.soort === "K" ? st.j : st.i);
+      var lijn = lijnTex(st.soort, st.soort === "K" ? st.j : st.i);
       nieuwStadium(minor(s.B, st.i, st.j), f,
-        "Ontwikkel naar " + lijnTekst + ": enkel " + tekenMacht(st.i, st.j) + " · " +
-        Q.factor(spil) + " · " + minorNaam(st.i, st.j) + " blijft over.");
+        "Ontwikkel naar \\(" + lijn + "\\): enkel \\(" + tekenMachtTex(st.i, st.j) + "\\cdot " +
+        Q.factor(spil) + "\\cdot " + minTex(st.i, st.j) + "\\) blijft over.");
       st.i = st.j = 0;
       werkBij();
     });
@@ -1631,8 +2245,9 @@
       if (!beste || orde() <= 2) return werkBij();
       st.i = beste.i;
       st.j = beste.j;
-      st.melding = "Tip: kies " + el("a", beste.i, beste.j) + " = " + Q.tekst(beste.a) +
-        (beste.a.n === 1 && Math.abs(beste.a.t) === 1 ? ": met een spil 1 of −1 blijven alle getallen geheel." : ".");
+      st.melding = "Tip: kies \\(" + elTex(beste.i, beste.j) + "=" + Q.tex(beste.a) + "\\)" +
+        (beste.a.n === 1 && Math.abs(beste.a.t) === 1
+          ? ": met een spil \\(1\\) of \\(-1\\) blijven alle getallen geheel." : ".");
       werkBij();
     });
     var soortKnop = ctx.knop("Nullen in een rij", function () {
@@ -1653,21 +2268,18 @@
       werkBij();
     });
 
-    bord.on("down", function (e) {
-      var p = klikPunt(bord, e);
-      if (!p || orde() <= 2) return;
-      var cel = mB.celVan(p[0], p[1]);
-      if (!cel) return;
+    function klik(i, j) {
+      if (orde() <= 2) return;
       st.melding = "";
-      if (Q.nul(nu().B[cel.rij - 1][cel.kolom - 1])) {
+      if (Q.nul(nu().B[i - 1][j - 1])) {
         st.i = st.j = 0;
-        st.melding = "Een spil mag geen 0 zijn: daarmee maak je geen nullen.";
+        st.melding = "Een spil mag geen \\(0\\) zijn: daarmee maak je geen nullen.";
       } else {
-        st.i = cel.rij;
-        st.j = cel.kolom;
+        st.i = i;
+        st.j = j;
       }
       werkBij();
-    });
+    }
 
     function herstel() {
       st.voorbeeld = 0;
@@ -1678,7 +2290,7 @@
     }
 
     werkBij();
-    return { reset: herstel, herschaal: wb.pas, kleur: wb.kleur };
+    return { reset: herstel };
   });
 
   /* --- 7. Meetkundige toepassingen --------------------------------------- */
@@ -1696,16 +2308,14 @@
       collineair: [[3, 2], [-2, -1], [8, 5]],
       driehoek: [[1, 0], [7, 2], [4, 2]]
     }[soort];
-    var NAMEN = soort === "rechte" ? ["P", "P₁", "P₂"] : ["A", "B", "C"];
+    var NAMEN = soort === "rechte" ? ["P", "P_1", "P_2"] : ["A", "B", "C"];
     var PLOT = [-5.6, 7.8, 9.6, -3.8];
     var bord = ctx.maakBord({ begrenzing: PLOT, gelijkeschaal: true });
     eenheidsrooster(ctx, bord);
     var kleuren = ctx.kleuren();
-    var vak = [PLOT[2], PLOT[1]];
-    function schik() {
-      vak = schikBord(bord, PLOT, soort === "rechte" ? 330 : 300, soort === "rechte" ? 250 : 130);
-      bord.fullUpdate();
-    }
+    var paneel = maakPaneel(ctx, bord, PLOT, soort === "rechte" ? ["f", "f", "t", "f"] : ["f", "t"],
+      320, { rechte: 300, collineair: 140, driehoek: 190 }[soort]);
+    var schik = paneel.schik;
 
     var punten = BEGIN.map(function (xy, k) {
       return roosterpunt(ctx, bord, xy, NAMEN[k], k === 0 ? "punt" : "secante", GRENS);
@@ -1735,38 +2345,7 @@
       vertices: { visible: false }
     });
 
-    function paneel() {
-      var a = co(P), b = co(P1), c = co(P2);
-      var D = waarde();
-      var eerste = soort === "rechte" ? ["x", "y", "1"] : [getal(a[0]), getal(a[1]), "1"];
-      var tabel = detTabel([eerste, [getal(b[0]), getal(b[1]), "1"],
-                            [getal(c[0]), getal(c[1]), "1"]]);
-      var html;
-      if (soort === "rechte") {
-        var u = b[1] - c[1], v = -(b[0] - c[0]), w = b[0] * c[1] - c[0] * b[1];
-        html = "rechte P₁P₂ ↔ " + tabel + " = 0<br>" +
-          "ontwikkeld naar R₁: " + vergelijking(u, v, w) + "<br><br>" +
-          "Vul P(" + getal(a[0]) + ", " + getal(a[1]) + ") in: " +
-          detTabel([[getal(a[0]), getal(a[1]), "1"], [getal(b[0]), getal(b[1]), "1"],
-                    [getal(c[0]), getal(c[1]), "1"]]) + " = <b>" + getal(D) + "</b><br>" +
-          (D === 0 ? "De determinant is 0: P ligt op de rechte."
-                   : "De determinant is niet 0:<br>P ligt niet op de rechte.") +
-          "<br>" + kleurtekst("|" + getal(D) + "| = 2 · opp ΔPP₁P₂", "zwak");
-      } else if (soort === "collineair") {
-        html = tabel + " = <b>" + getal(D) + "</b><br>" +
-          (D === 0 ? "De determinant is 0: A, B en C zijn collineair."
-                   : "De determinant is niet 0: A, B en C<br>liggen niet op één rechte.");
-      } else {
-        html = "opp ΔABC = ½ · |" + tabel + "|<br>" +
-          "= ½ · |" + getal(D) + "| = <b>" + ctx.getal(Math.abs(D) / 2, 1) + "</b><br>" +
-          (D > 0 ? "det &gt; 0: A → B → C gaat tegen de wijzers in."
-            : D < 0 ? "det &lt; 0: A → B → C gaat met de wijzers mee."
-              : "det = 0: de punten liggen op één rechte,<br>de driehoek is plat.");
-      }
-      return html;
-    }
-
-    // ux + vy + w = 0 met de gewone schrijfwijze: geen 1x, geen + −.
+    // ux + vy + w = 0 met de gewone schrijfwijze: geen 1x, geen +-.
     function vergelijking(u, v, w) {
       var delen = [];
       [[u, "x"], [v, "y"], [w, ""]].forEach(function (paar) {
@@ -1774,26 +2353,70 @@
         if (c === 0) return;
         var abs = Math.abs(c);
         var t = (abs === 1 && paar[1] ? "" : abs) + paar[1];
-        if (!delen.length) delen.push((c < 0 ? "−" : "") + t);
-        else delen.push((c < 0 ? " − " : " + ") + t);
+        delen.push((c < 0 ? "-" : delen.length ? "+" : "") + t);
       });
-      return (delen.join("") || "0") + " = 0";
+      return (delen.join("") || "0") + "=0";
     }
 
-    tekstvak(ctx, bord, function () { return vak[0]; }, function () { return vak[1]; }, paneel);
+    function werkPaneelBij() {
+      var a = co(P), b = co(P1), c = co(P2);
+      var D = waarde();
+      var rijen = [[a[0], a[1], 1], [b[0], b[1], 1], [c[0], c[1], 1]];
+      var delen;
+      if (soort === "rechte") {
+        var u = b[1] - c[1], v = -(b[0] - c[0]), w = b[0] * c[1] - c[0] * b[1];
+        var regels = [
+          "P_1P_2&\\leftrightarrow " + vmat([["x", "y", "1"], rijen[1], rijen[2]]) + "=0",
+          "&\\Leftrightarrow " + vergelijking(u, v, w)
+        ];
+        // Zoals in de cursus: deel nog door de ggd van de coëfficiënten en
+        // begin met een positieve coëfficiënt.
+        var g = ggd(ggd(u, v), w);
+        if (u < 0 || (u === 0 && v < 0)) g = -g;
+        if ((u || v) && g !== 1) regels.push("&\\Leftrightarrow " + vergelijking(u / g, v / g, w / g));
+        delen = [
+          uitgelijnd(regels),
+          uitgelijnd(["P(" + a[0] + "," + a[1] + ")\\colon\\ " + vmat(rijen) + "=" + D]),
+          D === 0 ? "De determinant is \\(0\\): \\(P\\) ligt op de rechte."
+                  : "De determinant is niet \\(0\\): \\(P\\) ligt niet op de rechte.",
+          uitgelijnd([kleurTex("zwak", "|" + D + "|=2\\cdot\\operatorname{Opp}\\triangle PP_1P_2")])
+        ];
+      } else if (soort === "collineair") {
+        delen = [
+          uitgelijnd([vmat(rijen) + "=" + D]),
+          D === 0 ? "De determinant is \\(0\\): \\(A\\), \\(B\\) en \\(C\\) zijn collineair."
+                  : "De determinant is niet \\(0\\): \\(A\\), \\(B\\) en \\(C\\) liggen niet op " +
+                    "één rechte."
+        ];
+      } else {
+        delen = [
+          uitgelijnd([
+            "\\operatorname{Opp}\\triangle ABC&=\\tfrac12\\left|" + vmat(rijen) + "\\right|",
+            "&=\\tfrac12\\cdot|" + D + "|=" + ctx.getal(Math.abs(D) / 2, 1)
+          ]),
+          D > 0 ? "\\(\\det>0\\): \\(A\\to B\\to C\\) gaat tegen de wijzers van de klok in."
+            : D < 0 ? "\\(\\det<0\\): \\(A\\to B\\to C\\) gaat met de wijzers van de klok mee."
+              : "\\(\\det=0\\): de punten liggen op één rechte, de driehoek is plat."
+        ];
+      }
+      paneel.zet(delen);
+    }
 
     function beschrijving() {
       var D = waarde();
       var t = NAMEN.map(function (n, k) {
         var c = co(punten[k]);
-        return n + "(" + getal(c[0]) + ", " + getal(c[1]) + ")";
+        return n.replace("_", "") + "(" + getal(c[0]) + ", " + getal(c[1]) + ")";
       }).join(", ");
       var slot = soort === "driehoek"
         ? " De oppervlakte van driehoek ABC is " + ctx.getal(Math.abs(D) / 2, 1) + "."
         : (D === 0 ? " De punten liggen op één rechte." : " De punten liggen niet op één rechte.");
       return t + ". De determinant is " + getal(D) + "." + slot;
     }
-    bord.on("update", function () { ctx.toon(beschrijving()); });
+    bord.on("update", function () {
+      werkPaneelBij();
+      ctx.toon(beschrijving());
+    });
 
     function herstel() {
       punten.forEach(function (p, k) { zetPunt(p, BEGIN[k]); });
@@ -1801,6 +2424,7 @@
     }
 
     schik();
+    werkPaneelBij();
     ctx.toon(beschrijving());
     return {
       reset: herstel,

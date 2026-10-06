@@ -1,0 +1,4018 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Verloop van functies</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=261c7b8581ce" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=261c7b8581ce"></script>
+<script src="mathjax-bigdelim.js?v=261c7b8581ce"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=261c7b8581ce"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=261c7b8581ce" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=261c7b8581ce" />
+<link rel="stylesheet" href="functierekenmachine.css?v=261c7b8581ce" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+
+
+
+
+
+
+\(\newcommand {\vov }[1]{\aside {{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text {&grave;}}}\mkern -1mu#1\mkern -1mu{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text {&apos;}}}}}\)
+
+\(\newcommand {\tvbp }[1]{\begin {array}{c} \scriptstyle \text {BP} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 17</p> <h1>Verloop van functies</h1> </header>
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                   max                y
+       bol ∩                                        hol ∪   f′
+
+                                 BP
+
+
+                                                            x
+                                                      min
+
+   x               −4        −1               2
+f ′ (x)        +   0     −   −            −   0       +
+f ′′ (x)       −   −     −   0            +   +       +
+f (x)          ↗   max   ↘   BP       ↘       min     ↗
+               ∩         ∩            ∪               ∪
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="cursusrekenmachine" data-soort="functie"></div>
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p>
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>BV3_06.20</b> (MD 06.20) De leerlingen lossen vraagstukken en problemen op door te mathematiseren en demathematiseren en door gebruik te maken van heuristieken.
+</p>
+</li>
+</ul>
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.21</b> (MD 06.08.07) De leerlingen leggen het verband tussen de grafiek en het voorschrift van een functie en haar kenmerken.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: veeltermfuncties, rationale functies, (elementaire) irrationale functies, <span class="leerplan-grijs">exponentie&#x0308;le functies</span>, <span
+class="leerplan-grijs">logaritmische functies \(f(x)=\log _a(x)\)</span>, <span class="leerplan-grijs">goniometrische functies \(f(x)=\cos x\) en \(f(x)=\tan x\)</span>, <span
+class="leerplan-grijs">cyclometrische functies</span>, <span class="leerplan-grijs">absolute waardenfunctie</span>, <span class="leerplan-grijs">meervoudig functievoorschrift</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: domein, <span class="leerplan-grijs">bereik</span>, nulwaarden, tekenverloop, stijgen/dalen/constant, extrema, constante/toenemende/afnemende stijging/daling,
+symmetrie, <span class="leerplan-grijs">periode</span>, <span class="leerplan-grijs">amplitude</span>, asymptotisch gedrag, gedrag op oneindig
+</p>
+</li>
+</ul>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.29</b> (MD 06.08.18) De leerlingen analyseren het verloop van functies met behulp van de eerste en tweede afgeleide functie en lossen extremumproblemen op.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: stelling van Rolle, middelwaardestelling van Lagrange
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+<!--
+...... section Stellingen van Rolle en van Lagrange ......
+-->
+<h4 id="autosec-6"><span class="sectionnumber">I&#x2003;</span>Stellingen van Rolle en van Lagrange</h4>
+<a id="mkpiweb-autopage-6"></a>
+<!--
+...... subsection Stelling van Rolle ......
+-->
+<h5 id="autosec-7"><span class="sectionnumber">1&#x2003;</span>Stelling van Rolle</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p>
+\[ \text {Als}\quad \left . \begin {array}{l} 1.\ f \text { is continu in } [a,b] \\ 2.\ f \text { is afleidbaar in } ]a,b[ \\ 3.\ f(a)=f(b) \end {array} \right \} \quad \text {dan}\quad
+\exists \, c\in \,]a,b[\,:\ f&apos;(c)=0 . \]
+</p>
+
+<p>
+Er is dus minstens één \(c\) tussen \(a\) en \(b\) waar de afgeleide nul wordt.
+</p>
+<!--
+...... subsection Meetkundige betekenis ......
+-->
+<h5 id="autosec-8"><span class="sectionnumber">2&#x2003;</span>Meetkundige betekenis</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="rolle" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource"
+><!--
+        f (x)
+
+
+
+
+f (a) = f (b)   P                     Q
+
+
+
+
+                    a   c1   c2   b       x
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\) om de hoogte \(f(a)=f(b)\) te kiezen, en de twee vormpunten om de grafiek te vervormen. Schuif \(T\) over
+de grafiek en zoek waar de raaklijn horizontaal ligt; Toon \(c\) geeft het antwoord.</figcaption> </figure>
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                    f ′ (c1 ) = f ′ (c2 ) = 0 ⇒ rico raaklijn aan de grafiek van f = 0
+                                                                                                         ⇒ raaklijn ∥ x-as
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f&apos;(c_1)=f&apos;(c_2)=0 &amp;\Rightarrow \text {rico raaklijn aan de grafiek van } f = 0 \\ &amp;\Rightarrow \text {raaklijn} \parallel x\text {-as}
+\end{align*}
+
+</p>
+
+<p>
+Is aan de drie voorwaarden voldaan, dan vind je minstens één punt tussen \(P\) en \(Q\) waar de raaklijn evenwijdig is met de \(x\)-as.
+</p>
+<!--
+...... subsection Tegenvoorbeelden ......
+-->
+<h5 id="autosec-12"><span class="sectionnumber">3&#x2003;</span>Tegenvoorbeelden</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+Valt één voorwaarde weg, dan is er niet altijd zo’n punt.
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource"
+><!--
+   y                              y                              y
+                               f (a)                         f (b)
+f (a)
+                                                         f (a)
+
+          a              b x           a             b x             a               b x
+        1. f is niet continu       2. f is niet afleidbaar           3. f (a) ̸= f (b)
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+In geen van de drie grafieken ligt er een raaklijn evenwijdig met de \(x\)-as.
+</p>
+<!--
+...... subsection Stelling van Lagrange ......
+-->
+<h5 id="autosec-16"><span class="sectionnumber">4&#x2003;</span>Stelling van Lagrange</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+Deze stelling heet ook de <b>middelwaardestelling</b>.
+</p>
+
+<p>
+\[ \text {Als}\quad \left . \begin {array}{l} 1.\ f \text { is continu in } [a,b] \\ 2.\ f \text { is afleidbaar in } ]a,b[ \end {array} \right \} \quad \text {dan}\quad \exists \, c\in
+\,]a,b[\,:\ f(b)-f(a)=f&apos;(c)\cdot (b-a) . \]
+</p>
+<!--
+...... subsection Meetkundige betekenis ......
+-->
+<h5 id="autosec-17"><span class="sectionnumber">5&#x2003;</span>Meetkundige betekenis</h5>
+<a id="mkpiweb-autopage-17"></a>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource"
+><!--
+    y
+                    Q
+f (b)
+
+
+        P
+f (a)
+
+
+
+            a   c   b   x
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                       f (b) − f (a) = f ′ (c) · (b − a)
+                                                                                                                     f (b) − f (a)
+                                                                                                        ⇐⇒ f ′ (c) =
+                                                                                                                         b−a
+                                                                                      ⇐⇒ rico raaklijn in c, f (c) = rico van de rechte P Q
+                                                                                                                  
+
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f(b)-f(a) &amp;= f&apos;(c)\cdot (b-a) \\ \iff f&apos;(c) &amp;= \frac {f(b)-f(a)}{b-a} \\ \iff \text {rico raaklijn in } \bigl (c,f(c)\bigr ) &amp;= \text {rico van de rechte } PQ
+\end{align*}
+
+</p>
+
+<p>
+\(\Rightarrow \) Er bestaat minstens één punt tussen \(P\) en \(Q\) waar de raaklijn aan de grafiek van \(f\) evenwijdig is met \(PQ\). Er kunnen er ook meer zijn.
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="lagrange" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource"
+><!--
+y
+
+
+
+                       Q
+
+
+    P
+
+
+        c1   c2   c3       x
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\) en \(Q\) en de drie vormpunten. Schuif \(T\) over de grafiek en zoek waar de raaklijn evenwijdig is met de
+koorde \(PQ\); Toon \(c\) geeft alle punten.</figcaption> </figure>
+</p>
+
+
+<div class="aside">
+
+<p>
+De stelling van Rolle is het bijzondere geval \(f(a)=f(b)\): dan is de rechte \(PQ\) evenwijdig met de \(x\)-as, en dus ook de raaklijn in \(c\).
+</p>
+
+</div>
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-24"><span class="sectionnumber">6&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+VBTL Analyse 2: p&nbsp;200 nr&nbsp;3, 4 en 5
+</p>
+<!--
+...... section Stijgen en dalen van een functie ......
+-->
+<h4 id="autosec-25"><span class="sectionnumber">II&#x2003;</span>Stijgen en dalen van een functie</h4>
+<a id="mkpiweb-autopage-25"></a>
+<!--
+...... subsection Teken van de eerste afgeleide ......
+-->
+<h5 id="autosec-26"><span class="sectionnumber">1&#x2003;</span>Teken van de eerste afgeleide</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+\[ f&apos;(a)=\lim _{x\to a}\frac {f(x)-f(a)}{x-a} = \text {rico raaklijn in } P\bigl (a,f(a)\bigr ) \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                  Stel f ′ (a) > 0 ⇒ f (x) − f (a) en x − a hebben hetzelfde teken
+                                                                                                ⇒ f is stijgend!
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {Stel } f&apos;(a)&gt;0 &amp;\Rightarrow f(x)-f(a) \text { en } x-a \text { hebben hetzelfde teken} \\ &amp;\Rightarrow f \text { is stijgend!}
+\end{align*}
+
+</p>
+
+
+<div class="aside">
+
+<p>
+Dat geldt eerst enkel voor \(x\) dicht bij \(a\). Voor een heel interval steunt het besluit op Lagrange: voor \(x_1&lt;x_2\) in \([a,b]\) is \(f(x_2)-f(x_1)=f&apos;(c)\cdot (x_2-x_1)\), en dat is positief als
+\(f&apos;(c)&gt;0\).
+</p>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-27">Besluit</h6>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> Als \(f\) continu is in \([a,b]\) en \(f&apos;(x)&gt;0\) in \(]a,b[\), dan is \(f\) <b>stijgend</b> in \([a,b]\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(f\) continu is in \([a,b]\) en \(f&apos;(x)&lt;0\) in \(]a,b[\), dan is \(f\) <b>dalend</b> in \([a,b]\).
+</p>
+</li>
+</ul>
+<!--
+...... subsection Constante functie ......
+-->
+<h5 id="autosec-28"><span class="sectionnumber">2&#x2003;</span>Constante functie</h5>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+Als een functie \(f\) continu is in \([a,b]\), dan geldt:
+</p>
+
+<p>
+\[ f \text { is constant in } [a,b] \iff f&apos;(x)=0,\ \forall x\in [a,b].   \]
+</p>
+<!--
+...... subsection Extremum van een functie ......
+-->
+<h5 id="autosec-29"><span class="sectionnumber">3&#x2003;</span>Extremum van een functie</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="stijgen-dalen" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource"
+><!--
+y
+                      f
+
+
+
+
+    a   c1   c2   b       x
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Schuif het punt over de grafiek en volg het teken van de rico van de raaklijn. Met de knoppen toon je de grafiek van
+\(f&apos;\) en de extrema.</figcaption> </figure>
+</p>
+
+<p>
+\[ \text {Een continue functie } f \text { bereikt een relatief } \left \{\begin {array}{l} \text {maximum in } c_1 \\ \text {minimum in } c_2 \end {array}\right .                             \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                    stijgen naar dalen
+                                                                                                   
+                                                                             ⇐⇒ f gaat over van
+                                                                                                    dalen naar stijgen
+                                                                                                                   strikt positief naar strikt negatief
+                                                                                                                
+                                                                             ⇐⇒ het teken van f ′ gaat over van
+                                                                                                                   strikt negatief naar strikt positief
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\iff f \text { gaat over van } \left \{\begin{array}{l} \text {stijgen naar dalen} \\ \text {dalen naar stijgen} \end {array}\right . \\ &amp;\iff \text {het teken van } f&apos; \text {
+gaat over van } \left \{\begin{array}{l} \text {strikt positief naar strikt negatief} \\ \text {strikt negatief naar strikt positief} \end {array}\right .
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Gevolg ......
+-->
+<h6 id="autosec-33">Gevolg</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+\[ \left .\begin {array}{r} f \text { bereikt een relatief extremum in } c \\ f \text { is afleidbaar in } c \end {array}\right \} \Rightarrow f&apos;(c)=0 \]
+</p>
+
+
+<div class="aside">
+
+<p>
+Omgekeerd niet: \(f(x)=x^3\) heeft \(f&apos;(0)=0\) maar geen extremum in \(0\) (zie de voorbeelden bij de tweede afgeleide).
+</p>
+
+</div>
+<!--
+...... subsection Samenvatting ......
+-->
+<h5 id="autosec-34"><span class="sectionnumber">4&#x2003;</span>Samenvatting</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+\(f\) is continu in \([a,b]\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                      f ′ (x) = 0 in ]a, b[ ⇐⇒ f is constant in [a, b]
+                                                                                      f ′ (x) > 0 in ]a, b[ ⇒ f is stijgend in [a, b]
+                                                                                        f ′ (x) < 0 in ]a, b[ ⇒ f is dalend in [a, b]
+                                                                      f ′ (x) verandert van teken in c
+                                                                                                           
+                                                                                                              ⇒ f bereikt een extremum in c
+                                                                                     f is continu in c
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f&apos;(x)=0 \text { in } ]a,b[ &amp;\iff f \text { is constant in } [a,b] \\ f&apos;(x)&gt;0 \text { in } ]a,b[ &amp;\Rightarrow f \text { is stijgend in } [a,b] \\ f&apos;(x)&lt;0 \text { in
+} ]a,b[ &amp;\Rightarrow f \text { is dalend in } [a,b] \\ \left .\begin{array}{r} f&apos;(x) \text { verandert van teken in } c \\ f \text { is continu in } c \end {array}\right \}
+&amp;\Rightarrow f \text { bereikt een extremum in } c
+\end{align*}
+Is \(f\) bovendien afleidbaar in \(c\), dan is het een relatief extremum met \(f&apos;(c)=0\).
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-35"><span class="sectionnumber">5&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection a.      ......
+-->
+<h6 id="autosec-36">a. \(f(x)=2x^2-5x+3\)</h6>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                       f ′ (x) = 4x − 5
+                                                                                                                     5
+                                                                                               nulwaarde f ′ : x =
+                                                                                                                     4
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f&apos;(x) &amp;= 4x-5 \\ \text {nulwaarde } f&apos; &amp;:        x=\frac {5}{4}
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{c|ccc} x &amp; &amp; \frac {5}{4} &amp; \\ \hline f&apos;(x) &amp; - &amp; 0 &amp; + \\ \hline f(x) &amp; \searrow &amp; \tvmin {-\frac {1}{8}} &amp; \nearrow \end {array} \]
+</p>
+
+<p>
+Absoluut minimum \(f\bigl (\frac {5}{4}\bigr )=-\frac {1}{8}\); daar is de raaklijn evenwijdig met de \(x\)-as.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection b.      ......
+-->
+<h6 id="autosec-37">b. \(f(x)=\dfrac {1}{x^2}\)</h6>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+\[ f&apos;(x)=\frac {-2}{x^3} \qquad \begin {array}{r@{\,}c|ccc} &amp; x &amp; &amp; 0 &amp; \\ \hline T &amp; -2 &amp; - &amp; - &amp; - \\ N &amp; x^3 &amp; - &amp; 0 &amp; + \\ \hline &amp;
+f&apos;(x) &amp; + &amp; | &amp; - \\ \hline &amp; f(x) &amp; \nearrow &amp; \text {VA} &amp; \searrow \end {array} \]
+</p>
+
+<p>
+\(f\) gaat in \(0\) van stijgen naar dalen, maar \(0\notin \dom f\): geen extremum.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-38"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+De oefeningen hieronder komen uit VBTL Analyse 2.
+</p>
+
+<div class="cursus-oefenbalk"></div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 1 (p 200) ......
+-->
+<h6 id="autosec-39">VBTL oefening 1 (p 200)</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+Bepaal waar de functie stijgt en waar ze daalt. Geef ook de relatieve en de absolute extrema.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(b)</span> \(f(x)=x^3-3x+1\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">relatief maximum \(f(-1)=3\), relatief minimum \(f(1)=-1\)</span> \(f\) is continu in \(\R \).
+</p>
+<p>
+\[ f&apos;(x)=3x^2-3=3\,(x^2-1) \qquad \begin {array}{c|ccccc} x &amp; &amp; -1 &amp; &amp; 1 &amp; \\ \hline f&apos;(x) &amp; + &amp; 0 &amp; - &amp; 0 &amp; + \\ \hline f(x) &amp; \nearrow
+&amp; \tvmax {3} &amp; \searrow &amp; \tvmin {-1} &amp; \nearrow \end {array} \]
+</p>
+<p>
+Relatief maximum \(f(-1)=3\), relatief minimum \(f(1)=-1\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(d)</span> \(f(x)=\dfrac {x^3}{x^2-9}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">relatief maximum \(-\frac {9\sqrt {3}}{2}\) in \(-3\sqrt {3}\), relatief minimum \(\frac {9\sqrt {3}}{2}\) in \(3\sqrt {3}\)</span> \(f\) is continu in \(\R \setminus \{-3,3\}\).
+</p>
+<p>
+\[ f&apos;(x)=\frac {3x^2\,(x^2-9)-x^3\cdot 2x}{(x^2-9)^2} =\frac {x^2\,(x^2-27)}{(x^2-9)^2} \]
+</p>
+<p>
+\[ \begin {array}{r@{\,}c|ccccccccccc} &amp; x &amp; &amp; -3\sqrt {3} &amp; &amp; -3 &amp; &amp; 0 &amp; &amp; 3 &amp; &amp; 3\sqrt {3} &amp; \\ \hline \ldelim \{{2}{*}[T] &amp; x^2 &amp; +
+&amp; + &amp; + &amp; + &amp; + &amp; 0 &amp; + &amp; + &amp; + &amp; + &amp; + \\ &amp; x^2-27 &amp; + &amp; 0 &amp; - &amp; - &amp; - &amp; - &amp; - &amp; - &amp; - &amp; 0 &amp; + \\
+\hline N &amp; (x^2-9)^2 &amp; + &amp; + &amp; + &amp; 0 &amp; + &amp; + &amp; + &amp; 0 &amp; + &amp; + &amp; + \\ \hline &amp; f&apos;(x) &amp; + &amp; 0 &amp; - &amp; | &amp; - &amp; 0
+&amp; - &amp; | &amp; - &amp; 0 &amp; + \\ \hline &amp; f(x) &amp; \nearrow &amp; \tvmax {-\frac {9\sqrt {3}}{2}} &amp; \searrow &amp; \text {VA} &amp; \searrow &amp; 0 &amp; \searrow &amp;
+\text {VA} &amp; \searrow &amp; \tvmin {\frac {9\sqrt {3}}{2}} &amp; \nearrow \end {array} \]
+</p>
+<p>
+In \(0\) is \(f&apos;(0)=0\), maar \(f&apos;\) verandert er niet van teken: geen extremum.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(f)</span> \(f(x)=\sqrt {x^3+3x^2}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">relatief maximum \(f(-2)=2\), absoluut minimum \(f(-3)=f(0)=0\)</span> Domein: \(x^3+3x^2=x^2\,(x+3)\geq 0\).
+</p>
+<p>
+\[ \begin {array}{c|ccccc} x &amp; &amp; -3 &amp; &amp; 0 &amp; \\ \hline x^2 &amp; + &amp; + &amp; + &amp; 0 &amp; + \\ x+3 &amp; - &amp; 0 &amp; + &amp; + &amp; + \\ \hline x^2\,(x+3) &amp; -
+&amp; 0 &amp; + &amp; 0 &amp; + \end {array} \qquad \Rightarrow \qquad \dom f=[-3,+\infty [ \]
+</p>
+<p>
+\[ f&apos;(x)=\frac {3x^2+6x}{2\sqrt {x^3+3x^2}} =\frac {3x\,(x+2)}{2\sqrt {x^2}\cdot \sqrt {x+3}} \]
+</p>
+<p>
+\[ \begin {array}{r@{\,}c|ccccccc} &amp; x &amp; &amp; -3 &amp; &amp; -2 &amp; &amp; 0 &amp; \\ \hline T &amp; 3x^2+6x &amp; \undefsign &amp; + &amp; + &amp; 0 &amp; - &amp; 0 &amp; + \\ \hline
+\ldelim \{{2}{*}[N] &amp; \sqrt {x^2} &amp; \undefsign &amp; + &amp; + &amp; + &amp; + &amp; 0 &amp; + \\ &amp; \sqrt {x+3} &amp; \undefsign &amp; 0 &amp; + &amp; + &amp; + &amp; + &amp; + \\
+\hline &amp; f&apos;(x) &amp; \undefsign &amp; | &amp; + &amp; 0 &amp; - &amp; | &amp; + \\ \hline &amp; f(x) &amp; \undefsign &amp; \tvmin {0} &amp; \nearrow &amp; \tvmax {2} &amp; \searrow
+&amp; \tvmin {0} &amp; \nearrow \end {array} \]
+</p>
+<p>
+In \(0\) bestaat \(f&apos;\) niet:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                                3x (x + 2)   ‘ 0’
+                                                                                                f ′ (0) = lim √      √
+                                                                                                          x→0 2 x2 ·   x+3     0
+                                                                                                             3x (x + 2)   3·2 √
+                                                                                                     = lim     √        = √ = 3
+                                                                                                       x→0 2x     x+3    2 3
+                                                                                                         >
+
+
+                                                                                                           3x (x + 2)   √
+                                                                                                    of lim     √      =− 3
+                                                                                                       x→0 −2x x + 3
+                                                                                                        <
+
+
+                                                                                                     ⇒ 2 verschillende halve raaklijnen
+
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;(0) &amp;= \lim _{x\to 0}\frac {3x\,(x+2)}{2\sqrt {x^2}\cdot \sqrt {x+3}} \quad \vov {\frac {0}{0}} \\ &amp;= \lim _{x\underset {&gt;}{\to }0}\frac {3x\,(x+2)}{2x\sqrt {x+3}} = \frac
+{3\cdot 2}{2\sqrt {3}} = \sqrt {3} \\ &amp;\text {of } \lim _{x\underset {&lt;}{\to }0}\frac {3x\,(x+2)}{-2x\sqrt {x+3}} = -\sqrt {3} \\ &amp;\Rightarrow \text {2 verschillende halve
+raaklijnen}
+\end{align*}
+\(f&apos;(0)\) bestaat niet, maar \(f(0)\) wel, en \(\forall x\in \dom f: f(x)\geq f(0)\).
+</p>
+<p>
+\(\Rightarrow \) \(f\) bereikt een absoluut minimum in \(x=0\), namelijk \(f(0)=0\). Ook \(f(-3)=0\) is een absoluut minimum; \(f(-2)=2\) is een relatief maximum.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 7 (p 200) ......
+-->
+<h6 id="autosec-40">VBTL oefening 7 (p 200)</h6>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+Bepaal de ree&#x0308;le getallen \(a\) en \(b\) zodat \(f(x)=ax^3+bx^2\) voor \(x=4\) de extreme waarde \(-\frac {32}{3}\) bereikt.
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(a=\frac {1}{3}\) en \(b=-2\)</span> \(f\) is een veeltermfunctie, dus \(f&apos;\) ook. Verandert \(f&apos;\) van teken in \(x=4\), dan is \(f&apos;(4)=0\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                 32
+                                                                   ⇒ f ′ (4) = 0 en f (4) = −
+                                                                                                 3
+                                                                          3a · 42 + 2b · 4 = 0                                    2a = 23            a = 13
+                                                                                                                                              
+                                                                                                         6a + b = 0
+                                                                   ⇒                                ⇐⇒                   ⇐⇒                 ⇐⇒
+                                                                          a · 43 + b · 42 = − 32
+                                                                                               3         4a + b = − 23            b = −6a            b = −2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Rightarrow f&apos;(4)=0 \text { en } f(4)=-\frac {32}{3} \\ &amp;\Rightarrow \left \{\begin{array}{l} 3a\cdot 4^2+2b\cdot 4=0 \\ a\cdot 4^3+b\cdot 4^2=-\frac {32}{3} \end {array}\right .
+\iff \left \{\begin{array}{l} 6a+b=0 \\ 4a+b=-\frac {2}{3} \end {array}\right . \iff \left \{\begin{array}{l} 2a=\frac {2}{3} \\ b=-6a \end {array}\right . \iff \left \{\begin{array}{l}
+a=\frac {1}{3} \\ b=-2 \end {array}\right .
+\end{align*}
+
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 8 (p 200) ......
+-->
+<h6 id="autosec-41">VBTL oefening 8 (p 200)</h6>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+Bepaal een veeltermfunctie van de derde graad die \(0\) als nulwaarde heeft, in \(x=5\) een relatief extremum met waarde \(0\) bereikt, en in \(x=3\) een raaklijn met richtingscoe&#x0308;fficie&#x0308;nt \(-4\) heeft.
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(f(x)=\frac {1}{2}x^3-5x^2+\frac {25}{2}x\)</span>
+</p>
+
+<p>
+\[ \left \{\begin {array}{l} f(0)=0 \\ f(5)=0 \\ f&apos;(5)=0 \\ f&apos;(3)=-4 \end {array}\right .                   \quad \text {met } f(x)=ax^3+bx^2+cx+d \quad \Rightarrow \quad f&apos;(x)=3ax^2+2bx+c \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                           
+                                                                                  
+                                                                                   d=0                     
+                                                                                                              d=0
+                                                                                    125a + 25b + 5c = 0        25a + 5b + c = 0
+                                                                                                           
+                                                                               ⇐⇒                        ⇐⇒
+                                                                                  
+                                                                                   75a + 10b + c =  0      
+                                                                                                              75a + 10b + c = 0
+                                                                                    27a + 6b + c = −4          27a + 6b + c = −4
+                                                                                                           
+                                                                                                                               
+                                                                                  
+                                                                                   d=0                   
+                                                                                                           d=0                  
+                                                                                                                                  d=0
+                                                                                    25a + 5b + c = 0        c = −25a − 5b          c = 25
+                                                                                                                               
+                                                                               ⇐⇒                      ⇐⇒                   ⇐⇒          2
+                                                                                  
+                                                                                   50a + 5b = 0          
+                                                                                                           b = −10a             
+                                                                                                                                  b = −5
+                                                                                    2a + b = −4             −8a = −4               a = 21
+                                                                                                                               
+
+                                                                                           x3        25
+                                                                               ⇒ f (x) =      − 5x2 + x
+                                                                                           2          2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\iff \left \{\begin{array}{l} d=0 \\ 125a+25b+5c=0 \\ 75a+10b+c=0 \\ 27a+6b+c=-4 \end {array}\right . \iff \left \{\begin{array}{l} d=0 \\ 25a+5b+c=0 \\ 75a+10b+c=0 \\ 27a+6b+c=-4 \end
+{array}\right . \\ &amp;\iff \left \{\begin{array}{l} d=0 \\ 25a+5b+c=0 \\ 50a+5b=0 \\ 2a+b=-4 \end {array}\right . \iff \left \{\begin{array}{l} d=0 \\ c=-25a-5b \\ b=-10a \\ -8a=-4 \end
+{array}\right . \iff \left \{\begin{array}{l} d=0 \\ c=\frac {25}{2} \\ b=-5 \\ a=\frac {1}{2} \end {array}\right . \\ &amp;\Rightarrow f(x)=\frac {x^3}{2}-5x^2+\frac {25}{2}x
+\end{align*}
+
+</p>
+</div>
+
+</div>
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-42"><span class="sectionnumber">7&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+VBTL Analyse 3: p&nbsp;41 nr&nbsp;8 en 10; p&nbsp;42 nr&nbsp;13, 15, 16, 19 en 20
+</p>
+<!--
+...... section Extremumvraagstukken ......
+-->
+<h4 id="autosec-43"><span class="sectionnumber">III&#x2003;</span>Extremumvraagstukken</h4>
+<a id="mkpiweb-autopage-43"></a>
+<!--
+...... subsection Voorbeeld 1: som en product ......
+-->
+<h5 id="autosec-44"><span class="sectionnumber">1&#x2003;</span>Voorbeeld 1: som en product</h5>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p>
+De som van twee positieve getallen is \(12\). Voor welke getallen is het product van het kwadraat van het ene met het andere maximaal?
+</p>
+
+<p>
+Denk vooraf na: welke twee getallen zou jij kiezen?
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                     Keuze onbekenden: x = getal dat gekwadrateerd wordt,         y = het andere getal
+                                                                       Opstellen functie: x + y = 12 ⇒ y = 12 − x
+                                                                                            P (x) = x2 · y = x2 (12 − x) = 12x2 − x3
+                                                                                            x > 0 en y = 12 − x > 0 ⇒ domP = ]0, 12[
+                                                                        Eerste afgeleide:   P ′ (x) = 24x − 3x2 = 3x (8 − x)    nulwaarden: x = 0   en x = 8
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {Keuze onbekenden:}\quad &amp; x=\text {getal dat gekwadrateerd wordt}, \quad y=\text {het andere getal} \\ \text {Opstellen functie:}\quad &amp; x+y=12 \Rightarrow y=12-x \\ &amp;
+P(x)=x^2\cdot y=x^2\,(12-x)=12x^2-x^3 \\ &amp; x&gt;0 \text { en } y=12-x&gt;0 \Rightarrow \dom P=\,]0,12[ \\ \text {Eerste afgeleide:}\quad &amp; P&apos;(x)=24x-3x^2=3x\,(8-x) \qquad \text
+{nulwaarden: } x=0\ \lightning \text { en } x=8
+\end{align*}
+\(x=0\) valt buiten \(]0,12[\): beide getallen moeten positief zijn.
+</p>
+
+<p>
+\[ \begin {array}{r@{\,}c|ccccc} &amp; x &amp; 0 &amp; &amp; 8 &amp; &amp; 12 \\ \hline &amp; 3x &amp; &amp; + &amp; + &amp; + &amp; \\ &amp; 8-x &amp; &amp; + &amp; 0 &amp; - &amp; \\ \hline
+&amp; P&apos;(x) &amp; &amp; + &amp; 0 &amp; - &amp; \\ \hline &amp; P(x) &amp; &amp; \nearrow &amp; \tvmax {256} &amp; \searrow &amp; \end {array} \]
+</p>
+
+<p>
+Het product is maximaal voor \(x=8\) en \(y=12-8=4\): \(P_{\max }=8^2\cdot 4=256\).
+</p>
+
+
+<div class="aside">
+
+<p>
+Wie \(6\) en \(6\) gokt, vindt \(6^2\cdot 6=216&lt;256\). De symmetrische keuze ligt voor de hand, maar het kwadraat maakt de twee getallen ongelijk belangrijk. Hier moet de afgeleide beslissen, niet het gevoel.
+</p>
+
+</div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="som-product" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-7"
+    class="lateximagesource"
+><!--
+P (x)
+
+ 256
+ 216
+
+ 150
+ 100
+  50
+
+        2   4   6   8   10   12   x
+--><img
+    src="mkpiweb-images/image-7.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x\) over de \(x\)-as: het andere getal is \(y=12-x\) en de grafiek toont het product \(x^2\cdot y\). Vergelijk de
+gok \(6\) en \(6\) met het maximum.</figcaption> </figure>
+</p>
+<!--
+...... subsection Voorbeeld 2: op ieder potje past een dekseltje ......
+-->
+<h5 id="autosec-48"><span class="sectionnumber">2&#x2003;</span>Voorbeeld 2: op ieder potje past een dekseltje</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+Een fabrikant maakt cilindervormige potjes met een inhoud van \(300\text { cm}^3\). Bodem en mantel zijn uit materiaal van \(0.002\) euro per \(\text {cm}^2\). Op elk potje past een dekseltje: een schijf met een opstaande
+rand van \(0.5\text { cm}\) hoog, uit materiaal van \(0.003\) euro per \(\text {cm}^2\). Welke afmetingen geven de goedkoopste verpakking?
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                             Keuze onbekenden:      r = straal grondvlak,     h = hoogte potje (in cm)
+                                                                                                                               300
+                                                                                       Gegeven:     I = 300 = πr2 · h ⇒ h =
+                                                                                                                               πr2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {Keuze onbekenden:}\quad &amp; r=\text {straal grondvlak},\quad h=\text {hoogte potje (in cm)} \\ \text {Gegeven:}\quad &amp; I=300=\pi r^2\cdot h \Rightarrow h=\frac {300}{\pi r^2}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                     300                                   
+                                                                         Kostenfunctie:                     πr2 · 0.002 + 2πr
+                                                                                          k(r) = 2πr · 2 + |{z}                            2
+                                                                                                                           | {z } |{z} · 0.003
+                                                                                                                               · 0.5 + πr
+                                                                                                  | {zπr } bodem             rand      schijf
+                                                                                                      mantel
+                                                                                                  1.2
+                                                                                                =     + 0.002πr2 + 0.003πr + 0.003πr2
+                                                                                                   r
+                                                                                                                       1.2
+                                                                                                = 0.005πr2 + 0.003πr +
+                                                                                                                        r
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {Kostenfunctie:}\quad k(r) &amp;= \Bigl (\underbrace {2\pi r\cdot \frac {300}{\pi r^2}}_{\text {mantel}} +\underbrace {\pi r^2}_{\text {bodem}}\Bigr )\cdot 0.002 +\Bigl (\underbrace
+{2\pi r\cdot 0.5}_{\text {rand}} +\underbrace {\pi r^2}_{\text {schijf}}\Bigr )\cdot 0.003 \\ &amp;= \frac {1.2}{r}+0.002\pi r^2+0.003\pi r+0.003\pi r^2 \\ &amp;= 0.005\pi r^2+0.003\pi r+\frac
+{1.2}{r}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                          1.2   10πr3 + 3πr2 − 1200
+                                                                            Eerste afgeleide:   k ′ (r) = 0.01πr + 0.003π −   =
+                                                                                                                          r2          1000 r2
+                                                                                       nulwaarde T : r ≈ 3.27 (grafisch, met het GRM)
+                                                                                      nulwaarde N : r = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {Eerste afgeleide:}\quad k&apos;(r) &amp;= 0.01\pi r+0.003\pi -\frac {1.2}{r^2} = \frac {10\pi r^3+3\pi r^2-1200}{1000\,r^2} \\ \text {nulwaarde } T &amp;:                         r\approx 3.27 \text {
+(grafisch, met het GRM)} \\ \text {nulwaarde } N &amp;: r=0
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{r@{\,}c|ccccc} &amp; r &amp; &amp; 0 &amp; &amp; 3.27 &amp; \\ \hline T &amp; 10\pi r^3+3\pi r^2-1200 &amp; \undefsign &amp; - &amp; - &amp; 0 &amp; + \\ N &amp; 1000\,r^2
+&amp; \undefsign &amp; 0 &amp; + &amp; + &amp; + \\ \hline &amp; k&apos;(r) &amp; \undefsign &amp; | &amp; - &amp; 0 &amp; + \\ \hline &amp; k(r) &amp; \undefsign &amp; | &amp; \searrow &amp;
+\tvmin {0.57} &amp; \nearrow \end {array} \]
+</p>
+
+<p>
+De minimale kost is \(0.57\) euro per potje, voor \(r\approx 3.27\text { cm}\) en \(h=\dfrac {300}{\pi \cdot 3.27^2}\approx 8.93\text { cm}\).
+</p>
+
+<div class="figuur-bewijs grafiek-figuur"><div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="potje" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-8"
+    class="lateximagesource"
+><!--
+k(r)
+  2
+
+ 1.5
+
+  1
+
+0.57
+
+
+       1   2   3.27   5   6   7   8   r
+--><img
+    src="mkpiweb-images/image-8.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(r\) over de \(x\)-as, of gebruik de schuifregelaar onder het potje. Het potje heeft altijd een inhoud van
+\(300\text { cm}^3\); de grafiek toont de kost \(k(r)\) in euro.</figcaption> </figure>
+</p>
+
+</div><div>
+<div class="center">
+
+<p>
+<iframe data-verhouding="3/5" src="./potje.html?v=086d4911b525" allowfullscreen loading="lazy"></iframe>
+</p>
+</div>
+
+</div></div>
+<!--
+...... subsection Voorbeeld 3: maximale oppervlakte langs een muur ......
+-->
+<h5 id="autosec-53"><span class="sectionnumber">3&#x2003;</span>Voorbeeld 3: maximale oppervlakte langs een muur</h5>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Je hebt \(60\text { m}\) omheining om een rechthoekige tuin af te bakenen. Eén zijde grenst aan een lange muur en heeft geen omheining nodig. Welke afmetingen geven de grootste oppervlakte?
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-9"
+    class="lateximagesource"
+><!--
+     y
+
+x          x
+
+    muur
+--><img
+    src="mkpiweb-images/image-9.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                         Keuze onbekenden: x = diepte (loodrecht op de muur),        y = breedte (langs de muur)
+                                                                           Opstellen functie: 2x + y = 60 ⇒ y = 60 − 2x
+                                                                                                A(x) = x · y = x (60 − 2x) = 60x − 2x2
+                                                                                                x > 0 en y = 60 − 2x > 0 ⇒ domA = ]0, 30[
+                                                                            Eerste afgeleide:   A′ (x) = 60 − 4x    nulwaarde: x = 15
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {Keuze onbekenden:}\quad &amp; x=\text {diepte (loodrecht op de muur)}, \quad y=\text {breedte (langs de muur)} \\ \text {Opstellen functie:}\quad &amp; 2x+y=60 \Rightarrow y=60-2x \\
+&amp; A(x)=x\cdot y=x\,(60-2x)=60x-2x^2 \\ &amp; x&gt;0 \text { en } y=60-2x&gt;0 \Rightarrow \dom A=\,]0,30[ \\ \text {Eerste afgeleide:}\quad &amp; A&apos;(x)=60-4x \qquad \text {nulwaarde:
+} x=15
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{c|ccccc} x &amp; 0 &amp; &amp; 15 &amp; &amp; 30 \\ \hline A&apos;(x) &amp; &amp; + &amp; 0 &amp; - &amp; \\ \hline A(x) &amp; &amp; \nearrow &amp; \tvmax {450} &amp; \searrow
+&amp; \end {array} \qquad \lim _{x\underset {&gt;}{\to }0}A(x)=0,\quad \lim _{x\underset {&lt;}{\to }30}A(x)=0 \]
+</p>
+
+<p>
+De oppervlakte is maximaal voor \(x=15\text { m}\) en \(y=60-2\cdot 15=30\text { m}\): \(A_{\max }=15\cdot 30=450\text { m}^2\).
+</p>
+
+
+<div class="aside">
+
+<p>
+De beste tuin is een half vierkant: \(y=2x\). Spiegel je ze in de muur, dan krijg je een vierkant.
+</p>
+
+</div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="omheining" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-10"
+    class="lateximagesource"
+><!--
+A(x)
+
+450
+400
+
+300
+
+200
+
+100
+
+       5   10   15   20   25   30   x
+--><img
+    src="mkpiweb-images/image-10.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x\) over de \(x\)-as. De schets toont de tuin tegen de muur op schaal, de grafiek de oppervlakte \(A(x)\) in
+\(\text {m}^2\).</figcaption> </figure>
+</p>
+<!--
+...... subsection Voorbeeld 4: maximale inhoud van een open doos ......
+-->
+<h5 id="autosec-60"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 4: maximale inhoud van een open doos</h5>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+Uit een vierkant karton van \(30\text { cm}\) op \(30\text { cm}\) knip je in elke hoek een vierkantje met zijde \(x\) weg, en je plooit de randen op tot een open doos. Welke \(x\) geeft de grootste inhoud?
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="open-doos" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-11"
+    class="lateximagesource"
+><!--
+     x
+
+
+
+
+30
+
+         30 − 2x
+                   x
+
+           30
+--><img
+    src="mkpiweb-images/image-11.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x\) over de \(x\)-as. De schets toont het karton met de weggeknipte hoeken op schaal, de grafiek de inhoud
+\(V(x)\) in \(\text {cm}^3\).</figcaption> </figure>
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                    Keuze onbekenden: x = zijde van een weggeknipt vierkantje = hoogte van de doos
+                                                                      Opstellen functie: V (x) = (30 − 2x)2 · x = (900 − 120x + 4x2 ) x = 4x3 − 120x2 + 900x
+                                                                                           x > 0 en 30 − 2x > 0 ⇒ domV = ]0, 15[
+                                                                       Eerste afgeleide:   V ′ (x) = 12x2 − 240x + 900 = 12 (x2 − 20x + 75)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {Keuze onbekenden:}\quad &amp; x=\text {zijde van een weggeknipt vierkantje = hoogte van de doos} \\ \text {Opstellen functie:}\quad &amp; V(x)=(30-2x)^2\cdot x
+=(900-120x+4x^2)\,x=4x^3-120x^2+900x \\ &amp; x&gt;0 \text { en } 30-2x&gt;0 \Rightarrow \dom V=\,]0,15[ \\ \text {Eerste afgeleide:}\quad &amp; V&apos;(x)=12x^2-240x+900=12\,(x^2-20x+75)
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                         √
+                                                                                     2                            20 ±400 − 300   20 ± 10
+                                                                                    x − 20x + 75 = 0 ⇐⇒ x =                     =
+                                                                                                                       2             2
+                                                                                                        ⇐⇒ x = 5 of x = 15
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2-20x+75=0 &amp;\iff x=\frac {20\pm \sqrt {400-300}}{2}=\frac {20\pm 10}{2} \\ &amp;\iff x=5 \text { of } x=15\ \lightning
+\end{align*}
+\(x=15\) valt buiten \(]0,15[\): de doos zou geen bodem meer hebben.
+</p>
+
+<p>
+\[ \begin {array}{c|ccccc} x &amp; 0 &amp; &amp; 5 &amp; &amp; 15 \\ \hline V&apos;(x) &amp; &amp; + &amp; 0 &amp; - &amp; \\ \hline V(x) &amp; &amp; \nearrow &amp; \tvmax {2000} &amp; \searrow
+&amp; \end {array} \]
+</p>
+
+<p>
+De inhoud is maximaal voor \(x=5\text { cm}\): \(V_{\max }=5\cdot 20^2=2000\text { cm}^3=2\text { liter}\).
+</p>
+<!--
+...... subsection Stappenplan ......
+-->
+<h5 id="autosec-64"><span class="sectionnumber">5&#x2003;</span>Stappenplan</h5>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> <b>Lees en schets.</b> Kies de onbekenden en zet de gegevens in een schets.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> <b>Opstellen functie.</b> Zet de voorwaarden (een vaste omtrek, een vaste inhoud, &#x2026;) om in vergelijkingen en druk de grootheid uit in één onbekende. Bepaal het domein.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> <b>Eerste afgeleide.</b> Bereken \(f&apos;(x)\) en de nulwaarden van teller en noemer in het domein.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> <b>Tekenverloop.</b> Lees uit het tekenverloop van \(f&apos;\) af waar het maximum of het minimum ligt, en kijk naar de randen van het domein.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> <b>Besluit.</b> Geef alle gevraagde grootheden, met hun eenheid, in een volledige zin.
+</p>
+</li>
+</ul>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-65"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<p>
+De oefeningen hieronder komen uit VBTL Analyse 2.
+</p>
+
+<div class="cursus-oefenbalk"></div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 23 (p 204) ......
+-->
+<h6 id="autosec-66">VBTL oefening 23 (p 204)</h6>
+<a id="mkpiweb-autopage-66"></a>
+
+
+<p>
+Een bedrijf bouwt een isolatiezaaltje met een vierkant grondvlak en een inhoud van \(1200\text { m}^3\). Vloertegels kosten \(30\) euro per \(\text {m}^2\), plafondtegels \(20\) euro per \(\text {m}^2\) en wandtegels
+\(27.5\) euro per \(\text {m}^2\). Bereken de hoogte en de lengte waarvoor de kostprijs minimaal is. Hoe groot is die kostprijs?
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(l\approx 10.97\text { m}\), \(h\approx 9.97\text { m}\), kostprijs \(\approx 18\,049.86\) euro</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                     Keuze onbekenden:    h = hoogte,    l = lengte
+                                                                                          ⇒ opp. vloer = l2 ,     opp. plafond = l2 ,   opp. wanden = 4 · l · h
+                                                                                                                      1200
+                                                                               Gegeven:   I = 1200 = l2 · h ⇒ h =
+                                                                                                                       l2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {Keuze onbekenden:}\quad &amp; h=\text {hoogte},\quad l=\text {lengte} \\ &amp; \Rightarrow \text {opp.\ vloer}=l^2,\quad \text {opp.\ plafond}=l^2, \quad \text {opp.\ wanden}=4\cdot
+l\cdot h \\ \text {Gegeven:}\quad &amp; I=1200=l^2\cdot h \Rightarrow h=\frac {1200}{l^2}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       ⇒ K(l) = 30 · l2 + 20 · l2 + 27.5 · 4 · l · h
+                                                                                                                   1200            132 000
+                                                                                                = 50 l2 + 110 · l ·      = 50 l2 +
+                                                                                                                    l2                l
+                                                                                                                            3
+                                                                                                           132 000     100 l − 132 000
+                                                                                       ⇒ K ′ (l) = 100 l −          =
+                                                                                                             l2               l2
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow K(l) &amp;= 30\cdot l^2+20\cdot l^2+27.5\cdot 4\cdot l\cdot h \\ &amp;= 50\,l^2+110\cdot l\cdot \frac {1200}{l^2} = 50\,l^2+\frac {132\,000}{l} \\ \Rightarrow K&apos;(l) &amp;=
+100\,l-\frac {132\,000}{l^2} = \frac {100\,l^3-132\,000}{l^2}
+\end{align*}
+Nulwaarde \(T\): \(l^3=1320 \Rightarrow l=\sqrt [3]{1320}\approx 10.97\); nulwaarde \(N\): \(l=0\).
+</p>
+
+<p>
+\[ \begin {array}{r@{\,}c|ccccc} &amp; l &amp; &amp; 0 &amp; &amp; 10.97 &amp; \\ \hline T &amp; 100\,l^3-132\,000 &amp; \undefsign &amp; - &amp; - &amp; 0 &amp; + \\ N &amp; l^2 &amp;
+\undefsign &amp; 0 &amp; + &amp; + &amp; + \\ \hline &amp; K&apos;(l) &amp; \undefsign &amp; | &amp; - &amp; 0 &amp; + \\ \hline &amp; K(l) &amp; \undefsign &amp; | &amp; \searrow &amp; \text
+{min} &amp; \nearrow \end {array} \]
+</p>
+
+<p>
+De kosten zijn minimaal (ongeveer \(18\,049.86\) euro) als \(l\approx 10.97\text { m}\) en \(h=\dfrac {1200}{l^2}\approx 9.97\text { m}\).
+</p>
+</div>
+
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 25 (p 204) ......
+-->
+<h6 id="autosec-67">VBTL oefening 25 (p 204)</h6>
+<a id="mkpiweb-autopage-67"></a>
+
+
+<p>
+Uit een metalen plaat van \(30\text { cm}\) op \(50\text { cm}\) snijden we in elke hoek een even groot vierkantje weg. Daarna plooien we de plaat tot een open bakje.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(a)</span> Bereken de lengte, de breedte en de inhoud van het bakje als de hoogte \(4\text { cm}\) is.
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(l=42\text { cm}\), \(b=22\text { cm}\), \(I=3696\text { cm}^3\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                   h = 4 ⇒ l = 50 − 2 · 4 = 42 cm en b = 30 − 2 · 4 = 22 cm
+                                                                                         ⇒ I = 4 · 42 · 22 = 3696 cm3
+
+
+-->
+
+<p>
+
+\begin{align*}
+h=4 &amp;\Rightarrow l=50-2\cdot 4=42\text { cm} \text { en } b=30-2\cdot 4=22\text { cm} \\ &amp;\Rightarrow I=4\cdot 42\cdot 22=3696\text { cm}^3
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(b)</span> Druk de lengte, de breedte en de inhoud uit in functie van de hoogte \(h\). Tussen welke waarden ligt \(h\)?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(I(h)=(50-2h)(30-2h)\,h\) met \(0&lt;h&lt;15\)</span>
+</p>
+<p>
+\[ l=50-2h,\qquad b=30-2h,\qquad I(h)=(50-2h)(30-2h)\cdot h, \qquad 0&lt;h&lt;15 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">(c)</span> Voor welke afmetingen is de inhoud maximaal? Hoe groot is die?
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(h\approx 6.07\text { cm}\), \(l\approx 37.86\text { cm}\), \(b\approx 17.86\text { cm}\), \(I_{\max }\approx 4104.41\text { cm}^3\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                 I(h) = l · b · h = (50 − 2h)(30 − 2h) · h = 1500h − 160h2 + 4h3
+                                                                                I ′ (h) = 1500 − 320h + 12h2
+
+
+-->
+
+<p>
+
+\begin{align*}
+I(h) &amp;= l\cdot b\cdot h=(50-2h)(30-2h)\cdot h = 1500h-160h^2+4h^3 \\ I&apos;(h) &amp;= 1500-320h+12h^2
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                              √            √
+                                                                                                      320 ± 40 19    40 ± 5 19
+                                                                                      nulwaarden: h =              =
+                                                                                                           24            3
+                                                                                                    ⇒ h ≈ 20.60 ≥ 15    of h ≈ 6.07
+
+
+-->
+
+<p>
+
+\begin{align*}
+\text {nulwaarden: } h &amp;= \frac {320\pm 40\sqrt {19}}{24} = \frac {40\pm 5\sqrt {19}}{3} \\ &amp;\Rightarrow h\approx 20.60\geq 15\ \lightning \quad \text {of}\quad h\approx 6.07
+\end{align*}
+\(h\approx 20.60\) valt buiten het domein \(]0,15[\).
+</p>
+<p>
+\[ \begin {array}{c|ccccc} h &amp; 0 &amp; &amp; 6.07 &amp; &amp; 15 \\ \hline I&apos;(h) &amp; &amp; + &amp; 0 &amp; - &amp; \\ \hline I(h) &amp; &amp; \nearrow &amp; \text {max} &amp;
+\searrow &amp; \end {array} \]
+</p>
+<p>
+De maximale inhoud is \(4104.41\text { cm}^3\). De lengte is dan \(37.86\text { cm}\), de hoogte \(6.07\text { cm}\) en de breedte \(17.86\text { cm}\).
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="metalen-bakje" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-12"
+    class="lateximagesource"
+><!--
+ I(h)
+
+4,104
+
+3,000
+
+2,000
+
+1,000
+
+
+        3   6.07   9   12   15   h
+--><img
+    src="mkpiweb-images/image-12.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(h\) over de \(x\)-as. De schets toont de plaat van \(30\text { cm}\) op \(50\text { cm}\) met de weggesneden
+hoeken, de grafiek de inhoud \(I(h)\) in \(\text {cm}^3\).</figcaption> </figure>
+</p>
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-71"><span class="sectionnumber">7&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-71"></a>
+
+
+<p>
+VBTL Analyse 3: p&nbsp;46 nr&nbsp;32 (a tot d) en 33 (a tot c en e); p&nbsp;47 nr&nbsp;34 en 35; p&nbsp;48 nr&nbsp;37
+</p>
+
+<p>
+VBTL Analyse 2: p&nbsp;204 nr&nbsp;22 en 24; p&nbsp;205 nr&nbsp;26 en 27; p&nbsp;206 nr&nbsp;29 en 30; p&nbsp;207 nr&nbsp;32 tot 35; p&nbsp;208 nr&nbsp;36 tot 40; p&nbsp;209 nr&nbsp;42, 43 en 45; p&nbsp;210
+nr&nbsp;47 en 50 tot 52
+</p>
+<!--
+...... section Betekenis van de tweede afgeleide ......
+-->
+<h4 id="autosec-72"><span class="sectionnumber">IV&#x2003;</span>Betekenis van de tweede afgeleide</h4>
+<a id="mkpiweb-autopage-72"></a>
+<!--
+...... subsection Grafisch voorbeeld ......
+-->
+<h5 id="autosec-73"><span class="sectionnumber">1&#x2003;</span>Grafisch voorbeeld</h5>
+<a id="mkpiweb-autopage-73"></a>
+
+
+<p>
+Bekijk de grafiek van \(f(x)=\frac {1}{9}x^3-x+2\) in \([-3,3]\).
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="hol-bol" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-13"
+    class="lateximagesource"
+><!--
+                  y
+     bol ∩
+                  3
+                      BP
+                  2
+
+                  1
+                               hol ∪
+−3   −2      −1            1      2    3   x
+--><img
+    src="mkpiweb-images/image-13.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Schuif het punt over de grafiek en volg hoe de rico van de raaklijn verandert. Met de knoppen toon je de grafiek van
+\(f&apos;\) en het buigpunt met zijn buigraaklijn.</figcaption> </figure>
+</p>
+
+<p>
+\[ f&apos; \text { geeft de verandering weer van } f \quad \Rightarrow \quad f&apos;&apos; \text { geeft de verandering weer van } f&apos; \]
+</p>
+
+<p>
+In \([-3,0]\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                              rico raaklijn neemt af ⇒ f ′ (x) is dalend
+                                                                                                     ⇒ f ′′ (x) < 0
+                                                                                                     ⇒ f is bol of concaaf (holle zijde naar onder, ∩)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {rico raaklijn neemt af} &amp;\Rightarrow f&apos;(x) \text { is dalend} \\ &amp;\Rightarrow f&apos;&apos;(x)&lt;0 \\ &amp;\Rightarrow f \text { is bol of concaaf (holle zijde naar onder,
+} \cap )
+\end{align*}
+In \([0,3]\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                              rico raaklijn neemt toe ⇒ f ′ (x) is stijgend
+                                                                                                      ⇒ f ′′ (x) > 0
+                                                                                                      ⇒ f is hol of convex (holle zijde naar boven, ∪)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\text {rico raaklijn neemt toe} &amp;\Rightarrow f&apos;(x) \text { is stijgend} \\ &amp;\Rightarrow f&apos;&apos;(x)&gt;0 \\ &amp;\Rightarrow f \text { is hol of convex (holle zijde naar
+boven, } \cup )
+\end{align*}
+In het punt \((0,2)\) gaat \(f&apos;&apos;\) over van negatief naar positief:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                ⇒ f ′ bereikt een extremum in x = 0
+                                                                                                ⇒ f gaat over van bol naar hol
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp;\Rightarrow f&apos; \text { bereikt een extremum in } x=0 \\ &amp;\Rightarrow f \text { gaat over van bol naar hol}
+\end{align*}
+
+</p>
+
+<p>
+Een punt van de grafiek waar de kromme overgaat van <b>bol</b> naar <b>hol</b> (of omgekeerd), noemen we een <b>buigpunt</b>. De raaklijn in dat punt noemen we een <b>buigraaklijn</b>.
+</p>
+
+<p>
+Merk op: een buigraaklijn gaat dwars door de grafiek.
+</p>
+<!--
+...... subsection Stelling ......
+-->
+<h5 id="autosec-77"><span class="sectionnumber">2&#x2003;</span>Stelling</h5>
+<a id="mkpiweb-autopage-77"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                             f is continu in [a, b]
+                                                                                                         
+                                                                        f is convex of hol in [a, b] ⇐
+                                                                                                             f ′′ (x) > 0 in ]a, b[
+                                                                                                             f is continu in [a, b]
+                                                                                                         
+                                                                       f is concaaf of bol in [a, b] ⇐
+                                                                                                             f ′′ (x) < 0 in ]a, b[
+                                                                                                     f is continu in a
+                                                                                                    
+
+                                                                        f heeft een buigpunt in a ⇐   f ′′ verandert van teken in a
+                                                                                                      er is een raaklijn in a, f (a)
+                                                                                                    
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+f \text { is convex of hol in } [a,b] &amp;\Leftarrow \left \{\begin{array}{l} f \text { is continu in } [a,b] \\ f&apos;&apos;(x)&gt;0 \text { in } ]a,b[ \end {array}\right . \\ f \text { is
+concaaf of bol in } [a,b] &amp;\Leftarrow \left \{\begin{array}{l} f \text { is continu in } [a,b] \\ f&apos;&apos;(x)&lt;0 \text { in } ]a,b[ \end {array}\right . \\ f \text { heeft een
+buigpunt in } a &amp;\Leftarrow \left \{\begin{array}{l} f \text { is continu in } a \\ f&apos;&apos; \text { verandert van teken in } a \\ \text {er is een raaklijn in } \bigl (a,f(a)\bigr )
+\end {array}\right .
+\end{align*}
+
+</p>
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-78"><span class="sectionnumber">3&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-78"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection a.      ......
+-->
+<h6 id="autosec-79">a. \(f(x)=\dfrac {2}{x-2}\)</h6>
+<a id="mkpiweb-autopage-79"></a>
+
+
+<p>
+\(\dom f=\R \setminus \{2\}\).
+</p>
+
+<p>
+\[ f&apos;(x)=\frac {-2}{(x-2)^2} \qquad f&apos;&apos;(x)=\frac {4}{(x-2)^3} \]
+</p>
+
+<p>
+\[ \begin {array}{r@{\,}c|ccc} &amp; x &amp; &amp; 2 &amp; \\ \hline T &amp; -2 &amp; - &amp; - &amp; - \\ N &amp; (x-2)^2 &amp; + &amp; 0 &amp; + \\ \hline &amp; f&apos;(x) &amp; - &amp; |
+&amp; - \\ \hline &amp; f(x) &amp; \searrow &amp; \text {VA} &amp; \searrow \end {array} \qquad \begin {array}{r@{\,}c|ccc} &amp; x &amp; &amp; 2 &amp; \\ \hline T &amp; 4 &amp; + &amp; +
+&amp; + \\ N &amp; (x-2)^3 &amp; - &amp; 0 &amp; + \\ \hline &amp; f&apos;&apos;(x) &amp; - &amp; | &amp; + \\ \hline &amp; f(x) &amp; \cap &amp; \text {VA} &amp; \cup \end {array} \]
+</p>
+
+<p>
+Bol links van \(2\), hol rechts van \(2\). \(f&apos;&apos;\) verandert van teken in \(2\), maar \(f\) is daar niet continu: geen buigpunt.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection b.      ......
+-->
+<h6 id="autosec-80">b. \(f(x)=x^3\)</h6>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+\[ f&apos;(x)=3x^2 \qquad \begin {array}{c|ccc} x &amp; &amp; 0 &amp; \\ \hline f&apos;(x) &amp; + &amp; 0 &amp; + \\ \hline f(x) &amp; \nearrow &amp; 0 &amp; \nearrow \end {array} \qquad
+\qquad f&apos;&apos;(x)=6x \qquad \begin {array}{c|ccc} x &amp; &amp; 0 &amp; \\ \hline f&apos;&apos;(x) &amp; - &amp; 0 &amp; + \\ \hline f(x) &amp; \cap &amp; \text {BP} &amp; \cup \end
+{array} \]
+</p>
+
+<p>
+In \((0,0)\) is de raaklijn horizontaal, maar er is geen extremum. Het is een buigpunt: \(f\) is continu, de raaklijn bestaat en \(f&apos;&apos;\) verandert van teken.
+</p>
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-81"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-81"></a>
+
+
+<p>
+De oefeningen hieronder komen uit VBTL Analyse 2.
+</p>
+
+<div class="cursus-oefenbalk"></div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 6 (p 200) ......
+-->
+<h6 id="autosec-82">VBTL oefening 6 (p 200)</h6>
+<a id="mkpiweb-autopage-82"></a>
+
+
+<p>
+Bepaal waar de grafiek hol en waar ze bol is. Bereken de coo&#x0308;rdinaten van de buigpunten en een vergelijking van de buigraaklijn.
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">(d)</span> \(f(x)=\dfrac {x^3}{x^2-1}\)
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">bol in \(]-\infty ,-1[\) en \(]0,1[\), hol in \(]-1,0[\) en \(]1,+\infty [\); BP \((0,0)\) met \(t\leftrightarrow y=0\)</span> \(\dom f=\R \setminus \{-1,1\}\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                 3x2 (x2 − 1) − x3 · 2x   x2 (x2 − 3)
+                                                                                    f ′ (x) =                           =
+                                                                                                       (x2 − 1)2           (x2 − 1)2
+                                                                                                 (4x3 − 6x)(x2 − 1)2 − x2 (x2 − 3) · 2 (x2 − 1) · 2x
+                                                                                    f ′′ (x) =
+                                                                                                                    (x2 − 1)4
+                                                                                                 4x5 − 4x3 − 6x3 + 6x − 4x5 + 12x3   2x (x2 + 3)
+                                                                                           =                                       =
+                                                                                                             (x2 − 1)3                (x2 − 1)3
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;(x) &amp;= \frac {3x^2\,(x^2-1)-x^3\cdot 2x}{(x^2-1)^2} = \frac {x^2\,(x^2-3)}{(x^2-1)^2} \\ f&apos;&apos;(x) &amp;= \frac {(4x^3-6x)(x^2-1)^2-x^2\,(x^2-3)\cdot 2\,(x^2-1)\cdot 2x}
+{(x^2-1)^4} \\ &amp;= \frac {4x^5-4x^3-6x^3+6x-4x^5+12x^3}{(x^2-1)^3} = \frac {2x\,(x^2+3)}{(x^2-1)^3}
+\end{align*}
+Nulwaarden \(N\): \(x=1\) en \(x=-1\); nulwaarde \(T\): \(x=0\).
+</p>
+<p>
+\[ \begin {array}{r@{\,}c|ccccccc} &amp; x &amp; &amp; -1 &amp; &amp; 0 &amp; &amp; 1 &amp; \\ \hline T &amp; 2x\,(x^2+3) &amp; - &amp; - &amp; - &amp; 0 &amp; + &amp; + &amp; + \\ N &amp;
+(x^2-1)^3 &amp; + &amp; 0 &amp; - &amp; - &amp; - &amp; 0 &amp; + \\ \hline &amp; f&apos;&apos;(x) &amp; - &amp; | &amp; + &amp; 0 &amp; - &amp; | &amp; + \\ \hline &amp; f(x) &amp; \cap &amp;
+\text {VA} &amp; \cup &amp; \text {BP} &amp; \cap &amp; \text {VA} &amp; \cup \end {array} \]
+</p>
+<p>
+\(\text {BP}=(0,0)\). De buigraaklijn \(t\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                      mt = f ′ (0) = 0, door BP(0, 0)
+                                                                                                      ⇒ t ↔ y − 0 = 0 · (x − 0)
+                                                                                                           ⇐⇒ y = 0
+
+
+-->
+
+<p>
+
+\begin{align*}
+m_t &amp;= f&apos;(0)=0, \text { door BP}(0,0) \\ \Rightarrow t &amp;\leftrightarrow y-0=0\cdot (x-0) \\ &amp;\iff y=0
+\end{align*}
+
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<div class="cursus-oefening vbtl-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL oefening 9 (p 201) ......
+-->
+<h6 id="autosec-83">VBTL oefening 9 (p 201)</h6>
+<a id="mkpiweb-autopage-83"></a>
+
+
+<p>
+Bepaal een veeltermfunctie van de derde graad waarvan de grafiek \(P(2,4)\) als buigpunt heeft, met \(-3\) als richtingscoe&#x0308;fficie&#x0308;nt van de buigraaklijn, en die voor \(x=4\) een relatief extremum bereikt.
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(f(x)=\frac {1}{4}x^3-\frac {3}{2}x^2+8\)</span> Met \(f(x)=ax^3+bx^2+cx+d\) is \(f&apos;(x)=3ax^2+2bx+c\) en \(f&apos;&apos;(x)=6ax+2b\).
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                         ′                                           
+                                                                        
+                                                                         f (4) = 0         
+                                                                                             48a + 8b + c = 0         
+                                                                                                                         48a − 48a − 3 + 12a = 0
+                                                                          f (2) = 4           8a + 4b + 2c + d = 4        d = 4 − 8a − 4b − 2c
+                                                                                                                     
+                                                                                         ⇐⇒                        ⇐⇒
+                                                                         f ′′ (2) = 0       12a +  2b = 0              b = −6a
+                                                                         ′
+                                                                                                                     
+                                                                          f (2) = −3          12a + 4b + c = −3           c = −3 + 12a
+                                                                                                                      
+                                                                                                 1
+                                                                                             a= 4
+                                                                                                                    x3   3x2
+                                                                                            
+                                                                                              b = − 23
+                                                                                            
+                                                                                         ⇐⇒               ⇒ f (x) =    −     +8
+                                                                                            
+                                                                                             c=0                   4     2
+                                                                                              d=8
+                                                                                            
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\left \{\begin{array}{l} f&apos;(4)=0 \\ f(2)=4 \\ f&apos;&apos;(2)=0 \\ f&apos;(2)=-3 \end {array}\right . &amp;\iff \left \{\begin{array}{l} 48a+8b+c=0 \\ 8a+4b+2c+d=4 \\ 12a+2b=0 \\
+12a+4b+c=-3 \end {array}\right . \iff \left \{\begin{array}{l} 48a-48a-3+12a=0 \\ d=4-8a-4b-2c \\ b=-6a \\ c=-3+12a \end {array}\right . \\ &amp;\iff \left \{\begin{array}{l} a=\frac {1}{4}
+\\ b=-\frac {3}{2} \\ c=0 \\ d=8 \end {array}\right . \quad \Rightarrow \quad f(x)=\frac {x^3}{4}-\frac {3x^2}{2}+8
+\end{align*}
+
+</p>
+</div>
+
+</div>
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-84"><span class="sectionnumber">5&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-84"></a>
+
+
+<p>
+VBTL Analyse 3: p&nbsp;39 nr&nbsp;4 (b); p&nbsp;41 nr&nbsp;9 en 11; p&nbsp;42 nr&nbsp;12, 14, 17 en 18; p&nbsp;43 nr&nbsp;21 en 22; p&nbsp;44 nr&nbsp;23; p&nbsp;46 nr&nbsp;32 (e) en 33 (d)
+</p>
+<!--
+...... section Verloop van reele functies ......
+-->
+<h4 id="autosec-85"><span class="sectionnumber">V&#x2003;</span>Verloop van ree&#x0308;le functies</h4>
+<a id="mkpiweb-autopage-85"></a>
+<!--
+...... subsection Algemene werkwijze ......
+-->
+<h5 id="autosec-86"><span class="sectionnumber">1&#x2003;</span>Algemene werkwijze</h5>
+<a id="mkpiweb-autopage-86"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Domein
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Continuı&#x0308;teit
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Symmetrie: even als \(f(-x)=f(x)\), oneven als \(f(-x)=-f(x)\) (periodiek met periode \(p\) als \(f(x+k\cdot p)=f(x)\), \(k\in \Z \))
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Snijpunten met de assen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Tekenverloop met nulwaarden en polen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> Asymptoten en ligging: VA, HA en SA
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">7.</span> \(f&apos;(x)\): stijgen en dalen, extrema
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">8.</span> \(f&apos;&apos;(x)\): hol en bol, buigpunten
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">9.</span> Enkele punten (tabel op het GRM) en overzichtstabel
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">10.</span> Grafiek
+</p>
+</li>
+</ul>
+
+
+<div class="aside">
+
+<p>
+Periodiek komt verder aan bod bij de goniometrische functies: \(\sin (x+2\pi )=\sin x\), dus \(p=2\pi \).
+</p>
+
+</div>
+<!--
+...... subsection Veeltermfuncties: een parabool ......
+-->
+<h5 id="autosec-87"><span class="sectionnumber">2&#x2003;</span>Veeltermfuncties: een parabool</h5>
+<a id="mkpiweb-autopage-87"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-88">Oefening 1</h6>
+<a id="mkpiweb-autopage-88"></a>
+
+
+<p>
+Onderzoek het verloop van \(f(x)=\dfrac {1}{4}x^2-\dfrac {1}{2}x-\dfrac {3}{4}\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Domein: <span class="opl opl-vast" style="min-width:5cm">\(\dom f=\R \)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Continuı&#x0308;teit: <span class="opl opl-vast" style="min-width:5cm">continu in \(\R \) (een veeltermfunctie is continu in haar domein)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Symmetrie: <span class="opl opl-vast" style="min-width:5cm">geen</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Snijpunten met de assen
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\((0,-\frac {3}{4})\), \((-1,0)\) en \((3,0)\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                            3                             3
+                                                                                             x=0⇒y=−          ⇒ snijpunt met de y-as: 0, −
+                                                                                                            4                              4
+                                                                                1 2 1    3
+                                                                                  x − x − = 0 ⇐⇒ x2 − 2x − 3 = 0 ⇐⇒ x = −1 of x = 3
+                                                                                4    2   4
+                                                                                             ⇒ snijpunten met de x-as: (−1, 0) en (3, 0)
+
+
+-->
+
+<p>
+
+\begin{align*}
+x=0 &amp;\Rightarrow y=-\frac {3}{4} \Rightarrow \text {snijpunt met de } y\text {-as:               } \Bigl (0,-\frac {3}{4}\Bigr ) \\ \frac {1}{4}x^2-\frac {1}{2}x-\frac {3}{4}=0 &amp;\iff x^2-2x-3=0
+\iff x=-1 \text { of } x=3 \\ &amp;\Rightarrow \text {snijpunten met de } x\text {-as:               } (-1,0) \text { en } (3,0)
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Tekenverloop
+</p>
+<div class="oplossing">
+<p>
+\[ \begin {array}{c|ccccc} x &amp; &amp; -1 &amp; &amp; 3 &amp; \\ \hline f(x) &amp; + &amp; 0 &amp; - &amp; 0 &amp; + \end {array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> Asymptoten
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">geen asymptoten</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                VA:   geen
+                                                                                                          1 2
+                                                                               HA:     lim f (x) = lim            / R ⇒ geen
+                                                                                                           x = +∞ ∈
+                                                                                      x→±∞         x→±∞ 4
+                                                                                                      1 2
+                                                                                          f (x)         x       1
+                                                                                SA:    lim      = lim 4   = lim          / R0 ⇒ geen
+                                                                                                                  x = ±∞ ∈
+                                                                                      x→±∞ x     x→±∞ x    x→±∞ 4
+
+
+-->
+
+<p>
+
+\begin{align*}
+\text {VA:}\quad &amp; \text {geen} \\ \text {HA:}\quad &amp; \lim _{x\to \pm \infty }f(x) =\lim _{x\to \pm \infty }\frac {1}{4}x^2=+\infty \notin \R \Rightarrow \text {geen} \\ \text
+{SA:}\quad &amp; \lim _{x\to \pm \infty }\frac {f(x)}{x} =\lim _{x\to \pm \infty }\frac {\frac {1}{4}x^2}{x} =\lim _{x\to \pm \infty }\frac {1}{4}x=\pm \infty \notin \R _0 \Rightarrow \text
+{geen}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">7.</span> Eerste afgeleide
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">minimum \(f(1)=-1\)</span>
+</p>
+<p>
+\[ f&apos;(x)=\frac {1}{2}x-\frac {1}{2} \qquad \text {nulwaarde:            } x=1 \qquad \begin {array}{c|ccc} x &amp; &amp; 1 &amp; \\ \hline f&apos;(x) &amp; - &amp; 0 &amp; + \\ \hline f(x) &amp;
+\searrow &amp; \tvmin {-1} &amp; \nearrow \end {array} \]
+</p>
+<p>
+Minimum \(f(1)=-1\) voor \(x=1\), met een horizontale raaklijn (HR).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">8.</span> Tweede afgeleide
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">overal hol</span>
+</p>
+<p>
+\[ f&apos;&apos;(x)=\frac {1}{2} \qquad \begin {array}{c|c} x &amp; \\ \hline f&apos;&apos;(x) &amp; + \\ \hline f(x) &amp; \cup \end {array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">9.</span> Enkele punten en overzichtstabel
+</p>
+<div class="oplossing">
+<p>
+\[ \begin {array}{c|ccccccccc} x &amp; -3 &amp; -2 &amp; -1 &amp; 0 &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 \\ \hline f(x) &amp; 3 &amp; \frac {5}{4} &amp; 0 &amp; -\frac {3}{4} &amp; -1 &amp;
+-\frac {3}{4} &amp; 0 &amp; \frac {5}{4} &amp; 3 \end {array} \]
+</p>
+<p>
+\[ \begin {array}{c|ccccc} x &amp; -\infty &amp; &amp; 1 &amp; &amp; +\infty \\ \hline f&apos;(x) &amp; &amp; - &amp; 0 &amp; + &amp; \\ \hline f&apos;&apos;(x) &amp; &amp; + &amp; + &amp; +
+&amp; \\ \hline f(x) &amp; +\infty &amp; \searrow &amp; \tvmin {-1} &amp; \nearrow &amp; +\infty \\ &amp; &amp; \cup &amp; \text {HR} &amp; \cup &amp; \end {array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">10.</span> Grafiek
+</p>
+<div class="oplossing">
+<p>
+Met de gegevens uit 1 tot 9 tekenen we de grafiek hieronder: een parabool.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="verloop-parabool" data-hoogte="24rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-14"
+    class="lateximagesource"
+><!--
+      f (x)
+
+
+         3
+
+         2
+
+         1
+
+−3 −2 −1      1   2   3   4   5   x
+       −1
+--><img
+    src="mkpiweb-images/image-14.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Bouw de grafiek op zoals op het bord: zet met de knoppen de snijpunten, de extrema, de punten uit de tabel en de grafiek
+erbij.</figcaption> </figure>
+</p>
+<!--
+...... subsection Veeltermfuncties: een derdegraadsfunctie ......
+-->
+<h5 id="autosec-92"><span class="sectionnumber">3&#x2003;</span>Veeltermfuncties: een derdegraadsfunctie</h5>
+<a id="mkpiweb-autopage-92"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-93">Oefening 2</h6>
+<a id="mkpiweb-autopage-93"></a>
+
+
+<p>
+Onderzoek het verloop van \(f(x)=\dfrac {1}{36}\,(x^3+3x^2-24x+20)\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Domein: <span class="opl opl-vast" style="min-width:5cm">\(\dom f=\R \)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Continuı&#x0308;teit: <span class="opl opl-vast" style="min-width:5cm">continu in \(\R \)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Symmetrie: <span class="opl opl-vast" style="min-width:5cm">geen</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Snijpunten met de assen
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(P_1(-2-2\sqrt {6},0)\), \(P_2(1,0)\), \(P_3(-2+2\sqrt {6},0)\) en \((0,\frac {5}{9})\)</span> Met de regel van Horner delen we door \(x-1\):
+</p>
+<p>
+\[ \begin {array}{c|cccc} &amp; 1 &amp; 3 &amp; -24 &amp; 20 \\ 1 &amp; &amp; 1 &amp; 4 &amp; -20 \\ \hline &amp; 1 &amp; 4 &amp; -20 &amp; \fbox {$0$} \end {array} \qquad \Rightarrow \qquad
+f(x)=\frac {1}{36}\,(x-1)(x^2+4x-20) \]
+</p>
+<p>
+\[ x^2+4x-20=0 \iff x=\frac {-4\pm \sqrt {96}}{2}=-2\pm 2\sqrt {6} \]
+</p>
+<p>
+Met de \(x\)-as: \(P_1(-2-2\sqrt {6},0)\), \(P_2(1,0)\) en \(P_3(-2+2\sqrt {6},0)\). Met de \(y\)-as: \(\bigl (0,\frac {5}{9}\bigr )\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Tekenverloop
+</p>
+<div class="oplossing">
+<p>
+Met \(x_1=-2-2\sqrt {6}\approx -6.90\) en \(x_3=-2+2\sqrt {6}\approx 2.90\):
+</p>
+<p>
+\[ \begin {array}{c|ccccccc} x &amp; &amp; x_1 &amp; &amp; 1 &amp; &amp; x_3 &amp; \\ \hline x-1 &amp; - &amp; - &amp; - &amp; 0 &amp; + &amp; + &amp; + \\ \frac {1}{36}(x^2+4x-20) &amp; +
+&amp; 0 &amp; - &amp; - &amp; - &amp; 0 &amp; + \\ \hline f(x) &amp; - &amp; 0 &amp; + &amp; 0 &amp; - &amp; 0 &amp; + \end {array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> Asymptoten
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">geen asymptoten</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                VA:   geen
+                                                                                HA:                    / R en
+                                                                                        lim f (x) = +∞ ∈                        / R ⇒ geen
+                                                                                                                 lim f (x) = −∞ ∈
+                                                                                      x→+∞                      x→−∞
+
+                                                                                              f (x)       1 2
+                                                                                SA:     lim         = lim           / R0 ⇒ geen
+                                                                                                             x = +∞ ∈
+                                                                                      x→±∞      x    x→±∞ 36
+
+
+-->
+
+<p>
+
+\begin{align*}
+\text {VA:}\quad &amp; \text {geen} \\ \text {HA:}\quad &amp; \lim _{x\to +\infty }f(x)=+\infty \notin \R \text { en } \lim _{x\to -\infty }f(x)=-\infty \notin \R \Rightarrow \text {geen} \\
+\text {SA:}\quad &amp; \lim _{x\to \pm \infty }\frac {f(x)}{x} =\lim _{x\to \pm \infty }\frac {1}{36}\,x^2=+\infty \notin \R _0 \Rightarrow \text {geen}
+\end{align*}
+
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">7.</span> Eerste afgeleide
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">relatief maximum \(\frac {25}{9}\) voor \(x=-4\), relatief minimum \(-\frac {2}{9}\) voor \(x=2\)</span>
+</p>
+<p>
+\[ f&apos;(x)=\frac {1}{36}\,(3x^2+6x-24)=\frac {1}{12}\,(x^2+2x-8) \qquad \text {nulwaarden: } x=-4 \text { en } x=2 \]
+</p>
+<p>
+\[ \begin {array}{c|ccccc} x &amp; &amp; -4 &amp; &amp; 2 &amp; \\ \hline f&apos;(x) &amp; + &amp; 0 &amp; - &amp; 0 &amp; + \\ \hline f(x) &amp; \nearrow &amp; \tvmax {\frac {25}{9}} &amp;
+\searrow &amp; \tvmin {-\frac {2}{9}} &amp; \nearrow \end {array} \]
+</p>
+<p>
+Relatief maximum \(\frac {25}{9}\) voor \(x=-4\) en relatief minimum \(-\frac {2}{9}\) voor \(x=2\), telkens met een horizontale raaklijn.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">8.</span> Tweede afgeleide
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">BP \(\bigl (-1,\frac {23}{18}\bigr )\) met rico buigraaklijn \(-\frac {3}{4}\)</span>
+</p>
+<p>
+\[ f&apos;&apos;(x)=\frac {1}{12}\,(2x+2)=\frac {1}{6}\,(x+1) \qquad \text {nulwaarde: } x=-1 \qquad \begin {array}{c|ccc} x &amp; &amp; -1 &amp; \\ \hline f&apos;&apos;(x) &amp; - &amp; 0
+&amp; + \\ \hline f(x) &amp; \cap &amp; \text {BP} &amp; \cup \end {array} \]
+</p>
+<p>
+\(\text {BP}=\bigl (-1,\frac {23}{18}\bigr )\) met rico buigraaklijn \(f&apos;(-1)=-\frac {9}{12}=-\frac {3}{4}\):
+</p>
+<p>
+\[ t\leftrightarrow y-\frac {23}{18}=-\frac {3}{4}\,(x+1) \iff 27x+36y-19=0 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">9.</span> Enkele punten en overzichtstabel
+</p>
+<div class="oplossing">
+<p>
+\[ \begin {array}{c|cccccccccccccc} x &amp; -7 &amp; -6 &amp; -5 &amp; -4 &amp; -3 &amp; -2 &amp; -1 &amp; 0 &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 &amp; 6 \\ \hline f(x) &amp; -\frac {2}{9}
+&amp; \frac {14}{9} &amp; \frac {5}{2} &amp; \frac {25}{9} &amp; \frac {23}{9} &amp; 2 &amp; \frac {23}{18} &amp; \frac {5}{9} &amp; 0 &amp; -\frac {2}{9} &amp; \frac {1}{18} &amp; 1 &amp;
+\frac {25}{9} &amp; \frac {50}{9} \end {array} \]
+</p>
+<p>
+\[ \begin {array}{c|ccccccccc} x &amp; -\infty &amp; &amp; -4 &amp; &amp; -1 &amp; &amp; 2 &amp; &amp; +\infty \\ \hline f&apos;(x) &amp; &amp; + &amp; 0 &amp; - &amp; - &amp; - &amp; 0 &amp; +
+&amp; \\ \hline f&apos;&apos;(x) &amp; &amp; - &amp; - &amp; - &amp; 0 &amp; + &amp; + &amp; + &amp; \\ \hline f(x) &amp; -\infty &amp; \nearrow &amp; \tvmax {\frac {25}{9}} &amp; \searrow
+&amp; \tvbp {\frac {23}{18}} &amp; \searrow &amp; \tvmin {-\frac {2}{9}} &amp; \nearrow &amp; +\infty \\ &amp; &amp; \cap &amp; \text {HR} &amp; \cap &amp; &amp; \cup &amp; \text {HR} &amp;
+\cup &amp; \end {array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">10.</span> Grafiek
+</p>
+<div class="oplossing">
+<p>
+Met de gegevens uit 1 tot 9 tekenen we de grafiek hieronder.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="verloop-derdegraads" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-15"
+    class="lateximagesource"
+><!--
+                       y
+                       4
+
+                       3
+
+                       2
+
+                       1
+
+
+
+−7 −6 −5 −4 −3 −2 −1       1   2   3   4   5   6   x
+                   −1
+--><img
+    src="mkpiweb-images/image-15.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Bouw de grafiek op zoals op het bord: zet met de knoppen de snijpunten, de extrema, het buigpunt met zijn buigraaklijn, de
+punten uit de tabel en de grafiek erbij.</figcaption> </figure>
+</p>
+<!--
+...... subsection Rationale functies ......
+-->
+<h5 id="autosec-97"><span class="sectionnumber">4&#x2003;</span>Rationale functies</h5>
+<a id="mkpiweb-autopage-97"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-98">Oefening 3</h6>
+<a id="mkpiweb-autopage-98"></a>
+
+
+<p>
+Onderzoek het verloop van \(f(x)=\dfrac {2x}{x^2-1}\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Domein
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">\(\dom f=\R \setminus \{-1,1\}\)</span> Nulwaarden \(N\): \(x^2-1=0\iff x=1\) of \(x=-1\), dus \(\dom f=\R \setminus \{-1,1\}\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Continuı&#x0308;teit: <span class="opl opl-vast" style="min-width:5cm">continu in \(\R \setminus \{-1,1\}\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Symmetrie
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">oneven</span> \(f(-x)=\dfrac {-2x}{x^2-1}=-f(x)\): \(f\) is oneven, de grafiek is symmetrisch ten opzichte van de oorsprong.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Snijpunten met de assen: <span class="opl opl-vast" style="min-width:5cm">enkel \((0,0)\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Tekenverloop
+</p>
+<div class="oplossing">
+<p>
+Nulwaarde \(T\): \(x=0\); nulwaarden \(N\): \(x=1\) en \(x=-1\).
+</p>
+<p>
+\[ \begin {array}{r@{\,}c|ccccccc} &amp; x &amp; &amp; -1 &amp; &amp; 0 &amp; &amp; 1 &amp; \\ \hline T &amp; 2x &amp; - &amp; - &amp; - &amp; 0 &amp; + &amp; + &amp; + \\ N &amp; x^2-1 &amp; +
+&amp; 0 &amp; - &amp; - &amp; - &amp; 0 &amp; + \\ \hline &amp; f(x) &amp; \underset {\text {onder HA}}{-} &amp; | &amp; \underset {\text {boven HA}}{+} &amp; 0 &amp; \underset {\text {onder
+HA}}{-} &amp; | &amp; \underset {\text {boven HA}}{+} \end {array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> Asymptoten en ligging
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">VA \(x=-1\) en \(x=1\), HA \(y=0\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                   VA:      lim f (x) = −∞,     lim f (x) = +∞ ⇒ x = 1 is VA
+                                                                                            x→1                 x→1
+                                                                                             <                   >
+
+
+                                                                                             lim f (x) = −∞,      lim f (x) = +∞ ⇒ x = −1 is VA
+                                                                                            x→−1                 x→−1
+                                                                                             <                       >
+
+
+
+
+-->
+
+<p>
+
+\begin{align*}
+\text {VA:}\quad &amp; \lim _{x\underset {&lt;}{\to }1}f(x)=-\infty ,\quad \lim _{x\underset {&gt;}{\to }1}f(x)=+\infty \Rightarrow x=1 \text { is VA} \\ &amp; \lim _{x\underset {&lt;}{\to
+}-1}f(x)=-\infty ,\quad \lim _{x\underset {&gt;}{\to }-1}f(x)=+\infty \Rightarrow x=-1 \text { is VA}
+\end{align*}
+De vorm is telkens \(\frac {\pm 2}{0}\); het teken komt uit het tekenverloop in 5.
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                  2x             2
+                                                                                   HA:        lim f (x) = lim            = lim       = 0 ⇒ y = 0 is HA
+                                                                                            x→±∞           x→±∞ x2        x→±∞ x
+
+                                                                                   SA:      geen, want HA
+
+
+-->
+
+<p>
+
+\begin{align*}
+\text {HA:}\quad &amp; \lim _{x\to \pm \infty }f(x) =\lim _{x\to \pm \infty }\frac {2x}{x^2} =\lim _{x\to \pm \infty }\frac {2}{x}=0 \Rightarrow y=0 \text { is HA} \\ \text {SA:}\quad &amp;
+\text {geen, want HA}
+\end{align*}
+De ligging ten opzichte van de HA staat in het tekenverloop in 5.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">7.</span> Eerste afgeleide
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">overal dalend, geen extrema</span>
+</p>
+<p>
+\[ f&apos;(x)=\frac {2\,(x^2-1)-2x\cdot 2x}{(x^2-1)^2}=\frac {-2x^2-2}{(x^2-1)^2} \]
+</p>
+<p>
+Nulwaarden \(T\): geen; nulwaarden \(N\): \(x=1\) of \(x=-1\).
+</p>
+<p>
+\[ \begin {array}{r@{\,}c|ccccccc} &amp; x &amp; -\infty &amp; &amp; -1 &amp; &amp; 1 &amp; &amp; +\infty \\ \hline T &amp; -2x^2-2 &amp; &amp; - &amp; - &amp; - &amp; - &amp; - &amp; \\ N
+&amp; (x^2-1)^2 &amp; &amp; + &amp; 0 &amp; + &amp; 0 &amp; + &amp; \\ \hline &amp; f&apos;(x) &amp; &amp; - &amp; | &amp; - &amp; | &amp; - &amp; \\ \hline &amp; f(x) &amp; 0 &amp; \searrow
+&amp; -\infty \,|\,+\infty &amp; \searrow &amp; -\infty \,|\,+\infty &amp; \searrow &amp; 0 \end {array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">8.</span> Tweede afgeleide
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">BP \((0,0)\) met buigraaklijn \(t\leftrightarrow y=-2x\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                         −4x (x2 − 1)2 − (−2x2 − 2) · 2 (x2 − 1) · 2x
+                                                                            f ′′ (x) =
+                                                                                                         (x2 − 1)4
+                                                                                         −4x (x2 − 1) (x2 − 1 − 2x2 − 2)   −4x (−x2 − 3)   4x (x2 + 3)
+                                                                                   =                  2     4
+                                                                                                                         =     2     3
+                                                                                                                                         =
+                                                                                                   (x − 1)                   (x − 1)        (x2 − 1)3
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;&apos;(x) &amp;= \frac {-4x\,(x^2-1)^2-(-2x^2-2)\cdot 2\,(x^2-1)\cdot 2x}{(x^2-1)^4} \\ &amp;= \frac {-4x\,(x^2-1)\,(x^2-1-2x^2-2)}{(x^2-1)^4} = \frac {-4x\,(-x^2-3)}{(x^2-1)^3} = \frac
+{4x\,(x^2+3)}{(x^2-1)^3}
+\end{align*}
+Nulwaarde \(T\): \(x=0\); nulwaarden \(N\): \(x=1\) of \(x=-1\).
+</p>
+<p>
+\[ \begin {array}{r@{\,}c|ccccccc} &amp; x &amp; &amp; -1 &amp; &amp; 0 &amp; &amp; 1 &amp; \\ \hline T &amp; 4x\,(x^2+3) &amp; - &amp; - &amp; - &amp; 0 &amp; + &amp; + &amp; + \\ N &amp;
+(x^2-1)^3 &amp; + &amp; 0 &amp; - &amp; - &amp; - &amp; 0 &amp; + \\ \hline &amp; f&apos;&apos;(x) &amp; - &amp; | &amp; + &amp; 0 &amp; - &amp; | &amp; + \\ \hline &amp; f(x) &amp; \cap &amp;
+\text {VA} &amp; \cup &amp; \text {BP} &amp; \cap &amp; \text {VA} &amp; \cup \end {array} \]
+</p>
+<p>
+\(\text {BP}=(0,0)\) met rico buigraaklijn \(f&apos;(0)=-2\), dus \(t\leftrightarrow y=-2x\).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">9.</span> Enkele punten en overzichtstabel
+</p>
+<div class="oplossing">
+<p>
+\[ \begin {array}{c|cccccccccccc} x &amp; -5 &amp; -4 &amp; -3 &amp; -2 &amp; -\frac {1}{2} &amp; 0 &amp; \frac {1}{2} &amp; 2 &amp; 3 &amp; 4 &amp; 5 \\ \hline f(x) &amp; -0.42 &amp; -0.53
+&amp; -0.75 &amp; -1.33 &amp; 1.33 &amp; 0 &amp; -1.33 &amp; 1.33 &amp; 0.75 &amp; 0.53 &amp; 0.42 \end {array} \]
+</p>
+<p>
+\[ \begin {array}{c|ccccccccc} x &amp; -\infty &amp; &amp; -1 &amp; &amp; 0 &amp; &amp; 1 &amp; &amp; +\infty \\ \hline f&apos;(x) &amp; &amp; - &amp; | &amp; - &amp; -2 &amp; - &amp; | &amp; -
+&amp; \\ \hline f&apos;&apos;(x) &amp; &amp; - &amp; | &amp; + &amp; 0 &amp; - &amp; | &amp; + &amp; \\ \hline f(x) &amp; 0 &amp; \searrow &amp; -\infty \,|\,+\infty &amp; \searrow &amp; \tvbp
+{0} &amp; \searrow &amp; -\infty \,|\,+\infty &amp; \searrow &amp; 0 \\ &amp; &amp; \cap &amp; \text {VA} &amp; \cup &amp; &amp; \cap &amp; \text {VA} &amp; \cup &amp; \end {array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">10.</span> Grafiek
+</p>
+<div class="oplossing">
+<p>
+Met de gegevens uit 1 tot 9 tekenen we de grafiek hieronder.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="verloop-rationaal" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-16"
+    class="lateximagesource"
+><!--
+                       y
+                VA     4       VA
+                       3
+
+                       2
+
+                       1
+
+
+−5   −4   −3   −2   −1     1    2   3   4   5   x
+                      −1
+
+                     −2
+
+                     −3
+
+                     −4
+--><img
+    src="mkpiweb-images/image-16.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Bouw de grafiek op zoals op het bord: zet met de knoppen het snijpunt, de asymptoten, het buigpunt met zijn buigraaklijn,
+de punten uit de tabel en de grafiek erbij.</figcaption> </figure>
+</p>
+<!--
+...... subsection Irrationale functies ......
+-->
+<h5 id="autosec-102"><span class="sectionnumber">5&#x2003;</span>Irrationale functies</h5>
+<a id="mkpiweb-autopage-102"></a>
+
+
+<div class="cursus-oefening">
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-103">Oefening 4</h6>
+<a id="mkpiweb-autopage-103"></a>
+
+
+<p>
+Onderzoek het verloop van \(f(x)=\sqrt [3]{3x^2-x^3}\).
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> Domein: <span class="opl opl-vast" style="min-width:5cm">\(\dom f=\R \)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> Continuı&#x0308;teit: <span class="opl opl-vast" style="min-width:5cm">\(f\) is continu in \(\R \)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> Symmetrie: <span class="opl opl-vast" style="min-width:5cm">geen</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> Snijpunten met de assen: <span class="opl opl-vast" style="min-width:5cm">met de \(x\)-as \((0,0)\) en \((3,0)\), met de \(y\)-as \((0,0)\)</span>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">5.</span> Tekenverloop
+</p>
+<div class="oplossing">
+<p>
+\(f(x)=\sqrt [3]{x^2\,(3-x)}=\sqrt [3]{x^2}\cdot \sqrt [3]{3-x}\), met nulwaarden \(x=0\) en \(x=3\).
+</p>
+<p>
+\[ \begin {array}{c|ccccc} x &amp; &amp; 0 &amp; &amp; 3 &amp; \\ \hline \sqrt [3]{x^2} &amp; + &amp; 0 &amp; + &amp; + &amp; + \\ \sqrt [3]{3-x} &amp; + &amp; + &amp; + &amp; 0 &amp; - \\
+\hline f(x) &amp; + &amp; 0 &amp; + &amp; 0 &amp; - \end {array} \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">6.</span> Asymptoten en ligging
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">geen VA en geen HA; SA \(y=-x+1\) voor \(x\to \pm \infty \)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                   VA:    geen
+                                                                                                   r
+                                                                                                   3 3
+                                                                                p                                      p
+                                                                   HA:                                 − 1 = −∞ en lim   3x2 − x3 = +∞ ⇒ geen HA
+                                                                                3   2   3                              3
+                                                                            lim   3x − x = lim x ·
+                                                                           x→+∞           x→+∞       x            x→−∞
+
+
+-->
+
+<p>
+
+\begin{align*}
+\text {VA:}\quad &amp; \text {geen} \\ \text {HA:}\quad &amp; \lim _{x\to +\infty }\sqrt [3]{3x^2-x^3} =\lim _{x\to +\infty }x\cdot \sqrt [3]{\frac {3}{x}-1}=-\infty \text { en } \lim _{x\to
+-\infty }\sqrt [3]{3x^2-x^3}=+\infty \Rightarrow \text {geen HA}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                  √
+                                                                                                                                 q
+                                                                                                  3
+                                                                                                      3x2 − x3               x · 3 x3 − 1
+                                                                           SA:       m = lim                     = lim                      = −1 ∈ R0
+                                                                                         x→±∞            x        x→±∞            x
+                                                                                                                           ‘ − ∞ + ∞’
+                                                                                                   p
+                                                                                                   3
+                                                                                                                      
+                                                                                     q = lim           3x2 − x3 + x
+                                                                                         x→±∞
+                                                                                                                           p                  √
+                                                                                                   p
+                                                                                                   3
+                                                                                                                          3
+                                                                                                                              (3x2 − x3 )2 − x 3 3x2 − x3 + x2
+                                                                                       = lim           3x2 − x3 + x       · p                 √
+                                                                                         x→±∞                               3
+                                                                                                                              (3x2 − x3 )2 − x 3 3x2 − x3 + x2
+                                                                                                               3x2 − x3 + x3                  3       3
+                                                                                       = lim           q                            =              = =1∈R
+                                                                                                                                        1 − (−1) + 1  3
+                                                                                                                         q
+                                                                                         x→±∞                        2
+                                                                                                             3
+                                                                                                                       − 3 x3 − 1 + 1
+                                                                                                         3
+                                                                                                                   
+                                                                                                  x2         x −1
+
+                                                                                       ⇒ y = −x + 1 is SA voor x → ±∞
+
+
+-->
+
+<p>
+
+\begin{align*}
+\text {SA:}\quad m &amp;= \lim _{x\to \pm \infty }\frac {\sqrt [3]{3x^2-x^3}}{x} = \lim _{x\to \pm \infty }\frac {x\cdot \sqrt [3]{\frac {3}{x}-1}}{x} = -1\in \R _0 \\ q &amp;= \lim _{x\to \pm
+\infty }\bigl (\sqrt [3]{3x^2-x^3}+x\bigr ) \quad \vov {-\infty +\infty } \\ &amp;= \lim _{x\to \pm \infty }\bigl (\sqrt [3]{3x^2-x^3}+x\bigr )\cdot \frac {\sqrt [3]{(3x^2-x^3)^2}-x\sqrt
+[3]{3x^2-x^3}+x^2} {\sqrt [3]{(3x^2-x^3)^2}-x\sqrt [3]{3x^2-x^3}+x^2} \\ &amp;= \lim _{x\to \pm \infty }\frac {3x^2-x^3+x^3} {x^2\Bigl (\sqrt [3]{\bigl (\frac {3}{x}-1\bigr )^2} -\sqrt
+[3]{\frac {3}{x}-1}+1\Bigr )} = \frac {3}{1-(-1)+1}=\frac {3}{3}=1\in \R \\ &amp;\Rightarrow y=-x+1 \text { is SA voor } x\to \pm \infty
+\end{align*}
+
+</p>
+
+<div class="aside">
+<p>
+In de derde stap gebruiken we \((a+b)(a^2-ab+b^2)=a^3+b^3\) met \(a=\sqrt [3]{3x^2-x^3}\) en \(b=x\).
+</p>
+</div>
+<p>
+Ligging ten opzichte van de SA: het tekenverloop van \(v(x)=\sqrt [3]{3x^2-x^3}+x-1\). Op het GRM: \(Y_3=Y_1-Y_2\) in de tabel, bij bijvoorbeeld \(x=\pm 10\,000\).
+</p>
+<p>
+\[ \begin {array}{c|cc} x &amp; -\infty &amp; +\infty \\ \hline v(x) &amp; - &amp; + \end {array} \]
+</p>
+<p>
+De kromme ligt boven de SA voor \(x\to +\infty \) en onder de SA voor \(x\to -\infty \).
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">7.</span> Eerste afgeleide
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">minimum \(0\) in \(x=0\) (verticale raaklijn), maximum \(\sqrt [3]{4}\) in \(x=2\)</span>
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                             1       1                          x (2 − x)         2−x
+                                                                                 f ′ (x) =     · p            · (6x − 3x2 ) = p              = p
+                                                                                             3 3 (3x2 − x3 )2                 3     2
+                                                                                                                                (3x − x )3 2   3
+                                                                                                                                                 x (3 − x)2
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;(x) &amp;= \frac {1}{3}\cdot \frac {1}{\sqrt [3]{(3x^2-x^3)^2}}\cdot (6x-3x^2) = \frac {x\,(2-x)}{\sqrt [3]{(3x^2-x^3)^2}} = \frac {2-x}{\sqrt [3]{x\,(3-x)^2}}
+\end{align*}
+Nulwaarde \(T\): \(x=2\); nulwaarden \(N\): \(x=0\) en \(x=3\).
+</p>
+<p>
+\[ \begin {array}{r@{\,}c|ccccccc} &amp; x &amp; &amp; 0 &amp; &amp; 2 &amp; &amp; 3 &amp; \\ \hline T &amp; 2-x &amp; + &amp; + &amp; + &amp; 0 &amp; - &amp; - &amp; - \\ N &amp; \sqrt
+[3]{x\,(3-x)^2} &amp; - &amp; 0 &amp; + &amp; + &amp; + &amp; 0 &amp; + \\ \hline &amp; f&apos;(x) &amp; - &amp; | &amp; + &amp; 0 &amp; - &amp; | &amp; - \\ \hline &amp; f(x) &amp; \searrow
+&amp; \tvmin {0} &amp; \nearrow &amp; \tvmax {\sqrt [3]{4}} &amp; \searrow &amp; 0 &amp; \searrow \\ &amp; &amp; &amp; \text {VR} &amp; &amp; \text {HR} &amp; &amp; \text {VR} &amp; \end
+{array} \]
+</p>
+<p>
+In \(x=0\) en \(x=3\) is de raaklijn verticaal (VR): \(f&apos;\) wordt daar oneindig groot.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">8.</span> Tweede afgeleide
+</p>
+<div class="oplossing">
+<p>
+<span class="oplantwoord">bol in \(]-\infty ,0[\) en \(]0,3[\), hol in \(]3,+\infty [\); BP \((3,0)\)</span> Met de afgeleide van de noemer \(\Bigl (\sqrt [3]{x\,(3-x)^2}\Bigr )&apos; =\dfrac
+{(3-x)^2-2x\,(3-x)}{3\sqrt [3]{x^2\,(3-x)^4}} =\dfrac {(3-x)(3-3x)}{3\sqrt [3]{x^2\,(3-x)^4}}\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                     p                        (3 − x)(3 − 3x)
+                                                                                    − 3 x (3 − x)2 − (2 − x) · p
+                                                                                                               3 3 x2 (3 − x)4
+                                                                         f ′′ (x) =               p3
+                                                                                                     x2 (3 − x)4
+                                                                                   −3x (3 − x)2 − (2 − x)(3 − x)(3 − 3x)
+                                                                                 =            p            4
+                                                                                             3 3 x (3 − x)2
+                                                                                                                         
+                                                                                   −3 (3 − x) x (3 − x) + (2 − x)(1 − x)     −(3 − x) (3x − x2 + 2 − 3x + x2 )
+                                                                                 =            p             4            =         p             4
+                                                                                             3 3 x (3 − x)2                            3
+                                                                                                                                         x (3 − x)2
+
+                                                                                               −2 (3 − x)                     −2
+                                                                                   √
+                                                                                 = 3                   p             √
+                                                                                                                   = 3    p
+                                                                                       x4 · (3 − x)2 · 3
+                                                                                                         (3 − x) 2     x · (3 − x)2 · (3 − x)
+                                                                                                                        4 3
+
+
+
+
+-->
+
+<p>
+
+\begin{align*}
+f&apos;&apos;(x) &amp;= \frac {-\sqrt [3]{x\,(3-x)^2}-(2-x)\cdot \dfrac {(3-x)(3-3x)}{3\sqrt [3]{x^2\,(3-x)^4}}} {\sqrt [3]{x^2\,(3-x)^4}} \\ &amp;= \frac {-3x\,(3-x)^2-(2-x)(3-x)(3-3x)}
+{3\,\Bigl (\sqrt [3]{x\,(3-x)^2}\Bigr )^4} \\ &amp;= \frac {-3\,(3-x)\bigl (x\,(3-x)+(2-x)(1-x)\bigr )} {3\,\Bigl (\sqrt [3]{x\,(3-x)^2}\Bigr )^4} = \frac {-(3-x)\,(3x-x^2+2-3x+x^2)} {\Bigl
+(\sqrt [3]{x\,(3-x)^2}\Bigr )^4} \\ &amp;= \frac {-2\,(3-x)}{\sqrt [3]{x^4}\cdot (3-x)^2\cdot \sqrt [3]{(3-x)^2}} = \frac {-2}{\sqrt [3]{x^4}\cdot \sqrt [3]{(3-x)^2}\cdot (3-x)}
+\end{align*}
+Nulwaarden \(T\): geen; nulwaarden \(N\): \(x=0\) en \(x=3\).
+</p>
+<p>
+\[ \begin {array}{r@{\,}c|ccccc} &amp; x &amp; &amp; 0 &amp; &amp; 3 &amp; \\ \hline T &amp; -2 &amp; - &amp; - &amp; - &amp; - &amp; - \\ N &amp; \sqrt [3]{x^4}\,\sqrt [3]{(3-x)^2}\,(3-x)
+&amp; + &amp; 0 &amp; + &amp; 0 &amp; - \\ \hline &amp; f&apos;&apos;(x) &amp; - &amp; | &amp; - &amp; | &amp; + \\ \hline &amp; f(x) &amp; \cap &amp; 0 &amp; \cap &amp; \text {BP} &amp; \cup
+\end {array} \]
+</p>
+<p>
+\(\text {BP}=(3,0)\): \(f\) is continu, de raaklijn (evenwijdig met de \(y\)-as) bestaat en \(f&apos;&apos;\) verandert van teken. In \(0\) verandert \(f&apos;&apos;\) niet van teken: geen buigpunt.
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">9.</span> Enkele punten en overzichtstabel
+</p>
+<div class="oplossing">
+<p>
+\[ \begin {array}{c|cccccccc} x &amp; -2 &amp; -1 &amp; 0 &amp; 1 &amp; 2 &amp; 2.5 &amp; 3 &amp; 4 \\ \hline f(x) &amp; 2.71 &amp; 1.59 &amp; 0 &amp; 1.26 &amp; 1.59 &amp; 1.46 &amp; 0 &amp;
+-2.52 \end {array} \]
+</p>
+<p>
+\[ \begin {array}{c|ccccccc} x &amp; &amp; 0 &amp; &amp; 2 &amp; &amp; 3 &amp; \\ \hline f&apos;(x) &amp; - &amp; | &amp; + &amp; 0 &amp; - &amp; | &amp; - \\ \hline f&apos;&apos;(x) &amp; -
+&amp; | &amp; - &amp; - &amp; - &amp; | &amp; + \\ \hline f(x) &amp; \searrow &amp; \tvmin {0} &amp; \nearrow &amp; \tvmax {\sqrt [3]{4}} &amp; \searrow &amp; \tvbp {0} &amp; \searrow \\ &amp;
+\cap &amp; \text {VR} &amp; \cap &amp; \text {HR} &amp; \cap &amp; \text {VR} &amp; \cup \end {array} \qquad \text {SA: } y=-x+1 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">10.</span> Grafiek
+</p>
+<div class="oplossing">
+<p>
+Met de gegevens uit 1 tot 9 tekenen we de grafiek hieronder.
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+
+</div>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="verloop-irrationaal" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-17"
+    class="lateximagesource"
+><!--
+SA        f (x)
+                4
+
+                3
+
+                2
+
+                1
+
+
+−3   −2   −1        1   2   3   4   5   6   x
+               −1
+
+               −2
+
+               −3
+
+               −4
+--><img
+    src="mkpiweb-images/image-17.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Bouw de grafiek op zoals op het bord: zet met de knoppen de snijpunten, de schuine asymptoot, de extrema, het buigpunt, de
+punten uit de tabel en de grafiek erbij.</figcaption> </figure>
+</p>
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-107"><span class="sectionnumber">6&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-107"></a>
+
+
+<p>
+VBTL Analyse 3: p&nbsp;40 nr&nbsp;5 en 6 (a tot f en i tot l); p&nbsp;41 nr&nbsp;7; p&nbsp;45 nr&nbsp;28 tot 30; p&nbsp;49 nr&nbsp;38
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=261c7b8581ce"></script>
+<script src="statistieken.js?v=261c7b8581ce"></script>
+<script src="vendor/jsxgraphcore.js?v=261c7b8581ce"></script>
+<script src="interactieve-grafieken.js?v=261c7b8581ce"></script>
+<script src="hoofdstuk.interactief.js?v=261c7b8581ce"></script>
+<script src="functiecas.js?v=261c7b8581ce"></script>
+<script src="functierekenmachine.js?v=261c7b8581ce"></script>
+</body>
+</html>

@@ -225,11 +225,25 @@
         var maat = paar[1]();
         schaal = Math.min(schaal, pasVenster(paar[0], maat[0], maat[1]));
       });
+      // Elke setAttribute laat JSXGraph het hele bord bijwerken, bij elke
+      // tekst opnieuw. Opgeschort gebeurt dat één keer, bij het vrijgeven.
+      var borden = [];
+      vensters.map(function (paar) { return paar[0]; })
+        .concat(teksten.map(function (paar) { return paar[0].board; }))
+        .forEach(function (bord) {
+          if (borden.indexOf(bord) < 0 && !bord.isSuspendedUpdate) borden.push(bord);
+        });
+      borden.forEach(function (bord) { bord.suspendUpdate(); });
       teksten.forEach(function (paar) {
-        var px = Math.round(schaal * 0.34 * paar[1]);
-        paar[0].setAttribute({ fontSize: Math.max(9, Math.min(24, px)) });
+        var px = Math.max(9, Math.min(24, Math.round(schaal * 0.34 * paar[1])));
+        if (paar[0].visProp.fontsize !== px) paar[0].setAttribute({ fontSize: px });
+      });
+      // Vrijgeven tekent het bord volledig opnieuw (fullUpdate).
+      borden.forEach(function (bord) {
+        try { bord.unsuspendUpdate(); } catch (fout) { /* niets */ }
       });
       vensters.forEach(function (paar) {
+        if (borden.indexOf(paar[0]) >= 0) return;
         try { paar[0].fullUpdate(); } catch (fout) { /* niets */ }
       });
     };

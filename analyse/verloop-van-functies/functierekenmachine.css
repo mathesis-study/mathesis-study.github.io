@@ -1,0 +1,584 @@
+/* Opmaak van de functierekenmachine (web/functierekenmachine.js).
+ *
+ * Alle kleuren komen uit de lijsten in presentatie.css. Hier staan enkel de
+ * rollen van de grafiek, met dezelfde waarden als bij de interactieve
+ * grafieken: de kromme grijs, de raaklijn blauw, de normaal licht oranje (de
+ * tweede markering) en de afgeleide functie groen. Een tweede, derde en
+ * vierde functie krijgen paars, roze en petrol: kleuren die niet met die
+ * rollen te verwarren zijn.
+ */
+
+:root,
+:root[data-thema="licht"] {
+  --fr-kromme: #445264;
+  --fr-kromme-2: #7c3aed;
+  --fr-kromme-3: #be185d;
+  --fr-kromme-4: #0e7490;
+  --fr-raaklijn: #1d5fa8;
+  --fr-normaal: #b45309;
+  --fr-afgeleide: #15803d;
+  --fr-as: #64748b;
+  --fr-raster: #e5eaf0;
+}
+
+@media screen {
+  :root[data-thema="donker"] {
+    --fr-kromme: #c3cedb;
+    --fr-kromme-2: #c4a5fa;
+    --fr-kromme-3: #f38fb8;
+    --fr-kromme-4: #67c7dc;
+    --fr-raaklijn: #7ab4f0;
+    --fr-normaal: #f0b25e;
+    --fr-afgeleide: #74c98c;
+    --fr-as: #93a3b6;
+    --fr-raster: #22303d;
+  }
+}
+
+.fr {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+  font-size: .95rem;
+  color: var(--kleur-tekst);
+}
+
+.fr-zwak { color: var(--kleur-zwak); }
+.fr-fout, .fr-foutmelding { color: var(--kleur-fout); }
+
+/* --- Knoppen ------------------------------------------------------------ */
+
+.fr-knop {
+  font: inherit;
+  font-size: .85rem;
+  line-height: 1.1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .3rem;
+  padding: .4rem .65rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-vlak);
+  color: var(--kleur-tekst);
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+
+.fr-knop:hover:not(:disabled):not(.fr-aan) {
+  border-color: var(--kleur-accent);
+  color: var(--kleur-accent);
+}
+
+.fr-knop.fr-aan {
+  background: var(--kleur-accent);
+  border-color: var(--kleur-accent);
+  color: var(--kleur-op-accent);
+}
+
+.fr-klein {
+  font-size: .78rem;
+  padding: .3rem .55rem;
+}
+
+.fr-hoofdknop {
+  background: var(--kleur-accent);
+  border-color: var(--kleur-accent);
+  color: var(--kleur-op-accent);
+}
+
+.fr-enter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3rem;
+}
+
+.fr-knop.fr-hoofdknop:hover {
+  color: var(--kleur-op-accent);
+  box-shadow: 0 0 0 2px var(--kleur-accent-zacht);
+}
+
+/* --- Tabbladen ---------------------------------------------------------- */
+
+.fr-tabs {
+  display: flex;
+  gap: 0;
+}
+
+.fr-tab {
+  border-radius: 0;
+  min-width: 6rem;
+}
+
+.fr-tab + .fr-tab { margin-left: -1px; }
+.fr-tab:first-child { border-radius: var(--straal) 0 0 var(--straal); }
+.fr-tab:last-child { border-radius: 0 var(--straal) var(--straal) 0; }
+
+.fr-paneel {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+}
+
+.fr-paneel[hidden],
+.fr-tabs[hidden] { display: none; }
+
+/* --- CAS ---------------------------------------------------------------- */
+
+/* Het verloop scrollt zelf, zodat het invoerveld altijd in beeld blijft. */
+.fr-verloop {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  min-height: 12rem;
+  max-height: min(52dvh, 34rem);
+  overflow: auto;
+  padding: .6rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-achtergrond);
+}
+
+.fr-leeg {
+  margin: auto 0;
+  text-align: center;
+  color: var(--kleur-zwak);
+}
+
+.fr-voorbeelden {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: .35rem;
+}
+
+.fr-voorbeeld {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .8rem;
+}
+
+.fr-item {
+  padding: .5rem .7rem .6rem;
+  border-radius: var(--straal);
+  background: var(--kleur-vlak);
+  box-shadow: 0 1px 2px var(--schaduw);
+}
+
+.fr-itemkop {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Wat de leerling typte, rechts, zoals op het scherm van een GRM; een klik
+ * zet het terug in het invoerveld. */
+.fr-getypt {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .8rem;
+  padding: .15rem .45rem;
+  border-color: transparent;
+  background: transparent;
+  color: var(--kleur-zwak);
+}
+
+.fr-formule {
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: .1rem 0;
+}
+
+.fr-formule mjx-container[display="true"] {
+  margin: .35em 0 !important;
+}
+
+.fr-benadering {
+  color: var(--kleur-zwak);
+  font-size: .9em;
+}
+
+.fr-tekst p { margin: .4rem 0 .1rem; }
+
+.fr-stappen { margin: .2rem 0; }
+
+.fr-stappenkop {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .2rem .8rem;
+}
+
+.fr-stappenkop .fr-formule { flex: 1 1 auto; min-width: 0; }
+
+.fr-stappenlijst {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+  gap: .1rem 1.2rem;
+  margin: .2rem 0 .3rem;
+  padding: .5rem .7rem;
+  border-left: 3px solid var(--kleur-accent-zacht);
+  overflow-x: auto;
+}
+
+.fr-stappenlijst[hidden] { display: none; }
+
+/* Elke stap is een rij van het raster: links de uitdrukking, rechts de
+ * regels die in die stap gebruikt werden. */
+.fr-stap { display: contents; }
+
+.fr-stap > .fr-inline {
+  padding: .25rem 0;
+  white-space: nowrap;
+}
+
+.fr-regels {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .1rem .9rem;
+  color: var(--kleur-zwak);
+  font-size: .82em;
+}
+
+/* Een regel met eronder wat f en g in deze stap zijn. */
+.fr-regel {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .05rem;
+}
+
+.fr-met { font-size: .9em; }
+
+.fr-regelnaam { font-style: italic; }
+
+.fr-stap-eind > .fr-inline { color: var(--kleur-tekst); }
+
+/* --- Invoer ------------------------------------------------------------- */
+
+.fr-invoerrij {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin: 0;
+}
+
+.fr-label {
+  flex: none;
+  color: var(--kleur-zwak);
+  font-size: .85rem;
+}
+
+.fr-invoer {
+  font: inherit;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: .95rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: .45rem .6rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-vlak);
+  color: var(--kleur-tekst);
+}
+
+.fr-invoer:focus {
+  outline: 2px solid var(--kleur-accent);
+  outline-offset: 1px;
+}
+
+.fr-invoer.fr-veld-fout { border-color: var(--kleur-fout); }
+
+/* Het voorbeeld in een leeg veld is een zachte hint, geen invoer: klein,
+   schuin en licht, zodat het niet leest alsof er al iets getypt staat. */
+.fr-invoer::placeholder {
+  color: var(--kleur-zwak);
+  opacity: .55;
+  font-family: system-ui, sans-serif;
+  font-style: italic;
+  font-size: .85rem;
+}
+
+.fr-voorproef {
+  min-height: 1.6rem;
+  font-size: .85rem;
+  color: var(--kleur-zwak);
+}
+
+.fr-foutplaats {
+  font-size: .9em;
+  color: var(--kleur-tekst);
+}
+
+.fr-foutplaats mark {
+  background: var(--kleur-fout);
+  color: var(--kleur-op-accent);
+  border-radius: 2px;
+}
+
+.fr-hulp {
+  font-size: .85rem;
+}
+
+.fr-hulp summary {
+  cursor: pointer;
+  color: var(--kleur-accent);
+}
+
+.fr-schrijfwijze {
+  border-collapse: collapse;
+  margin: .4rem 0;
+}
+
+.fr-schrijfwijze td {
+  padding: .15rem 1rem .15rem 0;
+  vertical-align: middle;
+}
+
+/* --- Grafiek ------------------------------------------------------------ */
+
+.fr-grafiekbalk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .9rem;
+}
+
+.fr-veldgroep {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+}
+
+.fr-fveld { width: 14rem; flex: 1 1 10rem; }
+.fr-aveld { width: 4.5rem; flex: none; text-align: center; }
+
+/* De functies uit de CAS, elk op een rij, en onderaan een lege rij voor de
+ * volgende naam. Het bolletje vooraan kiest op welke grafiek P ligt. */
+.fr-functielijst {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+
+.fr-functierij {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.fr-functierij > .fr-veldgroep { flex: 1 1 auto; min-width: 0; }
+
+.fr-functierij-nieuw .fr-fveld { border-style: dashed; }
+
+/* Het wisknopje zit rechts in het veld: klein en grijs, pas duidelijk bij
+   aanwijzen, zodat het niet om aandacht vraagt. */
+.fr-fvak {
+  position: relative;
+  display: flex;
+  flex: 1 1 10rem;
+  min-width: 0;
+}
+
+.fr-fvak .fr-fveld { padding-right: 1.8rem; }
+
+.fr-knop.fr-wisknop {
+  position: absolute;
+  right: .25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1.3rem;
+  height: 1.3rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--kleur-zwak);
+  font-size: 1rem;
+  line-height: 1;
+  opacity: .45;
+}
+
+.fr-knop.fr-wisknop:hover,
+.fr-knop.fr-wisknop:focus-visible {
+  opacity: 1;
+  color: var(--kleur-fout);
+  background: var(--kleur-vlak-zweef);
+  box-shadow: none;
+}
+
+.fr-knop.fr-kiezer {
+  --fr-rol: var(--kleur-lijn);
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid var(--fr-rol);
+  background: var(--kleur-vlak);
+}
+
+.fr-knop.fr-kiezer[aria-pressed="true"] {
+  background: var(--fr-rol);
+  box-shadow: 0 0 0 2px var(--kleur-vlak), 0 0 0 4px var(--fr-rol);
+}
+
+.fr-knop.fr-kiezer:disabled { border-style: dashed; opacity: .6; }
+
+.fr-schakelaars {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: .3rem;
+}
+
+/* Elke schakelaar draagt de kleur van wat hij toont, ook in de actieve
+ * stand: kleur is zo nooit de enige drager, want het opschrift staat erbij. */
+.fr-schakel-raaklijn { --fr-rol: var(--fr-raaklijn); }
+.fr-schakel-normaal { --fr-rol: var(--fr-normaal); }
+.fr-schakel-afgeleide { --fr-rol: var(--fr-afgeleide); }
+
+.fr-schakel {
+  border-color: var(--fr-rol);
+  color: var(--fr-rol);
+}
+
+.fr-knop.fr-schakel.fr-aan {
+  background: var(--fr-rol);
+  border-color: var(--fr-rol);
+  color: var(--kleur-vlak);
+}
+
+.fr-knop.fr-schakel:hover:not(.fr-aan) {
+  border-color: var(--fr-rol);
+  color: var(--fr-rol);
+  background: var(--kleur-accent-zacht);
+}
+
+.fr-bord {
+  isolation: isolate;
+  width: 100%;
+  height: min(24rem, 44dvh);
+  min-height: 14rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  overflow: hidden;
+  touch-action: none;
+}
+
+.fr-bord .JXGtext.fr-aslabel,
+.fr-bord .fr-aslabel {
+  font-size: .75rem;
+  color: var(--fr-as);
+}
+
+.fr-bord { position: relative; }
+
+/* De namen bij punten en krommen: een laag boven het bord, geplaatst door
+   maakLabels in functierekenmachine.js. */
+.fr-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.fr-labelnaam {
+  position: absolute;
+  line-height: 1;
+  white-space: nowrap;
+  padding: 1px 2px;
+}
+
+.fr-labelnaam[hidden] { display: none; }
+
+.fr-bord .fr-puntlabel,
+.fr-bord .fr-lijnlabel {
+  font-style: italic;
+  font-weight: 600;
+  font-size: .95rem;
+}
+
+.fr-bordtip {
+  margin: -.2rem 0 0;
+  font-size: .75rem;
+}
+
+.fr-grafiekmelding:empty { display: none; }
+
+.fr-uitlees {
+  min-height: 3rem;
+}
+
+.fr-uitlees p { margin: .3rem 0; }
+
+.fr-raaklijn { color: var(--fr-raaklijn); }
+.fr-normaal { color: var(--fr-normaal); }
+
+/* --- Het venster --------------------------------------------------------- */
+
+/* Hetzelfde venster als dat van de matrixrekenmachine; de kolomregel staat
+ * hier opnieuw, want een cursus laadt maar één van beide stijlbladen. */
+.pres-rekenmachine {
+  padding: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pres-rekenmachine > div {
+  box-sizing: border-box;
+  justify-self: center;
+  width: min(58rem, 100%);
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  overflow: auto;
+  outline: none;
+  padding: 1.2rem 1.4rem 1.4rem;
+}
+
+.pres-rekenmachine h2 {
+  margin: .2rem 0 .8rem;
+  font-size: 1.1rem;
+  text-align: left;
+}
+
+.pres-rekenmachine-knoppen {
+  display: flex;
+  flex: none;
+  gap: .4rem;
+}
+
+/* Op een breed scherm staan CAS en grafiek naast elkaar, zonder tabbladen;
+ * het venster wordt daarvoor breder. Het breekpunt is dat van naastElkaar()
+ * in functierekenmachine.js. */
+@media (min-width: 72rem) {
+  .pres-rekenmachine > div { width: min(96rem, 100%); }
+
+  .fr.fr-naast {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 1.4rem;
+    align-items: start;
+  }
+
+  .fr-naast .fr-verloop {
+    min-height: 20rem;
+    max-height: calc(100dvh - 17rem);
+  }
+
+  .fr-naast .fr-bord { height: min(24rem, 40dvh); }
+}
+
+@media (max-width: 34rem) {
+  .pres-rekenmachine { padding: .4rem; }
+
+  .pres-rekenmachine > div {
+    padding: .8rem;
+    max-height: calc(100dvh - .8rem);
+  }
+
+  .fr-invoerrij .fr-label { display: none; }
+
+  .fr-stappenlijst { grid-template-columns: minmax(0, 1fr); }
+  .fr-regels { margin-bottom: .3rem; }
+}
+
+.fr-naarcas { align-self: flex-start; }
