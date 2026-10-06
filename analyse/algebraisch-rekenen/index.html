@@ -1,0 +1,2990 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Algebraïsch rekenen met veeltermen</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=96ef6507aa78" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=96ef6507aa78"></script>
+<script src="mathjax-cline.js?v=96ef6507aa78"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=96ef6507aa78"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=96ef6507aa78" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=96ef6507aa78" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+\(\newcommand {\gr }{\operatorname {gr}}\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p>
+<header class="cursustitel"> <p class="cursushoofdstuk">Hoofdstuk 1</p> <h1>Algebraı&#x0308;sch rekenen met veeltermen</h1> </header>
+</p>
+
+<div class="cursusleerplan">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-2">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p>
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> <b>WD3_06.08.18</b> (MD 06.08.13) De leerlingen lossen eenvoudige veeltermvergelijkingen, <span class="leerplan-grijs">rationale vergelijkingen</span>, <span
+class="leerplan-grijs">irrationale vergelijkingen</span>, <span class="leerplan-grijs">exponentie&#x0308;le vergelijkingen</span>, <span class="leerplan-grijs">logaritmische vergelijkingen</span> en <span
+class="leerplan-grijs">goniometrische vergelijkingen</span> algebraı&#x0308;sch op.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">–</span> afbakening: deling van veeltermen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">–</span> afbakening: deling door \((x-a)\)
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p>
+<b>Didactische uitwerking:</b> veeltermen en hun graad, getalwaarde en nulwaarden, het schema van Horner, gelijke veeltermen, de euclidische deling, de reststelling, deelbaarheid door \(x-a\) en door \((x-a)(x-b)\),
+veeltermen van de vorm \(x^n\pm a^n\) en ontbinden in factoren.
+</p>
+
+</div>
+<!--
+...... section De euclidische deling ......
+-->
+<h4 id="autosec-3"><span class="sectionnumber">I&#x2003;</span>De euclidische deling</h4>
+<a id="mkpiweb-autopage-3"></a>
+<!--
+...... subsection De veeltermen ......
+-->
+<h5 id="autosec-4"><span class="sectionnumber">1&#x2003;</span>De veeltermen \(\R [x]\)</h5>
+<a id="mkpiweb-autopage-4"></a>
+
+
+<p>
+<b>veelterm</b>: som van eentermen
+</p>
+<div class="center">
+
+<p>
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource"
+><!--
+                      graad
+         n
+         X
+A(x) =         ai xi = an xn + an−1 xn−1 + · · · + a1 x + a0
+         i=0
+
+ coëfficiënt       veranderlijke                      constante term
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage"
+></span>
+</p>
+</div>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(\R [x]\): verzameling veeltermen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>graad</b>: hoogste voorkomende exponent; notatie \(\gr \bigl (A(x)\bigr )\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Opmerking: de nulveelterm \(0\) heeft geen graad.
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> <b>getalwaarde</b>: invullen; notatie \(A(a)\)
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-8">Voorbeeld</h6>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       A(x) = 2x3 − 4x + 3
+                                                                                       A(2) = 2 · 23 − 4 · 2 + 3 = 11
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A(x) &amp;= 2x^3 - 4x + 3 \\ A(2) &amp;= 2\cdot 2^3 - 4\cdot 2 + 3 = 11
+\end{align*}
+
+</p>
+
+<p>
+GRM: <kbd class="grm-toets grm-bovenrij">y=</kbd> \(Y_1 = 2X^3 - 4X + 3\), dan <span class="grm-combinatie"><kbd class="grm-toets grm-alfa">alpha</kbd><span class="grm-gelaagd"><span class="grm-boven
+grm-boven-alpha">f4</span><kbd class="grm-toets grm-bovenrij">trace</kbd></span></span> <span class="grm-schermtekst"><span class="grm-tab grm-actief">1:</span>Y<sub>1</sub></span> en <span
+class="grm-schermtekst">Y<sub>1</sub>(2)</span>; of <span class="grm-combinatie"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd"><span class="grm-boven
+grm-boven-2nd">calc</span><kbd class="grm-toets grm-bovenrij">trace</kbd></span></span> <span class="grm-schermtekst"><span class="grm-tab grm-actief">1:</span>value</span>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Nulwaarde ......
+-->
+<h6 id="autosec-9">Nulwaarde</h6>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p>
+\(a\) is een <b>nulwaarde</b> van \(A(x)\) \(\iff A(a) = 0\)
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                  A(x) = 2x − 4                                                   ⇒    nulwaarde van A: 2 want A(2) = 0
+                                                  B(x) = x2 − 2x − 8                                              ⇒    nulwaarden van B: 4 en −2
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A(x) &amp;= 2x - 4 &amp;&amp;\Rightarrow \quad \text {nulwaarde van } A\text {:    } 2 \quad \text {want } A(2) = 0 \\ B(x) &amp;= x^2 - 2x - 8 &amp;&amp;\Rightarrow \quad \text {nulwaarden van
+} B\text {: } 4 \text { en } {-2}
+\end{align*}
+
+</p>
+
+<p>
+GRM: <span class="grm-combinatie"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd"><span class="grm-boven grm-boven-2nd">calc</span><kbd class="grm-toets
+grm-bovenrij">trace</kbd></span></span> <span class="grm-schermtekst"><span class="grm-tab grm-actief">2:</span>zero</span>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL Oefeningen ......
+-->
+<h6 id="autosec-10">VBTL Oefeningen</h6>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p>
+VBTL Analyse 1a: p&nbsp;16 nr&nbsp;1
+</p>
+<!--
+...... subsection Algoritme van Horner ......
+-->
+<h5 id="autosec-11"><span class="sectionnumber">2&#x2003;</span>Algoritme van Horner</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p>
+<b>algoritme</b>: herhalend stappenplan
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> berekenen van een getalwaarde
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> berekenen van het quotie&#x0308;nt bij een opgaande deling (rest \(0\) \(\iff \) nulwaarde)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> vooraf: veelterm rangschikken en volledig maken
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 1 ......
+-->
+<h6 id="autosec-12">Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p>
+\(A(x) = 2x^3 - 4x + 3\), &#x2003;\(A(2) = ?\)
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="horner-getalwaarde" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \begin {array}{r|rrr|r} &amp; 2 &amp; 0 &amp; -4 &amp; 3 \\ 2 &amp; \downarrow &amp; 4 &amp; 8 &amp; 8 \\ \hline &amp; 2 &amp; 4 &amp; 4 &amp; 11 \end {array} \qquad \begin {array}{l}
+\leftarrow \text {coëfficiënten van } A(x) \\ \\ \leftarrow \text {coëfficiënten quotiënt}\ \big |\ \text {getalwaarde = rest} \end {array} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Kies een voorbeeld of typ zelf een veelterm en een getal \(a\). Met Volgende stap vult het schema zich aan zoals op het bord:
+naar beneden brengen, vermenigvuldigen met \(a\), optellen. Een klik op een lege plaats in het schema gaat meteen tot daar.</figcaption> </figure>
+</p>
+
+<p>
+\[ \Rightarrow \quad A(2) = 11 \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-13">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p>
+\(A(x) = 6x^3 - 2x^2 + x - 5\)
+</p>
+
+<p>
+\(1\) is een nulwaarde (op zicht: \(6 - 2 + 1 - 5 = 0\)).
+</p>
+
+<p>
+\[ \begin {array}{r|rrr|r} &amp; 6 &amp; -2 &amp; 1 &amp; -5 \\ 1 &amp; \downarrow &amp; 6 &amp; 4 &amp; 5 \\ \hline &amp; 6 &amp; 4 &amp; 5 &amp; 0 \end {array} \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                             ⇒   6x3 − 2x2 + x − 5 = (x − 1)(6x2 + 4x + 5)
+                                                                                                D = 16 − 4 · 6 · 5 < 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow \quad 6x^3 - 2x^2 + x - 5 &amp;= (x-1)(6x^2 + 4x + 5) \\ D &amp;= 16 - 4\cdot 6\cdot 5 &lt; 0
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL Oefeningen ......
+-->
+<h6 id="autosec-14">VBTL Oefeningen</h6>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p>
+VBTL Analyse 1a: p&nbsp;16 nr&nbsp;2 en 3
+</p>
+<!--
+...... subsection Gelijke veeltermen ......
+-->
+<h5 id="autosec-15"><span class="sectionnumber">3&#x2003;</span>Gelijke veeltermen</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p>
+veeltermen zijn <b>gelijk</b>
+</p>
+
+<p>
+\[ \iff \begin {cases} \text {hun graad is gelijk} \\ \text {hun overeenkomstige coëfficiënten zijn gelijk} \end {cases} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-16">Voorbeeld</h6>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p>
+\[ ax^3 - 4x^2 + bx + 2 = cx^4 + 5x^3 - dx^2 + 2ax - e \]
+</p>
+
+<p>
+\[ \iff \begin {cases} a = 5 \\ b = 2a \\ c = 0 \\ d = 4 \\ -e = 2 \end {cases} \iff \begin {cases} a = 5 \\ b = 10 \\ c = 0 \\ d = 4 \\ e = -2 \end {cases} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL Oefeningen ......
+-->
+<h6 id="autosec-17">VBTL Oefeningen</h6>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p>
+VBTL Analyse 1a: p&nbsp;16 nr&nbsp;4 en 6
+</p>
+<!--
+...... subsection Bewerkingen met veeltermen ......
+-->
+<h5 id="autosec-18"><span class="sectionnumber">4&#x2003;</span>Bewerkingen met veeltermen</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p>
+Lees handboek VBTL Analyse 1a, p&nbsp;12.
+</p>
+
+<p>
+\(A(x), B(x) \in \R [x]\), &#x2003;\(k \in \R \), &#x2003;\(n \in \N \)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                          ⇒   A(x) + B(x) ∈ R[x]
+                                                                              A(x) · B(x) ∈ R[x]
+                                                                              k A(x) ∈ R[x]
+                                                                                   n
+                                                                               A(x) ∈ R[x]
+                                                                              A(x)
+                                                                                   met B(x) ̸= 0: niet altijd een veelterm (zie onder)
+                                                                              B(x)
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow \quad &amp; A(x) + B(x) \in \R [x] \\ &amp; A(x)\cdot B(x) \in \R [x] \\ &amp; k\,A(x) \in \R [x] \\ &amp; \bigl (A(x)\bigr )^n \in \R [x] \\ &amp; \frac {A(x)}{B(x)} \text { met }
+B(x) \neq 0\text {: niet altijd een veelterm (zie onder)}
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opmerkingen ......
+-->
+<h6 id="autosec-19">Opmerkingen</h6>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(\gr \bigl (A(x) + B(x)\bigr ) \leq \max \Bigl (\gr \bigl (A(x)\bigr ), \gr \bigl (B(x)\bigr )\Bigr )\) &#x2003;(als \(A(x) + B(x) \neq 0\))
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(A(x)\cdot B(x) \neq 0\), dan \(\gr \bigl (A(x)\cdot B(x)\bigr ) = \gr \bigl (A(x)\bigr ) + \gr \bigl (B(x)\bigr )\).
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(B(x)\) een eenterm is en \(\gr \bigl (B(x)\bigr ) \leq \) laagst voorkomende graad in \(A(x)\), dan
+</p>
+<p>
+\[ \gr \left (\frac {A(x)}{B(x)}\right ) = \gr \bigl (A(x)\bigr ) - \gr \bigl (B(x)\bigr ). \]
+</p>
+<p>
+
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL Oefeningen ......
+-->
+<h6 id="autosec-20">VBTL Oefeningen</h6>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p>
+VBTL Analyse 1a: p&nbsp;16 nr&nbsp;5
+</p>
+<!--
+...... subsection Euclidische deling ......
+-->
+<h5 id="autosec-21"><span class="sectionnumber">5&#x2003;</span>Euclidische deling</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Deling in ......
+-->
+<h6 id="autosec-22">Deling in \(\N \)</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p>
+\(\forall a \in \N ,\ \forall d \in \N _0 :      \exists \, q, r \in \N :\)
+</p>
+
+<p>
+\[ \underset {\substack {\uparrow \\\text {deeltal}}}{a} = \underset {\substack {\uparrow \\\text {deler}}}{d}\cdot \underset {\substack {\uparrow \\\text {quotiënt}}}{q} + \underset
+{\substack {\uparrow \\\text {rest}}}{r} \qquad \text {met } 0 \leq r &lt; d \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                               7
+                                                                 = 3.5                                                    ⇒   7=2·3+1
+                                                               2
+                                                            1254
+                                                                 =?
+                                                             23
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\frac {7}{2} &amp;= 3.5 &amp;&amp;\Rightarrow \quad 7 = 2\cdot 3 + 1 \\ \frac {1254}{23} &amp;= ?
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{r|l} 1254 &amp; 23 \\ \cline {2-2} -115\phantom {4} &amp; 54 \\ \cline {1-1} 104 &amp; \\ -92 &amp; \\ \cline {1-1} 12 &amp; \end {array} \qquad \Rightarrow \quad 1254 =
+23\cdot 54 + 12 \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Analoog in ......
+-->
+<h6 id="autosec-23">Analoog in \(\R [x]\)</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p>
+\[ \frac {x^2 + 7x + 8}{x + 1} = ?     \]
+</p>
+
+<p>
+\[ \underbrace {x^2 + 7x + 8}_{\text {deeltal}} = \underbrace {(x + 1)}_{\text {deler}}\,\underbrace {(x + 6)}_{\text {quotiënt}} + \underbrace {2}_{\text {rest}} \]
+</p>
+
+<p>
+\[ A(x) = D(x)\cdot Q(x) + R(x) \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Definitie ......
+-->
+<h6 id="autosec-24">Definitie</h6>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p>
+<b>Euclidische deling</b> van \(A(x)\) door \(D(x)\):
+</p>
+
+<p>
+\[ A(x) = D(x)\cdot Q(x) + R(x) \qquad \text {met } \gr \bigl (R(x)\bigr ) &lt; \gr \bigl (D(x)\bigr ) \text { of } R(x) = 0 \]
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(A(x)\): deeltal
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(D(x)\): deler
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(Q(x)\): quotie&#x0308;nt
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(R(x)\): rest
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opmerkingen ......
+-->
+<h6 id="autosec-25">Opmerkingen</h6>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(R(x) = 0 \Rightarrow \) <b>opgaande deling</b>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(R(x) \neq 0 \Rightarrow \) <b>niet-opgaande deling</b>
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Als \(\gr \bigl (A(x)\bigr ) &lt; \gr \bigl (D(x)\bigr )\), dan \(Q(x) = 0\) en \(R(x) = A(x)\).
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs ......
+-->
+<h6 id="autosec-26">Bewijs</h6>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p>
+\(\gr A &lt; \gr D\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                 ⇒     A(x) = D(x) · Q(x) + R(x)
+                                                                                                   anders gr(D · Q + R) ≥ gr D > gr A
+                                                                                                                                        
+                                                                            ⇒     Q(x) = 0
+                                                                            ⇒     A(x) = D(x) · 0 + R(x)
+                                                                            ⇐⇒       A(x) = R(x)                                                                                         □
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow \qquad A(x) &amp;= D(x)\cdot Q(x) + R(x) \\ &amp;\Rightarrow \qquad Q(x) = 0 \qquad \bigl (\text {anders } \gr (D\cdot Q + R) \geq \gr D &gt; \gr A\ \lightning \bigr ) \\
+&amp;\Rightarrow \qquad A(x) = D(x)\cdot 0 + R(x) \\ &amp;\iff \qquad A(x) = R(x) \qed
+\end{align*}
+
+</p>
+<!--
+...... subsection Algoritme van de euclidische deling ......
+-->
+<h5 id="autosec-27"><span class="sectionnumber">6&#x2003;</span>Algoritme van de euclidische deling</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-28">Voorbeeld</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+\(A(x) = 2x^4 - 9x^2 - x - 4\), &#x2003;\(D(x) = -2x^2 + 4x - 3\)
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="staartdeling" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \begin {array}{rrrrrr|l} &amp; 2x^4 &amp; +0x^3 &amp; -9x^2 &amp; -x &amp; -4 &amp; -2x^2+4x-3 \\ \cline {7-7} - &amp; 2x^4 &amp; -4x^3 &amp; +3x^2 &amp; &amp; &amp; -x^2-2x+2 \\ \cline
+{2-4} &amp; &amp; 4x^3 &amp; -12x^2 &amp; -x &amp; -4 &amp; \\ - &amp; &amp; 4x^3 &amp; -8x^2 &amp; +6x &amp; &amp; \\ \cline {3-5} &amp; &amp; &amp; -4x^2 &amp; -7x &amp; -4 &amp; \\ - &amp;
+&amp; &amp; -4x^2 &amp; +8x &amp; -6 &amp; \\ \cline {4-6} &amp; &amp; &amp; &amp; -15x &amp; +2 &amp; \end {array} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Kies een voorbeeld of typ zelf een deeltal en een deler. Met Volgende stap, of met een klik op een plaats die nog leeg is,
+doorloop je het algoritme: de vier stappen lichten op, en stap 2 tot 4 herhalen zich tot de graad van de rest kleiner is dan die van de deler.</figcaption> </figure>
+</p>
+
+<p>
+\[ \Rightarrow \quad \underbrace {2x^4 - 9x^2 - x - 4}_{A} = \underbrace {(-2x^2 + 4x - 3)}_{D}\,\underbrace {(-x^2 - 2x + 2)}_{Q} \underbrace {-\,15x + 2}_{R} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Algoritme ......
+-->
+<h6 id="autosec-29">Algoritme</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> rangschikken, vervolledigen
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> hoogstegraadsterm \(A\) \(/\) hoogstegraadsterm \(D\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">3.</span> bekomen term in \(Q\) \(\times \) \(D\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">4.</span> partie&#x0308;le rest \(=\) aftrekken
+</p>
+</li>
+</ul>
+
+<p>
+Herhaal stap 2 tot 4 tot \(\gr R &lt; \gr D\) of \(R = 0\).
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL Oefeningen ......
+-->
+<h6 id="autosec-30">VBTL Oefeningen</h6>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p>
+VBTL Analyse 1a: p&nbsp;17 nr&nbsp;7 tot 11
+</p>
+<!--
+...... subsection Quotient en rest bestaan en zijn enig ......
+-->
+<h5 id="autosec-31"><span class="sectionnumber">7&#x2003;</span>Quotie&#x0308;nt en rest bestaan en zijn enig</h5>
+<a id="mkpiweb-autopage-31"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Stelling ......
+-->
+<h6 id="autosec-32">Stelling</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p>
+<em>Bij de euclidische deling bestaan het quotie&#x0308;nt en de rest, en zijn ze enig.</em>
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs ......
+-->
+<h6 id="autosec-33">Bewijs</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p>
+<b>Bestaan</b>: uit het algoritme volgt dat \(Q(x)\) en \(R(x)\) bestaan.
+</p>
+
+<p>
+<b>Enig</b>: bewijs uit het ongerijmde.
+</p>
+
+<p>
+Veronderstel: niet enig, dus naast \(Q(x)\) en \(R(x)\) bestaan er nog \(Q&apos;(x)\) en \(R&apos;(x)\) zodat \(Q(x) \neq Q&apos;(x)\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                              (1)                                                                                                 (3)
+                                                  ⇒      A(x) = D(x) Q(x) + R(x)                                                                      met gr R(x) < gr D(x) of R(x) = 0
+                                                              (2)                                                                                                  (4)
+                                                         A(x) = D(x) Q′ (x) + R′ (x)                                                                  met gr R′ (x) < gr D(x) of R′ (x) = 0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow \qquad A(x) &amp;\overset {(1)}{=} D(x)\,Q(x) + R(x) &amp;&amp;\text {met } \gr R(x) \overset {(3)}{&lt;} \gr D(x) \text { of } R(x) = 0 \\ A(x) &amp;\overset {(2)}{=}
+D(x)\,Q&apos;(x) + R&apos;(x) &amp;&amp;\text {met } \gr R&apos;(x) \overset {(4)}{&lt;} \gr D(x) \text { of } R&apos;(x) = 0
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                         (1) en (2)
+                                                                                            ⇒              D(x) Q(x) + R(x) = D(x) Q′ (x) + R′ (x)
+                                                                                                                             (5)
+                                                                                                               R(x) − R′ (x) = D(x) Q′ (x) − Q(x)
+                                                                                                                                                      
+                                                                                                      ⇐⇒
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\overset {(1)\text { en }(2)}{\Rightarrow }\qquad D(x)\,Q(x) + R(x) &amp;= D(x)\,Q&apos;(x) + R&apos;(x) \\ \iff \qquad R(x) - R&apos;(x) &amp;\overset {(5)}{=} D(x)\bigl (Q&apos;(x) -
+Q(x)\bigr )
+\end{align*}
+
+</p>
+
+<p>
+Twee gevallen: \(R(x)\) en \(R&apos;(x)\) niet beide \(0\), of \(R(x) = R&apos;(x) = 0\).
+</p>
+
+<p>
+<b>Geval 1</b>: \(R(x)\) en \(R&apos;(x)\) niet beide \(0\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                    (3) en (4)
+                                                                                      gr R(x) − R′ (x) ≤ max gr R(x), gr R′ (x) < gr D(x)
+                                                                                                                              
+                                                                         ⇒
+                                                                                      gr R(x) − R′ (x) < gr D(x)
+                                                                                                      
+                                                                           ⇐⇒
+                                                                           (5)
+                                                                                                            
+                                                                           ⇐⇒         gr D(x) Q′ (x) − Q(x) < gr D(x)
+
+                                                                                      gr D(x) + gr Q′ (x) − Q(x) < gr D(x)
+                                                                                                                
+                                                                           ⇐⇒
+                                                                                      gr Q′ (x) − Q(x) < 0       een veelterm kan geen negatieve graad hebben
+                                                                                                       
+                                                                           ⇐⇒
+                                                                             ⇒        veronderstelling Q′ (x) ̸= Q(x) is vals
+                                                                             ⇒        Q′ (x) = Q(x) en dus ook R′ (x) = R(x)       (uit (1) en (2))
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\overset {(3)\text { en }(4)}{\Rightarrow }\qquad &amp; \gr \bigl (R(x) - R&apos;(x)\bigr ) \leq \max \bigl (\gr R(x), \gr R&apos;(x)\bigr ) &lt; \gr D(x) \\ \iff \qquad &amp; \gr \bigl (R(x)
+- R&apos;(x)\bigr ) &lt; \gr D(x) \\ \overset {(5)}{\iff }\qquad &amp; \gr \Bigl (D(x)\bigl (Q&apos;(x) - Q(x)\bigr )\Bigr ) &lt; \gr D(x) \\ \iff \qquad &amp; \gr D(x) + \gr \bigl (Q&apos;(x)
+- Q(x)\bigr ) &lt; \gr D(x) \\ \iff \qquad &amp; \gr \bigl (Q&apos;(x) - Q(x)\bigr ) &lt; 0 \quad \lightning \quad \text {een veelterm kan geen negatieve graad hebben} \\ \Rightarrow \qquad
+&amp; \text {veronderstelling } Q&apos;(x) \neq Q(x) \text { is vals} \\ \Rightarrow \qquad &amp; Q&apos;(x) = Q(x) \text { en dus ook } R&apos;(x) = R(x) \quad \text {(uit (1) en (2))}
+\end{align*}
+
+</p>
+
+<p>
+<b>Geval 2</b>: \(R(x) = R&apos;(x) = 0\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                     (5)
+                                                                                 0 = D(x) · Q′ (x) − Q(x)           (\(D(x)\) is deler \(\Rightarrow D(x) \neq 0\))
+                                                                                                              
+                                                                     ⇒
+                                                                                  ′
+                                                                    ⇐⇒           Q (x) − Q(x) = 0
+                                                                    ⇐⇒           Q′ (x) = Q(x)                                                                                                    □
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\overset {(5)}{\Rightarrow }\qquad &amp; 0 = D(x)\cdot \bigl (Q&apos;(x) - Q(x)\bigr ) \qquad \text {($D(x)$ is deler $\Rightarrow D(x) \neq 0$)} \\ \iff \qquad &amp; Q&apos;(x) - Q(x) = 0 \\
+\iff \qquad &amp; Q&apos;(x) = Q(x) \qed
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL Oefeningen ......
+-->
+<h6 id="autosec-34">VBTL Oefeningen</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p>
+VBTL Analyse 1a: p&nbsp;17 nr&nbsp;12; p&nbsp;18 nr&nbsp;13 tot 16
+</p>
+<!--
+...... section Deelbaarheid in ......
+-->
+<h4 id="autosec-35"><span class="sectionnumber">II&#x2003;</span>Deelbaarheid in \(\R [x]\)</h4>
+<a id="mkpiweb-autopage-35"></a>
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-36"><span class="sectionnumber">1&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p>
+\(A(x)\) is <b>deelbaar</b> door \(D(x)\) \(\iff \) de rest van de euclidische deling is nul.
+</p>
+
+<p>
+Notatie: \(D(x) \mid A(x)\) &#x2003;(\(D\) deelt \(A\))
+</p>
+
+<p>
+In symbolen:
+</p>
+
+<p>
+\[ D(x) \mid A(x) \iff A(x) = D(x)\cdot Q(x) \text { met } R(x) = 0 \]
+</p>
+
+<p>
+Opmerking: \(D(x) \nmid A(x)\) &#x2003;(\(D\) deelt \(A\) <em>niet</em>) \(\Rightarrow R(x) \neq 0\)
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-37">Voorbeelden</h6>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p>
+\(2x + 3 \mid 2x^3 + 5x^2 + 5x + 3\)
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(Q(x) = x^2 + x + 1\), \(R(x) = 0\)</span>
+</p>
+
+<p>
+\[ \begin {array}{rrrrr|l} &amp; 2x^3 &amp; +5x^2 &amp; +5x &amp; +3 &amp; 2x+3 \\ \cline {6-6} - &amp; 2x^3 &amp; +3x^2 &amp; &amp; &amp; x^2+x+1 \\ \cline {2-3} &amp; &amp; 2x^2 &amp; +5x
+&amp; +3 &amp; \\ - &amp; &amp; 2x^2 &amp; +3x &amp; &amp; \\ \cline {3-4} &amp; &amp; &amp; 2x &amp; +3 &amp; \\ - &amp; &amp; &amp; 2x &amp; +3 &amp; \\ \cline {4-5} &amp; &amp; &amp; &amp;
+0 &amp; \end {array} \qquad \Rightarrow \quad R(x) = 0 \]
+</p>
+
+</div>
+
+<p>
+\(2x + 2 \nmid 6x^3 + 8x^2 + 4x + 20\)
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(Q(x) = 3x^2 + x + 1\), \(R(x) = 18\)</span>
+</p>
+
+<p>
+\[ \begin {array}{rrrrr|l} &amp; 6x^3 &amp; +8x^2 &amp; +4x &amp; +20 &amp; 2x+2 \\ \cline {6-6} - &amp; 6x^3 &amp; +6x^2 &amp; &amp; &amp; 3x^2+x+1 \\ \cline {2-3} &amp; &amp; 2x^2 &amp; +4x
+&amp; +20 &amp; \\ - &amp; &amp; 2x^2 &amp; +2x &amp; &amp; \\ \cline {3-4} &amp; &amp; &amp; 2x &amp; +20 &amp; \\ - &amp; &amp; &amp; 2x &amp; +2 &amp; \\ \cline {4-5} &amp; &amp; &amp;
+&amp; 18 &amp; \end {array} \qquad \Rightarrow \quad R(x) = 18 \neq 0 \]
+</p>
+
+</div>
+<!--
+...... subsection Reststelling bij deling door ......
+-->
+<h5 id="autosec-38"><span class="sectionnumber">2&#x2003;</span>Reststelling bij deling door \(x - a\)</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Stelling ......
+-->
+<h6 id="autosec-39">Stelling</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p>
+Veelterm \(A(x)\) delen door \(D(x) = x - a\) &#x2003;(\(a \in \R \))
+</p>
+
+<p>
+\[ \Rightarrow \quad \underbrace {\text {rest } R(x) \text { gelijk aan getalwaarde } A(a)} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs ......
+-->
+<h6 id="autosec-40">Bewijs</h6>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p>
+Te bewijzen: \(R(x) = A(a)\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                        A(x) = D(x) · Q(x) + R(x)                                         met gr R < gr D of R = 0
+                                                 ⇐⇒     A(x) = (x − a) ·Q(x) + R(x)                                       ⇒ gr R = 0 of R = 0
+                                                               | {z }
+                                                                gr D=1
+
+                                                                                                                          dus R is een constante r
+                                                 x=a
+                                                 ⇒      A(a) = (a − a) · Q(a) + r                                         (\(a\) invullen links en rechts)
+                                                 ⇐⇒     A(a) = 0 · Q(a) + r
+                                                 ⇐⇒     A(a) = r                                                                                                                               □
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A(x) &amp;= D(x)\cdot Q(x) + R(x) &amp;&amp;\text {met } \gr R &lt; \gr D \text { of } R = 0 \\ \iff \qquad A(x) &amp;= \underbrace {(x - a)}_{\gr D = 1}\cdot Q(x) + R(x) &amp;&amp;\Rightarrow
+\ \gr R = 0 \text { of } R = 0 \\ &amp; &amp;&amp;\text {dus } R \text { is een constante } r \\ \overset {x = a}{\Rightarrow }\qquad A(a) &amp;= (a - a)\cdot Q(a) + r &amp;&amp;\text {($a$
+invullen links en rechts)} \\ \iff \qquad A(a) &amp;= 0\cdot Q(a) + r \\ \iff \qquad A(a) &amp;= r \qed
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-41">Voorbeeld</h6>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p>
+\(A(x) = 2x^3 + 9x^2 + 8x + 1\), &#x2003;\(D(x) = x + 3\)
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> invullen: \(A(-3) = \cdots = 4\)
+</p>
+<div class="oplossing">
+<p>
+\[ A(-3) = 2(-3)^3 + 9(-3)^2 + 8(-3) + 1 = -54 + 81 - 24 + 1 = 4 \]
+</p>
+</div>
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Horner:
+</p>
+<div class="oplossing">
+<p>
+\[ \begin {array}{r|rrr|r} &amp; 2 &amp; 9 &amp; 8 &amp; 1 \\ -3 &amp; \downarrow &amp; -6 &amp; -9 &amp; 3 \\ \hline &amp; 2 &amp; 3 &amp; -1 &amp; 4 \end {array} \qquad \Rightarrow \quad R(x)
+= A(-3) = 4 \]
+</p>
+</div>
+<p>
+
+</p>
+</li>
+</ul>
+<!--
+...... subsection Quotient bij deling door ......
+-->
+<h5 id="autosec-42"><span class="sectionnumber">3&#x2003;</span>Quotie&#x0308;nt bij deling door \(x - a\)</h5>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-43">Eigenschap</h6>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p>
+Als de deler van de vorm \(D(x) = x - a\) is, dan zijn de coe&#x0308;fficie&#x0308;nten van \(Q(x)\) af te lezen in het schema van Horner.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-44">Voorbeeld</h6>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p>
+\(2x^3 + 9x^2 + 8x + 1\) delen door \(x + 3\)
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">\(Q(x) = 2x^2 + 3x - 1\), \(R(x) = 4\)</span>
+</p>
+
+<p>
+\[ \begin {array}{rrrrr|l} &amp; 2x^3 &amp; +9x^2 &amp; +8x &amp; +1 &amp; x+3 \\ \cline {6-6} - &amp; 2x^3 &amp; +6x^2 &amp; &amp; &amp; 2x^2+3x-1 \\ \cline {2-3} &amp; &amp; 3x^2 &amp; +8x
+&amp; +1 &amp; \\ - &amp; &amp; 3x^2 &amp; +9x &amp; &amp; \\ \cline {3-4} &amp; &amp; &amp; -x &amp; +1 &amp; \\ - &amp; &amp; &amp; -x &amp; -3 &amp; \\ \cline {4-5} &amp; &amp; &amp; &amp;
+4 &amp; \end {array} \qquad \begin {array}{r|rrr|r} &amp; 2 &amp; 9 &amp; 8 &amp; 1 \\ -3 &amp; \downarrow &amp; -6 &amp; -9 &amp; 3 \\ \hline &amp; 2 &amp; 3 &amp; -1 &amp; 4 \end {array} \]
+</p>
+
+<p>
+\[ \Rightarrow \quad 2x^3 + 9x^2 + 8x + 1 = (x + 3)(2x^2 + 3x - 1) + 4 \]
+</p>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL Oefeningen ......
+-->
+<h6 id="autosec-45">VBTL Oefeningen</h6>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p>
+VBTL Analyse 1a: p&nbsp;29 nr&nbsp;1
+</p>
+<!--
+...... subsection Kenmerk van deelbaarheid door ......
+-->
+<h5 id="autosec-46"><span class="sectionnumber">4&#x2003;</span>Kenmerk van deelbaarheid door \(x - a\)</h5>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Stelling ......
+-->
+<h6 id="autosec-47">Stelling</h6>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p>
+\[ \underbrace {A(x) \text { deelbaar door } x - a} \iff A(a) = 0 \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs ......
+-->
+<h6 id="autosec-48">Bewijs</h6>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p>
+\(x - a \mid A(x)\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                              ⇐⇒      rest bij deling is 0   (⇒ R(x) = 0)
+                                                                              ⇐⇒      A(a) = 0      want A(a) = R(x)                               □
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\iff \qquad &amp; \text {rest bij deling is } 0 \quad (\Rightarrow R(x) = 0) \\ \iff \qquad &amp; A(a) = 0 \qquad \text {want } A(a) = R(x) \qed
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-49">Voorbeelden</h6>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p>
+\(x - 2 \mid A(x) = 3x^2 - 4x - 4\)
+</p>
+<div class="oplossing">
+
+<p>
+\[ A(2) = 3\cdot 2^2 - 4\cdot 2 - 4 = 0 \]
+</p>
+
+</div>
+
+<p>
+\(x + 3 \nmid B(x) = x^3 - 2x^2 + x - 1\)
+</p>
+<div class="oplossing">
+
+<p>
+\[ B(-3) = (-3)^3 - 2(-3)^2 + (-3) - 1 = -27 - 18 - 3 - 1 = -49 \neq 0 \]
+</p>
+
+</div>
+<!--
+...... subsection Bepalen van de delers van de vorm ......
+-->
+<h5 id="autosec-50"><span class="sectionnumber">5&#x2003;</span>Bepalen van de delers van de vorm \(x - a\)</h5>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Stelling ......
+-->
+<h6 id="autosec-51">Stelling</h6>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<p>
+Voor gehele coe&#x0308;fficie&#x0308;nten \(a_i\) en \(a \in \Z \):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                 x − a | an xn + an−1 xn−1 + · · · + a1 x + a0
+                                                                            ⇒    a | a0
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; x - a \mid a_nx^n + a_{n-1}x^{n-1} + \cdots + a_1x + a_0 \\ \Rightarrow \qquad &amp; a \mid a_0
+\end{align*}
+(Is \(A(x)\) deelbaar door \(x - a\), dan is de constante term deelbaar door \(a\).)
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs ......
+-->
+<h6 id="autosec-52">Bewijs</h6>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p>
+\(x - a \mid a_nx^n + a_{n-1}x^{n-1} + \cdots + a_1x + a_0\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                        A(a)=0
+                                                                          ⇒      an an + an−1 an−1 + · · · + a1 a + a0 = 0
+                                                                         ⇐⇒      a (an an−1 + an−1 an−2 + · · · + a1 ) + a0 = 0
+                                                                         ⇐⇒      a (an an−1 + an−1 an−2 + · · · + a1 ) = −a0
+                                                                         ⇐⇒       a · (−an an−1 − an−1 an−2 − · · · − a1 ) = a0
+                                                                                 |{z} |              {z                 } |{z}
+                                                                                 getal              geheel getal                  getal
+
+                                                                           ⇒     a | a0                                                                                                         □
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\overset {A(a) = 0}{\Rightarrow }\qquad &amp; a_na^n + a_{n-1}a^{n-1} + \cdots + a_1a + a_0 = 0 \\ \iff \qquad &amp; a\,(a_na^{n-1} + a_{n-1}a^{n-2} + \cdots + a_1) + a_0 = 0 \\ \iff \qquad
+&amp; a\,(a_na^{n-1} + a_{n-1}a^{n-2} + \cdots + a_1) = -a_0 \\ \iff \qquad &amp; \underbrace {a}_{\text {getal}}\cdot \underbrace {(-a_na^{n-1} - a_{n-1}a^{n-2} - \cdots - a_1)}_{\text
+{geheel getal}} = \underbrace {a_0}_{\text {getal}} \\ \Rightarrow \qquad &amp; a \mid a_0 \qed
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opmerking ......
+-->
+<h6 id="autosec-53">Opmerking</h6>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p>
+Bewijs maar in één richting! \(x - a \mid A(x)\): <em>nodig</em> dat \(a \mid a_0\), maar <em>niet voldoende</em>.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeelden ......
+-->
+<h6 id="autosec-54">Voorbeelden</h6>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> \(x - 2 \nmid x^2 - 3x + 4\) &#x2003;want \(A(2) = 2 \neq 0\), &#x2003;en toch \(2 \mid 4\)
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> \(x + 3\) kan \(x^2 - 3x + 4\) niet delen &#x2003;want \(-3 \nmid 4\)
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Praktisch ......
+-->
+<h6 id="autosec-55">Praktisch</h6>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p>
+Werkwijze om delers van de vorm \((x - a)\) te zoeken (met \(a \in \Z \)):
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">1.</span> bepaal de delers van de constante term
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">2.</span> bepaal de getalwaarde voor die delers
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-56">Voorbeeld</h6>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p>
+\(A(x) = x^3 + 3x^2 - x - 3\)
+</p>
+<div class="oplossing">
+
+<p>
+<span class="oplantwoord">delers \(x - 1\), \(x + 1\) en \(x + 3\)</span> delers van \(-3\): \(1\), \(-1\), \(3\), \(-3\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                          A(1) = 1 + 3 − 1 − 3 = 0                                              ⇒    x − 1 | A(x)
+                                                        A(−1) = −1 + 3 + 1 − 3 = 0                                              ⇒    x + 1 | A(x)
+                                                          A(3) = 27 + 27 − 3 − 3 = 48 ̸= 0                                      ⇒    x − 3 ∤ A(x)
+                                                        A(−3) = −27 + 27 + 3 − 3 = 0                                            ⇒    x + 3 | A(x)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A(1) &amp;= 1 + 3 - 1 - 3 = 0 &amp;&amp;\Rightarrow \quad x - 1 \mid A(x) \\ A(-1) &amp;= -1 + 3 + 1 - 3 = 0 &amp;&amp;\Rightarrow \quad x + 1 \mid A(x) \\ A(3) &amp;= 27 + 27 - 3 - 3 = 48
+\neq 0 &amp;&amp;\Rightarrow \quad x - 3 \nmid A(x) \\ A(-3) &amp;= -27 + 27 + 3 - 3 = 0 &amp;&amp;\Rightarrow \quad x + 3 \mid A(x)
+\end{align*}
+
+</p>
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL Oefeningen ......
+-->
+<h6 id="autosec-57">VBTL Oefeningen</h6>
+<a id="mkpiweb-autopage-57"></a>
+
+
+<p>
+VBTL Analyse 1a: p&nbsp;29 nr&nbsp;2 en 3
+</p>
+<!--
+...... subsection Kenmerk van deelbaarheid door ......
+-->
+<h5 id="autosec-58"><span class="sectionnumber">6&#x2003;</span>Kenmerk van deelbaarheid door \((x - a)(x - b)\)</h5>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-59">Eigenschap</h6>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<p>
+\(\forall a, b \in \R ,\ A(x) \in \R [x]\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       (x − a)(x − b) | A(x)
+                                                                                 ⇒     x − a | A(x) ∧ x − b | A(x)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; (x - a)(x - b) \mid A(x) \\ \Rightarrow \qquad &amp; x - a \mid A(x) \ \wedge \ x - b \mid A(x)
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs ......
+-->
+<h6 id="autosec-60">Bewijs</h6>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p>
+\((x - a)(x - b) \mid A(x)\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                        def deelbaar
+                                                                           ⇐⇒          A(x) = (x − a)(x − b) · Q(x)   voor zekere Q(x)
+                                                                       associatief
+                                                                     en commutatief                                 
+                                                                          ⇒            A(x) = (x − a) (x − b) · Q(x)
+                                                                                              | {z } |      {z       }
+                                                                                                deler     quotiënt
+
+                                                                                       en A(x) = (x − b) (x − a) Q(x)
+                                                                                                                         
+
+                                                                        def deelbaar
+                                                                            ⇒          x − a | A(x) ∧ x − b | A(x)                                                                             □
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\overset {\text {def deelbaar}}{\iff }\qquad &amp; A(x) = (x - a)(x - b)\cdot Q(x) \quad \text {voor zekere } Q(x) \\ \overset {\substack {\text {associatief}\\\text {en
+commutatief}}}{\Rightarrow }\qquad &amp; A(x) = \underbrace {(x - a)}_{\text {deler}} \underbrace {\bigl ((x - b)\cdot Q(x)\bigr )}_{\text {quotiënt}} \\ &amp; \text {en } A(x) = (x - b)\bigl
+((x - a)\,Q(x)\bigr ) \\ \overset {\text {def deelbaar}}{\Rightarrow }\qquad &amp; x - a \mid A(x) \ \wedge \ x - b \mid A(x) \qed
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Omgekeerd ......
+-->
+<h6 id="autosec-61">Omgekeerd</h6>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<p>
+\(\forall a, b \in \R \) met \(a \neq b\), \(A(x) \in \R [x]\):
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                       x − a | A(x) ∧ x − b | A(x)
+                                                                                 ⇒     (x − a)(x − b) | A(x)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+&amp; x - a \mid A(x) \ \wedge \ x - b \mid A(x) \\ \Rightarrow \qquad &amp; (x - a)(x - b) \mid A(x)
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Bewijs ......
+-->
+<h6 id="autosec-62">Bewijs</h6>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                               x − a | A(x)     ⇒     A(x) = (x − a) · Q(x)                                                                   (1)
+                                                                               x − b | A(x)     ⇒     A(b) = 0                                                                                (2)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x - a \mid A(x) &amp;\quad \Rightarrow \quad A(x) = (x - a)\cdot Q(x) \tag {1} \\ x - b \mid A(x) &amp;\quad \Rightarrow \quad A(b) = 0 \tag {2}
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                               (1) en (2)
+                                                                                  ⇒           A(b) = (b − a) ·Q(b)
+                                                                                              |{z} | {z }
+                                                                                               =0        ̸= 0
+
+                                                                                      ⇒       Q(b) = 0
+                                                                                      ⇒       Q(x) = (x − b) · Q′ (x)
+                                                                                      (1)
+                                                                                      ⇒       A(x) = (x − a)(x − b) · Q′ (x)
+                                                                                      ⇒       (x − a)(x − b) | A(x)                                                                               □
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\overset {(1)\text { en }(2)}{\Rightarrow }\qquad &amp; \underbrace {A(b)}_{=\,0} = \underbrace {(b - a)}_{\neq \,0}\cdot Q(b) \\ \Rightarrow \qquad &amp; Q(b) = 0 \\ \Rightarrow \qquad &amp;
+Q(x) = (x - b)\cdot Q&apos;(x) \\ \overset {(1)}{\Rightarrow }\qquad &amp; A(x) = (x - a)(x - b)\cdot Q&apos;(x) \\ \Rightarrow \qquad &amp; (x - a)(x - b) \mid A(x) \qed
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Besluit ......
+-->
+<h6 id="autosec-63">Besluit</h6>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p>
+\(\forall a, b \in \R ,\ a \neq b,\ A(x) \in \R [x]\):
+</p>
+
+<p>
+\[ \left .   \begin {array}{l} x - a \mid A(x) \\ x - b \mid A(x) \end {array} \right \} \iff (x - a)(x - b) \mid A(x) \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Uitbreiding ......
+-->
+<h6 id="autosec-64">Uitbreiding</h6>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p>
+\[ (x - a)(x - b)(x - c)\cdots \mid A(x) \iff \begin {cases} x - a \mid A(x) \\ x - b \mid A(x) \\ x - c \mid A(x) \\ \quad \vdots \end {cases} \]
+</p>
+
+<p>
+met \(a\), \(b\), \(c\), &#x2026; verschillend.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld ......
+-->
+<h6 id="autosec-65">Voorbeeld</h6>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<p>
+\(A(x) = 3x^5 + 6x^4 - 2x^3 - 4x^2 - x - 2\)
+</p>
+
+<p>
+delers van \(-2\): \(1\), \(-1\), \(2\), \(-2\)
+</p>
+
+<p>
+\[ \left . \begin {array}{l} A(1) = 0 \\ A(-1) = 0 \\ A(2) \neq 0 \\ A(-2) = 0 \end {array} \right \} \Rightarrow \quad A(x) = (x - 1)(x + 1)(x + 2)\, \underbrace {(\phantom {3x^2 +
+1})}_{\substack {\text {quotiënt}\\\text {van graad } 2}} \]
+</p>
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="horner-herhaald" data-hoogte="26rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ \begin {array}{r|rrrrrr} &amp; 3 &amp; 6 &amp; -2 &amp; -4 &amp; -1 &amp; -2 \\ 1 &amp; \downarrow &amp; 3 &amp; 9 &amp; 7 &amp; 3 &amp; 2 \\ \hline &amp; 3 &amp; 9 &amp; 7 &amp; 3 &amp; 2
+&amp; \boxed {0} \\ -1 &amp; \downarrow &amp; -3 &amp; -6 &amp; -1 &amp; -2 &amp; \\ \hline &amp; 3 &amp; 6 &amp; 1 &amp; 2 &amp; \boxed {0} &amp; \\ -2 &amp; \downarrow &amp; -6 &amp; 0 &amp;
+-2 &amp; &amp; \\ \hline &amp; 3 &amp; 0 &amp; 1 &amp; \boxed {0} &amp; &amp; \end {array} \]
+</p>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Het schema van Horner herhaald: het quotie&#x0308;nt van de ene deling is het deeltal van de volgende. Kies een voorbeeld
+of typ zelf een veelterm en de getallen \(a\), gescheiden door een komma. Een klik op een lege plaats in het schema gaat meteen tot daar.</figcaption> </figure>
+</p>
+
+<div class="oplossing">
+
+<p>
+\[ \Rightarrow \quad A(x) = (x - 1)(x + 1)(x + 2)(3x^2 + 1) \]
+</p>
+
+</div>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Opmerking ......
+-->
+<h6 id="autosec-66">Opmerking</h6>
+<a id="mkpiweb-autopage-66"></a>
+
+
+<p>
+Een veelterm van de \(n\)-de graad heeft hoogstens \(n\) verschillende nulwaarden.
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Gevolg ......
+-->
+<h6 id="autosec-67">Gevolg</h6>
+<a id="mkpiweb-autopage-67"></a>
+
+
+<p>
+Een veelterm van graad \(n\) met \(n\) verschillende nulwaarden \(\alpha _1, \alpha _2, \ldots , \alpha _n\) is te schrijven als
+</p>
+
+<p>
+\[ a_nx^n + a_{n-1}x^{n-1} + \cdots + a_0 = a_n(x - \alpha _1)(x - \alpha _2)\cdots (x - \alpha _n) \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL Oefeningen ......
+-->
+<h6 id="autosec-68">VBTL Oefeningen</h6>
+<a id="mkpiweb-autopage-68"></a>
+
+
+<p>
+VBTL Analyse 1a: p&nbsp;29 nr&nbsp;5; p&nbsp;30 nr&nbsp;7, 8 en 9
+</p>
+<!--
+...... subsection Veeltermen van de vorm ......
+-->
+<h5 id="autosec-69"><span class="sectionnumber">7&#x2003;</span>Veeltermen van de vorm \(x^n - a^n\)</h5>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection ......
+-->
+<h6 id="autosec-70">\(x^2 - a^2\)</h6>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<p>
+\[ \overset {\text {merkwaardig product}}{\Rightarrow }\quad x^2 - a^2 = (x - a)(x + a) \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                    √ 2                                      √
+                                                        x2 − 3 = x2 − 3                               (a =       3)
+                                                                    √      √
+                                                              = (x − 3)(x + 3)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2 - 3 &amp;= x^2 - \sqrt {3}^2 &amp;&amp;(a = \sqrt {3}) \\ &amp;= (x - \sqrt {3})(x + \sqrt {3})
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection ......
+-->
+<h6 id="autosec-71">\(x^3 - a^3\)</h6>
+<a id="mkpiweb-autopage-71"></a>
+
+
+<p>
+\(A(x) = x^3 - a^3\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                     ⇒     A(a) = 0
+                                                                     ⇒     x − a | x3 − a3
+                                                                                                                   1   0 0    −a3
+                                                                     ⇒     quotiënt met behulp van Horner:     a   ↓   a a2    a3
+                                                                                                                   1   a a2     0
+                                                                     ⇒     x3 − a3 = (x − a)(x2 + ax + a2 )
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow \qquad &amp; A(a) = 0 \\ \Rightarrow \qquad &amp; x - a \mid x^3 - a^3 \\ \Rightarrow \qquad &amp; \text {quotiënt met behulp van Horner:}\quad \begin{array}{r|rrr|r} &amp; 1
+&amp; 0 &amp; 0 &amp; -a^3 \\ a &amp; \downarrow &amp; a &amp; a^2 &amp; a^3 \\ \hline &amp; 1 &amp; a &amp; a^2 &amp; 0 \end {array} \\ \Rightarrow \qquad &amp; x^3 - a^3 = (x - a)(x^2 + ax +
+a^2)
+\end{align*}
+
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                      x3 − 64 = x3 − 43
+                                                                                             = (x − 4)(x2 + 4x + 16)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^3 - 64 &amp;= x^3 - 4^3 \\ &amp;= (x - 4)(x^2 + 4x + 16)
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection ......
+-->
+<h6 id="autosec-72">\(x^n - a^n\)</h6>
+<a id="mkpiweb-autopage-72"></a>
+
+
+<p>
+\(A(x) = x^n - a^n\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                ⇒      A(a) = 0
+                                                                                ⇒      x − a | xn − an
+                                                                                ⇒      quotiënt met behulp van Horner:
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow \qquad &amp; A(a) = 0 \\ \Rightarrow \qquad &amp; x - a \mid x^n - a^n \\ \Rightarrow \qquad &amp; \text {quotiënt met behulp van Horner:}
+\end{align*}
+
+</p>
+
+<p>
+\[ \begin {array}{r|rrrrr|r} &amp; \overset {x^n}{1} &amp; \overset {x^{n-1}}{0} &amp; 0 &amp; \cdots &amp; \overset {x^1}{0} &amp; \overset {x^0}{-a^n} \\ a &amp; \downarrow &amp; a &amp; a^2
+&amp; \cdots &amp; a^{n-1} &amp; a^n \\ \hline &amp; 1 &amp; a &amp; a^2 &amp; \cdots &amp; a^{n-1} &amp; 0 \end {array} \qquad \begin {array}{l} \\ \\ \leftarrow \ \text {moet } 0 \text {
+zijn} \end {array} \]
+</p>
+
+<p>
+\[ \Rightarrow \quad x^n - a^n = (x - a)(x^{n-1} + ax^{n-2} + a^2x^{n-3} + \cdots + a^{n-2}x + a^{n-1}) \]
+</p>
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                               x4 − 1 = x4 − 14
+                                                                                     = (x − 1)(x3 + 1 · x2 + 12 x1 + 13 x0 )
+                                                                                     = (x − 1)(x3 + x2 + x + 1)
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^4 - 1 &amp;= x^4 - 1^4 \\ &amp;= (x - 1)(x^3 + 1\cdot x^2 + 1^2x^1 + 1^3x^0) \\ &amp;= (x - 1)(x^3 + x^2 + x + 1)
+\end{align*}
+
+</p>
+<!--
+...... subsection Veeltermen van de vorm ......
+-->
+<h5 id="autosec-73"><span class="sectionnumber">8&#x2003;</span>Veeltermen van de vorm \(x^n + a^n\)</h5>
+<a id="mkpiweb-autopage-73"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection ......
+-->
+<h6 id="autosec-74">\(x^2 + a^2\)</h6>
+<a id="mkpiweb-autopage-74"></a>
+
+
+<p>
+\[ x^2 + a^2 &gt; 0 \quad \forall x \quad (a \neq 0) \quad \Rightarrow \quad \text {geen delers van de vorm } x - b\text {!} \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection ......
+-->
+<h6 id="autosec-75">\(x^3 + a^3\)</h6>
+<a id="mkpiweb-autopage-75"></a>
+
+
+<p>
+\(A(x) = x^3 + a^3\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                        A(−a) = 0   ⇒    x + a | x 3 + a3
+                                                                                                            1    0    0    a3
+                                                                                    ⇒    quotiënt:    −a    ↓   −a   a2   −a3
+                                                                                                            1   −a   a2     0
+                                                                                    ⇒    x3 + a3 = (x + a)(x2 − ax + a2 )
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+A(-a) = 0 \quad \Rightarrow \qquad &amp; x + a \mid x^3 + a^3 \\ \Rightarrow \qquad &amp; \text {quotiënt:}\quad \begin{array}{r|rrr|r} &amp; 1 &amp; 0 &amp; 0 &amp; a^3 \\ -a &amp;
+\downarrow &amp; -a &amp; a^2 &amp; -a^3 \\ \hline &amp; 1 &amp; -a &amp; a^2 &amp; 0 \end {array} \\ \Rightarrow \qquad &amp; x^3 + a^3 = (x + a)(x^2 - ax + a^2)
+\end{align*}
+
+</p>
+
+<p>
+\[ x^3 + 8 = (x + 2)(x^2 - 2x + 4) \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection met oneven ......
+-->
+<h6 id="autosec-76">\(x^n + a^n\) met \(n\) oneven</h6>
+<a id="mkpiweb-autopage-76"></a>
+
+
+<p>
+\(x^n + a^n\) met \(n = \underbrace {2k + 1}_{\text {oneven}}\), \(k \in \N \)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                     ⇒     x + a | x n + an   want A(−a) = (−a)n + an = 0
+                                                                     ⇒     xn + an = (x + a)(xn−1 − axn−2 + a2 xn−3 − · · · − an−2 x + an−1 )
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\Rightarrow \qquad &amp; x + a \mid x^n + a^n \qquad \text {want } A(-a) = (-a)^n + a^n = 0 \\ \Rightarrow \qquad &amp; x^n + a^n = (x + a)(x^{n-1} - ax^{n-2} + a^2x^{n-3} - \cdots - a^{n-2}x
++ a^{n-1})
+\end{align*}
+
+</p>
+<!--
+...... subsection Ontbinden in factoren ......
+-->
+<h5 id="autosec-77"><span class="sectionnumber">9&#x2003;</span>Ontbinden in factoren</h5>
+<a id="mkpiweb-autopage-77"></a>
+
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Gemeenschappelijke factor ......
+-->
+<h6 id="autosec-78">Gemeenschappelijke factor</h6>
+<a id="mkpiweb-autopage-78"></a>
+
+
+<p>
+\[ 6x^3 + 4x^2 + 4x = \underset {\substack {\uparrow \\ 0 \text { is nulwaarde}}}{2x}\,(3x^2 + 2x + 2) \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Merkwaardige producten ......
+-->
+<h6 id="autosec-79">Merkwaardige producten</h6>
+<a id="mkpiweb-autopage-79"></a>
+
+
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                          x2 − a2 = (x − a)(x + a)                                          a en −a zijn nulwaarden
+                                                        a2 x2 − b2 = (ax − b)(ax + b)
+                                                    x2 ± 2ax + a2 = (x ± a)2                                                 ∓ a is nulwaarde
+                                                                                                                                 b
+                                                 a2 x2 ± 2abx + b2 = (ax ± b)2                                               ∓     is nulwaarde
+                                                                                                                                 a
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+x^2 - a^2 &amp;= (x - a)(x + a) &amp;&amp;a \text { en } {-a} \text { zijn nulwaarden} \\ a^2x^2 - b^2 &amp;= (ax - b)(ax + b) \\ x^2 \pm 2ax + a^2 &amp;= (x \pm a)^2 &amp;&amp;\mp a \text {
+is nulwaarde} \\ a^2x^2 \pm 2abx + b^2 &amp;= (ax \pm b)^2 &amp;&amp;\mp \frac {b}{a} \text { is nulwaarde}
+\end{align*}
+
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Discriminantmethode ......
+-->
+<h6 id="autosec-80">Discriminantmethode</h6>
+<a id="mkpiweb-autopage-80"></a>
+
+
+<p>
+\(ax^2 + bx + c\)
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                          D = b2 − 4ac
+                                                                                                    √
+                                                                                               −b + D
+                                                                                          x1 =
+                                                                                                  2a
+                                                                                                    √
+                                                                                               −b − D
+                                                                                          x2 =
+                                                                                                  2a
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+D &amp;= b^2 - 4ac \\ x_1 &amp;= \frac {-b + \sqrt {D}}{2a} \\ x_2 &amp;= \frac {-b - \sqrt {D}}{2a}
+\end{align*}
+
+</p>
+
+<p>
+\[ \Rightarrow \quad ax^2 + bx + c = a(x - x_1)(x - x_2) \qquad x_1 \text { en } x_2 \text { zijn nulwaarden } (D \geq 0) \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Formules ......
+-->
+<h6 id="autosec-81">Formules</h6>
+<a id="mkpiweb-autopage-81"></a>
+
+
+<p>
+voor \(x^n \pm a^n\), en meer bepaald
+</p>
+
+<p>
+\[ x^3 \mp a^3 = (x \mp a)(x^2 \pm ax + a^2) \]
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Horner ......
+-->
+<h6 id="autosec-82">Horner</h6>
+<a id="mkpiweb-autopage-82"></a>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li>
+<p>
+<span class="listmarker">•</span> delers van de constante term controleren
+</p>
+
+</li>
+<li>
+
+<p>
+<span class="listmarker">•</span> Horner toepassen
+</p>
+</li>
+</ul>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection VBTL Oefeningen ......
+-->
+<h6 id="autosec-83">VBTL Oefeningen</h6>
+<a id="mkpiweb-autopage-83"></a>
+
+
+<p>
+VBTL Analyse 1a: p&nbsp;30 nr&nbsp;11
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=96ef6507aa78"></script>
+<script src="statistieken.js?v=96ef6507aa78"></script>
+<script src="vendor/jsxgraphcore.js?v=96ef6507aa78"></script>
+<script src="interactieve-grafieken.js?v=96ef6507aa78"></script>
+<script src="hoofdstuk.interactief.js?v=96ef6507aa78"></script>
+</body>
+</html>

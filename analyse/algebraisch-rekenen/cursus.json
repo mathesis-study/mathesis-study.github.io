@@ -1,0 +1,19 @@
+{
+ "titel": "Algebraïsch rekenen met veeltermen",
+ "hoofdstuk": 1,
+ "code": "A01",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/algebraisch-rekenen",
+ "secties": [
+  "De euclidische deling",
+  "Deelbaarheid in \\(\\R [x]\\)"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.18"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": false
+}
