@@ -16,8 +16,10 @@
  * gelezen maar niet nagebootst; MathJax kent geen kolommen van vaste breedte,
  * dus een kopje kan een haartje naast zijn kolom staan. Alles wat het beeld
  * echt zou veranderen (\Block, \Cdots, hvlines, ...) geeft een fout in beeld
- * in plaats van een stille afwijking van de PDF. \CodeBefore en \CodeAfter
- * vallen weg: die tekenen in druk de accenten, en die horen op de site niet.
+ * in plaats van een stille afwijking van de PDF. Van \CodeBefore en \CodeAfter
+ * blijft enkel \markeercellen over: die cellen krijgen op de site dezelfde
+ * lichte kleur, met de kleuren van mathjax-markering.js. De rest (\celpijl,
+ * eigen tikz) valt weg.
  *
  * De pagina laadt dit script na het instellingenblok van lwarp en voor
  * tex-svg-full.js: het wikkelt startup.ready in en voegt zijn pakket toe aan
@@ -111,6 +113,59 @@
       return opties;
     }
 
+    // \markeercellen[dekking]{kleur}{r-k}{r-k} uit \CodeAfter: een blok
+    // cellen van de matrix zelf, geteld zonder de kopjes, zoals in nicematrix.
+    var MARKEERCELLEN = /\\markeercellen\s*(?:\[([^\]]*)\])?\s*\{([^{}]*)\}\s*\{\s*(\d+)\s*-\s*(\d+)\s*\}\s*\{\s*(\d+)\s*-\s*(\d+)\s*\}/g;
+
+    function markeringenUit(parser, naam, code) {
+      var markeringen = [];
+      var treffer;
+      MARKEERCELLEN.lastIndex = 0;
+      while ((treffer = MARKEERCELLEN.exec(code))) {
+        var hulp = window.MathJaxMarkering;
+        if (!hulp) fout(naam, "\\markeercellen heeft mathjax-markering.js nodig");
+        var dekking = treffer[1] === undefined || treffer[1].trim() === "" ? 0.35 : parseFloat(treffer[1]);
+        markeringen.push({
+          kleur: hulp.kleur(parser, treffer[2], dekking, "\\markeercellen"),
+          van: [+treffer[3], +treffer[4]],
+          tot: [+treffer[5], +treffer[6]]
+        });
+      }
+      return markeringen;
+    }
+
+    // Zet \cellcolor in de gemarkeerde cellen; twee markeringen over dezelfde
+    // cel leggen hun kleuren op elkaar.
+    function kleurCellen(naam, rijen, markeringen) {
+      var hulp = window.MathJaxMarkering;
+      var kleuren = {};
+      markeringen.forEach(function (m) {
+        for (var r = m.van[0]; r <= m.tot[0]; r++) {
+          for (var k = m.van[1]; k <= m.tot[1]; k++) {
+            if (r < 1 || k < 1 || r > rijen.length || k > rijen[r - 1].length) {
+              fout(naam, "\\markeercellen wijst naar cel " + r + "-" + k + ", buiten de matrix");
+            }
+            var sleutel = r + "-" + k;
+            kleuren[sleutel] = kleuren[sleutel] ? hulp.over(kleuren[sleutel], m.kleur) : m.kleur;
+          }
+        }
+      });
+      Object.keys(kleuren).forEach(function (sleutel) {
+        var plaats = sleutel.split("-");
+        var rij = rijen[plaats[0] - 1];
+        rij[plaats[1] - 1] = "\\cellcolor{" + hulp.tekst(kleuren[sleutel]) + "}" + rij[plaats[1] - 1];
+      });
+    }
+
+    // De cellen met een kleur krijgen een klasse, zodat presentatie.css ze in
+    // de nachtstand kan dempen, net als \markeerterm.
+    function klasseOpGekleurd(node) {
+      if (node.isKind && node.isKind("mtd") && node.attributes.getExplicit("mathbackground")) {
+        node.attributes.set("class", "mkpi-markering");
+      }
+      (node.childNodes || []).forEach(klasseOpGekleurd);
+    }
+
     function array(rijen, kolommen, uitlijning) {
       return "\\begin{array}" + (uitlijning ? "[" + uitlijning + "]" : "") +
         "{" + kolommen + "}" +
@@ -120,7 +175,7 @@
 
     // Bouw uit de omgeving de geneste arrays: de kopjes eromheen, de getallen
     // met hun haken in het midden.
-    function bouw(naam, body, optietekst) {
+    function bouw(naam, body, optietekst, markeringen) {
       var opties = optiesUit(optietekst, naam);
       var haken = HAKEN[naam];
       var rijen = rijenUit(body);
@@ -145,6 +200,7 @@
         if (onder && onder.length > breedte) onder.pop();
       }
       if (!rijen.length) fout(naam, "de matrix heeft enkel kopjes");
+      kleurCellen(naam, rijen, markeringen);
 
       var kolommen = new Array(rijen[0].length + 1).join("c");
       var matrix = array(rijen, kolommen);
@@ -201,13 +257,16 @@
         var body = rest.slice(0, treffer.index);
         parser.i += treffer.index + treffer[0].length;
         // \CodeBefore en \CodeAfter tekenen in druk de accenten bij een cel;
-        // op de site blijft de kale matrix over.
-        body = body.replace(/\\Code(Before|After)\b[\s\S]*$/, "");
+        // op de site blijven enkel de gekleurde cellen over.
+        var code = /\\Code(Before|After)\b[\s\S]*$/.exec(body);
+        var markeringen = code ? markeringenUit(parser, naam, code[0]) : [];
+        if (code) body = body.slice(0, code.index);
         if (TEVEEL.test(body)) {
           fout(naam, "deze matrix gebruikt meer van nicematrix dan de website aankan");
         }
-        var mml = new TexParser(bouw(naam, body, optietekst),
+        var mml = new TexParser(bouw(naam, body, optietekst, markeringen),
                                 parser.stack.env, parser.configuration).mml();
+        if (markeringen.length) klasseOpGekleurd(mml);
         return parser.itemFactory.create("mml", mml);
       }
     });

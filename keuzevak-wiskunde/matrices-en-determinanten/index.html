@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Matrices en determinanten</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=d2c40c4b2a77" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=dbd193564b99" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -252,11 +252,12 @@ MathJax = {
 </script>
 
 
-<script src="mathjax-accenten.js?v=d2c40c4b2a77"></script>
-<script src="mathjax-nicematrix.js?v=d2c40c4b2a77"></script>
+<script src="mathjax-accenten.js?v=dbd193564b99"></script>
+<script src="mathjax-nicematrix.js?v=dbd193564b99"></script>
+<script src="mathjax-markering.js?v=dbd193564b99"></script>
 <script
           id="MathJax-script"
-          src="tex-svg-full.js?v=d2c40c4b2a77"
+          src="tex-svg-full.js?v=dbd193564b99"
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
@@ -266,9 +267,9 @@ MathJax = {
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
 <meta name="mathesis-statistieken" content="mathesis" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=d2c40c4b2a77" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=d2c40c4b2a77" />
-<link rel="stylesheet" href="matrixrekenmachine.css?v=d2c40c4b2a77" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=dbd193564b99" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=dbd193564b99" />
+<link rel="stylesheet" href="matrixrekenmachine.css?v=dbd193564b99" />
 </head>
 <body>
 
@@ -287,6 +288,9 @@ MathJax = {
 <div data-nosnippet
     style="display:none"
 >
+\(\definecolor{plusc}{RGB}{29,95,168}\)
+\(\definecolor{minusc}{RGB}{180,83,9}\)
+\(\definecolor{rowc}{gray}{0.85}\)
 
 \(\newcommand{\footnotename}{footnote}\)
 
@@ -456,7 +460,6 @@ MathJax = {
 
 \(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
 
-\(\newcommand {\markeerterm }[2]{#2}\)
 
 \(\newcommand {\lightning }{\unicode {x21AF}}\)
 
@@ -623,7 +626,6 @@ MathJax = {
 
 \(\newcommand {\tabularnote }[2][]{}\)
 
-\(\newcommand {\cellcolor }[3][]{}\)
 
 \(\newcommand {\rowcolor }[3][]{}\)
 
@@ -4932,14 +4934,13 @@ Rechte door \(P_1(x_1,y_1)\) en \(P_2(x_2,y_2)\) met \(x_1\neq x_2\):
 <!--
 
 
-                                                                                                                                       y2 − y1
-                                                                                                                            y − y1 =            (x − x1 )
-                                                                                                                                       x2 − x 1
-                                                                                                          ⇔     (y − y1 )(x2 − x1 ) = (y2 − y1 )(x − x1 )
-                                                                                                    ⇔   y(x2 − x1 ) − y1 (x2 − x1 ) = x(y2 − y1 ) − x1 (y2 − y1 )
-                                                                                ⇔    x (y1 − y2 ) − y (x1 − x2 ) + (x1 y2 − x2 y1 ) = 0
-
-                                                                ⇔    \(x\) (y1 − y2 ) − \(y\) (x1 − x2 ) + \(1\) (x1 y2 − x2 y1 ) = 0.
+                                                                                                                                 y2 − y 1
+                                                                                                                      y − y1 =            (x − x1 )
+                                                                                                                                 x2 − x 1
+                                                                                                    ⇔     (y − y1 )(x2 − x1 ) = (y2 − y1 )(x − x1 )
+                                                                                            ⇔     y(x2 − x1 ) − y1 (x2 − x1 ) = x(y2 − y1 ) − x1 (y2 − y1 )
+                                                                          ⇔    x (y1 − y2 ) − y (x1 − x2 ) + (x1 y2 − x2 y1 ) = 0
+                                                                     ⇔     x (y1 − y2 ) − y (x1 − x2 ) + 1 (x1 y2 − x2 y1 ) = 0.
 
 
 
@@ -4950,8 +4951,8 @@ Rechte door \(P_1(x_1,y_1)\) en \(P_2(x_2,y_2)\) met \(x_1\neq x_2\):
 
 \begin{align*}
 y-y_1 &amp;= \frac {y_2-y_1}{x_2-x_1}\,(x-x_1)\\ \Leftrightarrow \quad (y-y_1)(x_2-x_1) &amp;= (y_2-y_1)(x-x_1)\\ \Leftrightarrow \quad y(x_2-x_1)-y_1(x_2-x_1) &amp;= x(y_2-y_1)-x_1(y_2-y_1)\\
-\Leftrightarrow \quad x\,(y_1-y_2)\;-\;y\,(x_1-x_2)\;+\;(x_1y_2-x_2y_1) &amp;= 0\\ \Leftrightarrow \quad \colorbox {rowc!35}{$x$}\,(y_1-y_2)\;-\;\colorbox
-{rowc!35}{$y$}\,(x_1-x_2)\;+\;\colorbox {rowc!35}{$1$}(x_1y_2-x_2y_1) &amp;= 0.
+\Leftrightarrow \quad x\,(y_1-y_2)\;-\;y\,(x_1-x_2)\;+\;(x_1y_2-x_2y_1) &amp;= 0\\ \Leftrightarrow \quad \markeerterm {rowc!35}{x}\,(y_1-y_2)\;-\;\markeerterm
+{rowc!35}{y}\,(x_1-x_2)\;+\;\markeerterm {rowc!35}{1}(x_1y_2-x_2y_1) &amp;= 0.
 \end{align*}
 
 </p>
@@ -5394,16 +5395,16 @@ De oppervlakte van parallellogram \(ABCD\) met aangrenzende hoekpunten \(A(x_1,y
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=d2c40c4b2a77"></script>
-<script src="statistieken.js?v=d2c40c4b2a77"></script>
-<script src="vendor/jsxgraphcore.js?v=d2c40c4b2a77"></script>
-<script src="interactieve-grafieken.js?v=d2c40c4b2a77"></script>
-<script src="matrixbord.js?v=d2c40c4b2a77"></script>
-<script src="hoofdstuk.interactief.js?v=d2c40c4b2a77"></script>
-<script src="hoofdstuk.interactief.determinanten.js?v=d2c40c4b2a77"></script>
-<script src="hoofdstuk.interactief.oefeningen.js?v=d2c40c4b2a77"></script>
-<script src="hoofdstuk.interactief.transformaties.js?v=d2c40c4b2a77"></script>
-<script src="matrixcas.js?v=d2c40c4b2a77"></script>
-<script src="matrixrekenmachine.js?v=d2c40c4b2a77"></script>
+<script src="presentatie.js?v=dbd193564b99"></script>
+<script src="statistieken.js?v=dbd193564b99"></script>
+<script src="vendor/jsxgraphcore.js?v=dbd193564b99"></script>
+<script src="interactieve-grafieken.js?v=dbd193564b99"></script>
+<script src="matrixbord.js?v=dbd193564b99"></script>
+<script src="hoofdstuk.interactief.js?v=dbd193564b99"></script>
+<script src="hoofdstuk.interactief.determinanten.js?v=dbd193564b99"></script>
+<script src="hoofdstuk.interactief.oefeningen.js?v=dbd193564b99"></script>
+<script src="hoofdstuk.interactief.transformaties.js?v=dbd193564b99"></script>
+<script src="matrixcas.js?v=dbd193564b99"></script>
+<script src="matrixrekenmachine.js?v=dbd193564b99"></script>
 </body>
 </html>

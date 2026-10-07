@@ -2140,6 +2140,14 @@ svg {
   stroke: var(--kleur-oplossing-rand);
 }
 
+/* \markeerterm en \markeercellen (mathjax-markering.js) leggen een lichte,
+ * doorzichtige kleur onder de term. Op een donker vlak wordt die een wazige
+ * lichte vlek waartegen de lichte tekst wegvalt; gedempt blijft enkel een
+ * tint over. */
+:root[data-thema="donker"] mjx-container .mkpi-markering rect[data-bgcolor] {
+  opacity: .45;
+}
+
 /* lwarp zet de lijnen van een tabular, de kaders van \fbox en de tekst erin
  * met vaste zwarte kleuren, deels zelfs als style-attribuut. In de nachtstand
  * vallen die weg tegen het donkere vlak; enkel !important haalt het van zo'n
