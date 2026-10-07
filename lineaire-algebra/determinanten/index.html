@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Determinanten</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=b967c2fb43ba" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=7ad929eef70b" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -252,12 +252,12 @@ MathJax = {
 </script>
 
 
-<script src="mathjax-accenten.js?v=b967c2fb43ba"></script>
-<script src="mathjax-nicematrix.js?v=b967c2fb43ba"></script>
-<script src="mathjax-markering.js?v=b967c2fb43ba"></script>
+<script src="mathjax-accenten.js?v=7ad929eef70b"></script>
+<script src="mathjax-nicematrix.js?v=7ad929eef70b"></script>
+<script src="mathjax-markering.js?v=7ad929eef70b"></script>
 <script
           id="MathJax-script"
-          src="tex-svg-full.js?v=b967c2fb43ba"
+          src="tex-svg-full.js?v=7ad929eef70b"
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
@@ -267,8 +267,8 @@ MathJax = {
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
 <meta name="mathesis-statistieken" content="mathesis" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=b967c2fb43ba" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=b967c2fb43ba" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=7ad929eef70b" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=7ad929eef70b" />
 </head>
 <body>
 
@@ -1264,8 +1264,14 @@ Geeft zelfde resultaat!
 
 
 <p>
+<figure class="interactieve-grafiek" data-grafiek="det-laplace" data-hoogte="27rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
 \[ A= \begin {pmatrix} 1&amp;-3&amp;5\\ -2&amp;1&amp;-2\\ 1&amp;-5&amp;0 \end {pmatrix} \]
 </p>
+
+<div class="oplossing">
 
 <p>
 Ontwikkel volgens rij&nbsp;1:
@@ -1277,11 +1283,12 @@ Ontwikkel volgens rij&nbsp;1:
 
 
 
-               1   −2          −2   −2     −2     1
-det A = 1 ·           + (−3) ·         +5·
-              −5   0            1    0     1     −5
-       = 1 · (−10) − (−3) · 2 + 5 · 9
-       = −10 + 6 + 45 = 41.
+                                                                                                    1    −2          −2   −2     −2     1
+                                                                                      det A = 1 ·           + (−3) ·         +5·
+                                                                                                    −5    0          1     0      1     −5
+
+                                                                                            = 1 · (−10) − (−3) · 2 + 5 · 9
+                                                                                            = −10 + 6 + 45 = 41.
 
 
 
@@ -1290,11 +1297,17 @@ det A = 1 ·           + (−3) ·         +5·
 
 <p>
 
-\begin{flalign*}
+\begin{align*}
 \det A &amp;= 1\cdot \begin{vmatrix}1&amp;-2\\ -5&amp;0\end {vmatrix} +(-3)\cdot \begin{vmatrix}-2&amp;-2\\ 1&amp;0\end {vmatrix} +5\cdot \begin{vmatrix}-2&amp;1\\ 1&amp;-5\end {vmatrix}
-&amp;&amp;\\[2pt] &amp;= 1\cdot (-10)\;-\;(-3)\cdot 2\;+\;5\cdot 9 &amp;&amp;\\ &amp;= -10+6+45=41. &amp;&amp;
-\end{flalign*}
+\\[2pt] &amp;= 1\cdot (-10)\;-\;(-3)\cdot 2\;+\;5\cdot 9 \\ &amp;= -10+6+45=41.
+\end{align*}
 (Je kan dit ook volgens een andere rij of kolom uitwerken: het resultaat blijft \(41\).)
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element: we ontwikkelen naar zijn rij, en de hele berekening staat eronder. Klik daarna op een element van die rij
+voor de berekening van zijn cofactor. Ontwikkel ook naar een andere rij of kolom en vergelijk. Welke keuze vraagt het minste rekenwerk?</figcaption> </figure>
 </p>
 
 <p>
@@ -1309,15 +1322,6 @@ det A = 1 ·           + (−3) ·         +5·
 
 <p>
 Het resultaat van \(\det A\) hangt niet af van de gebruikte rij of kolom.
-</p>
-
-<p>
-<figure class="interactieve-grafiek" data-grafiek="det-laplace" data-hoogte="27rem"> <div class="interactieve-grafiek-terugval">
-</p>
-
-<p>
-</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element: we ontwikkelen naar zijn rij, en de hele berekening staat eronder. Klik daarna op een element van die rij
-voor de berekening van zijn cofactor. Ontwikkel ook naar een andere rij of kolom en vergelijk. Welke keuze vraagt het minste rekenwerk?</figcaption> </figure>
 </p>
 
 <p>
@@ -1406,9 +1410,9 @@ Ontwikkel volgens <b>Laplace</b> langs de <em>eenvoudigste</em> rij of kolom (me
 <span class="cursus-subtitel-op-slide"></span>
 </p>
 <!--
-...... subsubsection Voorbeeld ......
+...... subsubsection Voorbeeld 1 ......
 -->
-<h6 id="autosec-27">Voorbeeld</h6>
+<h6 id="autosec-27">Voorbeeld 1</h6>
 <a id="mkpiweb-autopage-27"></a>
 
 
@@ -1419,21 +1423,20 @@ Ontwikkel volgens <b>Laplace</b> langs de <em>eenvoudigste</em> rij of kolom (me
 
 
 
- p    1 0 0
- 1    q 0 0
- 0    0 r 1
- 0    0 1 s
-                q 0 0         1 0 0
-        R1
-        =     p 0 r 1 −1 0 r 1
-                0 1 s         0 1 s
-                                   
-        R1         r 1            r 1
-        =     p q          −1 1
-                   1 s            1 s
-                         
-        =     p q(rs − 1) − (rs − 1)
-        =     (pq − 1)(rs − 1).
+                                                                            p   1 0 0
+                                                                                                q   0 0    1          0   0
+                                                                            1   q 0 0    R1
+                                                                                         =    p 0   r 1 −1 0          r   1
+                                                                            0   0 r 1
+                                                                                                0   1 s    0          1   s
+                                                                            0   0 1 s
+                                                                                                                           
+                                                                                         R1       r 1             r 1
+                                                                                         =    p q            −1 1
+                                                                                                  1 s             1 s
+                                                                                                         
+                                                                                         =    p q(rs − 1) − (rs − 1)
+                                                                                         =    (pq − 1)(rs − 1).
 
 
 
@@ -1442,14 +1445,72 @@ Ontwikkel volgens <b>Laplace</b> langs de <em>eenvoudigste</em> rij of kolom (me
 
 <p>
 
-\begin{flalign*}
-\MoveEqLeft \begin{vNiceMatrix}[columns-width=1.2em] p&amp;1&amp;0&amp;0\\ 1&amp;q&amp;0&amp;0\\ 0&amp;0&amp;r&amp;1\\ 0&amp;0&amp;1&amp;s \CodeAfter \markeercellen [.25]{rowc}{1-1}{1-4} \end
-{vNiceMatrix} \\ &amp;\weq [\text {R1}]{=} p\, \begin{vNiceMatrix}[columns-width=1.2em] q&amp;0&amp;0\\ 0&amp;r&amp;1\\ 0&amp;1&amp;s \CodeAfter \markeercellen [.25]{rowc}{1-1}{1-3} \end
-{vNiceMatrix} -1\, \begin{vNiceMatrix}[columns-width=1.2em] 1&amp;0&amp;0\\ 0&amp;r&amp;1\\ 0&amp;1&amp;s \CodeAfter \markeercellen [.25]{rowc}{1-1}{1-3} \end {vNiceMatrix} &amp;&amp;\\[4pt]
-&amp;\weq [\text {R1}]{=} p\left (q\begin{vmatrix}r&amp;1\\1&amp;s\end {vmatrix}\right ) - 1\left (1\begin{vmatrix}r&amp;1\\1&amp;s\end {vmatrix}\right ) &amp;&amp;\\[4pt] &amp;\weq {=} p\bigl
-(q(rs-1)\bigr ) - (rs-1) &amp;&amp;\\[2pt] &amp;\weq {=} (pq-1)(rs-1). &amp;&amp;
-\end{flalign*}
+\begin{align*}
+\begin{vNiceMatrix}[columns-width=1.2em] p&amp;1&amp;0&amp;0\\ 1&amp;q&amp;0&amp;0\\ 0&amp;0&amp;r&amp;1\\ 0&amp;0&amp;1&amp;s \CodeAfter \markeercellen [.25]{rowc}{1-1}{1-4} \end
+{vNiceMatrix} &amp;\weq [\text {R1}]{=} p\, \begin{vNiceMatrix}[columns-width=1.2em] q&amp;0&amp;0\\ 0&amp;r&amp;1\\ 0&amp;1&amp;s \CodeAfter \markeercellen [.25]{rowc}{1-1}{1-3} \end
+{vNiceMatrix} -1\, \begin{vNiceMatrix}[columns-width=1.2em] 1&amp;0&amp;0\\ 0&amp;r&amp;1\\ 0&amp;1&amp;s \CodeAfter \markeercellen [.25]{rowc}{1-1}{1-3} \end {vNiceMatrix} \\[4pt] &amp;\weq
+[\text {R1}]{=} p\left (q\begin{vmatrix}r&amp;1\\1&amp;s\end {vmatrix}\right ) - 1\left (1\begin{vmatrix}r&amp;1\\1&amp;s\end {vmatrix}\right ) \\[4pt] &amp;\weq {=} p\bigl (q(rs-1)\bigr ) -
+(rs-1) \\[2pt] &amp;\weq {=} (pq-1)(rs-1).
+\end{align*}
 
+</p>
+
+<p>
+<span class="cursus-subtitel-op-slide"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2 ......
+-->
+<h6 id="autosec-28">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p>
+<figure class="interactieve-grafiek" data-grafiek="det-laplace-orde4" data-hoogte="27rem"> <div class="interactieve-grafiek-terugval">
+</p>
+
+<p>
+\[ A=\begin {pmatrix} 2&amp;1&amp;0&amp;3\\ 1&amp;0&amp;0&amp;2\\ 4&amp;3&amp;1&amp;1\\ 0&amp;2&amp;0&amp;1 \end {pmatrix} \]
+</p>
+
+<div class="oplossing">
+
+<p>
+We ontwikkelen volgens kolom&nbsp;3. Enkel het element \(a_{33}=1\) is niet nul:
+</p>
+<span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                                         2    1     3
+                                                                                               det A = 1 · A33 = (−1)3+3 1    0     2
+                                                                                                                         0    2     1
+                                                                                                          0   2   1   2    1        0
+                                                                                                     =2         −       +3
+                                                                                                          2   1   0   1    0        2
+                                                                                                     = 2 · (−4) − 1 + 3 · 2 = −3.
+
+
+
+-->
+
+
+<p>
+
+\begin{align*}
+\det A &amp;= 1\cdot A_{33} = (-1)^{3+3}\begin{vmatrix}2&amp;1&amp;3\\1&amp;0&amp;2\\0&amp;2&amp;1\end {vmatrix} \\ &amp;= 2\begin{vmatrix}0&amp;2\\2&amp;1\end {vmatrix} -
+\begin{vmatrix}1&amp;2\\0&amp;1\end {vmatrix} + 3\begin{vmatrix}1&amp;0\\0&amp;2\end {vmatrix} \\ &amp;= 2\cdot (-4)-1+3\cdot 2 = -3.
+\end{align*}
+
+</p>
+</div>
+
+<p>
+</div> <div class="interactieve-grafiek-bord"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op een element: we ontwikkelen naar zijn rij, en de hele berekening staat eronder. Klik daarna op een element van die rij
+voor de berekening van zijn cofactor. Ontwikkel ook naar een andere rij of kolom en vergelijk. Welke keuze vraagt het minste rekenwerk?</figcaption> </figure>
 </p>
 
 <p>
@@ -1458,8 +1519,8 @@ Ontwikkel volgens <b>Laplace</b> langs de <em>eenvoudigste</em> rij of kolom (me
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-28">Oefeningen</h6>
-<a id="mkpiweb-autopage-28"></a>
+<h6 id="autosec-29">Oefeningen</h6>
+<a id="mkpiweb-autopage-29"></a>
 
 
 <p>
@@ -1468,8 +1529,8 @@ p 130 nr 4, n 5 <b> a, f</b>
 <!--
 ...... section Eigenschappen van determinanten ......
 -->
-<h4 id="autosec-29"><span class="sectionnumber">II&#x2003;</span>Eigenschappen van determinanten</h4>
-<a id="mkpiweb-autopage-29"></a>
+<h4 id="autosec-30"><span class="sectionnumber">II&#x2003;</span>Eigenschappen van determinanten</h4>
+<a id="mkpiweb-autopage-30"></a>
 
 
 <p>
@@ -1483,8 +1544,8 @@ en kies een bewerking. Denk vooraf na over de nieuwe determinant, en klik pas da
 <!--
 ...... subsection Hoofdeigenschap I ......
 -->
-<h5 id="autosec-30"><span class="sectionnumber">1&#x2003;</span>Hoofdeigenschap I</h5>
-<a id="mkpiweb-autopage-30"></a>
+<h5 id="autosec-31"><span class="sectionnumber">1&#x2003;</span>Hoofdeigenschap I</h5>
+<a id="mkpiweb-autopage-31"></a>
 
 
 <p>
@@ -1501,8 +1562,8 @@ De determinant van een vierkante matrix is gelijk aan de determinant van zijn ge
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-31">Bewijs.</h6>
-<a id="mkpiweb-autopage-31"></a>
+<h6 id="autosec-32">Bewijs.</h6>
+<a id="mkpiweb-autopage-32"></a>
 
 
 <p>
@@ -1515,11 +1576,11 @@ Onmiddellijk gevolg v/d definitie (Laplace): ontwikkelen van \(\det A\) volgens 
 <!--
 ...... subsubsection Bewijs (extra). ......
 -->
-<h6 id="autosec-32">Bewijs (extra).</h6>
-<a id="mkpiweb-autopage-32"></a>
+<h6 id="autosec-33">Bewijs (extra).</h6>
+<a id="mkpiweb-autopage-33"></a>
 <div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:238pt ; ">
 
-<a id="mkpiweb-autopage-33"></a>
+<a id="mkpiweb-autopage-34"></a>
 
 <p>
 Ontwikkel \(\det A\) volgens de \(i^\text {e}\) rij:
@@ -1536,7 +1597,7 @@ Ontwikkel \(\det A\) volgens de \(i^\text {e}\) rij:
 &#x2003;
 <div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:238pt ; ">
 
-<a id="mkpiweb-autopage-34"></a>
+<a id="mkpiweb-autopage-35"></a>
 
 <p>
 Ontwikkel \(\det A^{\mathsf T}\) volgens de \(i^\text {e}\) kolom:
@@ -1555,8 +1616,8 @@ samen: \(\det A=\det A^{\mathsf T}\).
 <!--
 ...... subsection Hoofdeigenschap II ......
 -->
-<h5 id="autosec-35"><span class="sectionnumber">2&#x2003;</span>Hoofdeigenschap II</h5>
-<a id="mkpiweb-autopage-35"></a>
+<h5 id="autosec-36"><span class="sectionnumber">2&#x2003;</span>Hoofdeigenschap II</h5>
+<a id="mkpiweb-autopage-36"></a>
 
 
 <p>
@@ -1569,8 +1630,8 @@ Een determinant verandert van teken wanneer we twee rijen (of kolommen) verwisse
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-36">Bewijs.</h6>
-<a id="mkpiweb-autopage-36"></a>
+<h6 id="autosec-37">Bewijs.</h6>
+<a id="mkpiweb-autopage-37"></a>
 
 
 <p>
@@ -1647,8 +1708,8 @@ c_1A_{31}+c_2A_{32}+c_3A_{33}, &amp; &amp;\weq [\text {R3}]{=} c_1A&apos;_{31}+c
 <!--
 ...... subsubsection Bewijs (extra). ......
 -->
-<h6 id="autosec-37">Bewijs (extra).</h6>
-<a id="mkpiweb-autopage-37"></a>
+<h6 id="autosec-38">Bewijs (extra).</h6>
+<a id="mkpiweb-autopage-38"></a>
 
 
 <p>
@@ -1674,8 +1735,8 @@ Het analoge resultaat geldt bij het verwisselen van twee kolommen.
 <!--
 ...... subsection Eigenschap 1 ......
 -->
-<h5 id="autosec-38"><span class="sectionnumber">3&#x2003;</span>Eigenschap 1</h5>
-<a id="mkpiweb-autopage-38"></a>
+<h5 id="autosec-39"><span class="sectionnumber">3&#x2003;</span>Eigenschap 1</h5>
+<a id="mkpiweb-autopage-39"></a>
 
 
 <p>
@@ -1688,8 +1749,8 @@ Een determinant met gelijke rijen (of kolommen) is gelijk aan nul.
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-39">Bewijs.</h6>
-<a id="mkpiweb-autopage-39"></a>
+<h6 id="autosec-40">Bewijs.</h6>
+<a id="mkpiweb-autopage-40"></a>
 
 
 <p>
@@ -1703,8 +1764,8 @@ Een determinant met gelijke rijen (of kolommen) is gelijk aan nul.
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-40">Voorbeeld</h6>
-<a id="mkpiweb-autopage-40"></a>
+<h6 id="autosec-41">Voorbeeld</h6>
+<a id="mkpiweb-autopage-41"></a>
 
 
 <p>
@@ -1717,8 +1778,8 @@ Een determinant met gelijke rijen (of kolommen) is gelijk aan nul.
 <!--
 ...... subsubsection Tegenvoorbeeld (omgekeerd niet geldig) ......
 -->
-<h6 id="autosec-41">Tegenvoorbeeld (omgekeerd niet geldig)</h6>
-<a id="mkpiweb-autopage-41"></a>
+<h6 id="autosec-42">Tegenvoorbeeld (omgekeerd niet geldig)</h6>
+<a id="mkpiweb-autopage-42"></a>
 
 
 <p>
@@ -1732,8 +1793,8 @@ Een determinant kan nul zijn zonder dat de matrix gelijke rijen of kolommen heef
 <!--
 ...... subsection Hoofdeigenschap III ......
 -->
-<h5 id="autosec-42"><span class="sectionnumber">4&#x2003;</span>Hoofdeigenschap III</h5>
-<a id="mkpiweb-autopage-42"></a>
+<h5 id="autosec-43"><span class="sectionnumber">4&#x2003;</span>Hoofdeigenschap III</h5>
+<a id="mkpiweb-autopage-43"></a>
 
 
 <p>
@@ -1746,8 +1807,8 @@ De som van de producten van de elementen van een <em>rij</em> (resp. kolom) met 
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-43">Bewijs.</h6>
-<a id="mkpiweb-autopage-43"></a>
+<h6 id="autosec-44">Bewijs.</h6>
+<a id="mkpiweb-autopage-44"></a>
 
 
 <p>
@@ -1799,8 +1860,8 @@ a_{31}&amp;a_{32}&amp;a_{31} \CodeAfter \markeercellen {lichtblauw}{1-1}{3-1} \m
 
 
 <p>
-<span class="paragraph" id="autosec-44">Besluit</span>
-<a id="mkpiweb-autopage-44"></a>
+<span class="paragraph" id="autosec-45">Besluit</span>
+<a id="mkpiweb-autopage-45"></a>
 
 </p>
 
@@ -1818,8 +1879,8 @@ a_{31}&amp;a_{32}&amp;a_{31} \CodeAfter \markeercellen {lichtblauw}{1-1}{3-1} \m
 <!--
 ...... subsubsection Bewijs (extra). ......
 -->
-<h6 id="autosec-45">Bewijs (extra).</h6>
-<a id="mkpiweb-autopage-45"></a>
+<h6 id="autosec-46">Bewijs (extra).</h6>
+<a id="mkpiweb-autopage-46"></a>
 
 
 <p>
@@ -1840,8 +1901,8 @@ Voor \(i=j\) is dezelfde som de Laplace-ontwikkeling van \(\det A\) langs rij \(
 <!--
 ...... subsection Hoofdeigenschap IV ......
 -->
-<h5 id="autosec-46"><span class="sectionnumber">5&#x2003;</span>Hoofdeigenschap IV</h5>
-<a id="mkpiweb-autopage-46"></a>
+<h5 id="autosec-47"><span class="sectionnumber">5&#x2003;</span>Hoofdeigenschap IV</h5>
+<a id="mkpiweb-autopage-47"></a>
 
 
 <p>
@@ -1854,8 +1915,8 @@ Als we de elementen van één rij (of kolom) van een matrix met een getal \(k\) 
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-47">Bewijs.</h6>
-<a id="mkpiweb-autopage-47"></a>
+<h6 id="autosec-48">Bewijs.</h6>
+<a id="mkpiweb-autopage-48"></a>
 
 
 <p>
@@ -1892,8 +1953,8 @@ Als we de elementen van één rij (of kolom) van een matrix met een getal \(k\) 
 <!--
 ...... subsection Eigenschap 2 ......
 -->
-<h5 id="autosec-48"><span class="sectionnumber">6&#x2003;</span>Eigenschap 2</h5>
-<a id="mkpiweb-autopage-48"></a>
+<h5 id="autosec-49"><span class="sectionnumber">6&#x2003;</span>Eigenschap 2</h5>
+<a id="mkpiweb-autopage-49"></a>
 
 
 <p>
@@ -1906,8 +1967,8 @@ We mogen een <em>gemeenschappelijke factor</em> uit één rij (of kolom) vóór 
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-49">Bewijs.</h6>
-<a id="mkpiweb-autopage-49"></a>
+<h6 id="autosec-50">Bewijs.</h6>
+<a id="mkpiweb-autopage-50"></a>
 
 
 <p>
@@ -1916,8 +1977,8 @@ Direct gevolg van Hoofdeigenschap&nbsp;IV met \(k\) als gemeenschappelijke facto
 <!--
 ...... subsection Eigenschap 3 ......
 -->
-<h5 id="autosec-50"><span class="sectionnumber">7&#x2003;</span>Eigenschap 3</h5>
-<a id="mkpiweb-autopage-50"></a>
+<h5 id="autosec-51"><span class="sectionnumber">7&#x2003;</span>Eigenschap 3</h5>
+<a id="mkpiweb-autopage-51"></a>
 
 
 <p>
@@ -1934,8 +1995,8 @@ Als we <em>alle</em> elementen van een determinant van \(n^\text {e}\) orde met 
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-51">Bewijs.</h6>
-<a id="mkpiweb-autopage-51"></a>
+<h6 id="autosec-52">Bewijs.</h6>
+<a id="mkpiweb-autopage-52"></a>
 
 
 <p>
@@ -1944,8 +2005,8 @@ Pas Hoofdeigenschap&nbsp;IV na elkaar toe op de \(n\) rijen (of \(n\) kolommen):
 <!--
 ...... subsection Eigenschap 4 ......
 -->
-<h5 id="autosec-52"><span class="sectionnumber">8&#x2003;</span>Eigenschap 4</h5>
-<a id="mkpiweb-autopage-52"></a>
+<h5 id="autosec-53"><span class="sectionnumber">8&#x2003;</span>Eigenschap 4</h5>
+<a id="mkpiweb-autopage-53"></a>
 
 
 <p>
@@ -1958,8 +2019,8 @@ Een determinant met twee <em>evenredige</em> rijen (of kolommen) is gelijk aan n
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-53">Bewijs.</h6>
-<a id="mkpiweb-autopage-53"></a>
+<h6 id="autosec-54">Bewijs.</h6>
+<a id="mkpiweb-autopage-54"></a>
 
 
 <p>
@@ -1968,8 +2029,8 @@ Gevolg van Eigenschap&nbsp;1 en Eigenschap&nbsp;2.
 <!--
 ...... subsection Hoofdeigenschap V (optelregel) ......
 -->
-<h5 id="autosec-54"><span class="sectionnumber">9&#x2003;</span>Hoofdeigenschap V (optelregel)</h5>
-<a id="mkpiweb-autopage-54"></a>
+<h5 id="autosec-55"><span class="sectionnumber">9&#x2003;</span>Hoofdeigenschap V (optelregel)</h5>
+<a id="mkpiweb-autopage-55"></a>
 
 
 <p>
@@ -1982,8 +2043,8 @@ Als in twee \(n\times n\)-determinanten \(n-1\) rijen (resp. kolommen) gelijk zi
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-55">Bewijs.</h6>
-<a id="mkpiweb-autopage-55"></a>
+<h6 id="autosec-56">Bewijs.</h6>
+<a id="mkpiweb-autopage-56"></a>
 
 
 <p>
@@ -2027,8 +2088,8 @@ a_{21}&amp;a_{22}&amp;a_{23}+a&apos;_{23}\\ a_{31}&amp;a_{32}&amp;a_{33}+a&apos;
 <!--
 ...... subsection Hoofdeigenschap VI ......
 -->
-<h5 id="autosec-56"><span class="sectionnumber">10&#x2003;</span>Hoofdeigenschap VI</h5>
-<a id="mkpiweb-autopage-56"></a>
+<h5 id="autosec-57"><span class="sectionnumber">10&#x2003;</span>Hoofdeigenschap VI</h5>
+<a id="mkpiweb-autopage-57"></a>
 
 
 <p>
@@ -2041,8 +2102,8 @@ Als we bij één rij (of kolom) een veelvoud van een andere rij (of kolom) optel
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-57">Bewijs.</h6>
-<a id="mkpiweb-autopage-57"></a>
+<h6 id="autosec-58">Bewijs.</h6>
+<a id="mkpiweb-autopage-58"></a>
 
 
 <p>
@@ -2105,8 +2166,8 @@ v_2)\): wisselen keert de draaizin om, een kolom maal 2 maakt het parallellogram
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-58">Oefeningen</h6>
-<a id="mkpiweb-autopage-58"></a>
+<h6 id="autosec-59">Oefeningen</h6>
+<a id="mkpiweb-autopage-59"></a>
 
 
 <p>
@@ -2115,8 +2176,8 @@ p 142 nr 1
 <!--
 ...... subsection Toepassing 1: determinant berekenen door verlaging van de orde ......
 -->
-<h5 id="autosec-59"><span class="sectionnumber">11&#x2003;</span>Toepassing 1: determinant berekenen door verlaging van de orde</h5>
-<a id="mkpiweb-autopage-59"></a>
+<h5 id="autosec-60"><span class="sectionnumber">11&#x2003;</span>Toepassing 1: determinant berekenen door verlaging van de orde</h5>
+<a id="mkpiweb-autopage-60"></a>
 
 
 <p>
@@ -2125,8 +2186,8 @@ p 142 nr 1
 <!--
 ...... subsubsection Algemeen ......
 -->
-<h6 id="autosec-60">Algemeen</h6>
-<a id="mkpiweb-autopage-60"></a>
+<h6 id="autosec-61">Algemeen</h6>
+<a id="mkpiweb-autopage-61"></a>
 
 
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -2166,8 +2227,8 @@ p 142 nr 1
 <!--
 ...... subsubsection Opmerking ......
 -->
-<h6 id="autosec-61">Opmerking</h6>
-<a id="mkpiweb-autopage-61"></a>
+<h6 id="autosec-62">Opmerking</h6>
+<a id="mkpiweb-autopage-62"></a>
 
 
 <ul class="itemize" style="list-style-type:none">
@@ -2201,8 +2262,8 @@ zodat je ze zo op papier kan overnemen. Kies ook eens een spil die geen \(1\) is
 <!--
 ...... subsubsection Voorbeeld: determinant van Vandermonde (orde 3) ......
 -->
-<h6 id="autosec-62">Voorbeeld: determinant van Vandermonde (orde 3)</h6>
-<a id="mkpiweb-autopage-62"></a>
+<h6 id="autosec-63">Voorbeeld: determinant van Vandermonde (orde 3)</h6>
+<a id="mkpiweb-autopage-63"></a>
 
 
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -2264,8 +2325,8 @@ b^{2}-a^{2}\\ c-a &amp; c^{2}-a^{2} \end {vmatrix} &amp;&amp; \text {(verlaging 
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-63">Oefeningen</h6>
-<a id="mkpiweb-autopage-63"></a>
+<h6 id="autosec-64">Oefeningen</h6>
+<a id="mkpiweb-autopage-64"></a>
 
 
 <p>
@@ -2278,8 +2339,8 @@ p 142 nr 2
 <!--
 ...... subsection Toepassing 2: Bewijzen dat een determinant gelijk is aan nul ......
 -->
-<h5 id="autosec-64">Toepassing 2: Bewijzen dat een determinant gelijk is aan nul</h5>
-<a id="mkpiweb-autopage-64"></a>
+<h5 id="autosec-65">Toepassing 2: Bewijzen dat een determinant gelijk is aan nul</h5>
+<a id="mkpiweb-autopage-65"></a>
 
 
 <p>
@@ -2288,8 +2349,8 @@ p 142 nr 2
 <!--
 ...... subsubsection Nuttige eigenschappen ......
 -->
-<h6 id="autosec-65">Nuttige eigenschappen</h6>
-<a id="mkpiweb-autopage-65"></a>
+<h6 id="autosec-66">Nuttige eigenschappen</h6>
+<a id="mkpiweb-autopage-66"></a>
 
 
 <ul class="itemize" style="list-style-type:none">
@@ -2328,8 +2389,8 @@ p 142 nr 2
 <!--
 ...... subsubsection Voorbeeld 1 ......
 -->
-<h6 id="autosec-66">Voorbeeld 1</h6>
-<a id="mkpiweb-autopage-66"></a>
+<h6 id="autosec-67">Voorbeeld 1</h6>
+<a id="mkpiweb-autopage-67"></a>
 
 
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -2374,8 +2435,8 @@ uit K1)} \\[6pt] &amp;\weq {=} 0 &amp;&amp; \text {(twee gelijke kolommen: K1=K3
 <!--
 ...... subsubsection Voorbeeld 2 ......
 -->
-<h6 id="autosec-67">Voorbeeld 2</h6>
-<a id="mkpiweb-autopage-67"></a>
+<h6 id="autosec-68">Voorbeeld 2</h6>
+<a id="mkpiweb-autopage-68"></a>
 
 
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -2437,8 +2498,8 @@ vooraan)} \\ \scriptsize \text {1/3 uit R2, 1/2 uit R3, 1/b uit K2}} \\[6pt] &am
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-68">Oefeningen</h6>
-<a id="mkpiweb-autopage-68"></a>
+<h6 id="autosec-69">Oefeningen</h6>
+<a id="mkpiweb-autopage-69"></a>
 
 
 <p>
@@ -2447,8 +2508,8 @@ p 142 nr 3 <b>g, h</b>, 11
 <!--
 ...... subsection Determinant van het product van matrices ......
 -->
-<h5 id="autosec-69"><span class="sectionnumber">12&#x2003;</span>Determinant van het product van \(2\) matrices</h5>
-<a id="mkpiweb-autopage-69"></a>
+<h5 id="autosec-70"><span class="sectionnumber">12&#x2003;</span>Determinant van het product van \(2\) matrices</h5>
+<a id="mkpiweb-autopage-70"></a>
 
 
 <p>
@@ -2457,8 +2518,8 @@ p 142 nr 3 <b>g, h</b>, 11
 <!--
 ...... subsection Voorbeeld ......
 -->
-<h5 id="autosec-70">Voorbeeld</h5>
-<a id="mkpiweb-autopage-70"></a>
+<h5 id="autosec-71">Voorbeeld</h5>
+<a id="mkpiweb-autopage-71"></a>
 
 
 <p>
@@ -2479,8 +2540,8 @@ p 142 nr 3 <b>g, h</b>, 11
 <!--
 ...... subsection Stelling ......
 -->
-<h5 id="autosec-71">Stelling</h5>
-<a id="mkpiweb-autopage-71"></a>
+<h5 id="autosec-72">Stelling</h5>
+<a id="mkpiweb-autopage-72"></a>
 
 
 <p>
@@ -2493,8 +2554,8 @@ Voor alle \(A,B\in \mathbb {R}^{n\times n}\): \(\;\det (A\,B)=\det A\cdot \det B
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-72">Bewijs.</h6>
-<a id="mkpiweb-autopage-72"></a>
+<h6 id="autosec-73">Bewijs.</h6>
+<a id="mkpiweb-autopage-73"></a>
 
 
 <p>
@@ -2557,8 +2618,8 @@ Voor alle \(A,B\in \mathbb {R}^{n\times n}\): \(\;\det (A\,B)=\det A\cdot \det B
 <!--
 ...... subsection Overzicht beweringen ......
 -->
-<h5 id="autosec-73">Overzicht beweringen</h5>
-<a id="mkpiweb-autopage-73"></a>
+<h5 id="autosec-74">Overzicht beweringen</h5>
+<a id="mkpiweb-autopage-74"></a>
 
 
 <p>
@@ -2571,8 +2632,8 @@ Voor alle \(A,B\in \mathbb {R}^{n\times n}\): \(\;\det (A\,B)=\det A\cdot \det B
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-74">Oefeningen</h6>
-<a id="mkpiweb-autopage-74"></a>
+<h6 id="autosec-75">Oefeningen</h6>
+<a id="mkpiweb-autopage-75"></a>
 
 
 <p>
@@ -2594,13 +2655,13 @@ In het algemeen \(A\,B\neq B\,A\), maar
 <!--
 ...... section Omgekeerde van een -matrix ......
 -->
-<h4 id="autosec-75"><span class="sectionnumber">III&#x2003;</span>Omgekeerde van een \(n\times n\)-matrix</h4>
-<a id="mkpiweb-autopage-75"></a>
+<h4 id="autosec-76"><span class="sectionnumber">III&#x2003;</span>Omgekeerde van een \(n\times n\)-matrix</h4>
+<a id="mkpiweb-autopage-76"></a>
 <!--
 ...... subsection Reguliere en singuliere matrices ......
 -->
-<h5 id="autosec-76"><span class="sectionnumber">1&#x2003;</span>Reguliere en singuliere matrices</h5>
-<a id="mkpiweb-autopage-76"></a>
+<h5 id="autosec-77"><span class="sectionnumber">1&#x2003;</span>Reguliere en singuliere matrices</h5>
+<a id="mkpiweb-autopage-77"></a>
 
 
 <p>
@@ -2609,8 +2670,8 @@ In het algemeen \(A\,B\neq B\,A\), maar
 <!--
 ...... subsubsection Definitie ......
 -->
-<h6 id="autosec-77">Definitie</h6>
-<a id="mkpiweb-autopage-77"></a>
+<h6 id="autosec-78">Definitie</h6>
+<a id="mkpiweb-autopage-78"></a>
 
 
 <p>
@@ -2645,8 +2706,8 @@ Voor alle \(A\in \mathbb {R}^{n\times n}\):
 <!--
 ...... subsubsection Eigenschap 1 ......
 -->
-<h6 id="autosec-78">Eigenschap 1</h6>
-<a id="mkpiweb-autopage-78"></a>
+<h6 id="autosec-79">Eigenschap 1</h6>
+<a id="mkpiweb-autopage-79"></a>
 
 
 <p>
@@ -2659,8 +2720,8 @@ Voor alle \(A\in \mathbb {R}^{n\times n}\):
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-79">Bewijs.</h6>
-<a id="mkpiweb-autopage-79"></a>
+<h6 id="autosec-80">Bewijs.</h6>
+<a id="mkpiweb-autopage-80"></a>
 
 
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -2699,8 +2760,8 @@ A \text { regulier} &amp;\;\Rightarrow \; A^{-1} \text { bestaat} \\ &amp;\;\Rig
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-80">Oefeningen</h6>
-<a id="mkpiweb-autopage-80"></a>
+<h6 id="autosec-81">Oefeningen</h6>
+<a id="mkpiweb-autopage-81"></a>
 
 
 <p>
@@ -2709,8 +2770,8 @@ p 143 nr 8
 <!--
 ...... subsection Adjunctmatrix en ......
 -->
-<h5 id="autosec-81"><span class="sectionnumber">2&#x2003;</span>Adjunctmatrix en \(A^{-1}\)</h5>
-<a id="mkpiweb-autopage-81"></a>
+<h5 id="autosec-82"><span class="sectionnumber">2&#x2003;</span>Adjunctmatrix en \(A^{-1}\)</h5>
+<a id="mkpiweb-autopage-82"></a>
 
 
 <p>
@@ -2719,8 +2780,8 @@ p 143 nr 8
 <!--
 ...... subsubsection Definitie ......
 -->
-<h6 id="autosec-82">Definitie</h6>
-<a id="mkpiweb-autopage-82"></a>
+<h6 id="autosec-83">Definitie</h6>
+<a id="mkpiweb-autopage-83"></a>
 
 
 <p>
@@ -2738,8 +2799,8 @@ De adjunctmatrix \(\operatorname {adj}A\) van een gegeven \(n\times n\)-matrix \
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-83">Voorbeeld</h6>
-<a id="mkpiweb-autopage-83"></a>
+<h6 id="autosec-84">Voorbeeld</h6>
+<a id="mkpiweb-autopage-84"></a>
 
 
 <p>
@@ -2762,8 +2823,8 @@ adjunctmatrix.</figcaption> </figure>
 <!--
 ...... subsubsection Eigenschap 2 ......
 -->
-<h6 id="autosec-84">Eigenschap 2</h6>
-<a id="mkpiweb-autopage-84"></a>
+<h6 id="autosec-85">Eigenschap 2</h6>
+<a id="mkpiweb-autopage-85"></a>
 
 
 <p>
@@ -2776,8 +2837,8 @@ adjunctmatrix.</figcaption> </figure>
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-85">Bewijs.</h6>
-<a id="mkpiweb-autopage-85"></a>
+<h6 id="autosec-86">Bewijs.</h6>
+<a id="mkpiweb-autopage-86"></a>
 
 
 <p>
@@ -2838,8 +2899,8 @@ Analoog volgt \((\operatorname {adj}A)\cdot A=(\det A)\,I_3\).
 <!--
 ...... subsubsection Eigenschap 3 ......
 -->
-<h6 id="autosec-86">Eigenschap 3</h6>
-<a id="mkpiweb-autopage-86"></a>
+<h6 id="autosec-87">Eigenschap 3</h6>
+<a id="mkpiweb-autopage-87"></a>
 
 
 <p>
@@ -2856,8 +2917,8 @@ Als \(\det A\neq 0\), dan is \(A\) regulier met
 <!--
 ...... subsubsection Bewijs. ......
 -->
-<h6 id="autosec-87">Bewijs.</h6>
-<a id="mkpiweb-autopage-87"></a>
+<h6 id="autosec-88">Bewijs.</h6>
+<a id="mkpiweb-autopage-88"></a>
 
 
 <p>
@@ -2890,8 +2951,8 @@ Dus \(\dfrac {1}{\det A}\,\operatorname {adj}A\) is links- én rechts-invers van
 <!--
 ...... subsubsection Besluit ......
 -->
-<h6 id="autosec-88">Besluit</h6>
-<a id="mkpiweb-autopage-88"></a>
+<h6 id="autosec-89">Besluit</h6>
+<a id="mkpiweb-autopage-89"></a>
 
 
 <p>
@@ -2900,8 +2961,8 @@ Dus \(\dfrac {1}{\det A}\,\operatorname {adj}A\) is links- én rechts-invers van
 <!--
 ...... subsection De groep van reguliere -matrices ......
 -->
-<h5 id="autosec-89"><span class="sectionnumber">3&#x2003;</span>De groep van reguliere \(n\times n\)-matrices</h5>
-<a id="mkpiweb-autopage-89"></a>
+<h5 id="autosec-90"><span class="sectionnumber">3&#x2003;</span>De groep van reguliere \(n\times n\)-matrices</h5>
+<a id="mkpiweb-autopage-90"></a>
 
 
 <p>
@@ -2910,8 +2971,8 @@ Dus \(\dfrac {1}{\det A}\,\operatorname {adj}A\) is links- én rechts-invers van
 <!--
 ...... subsubsection Notatie en stelling ......
 -->
-<h6 id="autosec-90">Notatie en stelling</h6>
-<a id="mkpiweb-autopage-90"></a>
+<h6 id="autosec-91">Notatie en stelling</h6>
+<a id="mkpiweb-autopage-91"></a>
 
 
 <p>
@@ -2968,8 +3029,8 @@ A^{-1}\in GL_n(\mathbb {R}) \\ &amp; \qquad \text { met } A A^{-1}=A^{-1}A=I_n.
 <!--
 ...... subsection Andere eigenschappen ......
 -->
-<h5 id="autosec-92"><span class="sectionnumber">4&#x2003;</span>Andere eigenschappen</h5>
-<a id="mkpiweb-autopage-92"></a>
+<h5 id="autosec-93"><span class="sectionnumber">4&#x2003;</span>Andere eigenschappen</h5>
+<a id="mkpiweb-autopage-93"></a>
 
 
 <span class="hidden"> \(\seteqnumber{0}{}{0}\)</span>
@@ -3002,8 +3063,8 @@ A^{-1}\in GL_n(\mathbb {R}) \\ &amp; \qquad \text { met } A A^{-1}=A^{-1}A=I_n.
 <!--
 ...... subsubsection Bewijs (extra). ......
 -->
-<h6 id="autosec-93">Bewijs (extra).</h6>
-<a id="mkpiweb-autopage-93"></a>
+<h6 id="autosec-94">Bewijs (extra).</h6>
+<a id="mkpiweb-autopage-94"></a>
 
 
 <ul class="enumerate" style="list-style-type:none">
@@ -3035,8 +3096,8 @@ A^{-1}\in GL_n(\mathbb {R}) \\ &amp; \qquad \text { met } A A^{-1}=A^{-1}A=I_n.
 <!--
 ...... subsubsection Voorbeelden ......
 -->
-<h6 id="autosec-94">Voorbeelden</h6>
-<a id="mkpiweb-autopage-94"></a>
+<h6 id="autosec-95">Voorbeelden</h6>
+<a id="mkpiweb-autopage-95"></a>
 
 
 <ul class="enumerate" style="list-style-type:none">
@@ -3236,8 +3297,8 @@ B^{-1}A^{-1}.&amp;&amp;
 <!--
 ...... subsection Bijzonder geval:     ......
 -->
-<h5 id="autosec-95"><span class="sectionnumber">5&#x2003;</span>Bijzonder geval: \(n=2\)</h5>
-<a id="mkpiweb-autopage-95"></a>
+<h5 id="autosec-96"><span class="sectionnumber">5&#x2003;</span>Bijzonder geval: \(n=2\)</h5>
+<a id="mkpiweb-autopage-96"></a>
 
 
 <p>
@@ -3254,8 +3315,8 @@ Voor \(A=\begin {pmatrix}a&amp;b\\ c&amp;d\end {pmatrix}\) met \(\det A=ad-bc\ne
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-96">Oefeningen</h6>
-<a id="mkpiweb-autopage-96"></a>
+<h6 id="autosec-97">Oefeningen</h6>
+<a id="mkpiweb-autopage-97"></a>
 
 
 <p>
@@ -3264,13 +3325,13 @@ p 148 nr 1, 3, 4
 <!--
 ...... section Stelsel van Cramer ......
 -->
-<h4 id="autosec-97"><span class="sectionnumber">IV&#x2003;</span>Stelsel van Cramer</h4>
-<a id="mkpiweb-autopage-97"></a>
+<h4 id="autosec-98"><span class="sectionnumber">IV&#x2003;</span>Stelsel van Cramer</h4>
+<a id="mkpiweb-autopage-98"></a>
 <!--
 ...... subsection Opstellen formules ......
 -->
-<h5 id="autosec-98"><span class="sectionnumber">1&#x2003;</span>Opstellen formules</h5>
-<a id="mkpiweb-autopage-98"></a>
+<h5 id="autosec-99"><span class="sectionnumber">1&#x2003;</span>Opstellen formules</h5>
+<a id="mkpiweb-autopage-99"></a>
 
 
 <p>
@@ -3427,8 +3488,8 @@ Analoog
 <!--
 ...... subsection Gevolg ......
 -->
-<h5 id="autosec-99"><span class="sectionnumber">2&#x2003;</span>Gevolg</h5>
-<a id="mkpiweb-autopage-99"></a>
+<h5 id="autosec-100"><span class="sectionnumber">2&#x2003;</span>Gevolg</h5>
+<a id="mkpiweb-autopage-100"></a>
 
 
 <p>
@@ -3437,8 +3498,8 @@ Een stelsel van Cramer (d.w.z. \(|A|\neq 0\)) heeft precies één oplossing.
 <!--
 ...... subsection Opmerking ......
 -->
-<h5 id="autosec-100"><span class="sectionnumber">3&#x2003;</span>Opmerking</h5>
-<a id="mkpiweb-autopage-100"></a>
+<h5 id="autosec-101"><span class="sectionnumber">3&#x2003;</span>Opmerking</h5>
+<a id="mkpiweb-autopage-101"></a>
 
 
 <p>
@@ -3447,8 +3508,8 @@ De formules van Cramer kunnen we niet gebruiken als \(|A| = 0\).
 <!--
 ...... subsection Voorbeeld 1 ......
 -->
-<h5 id="autosec-101"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 1</h5>
-<a id="mkpiweb-autopage-101"></a>
+<h5 id="autosec-102"><span class="sectionnumber">4&#x2003;</span>Voorbeeld 1</h5>
+<a id="mkpiweb-autopage-102"></a>
 
 
 <p>
@@ -3498,8 +3559,8 @@ Hieruit volgt:
 <!--
 ...... subsection Voorbeeld 2 ......
 -->
-<h5 id="autosec-102"><span class="sectionnumber">5&#x2003;</span>Voorbeeld 2</h5>
-<a id="mkpiweb-autopage-102"></a>
+<h5 id="autosec-103"><span class="sectionnumber">5&#x2003;</span>Voorbeeld 2</h5>
+<a id="mkpiweb-autopage-103"></a>
 
 
 <p>
@@ -3560,8 +3621,8 @@ Hieruit volgt:
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-103"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-103"></a>
+<h5 id="autosec-104"><span class="sectionnumber">6&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-104"></a>
 
 
 <p>
@@ -3571,13 +3632,13 @@ Geen oefeningen vanaf nr 5 (bespreken met parameter m)
 <!--
 ...... section Rang van een matrix ......
 -->
-<h4 id="autosec-104"><span class="sectionnumber">V&#x2003;</span>Rang van een matrix</h4>
-<a id="mkpiweb-autopage-104"></a>
+<h4 id="autosec-105"><span class="sectionnumber">V&#x2003;</span>Rang van een matrix</h4>
+<a id="mkpiweb-autopage-105"></a>
 <!--
 ...... subsection Voorbeeld ......
 -->
-<h5 id="autosec-105"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
-<a id="mkpiweb-autopage-105"></a>
+<h5 id="autosec-106"><span class="sectionnumber">1&#x2003;</span>Voorbeeld</h5>
+<a id="mkpiweb-autopage-106"></a>
 
 
 <p>
@@ -3631,8 +3692,8 @@ Geen oefeningen vanaf nr 5 (bespreken met parameter m)
 <!--
 ...... subsection Definitie ......
 -->
-<h5 id="autosec-106"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
-<a id="mkpiweb-autopage-106"></a>
+<h5 id="autosec-107"><span class="sectionnumber">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-107"></a>
 
 
 <ul class="itemize" style="list-style-type:none">
@@ -3653,8 +3714,8 @@ Geen oefeningen vanaf nr 5 (bespreken met parameter m)
 <!--
 ...... subsection Notatie ......
 -->
-<h5 id="autosec-107"><span class="sectionnumber">3&#x2003;</span>Notatie</h5>
-<a id="mkpiweb-autopage-107"></a>
+<h5 id="autosec-108"><span class="sectionnumber">3&#x2003;</span>Notatie</h5>
+<a id="mkpiweb-autopage-108"></a>
 
 
 <p>
@@ -3663,8 +3724,8 @@ Geen oefeningen vanaf nr 5 (bespreken met parameter m)
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-108"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
-<a id="mkpiweb-autopage-108"></a>
+<h5 id="autosec-109"><span class="sectionnumber">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-109"></a>
 
 
 <p>
@@ -3673,8 +3734,8 @@ Geen oefeningen vanaf nr 5 (bespreken met parameter m)
 <!--
 ...... subsubsection Oef 1: rang in ......
 -->
-<h6 id="autosec-109">Oef 1: rang in \(\mathbb {R}^{2}\)</h6>
-<a id="mkpiweb-autopage-109"></a>
+<h6 id="autosec-110">Oef 1: rang in \(\mathbb {R}^{2}\)</h6>
+<a id="mkpiweb-autopage-110"></a>
 
 
 <p>
@@ -3720,8 +3781,8 @@ Geen oefeningen vanaf nr 5 (bespreken met parameter m)
 <!--
 ...... subsubsection Oef 2: rang in ......
 -->
-<h6 id="autosec-110">Oef 2: rang in \(\mathbb {R}^{3}\)</h6>
-<a id="mkpiweb-autopage-110"></a>
+<h6 id="autosec-111">Oef 2: rang in \(\mathbb {R}^{3}\)</h6>
+<a id="mkpiweb-autopage-111"></a>
 
 
 <p>
@@ -3767,8 +3828,8 @@ Dus \(\operatorname {rang}(B)=3\).
 <!--
 ...... subsubsection Oef 3: parameterwaarde(n) met rang ......
 -->
-<h6 id="autosec-111">Oef 3: parameterwaarde(n) met rang \(=2\)</h6>
-<a id="mkpiweb-autopage-111"></a>
+<h6 id="autosec-112">Oef 3: parameterwaarde(n) met rang \(=2\)</h6>
+<a id="mkpiweb-autopage-112"></a>
 
 
 <p>
@@ -3841,8 +3902,8 @@ Dus voor alle bovenstaande \(m\) geldt \(\operatorname {rang}(A(m))=2\). Voor al
 <!--
 ...... subsubsection Oef 4: Rang bepalen voor alle parameters ......
 -->
-<h6 id="autosec-112">Oef 4: Rang bepalen voor alle parameters</h6>
-<a id="mkpiweb-autopage-112"></a>
+<h6 id="autosec-113">Oef 4: Rang bepalen voor alle parameters</h6>
+<a id="mkpiweb-autopage-113"></a>
 
 
 <p>
@@ -3916,13 +3977,13 @@ Conclusie: \(\text {rang}(M) &lt; 3\).
 <!--
 ...... section Meetkundige toepassingen ......
 -->
-<h4 id="autosec-113"><span class="sectionnumber">VI&#x2003;</span>Meetkundige toepassingen</h4>
-<a id="mkpiweb-autopage-113"></a>
+<h4 id="autosec-114"><span class="sectionnumber">VI&#x2003;</span>Meetkundige toepassingen</h4>
+<a id="mkpiweb-autopage-114"></a>
 <!--
 ...... subsection Vergelijking van een rechte door twee gegeven punten ......
 -->
-<h5 id="autosec-114"><span class="sectionnumber">1&#x2003;</span>Vergelijking van een rechte door twee gegeven punten</h5>
-<a id="mkpiweb-autopage-114"></a>
+<h5 id="autosec-115"><span class="sectionnumber">1&#x2003;</span>Vergelijking van een rechte door twee gegeven punten</h5>
+<a id="mkpiweb-autopage-115"></a>
 
 
 <p>
@@ -3931,8 +3992,8 @@ Conclusie: \(\text {rang}(M) &lt; 3\).
 <!--
 ...... subsubsection Opstelling formule ......
 -->
-<h6 id="autosec-115">Opstelling formule</h6>
-<a id="mkpiweb-autopage-115"></a>
+<h6 id="autosec-116">Opstelling formule</h6>
+<a id="mkpiweb-autopage-116"></a>
 
 
 <p>
@@ -3985,8 +4046,8 @@ Equivalente determinanvorm:
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-116">Voorbeeld</h6>
-<a id="mkpiweb-autopage-116"></a>
+<h6 id="autosec-117">Voorbeeld</h6>
+<a id="mkpiweb-autopage-117"></a>
 
 
 <p>
@@ -4040,8 +4101,8 @@ coo&#x0308;rdinaten van \(P\) ingevuld. Wanneer is die nul?</figcaption> </figur
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-117">Oefeningen</h6>
-<a id="mkpiweb-autopage-117"></a>
+<h6 id="autosec-118">Oefeningen</h6>
+<a id="mkpiweb-autopage-118"></a>
 
 
 <div class="cursus-oefening">
@@ -4052,8 +4113,8 @@ coo&#x0308;rdinaten van \(P\) ingevuld. Wanneer is die nul?</figcaption> </figur
 <!--
 ...... subsubsection Oefening 1 ......
 -->
-<h6 id="autosec-118">Oefening 1</h6>
-<a id="mkpiweb-autopage-118"></a>
+<h6 id="autosec-119">Oefening 1</h6>
+<a id="mkpiweb-autopage-119"></a>
 
 
 <p>
@@ -4093,8 +4154,8 @@ Stel de cartesische vergelijking op van de rechte door \(P_1\) en \(P_2\)
 <!--
 ...... subsection Collineariteit van drie punten ......
 -->
-<h5 id="autosec-119"><span class="sectionnumber">2&#x2003;</span>Collineariteit van drie punten</h5>
-<a id="mkpiweb-autopage-119"></a>
+<h5 id="autosec-120"><span class="sectionnumber">2&#x2003;</span>Collineariteit van drie punten</h5>
+<a id="mkpiweb-autopage-120"></a>
 
 
 <p>
@@ -4103,8 +4164,8 @@ Stel de cartesische vergelijking op van de rechte door \(P_1\) en \(P_2\)
 <!--
 ...... subsubsection Formule ......
 -->
-<h6 id="autosec-120">Formule</h6>
-<a id="mkpiweb-autopage-120"></a>
+<h6 id="autosec-121">Formule</h6>
+<a id="mkpiweb-autopage-121"></a>
 
 
 <p>
@@ -4149,8 +4210,8 @@ Stel de cartesische vergelijking op van de rechte door \(P_1\) en \(P_2\)
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-121">Voorbeeld</h6>
-<a id="mkpiweb-autopage-121"></a>
+<h6 id="autosec-122">Voorbeeld</h6>
+<a id="mkpiweb-autopage-122"></a>
 
 
 <p>
@@ -4210,8 +4271,8 @@ liggen.</figcaption> </figure>
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-122">Oefeningen</h6>
-<a id="mkpiweb-autopage-122"></a>
+<h6 id="autosec-123">Oefeningen</h6>
+<a id="mkpiweb-autopage-123"></a>
 
 
 <div class="cursus-oefening">
@@ -4222,8 +4283,8 @@ liggen.</figcaption> </figure>
 <!--
 ...... subsubsection Oefening 2 ......
 -->
-<h6 id="autosec-123">Oefening 2</h6>
-<a id="mkpiweb-autopage-123"></a>
+<h6 id="autosec-124">Oefening 2</h6>
+<a id="mkpiweb-autopage-124"></a>
 
 
 <p>
@@ -4269,8 +4330,8 @@ Ga na of de punten \(P_1\), \(P_2\) en \(P_3\) collineair zijn.
 <!--
 ...... subsubsection Oefening 3 ......
 -->
-<h6 id="autosec-124">Oefening 3</h6>
-<a id="mkpiweb-autopage-124"></a>
+<h6 id="autosec-125">Oefening 3</h6>
+<a id="mkpiweb-autopage-125"></a>
 
 
 <p>
@@ -4309,8 +4370,8 @@ Voor welke \(k \in \mathbb {R}\) zijn de punten \(P_1\), \(P_2\) en \(P_3\) coll
 <!--
 ...... subsubsection Oefening 4 ......
 -->
-<h6 id="autosec-125">Oefening 4</h6>
-<a id="mkpiweb-autopage-125"></a>
+<h6 id="autosec-126">Oefening 4</h6>
+<a id="mkpiweb-autopage-126"></a>
 
 
 <p>
@@ -4322,8 +4383,8 @@ Twee rechten \(d_1\) en \(d_2\) snijden elkaar. Op \(d_1\) liggen drie verschill
 <!--
 ...... subsection Oppervlakte van een driehoek in een orthonormaal assenstelsel ......
 -->
-<h5 id="autosec-126"><span class="sectionnumber">3&#x2003;</span>Oppervlakte van een driehoek in een orthonormaal assenstelsel</h5>
-<a id="mkpiweb-autopage-126"></a>
+<h5 id="autosec-127"><span class="sectionnumber">3&#x2003;</span>Oppervlakte van een driehoek in een orthonormaal assenstelsel</h5>
+<a id="mkpiweb-autopage-127"></a>
 
 
 <p>
@@ -4332,11 +4393,11 @@ Twee rechten \(d_1\) en \(d_2\) snijden elkaar. Op \(d_1\) liggen drie verschill
 <!--
 ...... subsubsection Opstellen formule ......
 -->
-<h6 id="autosec-127">Opstellen formule</h6>
-<a id="mkpiweb-autopage-127"></a>
+<h6 id="autosec-128">Opstellen formule</h6>
+<a id="mkpiweb-autopage-128"></a>
 <div class="minipage" style="vertical-align:top ; justify-content:flex-start ; width:234pt ; ">
 
-<a id="mkpiweb-autopage-128"></a>
+<a id="mkpiweb-autopage-129"></a>
 
 <p>
 Met \(A(x_1,y_1)\), \(B(x_2,y_2)\) en \(C(x_3,y_3)\) (in een orthonormaal stelsel) geldt:
@@ -4369,7 +4430,7 @@ Met \(A(x_1,y_1)\), \(B(x_2,y_2)\) en \(C(x_3,y_3)\) (in een orthonormaal stelse
 </div>
 <div class="minipage" style="vertical-align:top ; justify-content:flex-start ; width:234pt ; ">
 
-<a id="mkpiweb-autopage-129"></a>
+<a id="mkpiweb-autopage-130"></a>
 
 <p>
 <span
@@ -4491,8 +4552,8 @@ Besluit:<br />
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-133">Voorbeeld</h6>
-<a id="mkpiweb-autopage-133"></a>
+<h6 id="autosec-134">Voorbeeld</h6>
+<a id="mkpiweb-autopage-134"></a>
 
 
 <p>
@@ -4551,8 +4612,8 @@ teken van de determinant als je \(B\) en \(C\) van plaats wisselt?</figcaption> 
 <!--
 ...... subsubsection Gevolg ......
 -->
-<h6 id="autosec-134">Gevolg</h6>
-<a id="mkpiweb-autopage-134"></a>
+<h6 id="autosec-135">Gevolg</h6>
+<a id="mkpiweb-autopage-135"></a>
 
 
 <p>
@@ -4569,8 +4630,8 @@ De oppervlakte van parallellogram \(ABCD\) met aangrenzende hoekpunten \(A(x_1,y
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-135">Oefeningen</h6>
-<a id="mkpiweb-autopage-135"></a>
+<h6 id="autosec-136">Oefeningen</h6>
+<a id="mkpiweb-autopage-136"></a>
 
 
 <div class="cursus-oefening">
@@ -4581,8 +4642,8 @@ De oppervlakte van parallellogram \(ABCD\) met aangrenzende hoekpunten \(A(x_1,y
 <!--
 ...... subsubsection Oefening 5 ......
 -->
-<h6 id="autosec-136">Oefening 5</h6>
-<a id="mkpiweb-autopage-136"></a>
+<h6 id="autosec-137">Oefening 5</h6>
+<a id="mkpiweb-autopage-137"></a>
 
 
 <p>
@@ -4621,8 +4682,8 @@ Bereken de oppervlakte van de driehoek als de hoekpunten t.o.v. een georthonorme
 <!--
 ...... subsubsection Oefening 6 ......
 -->
-<h6 id="autosec-137">Oefening 6</h6>
-<a id="mkpiweb-autopage-137"></a>
+<h6 id="autosec-138">Oefening 6</h6>
+<a id="mkpiweb-autopage-138"></a>
 
 
 <p>
@@ -4661,8 +4722,8 @@ Bereken de oppervlakte van het parallellogram als de hoekpunten t.o.v. een geort
 <!--
 ...... subsubsection Oefening 7 ......
 -->
-<h6 id="autosec-138">Oefening 7</h6>
-<a id="mkpiweb-autopage-138"></a>
+<h6 id="autosec-139">Oefening 7</h6>
+<a id="mkpiweb-autopage-139"></a>
 
 
 <p>
@@ -4692,11 +4753,11 @@ Bereken \(k\) als de oppervlakte van een driehoek \(\Delta ABC\) met \(A(2,0)\),
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=b967c2fb43ba"></script>
-<script src="statistieken.js?v=b967c2fb43ba"></script>
-<script src="vendor/jsxgraphcore.js?v=b967c2fb43ba"></script>
-<script src="interactieve-grafieken.js?v=b967c2fb43ba"></script>
-<script src="matrixbord.js?v=b967c2fb43ba"></script>
-<script src="hoofdstuk.interactief.js?v=b967c2fb43ba"></script>
+<script src="presentatie.js?v=7ad929eef70b"></script>
+<script src="statistieken.js?v=7ad929eef70b"></script>
+<script src="vendor/jsxgraphcore.js?v=7ad929eef70b"></script>
+<script src="interactieve-grafieken.js?v=7ad929eef70b"></script>
+<script src="matrixbord.js?v=7ad929eef70b"></script>
+<script src="hoofdstuk.interactief.js?v=7ad929eef70b"></script>
 </body>
 </html>

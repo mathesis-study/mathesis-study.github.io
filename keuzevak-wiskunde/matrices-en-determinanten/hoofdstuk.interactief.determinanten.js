@@ -273,7 +273,39 @@
     matrixBord(ctx);
     var laag = div("det-tekenpatroon" + (klasse ? " " + klasse : ""));
     ctx.element.appendChild(laag);
+    pasLaagAan(ctx, laag);
     return laag;
+  }
+
+  // Meet de volledige HTML-uitwerking, ook na het zetten van MathJax.
+  // Verklein alleen als ze niet past; zo blijft alles zichtbaar zonder een
+  // tweede scrollvlak binnen de interactieve figuur.
+  function pasLaagAan(ctx, laag) {
+    var gepland = false;
+    function pas() {
+      gepland = false;
+      var w = ctx.element.clientWidth, h = ctx.element.clientHeight;
+      if (!w || !h) return;
+      laag.style.width = w + "px";
+      laag.style.minHeight = h + "px";
+      var breedte = Math.max(w, laag.scrollWidth);
+      var hoogte = Math.max(h, laag.scrollHeight);
+      var schaal = Math.min(1, w / breedte, h / hoogte);
+      laag.style.transform = "translateX(" + ((w - breedte * schaal) / 2) +
+        "px) scale(" + schaal + ")";
+    }
+    function plan() {
+      if (gepland) return;
+      gepland = true;
+      requestAnimationFrame(pas);
+    }
+    if (window.ResizeObserver) {
+      var meter = new ResizeObserver(plan);
+      meter.observe(ctx.element);
+      meter.observe(laag);
+    }
+    new MutationObserver(plan).observe(laag, { childList: true, subtree: true });
+    plan();
   }
 
   // Haken rond een raster van vakjes, gezet door MathJax zoals in een
@@ -734,9 +766,10 @@
       var stijl = document.createElement("style");
       stijl.id = stijlId;
       stijl.textContent = `
-        .det-tekenpatroon { position:absolute; inset:0; display:flex;
-          align-items:center; justify-content:center;
-          gap:2rem 4.25rem; padding:2rem 1rem; overflow:auto;
+        .det-tekenpatroon { position:absolute; top:0; left:0; display:flex;
+          box-sizing:border-box; transform-origin:top left;
+          align-items:center; justify-content:safe center;
+          gap:2rem 4.25rem; padding:2rem 1rem; overflow:visible;
           color:var(--grafiek-tekst); background:var(--grafiek-vlak); }
         .det-tekenpatroon.det-onder { flex-direction:column;
           justify-content:safe center; gap:1.25rem; padding:1.25rem 1rem; }
@@ -824,6 +857,7 @@
         .det-paneel .det-tekst { font-size:.95rem; }
         .det-paneel > :empty { display:none; }
         .interactieve-grafiek-knoppen button mjx-container { margin:0 !important; }
+        .det-richting { display:inline-flex; align-items:center; gap:.4rem; }
         @media (max-width:650px) { .det-tekenpatroon { gap:1.5rem 2.25rem; padding:1.5rem .5rem; }
           .det-cofactorstappen { font-size:1.2rem; }
           .det-tekenmatrix { --det-cel:2.5rem; }
@@ -852,6 +886,7 @@
     laag.appendChild(maakHaken(matrix, "haken"));
     laag.appendChild(formule);
     ctx.element.appendChild(laag);
+    pasLaagAan(ctx, laag);
     var vakjes = [];
     for (var r = 1; r <= 3; r++) {
       for (var k = 1; k <= 3; k++) {
@@ -927,6 +962,7 @@
     laag.appendChild(links);
     laag.appendChild(formule);
     ctx.element.appendChild(laag);
+    pasLaagAan(ctx, laag);
     var vakjes = [];
     for (var r = 1; r <= n; r++) {
       for (var k = 1; k <= n; k++) {
@@ -1210,12 +1246,12 @@
   // plaats, zodat er niets verspringt. Een nul in de gekozen rij maakt een
   // term meteen nul. Onderaan houdt de figuur bij welke rijen en kolommen al
   // geprobeerd zijn: het resultaat is telkens hetzelfde.
-  G.registreer("det-laplace", function (ctx) {
+  function laplaceFiguur(ctx, orde) {
     var BEGIN = {
       3: [[1, -3, 5], [-2, 1, -2], [1, -5, 0]],
       4: [[2, 1, 0, 3], [1, 0, 0, 2], [4, 3, 1, 1], [0, 2, 0, 1]]
     };
-    var st = { n: 3, A: kopie(BEGIN[3]), soort: "R", nr: 0, term: 0, geprobeerd: [] };
+    var st = { n: orde, A: kopie(BEGIN[orde]), soort: "R", nr: 0, term: 0, geprobeerd: [] };
     // Alles hangt aan de bovenkant en links, op een blad van vaste breedte:
     // wat erbij komt, komt eronder of ernaast in een vak dat zijn plaats al
     // had.
@@ -1379,18 +1415,28 @@
       st.term = st.term % st.n + 1;
       werkBij();
     });
-    var soortKnop = ctx.knop("Naar een kolom", function () {
-      st.soort = st.soort === "R" ? "K" : "R";
-      soortKnop.textContent = st.soort === "R" ? "Naar een kolom" : "Naar een rij";
+    function richting(soort) {
+      if (st.soort === soort) return;
+      st.soort = soort;
+      richtingStand();
       kiesLijn(st.nr);
-    });
-    var ordeKnop = ctx.knop("Orde 4", function () {
-      st.n = st.n === 3 ? 4 : 3;
-      ordeKnop.textContent = st.n === 3 ? "Orde 4" : "Orde 3";
-      st.A = kopie(BEGIN[st.n]);
-      st.geprobeerd = [];
-      kiesLijn(0);
-    });
+    }
+    function richtingStand() {
+      schakel(rijKnop, st.soort === "R");
+      schakel(kolomKnop, st.soort === "K");
+    }
+    var rijKnop = ctx.knop("rij", function () { richting("R"); });
+    var kolomKnop = ctx.knop("kolom", function () { richting("K"); });
+    var richtingVak = div("det-richting");
+    var richtingGroep = div("interactieve-grafiek-schakelaar");
+    richtingGroep.setAttribute("role", "group");
+    richtingGroep.setAttribute("aria-label", "Ontwikkelen naar");
+    rijKnop.parentNode.insertBefore(richtingVak, rijKnop);
+    richtingVak.appendChild(document.createTextNode("Naar:"));
+    richtingVak.appendChild(richtingGroep);
+    richtingGroep.appendChild(rijKnop);
+    richtingGroep.appendChild(kolomKnop);
+    richtingStand();
     ctx.knop("Wijzig A", function () {
       st.A = willekeurig(st.n);
       st.geprobeerd = [];
@@ -1398,17 +1444,23 @@
     });
 
     function herstel() {
-      st.n = 3;
-      st.A = kopie(BEGIN[3]);
+      st.A = kopie(BEGIN[orde]);
       st.soort = "R";
       st.geprobeerd = [];
-      soortKnop.textContent = "Naar een kolom";
-      ordeKnop.textContent = "Orde 4";
+      richtingStand();
       kiesLijn(0);
     }
 
     werkBij();
     return { reset: herstel };
+  }
+
+  G.registreer("det-laplace", function (ctx) {
+    return laplaceFiguur(ctx, 3);
+  });
+
+  G.registreer("det-laplace-orde4", function (ctx) {
+    return laplaceFiguur(ctx, 4);
   });
 
   /* --- 4. De regel van Sarrus -------------------------------------------- */
