@@ -1589,6 +1589,20 @@
     if (!scrollNaarStap(volgende.doel, richting, pagina, nu)) volgende.doe();
   }
 
+  // TikZ levert SVG's met een intrinsieke maat in pixels. Druk die maat uit
+  // in rem bij de gewone lettergrootte (17px), zodat ook de figuren de
+  // presentatiestand en een verandering van de venstergrootte volgen.
+  function bereidAfbeeldingenVoor() {
+    document.querySelectorAll(".slide img.lateximage").forEach(function (afbeelding) {
+      function zetMaat() {
+        if (!afbeelding.naturalWidth) return;
+        afbeelding.style.width = (afbeelding.naturalWidth / 17) + "rem";
+      }
+      if (afbeelding.complete) zetMaat();
+      else afbeelding.addEventListener("load", zetMaat, { once: true });
+    });
+  }
+
   /* --- 3D-figuren ------------------------------------------------------- */
 
   // De iframes krijgen hun src pas wanneer hun slide in beeld komt. Browsers
@@ -3469,6 +3483,7 @@
     bereidHulpmiddelenVoor();
     bereidOplossingenVoor();
     volgWiskunde();
+    bereidAfbeeldingenVoor();
     bereidFigurenVoor();
     bereidFiguurgevallenVoor();
     bereidGrafiekenVoor();

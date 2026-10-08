@@ -2173,6 +2173,7 @@ svg {
  * .pres-figuur iframe): zwart wordt licht, een kleur houdt haar tint. */
 .slide img.lateximage {
   filter: var(--figuur-filter);
+  height: auto;
 }
 
 /* De arcering van \undefsign (zie cursus.cls): de schuine strepen van
