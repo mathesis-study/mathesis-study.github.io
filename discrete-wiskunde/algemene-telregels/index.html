@@ -33,25 +33,50 @@
 //  * answers and hints stay hidden until you ask for them; the arrow keys
 //    (or a presenter remote) reveal them one step at a time, together with
 //    the steps of animated figures;
+//  * you choose how answers wait: compact, as empty frames or all open; in
+//    compact an exercise first shows its short answer, and the full working
+//    only on a second click;
+//  * a series of exercises can be paged through one at a time and comes
+//    with a PDF to print; extra proofs and the instructions per tool (TI-84
+//    or Python) stay folded away until you open them;
 //  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
 //    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a figure with a parameter gets a slider, a figure with several cases
+//    switches between them without losing the camera, and in the large view
+//    you walk from figure to figure through the whole chapter;
 //  * interactive graphs (JSXGraph) where you drag points and watch the
 //    mathematics move, and sketch exercises that tell you what is wrong
 //    with your graph;
-//  * Python runs in the page (Pyodide): exercises with checks and hints,
-//    and code you can step through instruction by instruction or, for a
-//    loop, line by line with its variables in view; each Python section
-//    also comes as a notebook;
-//  * a matrix calculator and a function calculator whose CAS derives step
-//    by step, in the notation of the course;
+//  * matrices you can click: pick an entry, a row or a diagonal and the
+//    matching term of the formula lights up, and the other way round;
+//  * Python runs in the page (Pyodide, with NumPy): exercises with checks
+//    and hints, code you can step through instruction by instruction or,
+//    for a loop, line by line with its variables in view, trace exercises
+//    that fill a table of the variables as you step, and code that drives
+//    an interactive graph; each Python section also comes as a notebook;
+//  * a matrix calculator, a calculator for systems of linear equations that
+//    row-reduces step by step and discusses parameters case by case, and a
+//    function calculator whose CAS derives step by step, all in the
+//    notation of the course;
+//  * MathJax is extended where the course needs it, so the page shows what
+//    the PDF shows: foreach loops, matrices with row and column headings,
+//    braces across rows, partial rules in tables, highlighted cells and
+//    terms, the end-of-proof square at the right margin and references
+//    inside a formula; accented letters are real characters, so searching
+//    and copying text works;
+//  * formulas are typeset slide by slide, so a long chapter opens quickly;
 //  * a light and a dark theme, plus a presentation mode with larger type for
 //    use in front of a class;
 //  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * the site has its own icon and can be installed as an app;
 //  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
-//    from this site, so it works offline as well.
+//    from this site, so it works offline as well; the one request that may
+//    leave it is an optional visit count per chapter, without cookies or
+//    personal data.
 //
 
 MathJax = {
+     options: { enableMenu: false },
      subequations: "0",
      section: "",
      loader: {
