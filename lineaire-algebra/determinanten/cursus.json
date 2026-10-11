@@ -21,6 +21,6 @@
   "WD3_06.08.14"
  ],
  "interactief": true,
- "python": false,
+ "python": true,
  "oefeningen": true
 }

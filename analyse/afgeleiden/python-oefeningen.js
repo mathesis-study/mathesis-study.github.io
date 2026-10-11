@@ -43,12 +43,13 @@
   }
 
   function meldToestand(editor, extra) {
-    if (!editor.grafiek) return;
-    const detail = Object.assign({ grafiek: editor.grafiek, soort: "code",
+    if (!editor.grafiek && !editor.namespace && !editor.spoor) return;
+    const detail = Object.assign({ grafiek: editor.grafiek, namespace: editor.namespace, spoor: editor.spoor, soort: "code",
       vooraf: Object.assign({}, editor.vooraf), waarden: null, getallen: null,
       regel: null, regeltekst: "", conditie: null, klaar: false, fout: false }, extra || {});
     detail.getallen = getallenUit(detail.waarden);
     editor.laatsteToestand = detail;
+    editor.blok.mathesisPythonToestand = detail;
     editor.blok.dispatchEvent(new CustomEvent("python:toestand", { bubbles: true, detail }));
   }
 
@@ -83,7 +84,7 @@
     if (sluitStappen && !bezig) {
       wisInstructies(editor);
       editor.uitvoer.hidden = true;
-      editor.resultaat.hidden = true;
+      editor.resultaat.hidden = !editor.debugOpen;
       editor.code.clearDiagnostics();
     }
     return true;
@@ -525,9 +526,9 @@
     wisInstructies(editor);
     editor.feedback.hidden = true;
     editor.stappen.hidden = true;
-    if (editor.toestand) editor.toestand.hidden = true;
+    if (editor.toestand) editor.toestand.hidden = !editor.debugOpen;
     editor.uitvoer.hidden = true;
-    editor.resultaat.hidden = true;
+    editor.resultaat.hidden = !editor.debugOpen;
     editor.status.textContent = workerKlaar ? "Python staat klaar…" : "Python wordt geladen. De eerste keer duurt dit even…";
     knoppen();
     klok = setTimeout(() => afronden("Python laden duurde te lang. Probeer opnieuw.", true), 45000);
@@ -554,11 +555,17 @@
       editor.markering.hidden = true;
       if (resultaat.foutgegevens) editor.code.setDiagnostic(resultaat.foutgegevens);
       editor.status.textContent = "";
+      if (editor.inlineOutput && editor.toestand) {
+        editor.toestand.hidden = false;
+        editor.toestandkop.textContent = "De code kon niet worden uitgevoerd.";
+        editor.toestandinhoud.replaceChildren(element("pre", "python-print", editor.uitvoer.textContent));
+      }
       return;
     }
     editor.stap = { instructies: resultaat.instructies, fout: resultaat.fout,
       foutgegevens: resultaat.foutgegevens, lussen: resultaat.lussen || [],
       afgekapt: Boolean(resultaat.afgekapt), eind: resultaat.eind || null, index: 0 };
+    reserveerToestand(editor);
     toonInstructies(editor);
   }
 
@@ -566,9 +573,10 @@
     stopSpel(editor);
     if (!editor.stap) return;
     editor.stap = null;
+    if (editor.toestand) editor.toestand.style.minHeight = "";
     editor.blok.classList.remove("python-stappend");
     editor.code.markeerRegels(null);
-    if (editor.toestand) editor.toestand.hidden = true;
+    if (editor.toestand) editor.toestand.hidden = !editor.debugOpen;
     knoppen();
   }
 
@@ -603,6 +611,17 @@
     inhoud.replaceChildren();
     if (!stap) { strook.hidden = true; return; }
     strook.hidden = false;
+    if (editor.inlineOutput) {
+      const geprint = stap.instructies.slice(0, stap.index)
+        .map(instructie => instructie.uitvoer || "").join("").trimEnd();
+      if (geprint) {
+        const melding = element("div", "python-print");
+        melding.append(element("code", "", JSON.stringify(geprint)),
+          document.createTextNode(" wordt geprint."));
+        inhoud.appendChild(melding);
+      }
+      if (!nu && stap.fout) inhoud.appendChild(element("pre", "python-print", stap.fout));
+    }
     if (!nu) {
       editor.toestandkop.replaceChildren(document.createTextNode(
         stap.fout ? "Gestopt door een fout." : "Alle regels zijn uitgevoerd."));
@@ -660,9 +679,40 @@
     // Zonder bandjes verdient een leeg geheugen een woord; staan de bandjes er
     // al, dan zou die regel enkel de hoogte doen springen zodra er een waarde is.
     if (!alle.length && !nest.length) waarden.appendChild(element("span", "python-leeg", "Er zijn nog geen variabelen."));
-    if (waarden.childElementCount) inhoud.appendChild(waarden);
+    if (waarden.childElementCount) inhoud.prepend(waarden);
     if (stap.afgekapt) inhoud.appendChild(element("p", "python-afgekapt",
       "De opname stopt na " + stap.instructies.length + " regels."));
+  }
+
+  // Meet alle standen samen, buiten de tekststroom. De grootste bepaalt de
+  // gereserveerde hoogte, ook wanneer voorwaarden of variabelen nog ontbreken.
+  function reserveerToestand(editor) {
+    if (!editor.toestand || !editor.stap) return;
+    const breedte = editor.toestand.getBoundingClientRect().width ||
+      editor.blok.clientWidth - parseFloat(getComputedStyle(editor.toestand).marginLeft);
+    if (breedte <= 0) return;
+    const meting = element("div");
+    meting.style.cssText = "position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none";
+    meting.setAttribute("aria-hidden", "true");
+    meting.inert = true;
+    editor.toestand.parentElement.appendChild(meting);
+    for (let index = 0; index <= editor.stap.instructies.length; index++) {
+      const strook = editor.toestand.cloneNode(true);
+      strook.style.width = breedte + "px";
+      strook.style.minHeight = "";
+      strook.style.margin = "0";
+      const meeteditor = Object.assign({}, editor, {
+        stap: Object.assign({}, editor.stap, { index }), toestand: strook,
+        toestandkop: strook.querySelector(".python-toestandkop"),
+        toestandinhoud: strook.querySelector(".python-toestandinhoud")
+      });
+      toonToestand(meeteditor);
+      meting.appendChild(strook);
+    }
+    const hoogte = Math.max(...Array.from(meting.children,
+      strook => strook.getBoundingClientRect().height));
+    meting.remove();
+    editor.toestand.style.minHeight = Math.ceil(hoogte) + "px";
   }
 
   function toonInstructies(editor) {
@@ -684,7 +734,7 @@
     if (fout && stap.foutgegevens) editor.code.setDiagnostic(stap.foutgegevens);
     else editor.code.clearDiagnostics();
     editor.uitvoer.hidden = !editor.uitvoer.textContent;
-    editor.resultaat.hidden = editor.uitvoer.hidden;
+    editor.resultaat.hidden = !editor.debugOpen && editor.uitvoer.hidden;
     // Bij een lange uitvoer moet de pas uitgevoerde regel meteen zichtbaar
     // zijn, ook wanneer de uitvoer in zijn eigen scrollvak past.
     if (!editor.uitvoer.hidden) editor.uitvoer.scrollTop = editor.uitvoer.scrollHeight;
@@ -701,10 +751,11 @@
     }
     toonToestand(editor);
     knoppen();
-    if (editor.grafiek) {
+    if (editor.grafiek || editor.namespace || editor.spoor) {
       const nu = klaar ? null : stap.instructies[stap.index];
       const laatste = stap.instructies[aantal - 1];
       meldToestand(editor, { soort: "stap", index: stap.index, aantal, klaar,
+        instructies: stap.instructies,
         waarden: nu ? nu.waarden : (stap.eind || laatste.waarden),
         regel: nu ? nu.regel : null,
         regeltekst: nu ? (editor.code.getValue().split("\n")[nu.regel - 1] || "") : "",
@@ -733,7 +784,7 @@
     if (bezig || !editor.stap) return;
     stopSpel(editor);
     if (editor.stap.index > 0) { editor.stap.index--; toonInstructies(editor); return; }
-    sluitStappen(editor);
+    if (!editor.debugOpen) sluitStappen(editor);
   }
 
   // De stap waarop dezelfde lus haar volgende ronde begint: de eerstvolgende
@@ -779,7 +830,7 @@
     meldToestand(editor);
     editor.code.clearDiagnostics();
     editor.uitvoer.hidden = true;
-    editor.resultaat.hidden = true;
+    editor.resultaat.hidden = !editor.debugOpen;
     editor.status.textContent = editor.bugknop
       ? "Klik op de bugknop om de code regel per regel te doorlopen."
       : "Klik op de stapknop om de " + eenheid(editor) + "s een voor een uit te voeren.";
@@ -853,7 +904,11 @@
     const stapsoort = codeblok && !/\binput\s*\(/.test(bron.textContent)
       ? soorten[bron.dataset.stappen] || "" : "";
     const stapsgewijs = Boolean(stapsoort);
-    const editor = { naam: blok.dataset.python, codeblok, blok, stapsoort, namespace: bron.dataset.namespace || "",
+    const editor = { naam: blok.dataset.python, codeblok, blok, stapsoort,
+      spoor: blok.closest(".pythonspoor")?.dataset.spoor || "",
+      readOnly: Boolean(blok.closest(".pythonspoor")),
+      inlineOutput: Boolean(blok.closest(".pythonspoor")),
+      debugOpen: stapsoort === "regel" && Boolean(blok.closest(".pythonspoor")), namespace: bron.dataset.namespace || "",
       grafiek: codeblok ? bron.dataset.grafiek || "" : "", vooraf: {},
       outputDelay: Number(bron.dataset.outputDelay) || 0,
       outputMax: Number(bron.dataset.outputMax) || 30,
@@ -862,6 +917,7 @@
     const paneel = element("div", "python-editor");
     const code = element("textarea", "python-code");
     code.id = "python-code-" + nummer;
+    code.readOnly = editor.readOnly;
     code.spellcheck = false;
     code.autocapitalize = "off";
     code.setAttribute("autocorrect", "off");
@@ -891,6 +947,7 @@
     editor.uitvoerknop.className = "python-uitvoerknop";
     editor.uitvoerknop.setAttribute("aria-label", "Uitvoeren");
     editor.uitvoerknop.title = "Uitvoeren";
+    editor.uitvoerknop.hidden = editor.debugOpen;
     // Per instructie stappen gebeurt met twee knoppen onder de playknop. Per
     // regel stappen heeft een eigen interface met die knoppen erin; onder de
     // playknop staat dan enkel de bugknop die ze opent.
@@ -908,6 +965,7 @@
     } else if (stapsoort === "regel") {
       editor.bugknop = knop(codegutter, "", () => wisselStappen(editor), "stap-per-regel");
       editor.bugknop.className = "python-bugknop";
+      editor.bugknop.hidden = editor.debugOpen;
       editor.bugknop.setAttribute("aria-pressed", "false");
       editor.bugknop.setAttribute("aria-label", "Stap per regel");
       editor.bugknop.title = "Stap per regel";
@@ -928,7 +986,7 @@
     const bewaren = element("p", "python-bewaren", "Je code wordt in deze browser bewaard. Elke uitvoering begint met lege variabelen.");
     try {
       const opgeslagen = JSON.parse(localStorage.getItem(sleutel));
-      if (opgeslagen && typeof opgeslagen.code === "string") code.value = opgeslagen.code;
+      if (!editor.readOnly && opgeslagen && typeof opgeslagen.code === "string") code.value = opgeslagen.code;
     } catch (_) { bewaren.textContent = "Bewaren is hier niet beschikbaar. Kopieer je code voor je de pagina sluit."; }
     function bewaar() {
       try { localStorage.setItem(sleutel, JSON.stringify({ code: editor.code.getValue() })); }
@@ -943,15 +1001,16 @@
       wisInstructies(editor);
       editor.feedback.hidden = true;
       editor.stappen.hidden = true;
-      if (editor.toestand) editor.toestand.hidden = true;
+      if (editor.toestand) editor.toestand.hidden = !editor.debugOpen;
       editor.uitvoer.hidden = true;
-      editor.resultaat.hidden = true;
+      editor.resultaat.hidden = !editor.debugOpen;
       editor.code.clearDiagnostics();
       editor.code.markeerInvoer(null);
       editor.invoerSessie = null;
       if (bezig && bezig.editor === editor) afronden("Code gewijzigd. Voer opnieuw uit.", true);
       else editor.status.textContent = "Code gewijzigd. Voer opnieuw uit.";
       meldToestand(editor);
+      if (editor.debugOpen) openDebug();
     }
     function werkResetknopBij() {
       if (editor.resetbalk) editor.resetbalk.hidden = editor.code.getValue() === begin;
@@ -972,6 +1031,7 @@
     function maakTextareaEditor() {
       code.addEventListener("input", gewijzigd);
       code.addEventListener("keydown", event => {
+        if (editor.readOnly) return;
         const beginSelectie = code.selectionStart, eindeSelectie = code.selectionEnd;
         if (event.key === "Tab") {
           event.preventDefault();
@@ -1012,7 +1072,7 @@
         ouder = element("div", "python-codemirror");
         code.before(ouder);
         const oud = editor.code;
-        const codeMirror = window.MathesisCodeMirror.maakEditor({parent: ouder, value: oud.getValue(), label: "Pythoncode", onChange: gewijzigd});
+        const codeMirror = window.MathesisCodeMirror.maakEditor({parent: ouder, value: oud.getValue(), label: "Pythoncode", readOnly: editor.readOnly, onChange: gewijzigd});
         code.remove();
         editor.code = codeMirror;
         if (codeblok) ouder.addEventListener("keydown", event => {
@@ -1042,7 +1102,7 @@
     editor.uitvoer.setAttribute("aria-label", "Pythonuitvoer");
     editor.feedback = element("p", "python-feedback"); editor.feedback.hidden = true;
     editor.feedback.setAttribute("role", "status");
-    editor.resultaat = element("div", "python-resultaat"); editor.resultaat.hidden = true;
+    editor.resultaat = element("div", "python-resultaat"); editor.resultaat.hidden = !editor.debugOpen;
     editor.markering = element("span", "python-markering");
     editor.markering.setAttribute("role", "img");
     const resultaatinhoud = element("div", "python-resultaatinhoud");
@@ -1105,6 +1165,16 @@
       editor.toestandinhoud = element("div", "python-toestandinhoud");
       editor.toestand.append(balk, editor.toestandinhoud);
       paneel.appendChild(editor.toestand);
+      // Alleen breedtewijzigingen vragen een nieuwe meting; de gereserveerde
+      // hoogte zelf mag geen ResizeObserver-lus veroorzaken.
+      let gemetenBreedte = 0;
+      new ResizeObserver(() => {
+        const breedte = editor.toestand.getBoundingClientRect().width;
+        if (breedte > 0 && breedte !== gemetenBreedte) {
+          gemetenBreedte = breedte;
+          reserveerToestand(editor);
+        }
+      }).observe(editor.toestand);
     }
     paneel.append(editor.resultaat, editor.stappen);
     bron.parentElement.after(paneel);
@@ -1124,7 +1194,7 @@
       blok._codestappen = {
         kan: richting => richting > 0
           ? !editor.stap || editor.stap.index < editor.stap.instructies.length
-          : Boolean(editor.stap),
+          : Boolean(editor.stap && (!editor.debugOpen || editor.stap.index > 0)),
         doe: richting => richting > 0 ? stapVooruit(editor) : stapTerug(editor)
       };
     }
@@ -1152,8 +1222,27 @@
         }
       };
     }
+    // Open de opname zodra dit codeblok in beeld komt. Andere codeblokken
+    // gebruiken dezelfde worker; wacht wanneer er al een uitvoering loopt.
+    let debugTimer;
+    function openDebug() {
+      clearTimeout(debugTimer);
+      debugTimer = setTimeout(() => {
+        if (!blok.getClientRects().length || editor.stap) return;
+        if (bezig) { openDebug(); return; }
+        start(editor, editor.stapsoort);
+      }, 150);
+    }
     editors.push(editor);
     meldToestand(editor);
+    if (editor.debugOpen) {
+      editor.toestand.hidden = false;
+      editor.toestandkop.textContent = "De stappen worden klaargezet…";
+      const zichtbaar = new IntersectionObserver(entries => {
+        if (entries.some(entry => entry.isIntersecting)) openDebug();
+      });
+      zichtbaar.observe(blok);
+    }
   });
   knoppen();
 

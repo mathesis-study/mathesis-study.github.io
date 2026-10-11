@@ -490,10 +490,11 @@
         onderKnop = ctx.knop("Onderdriehoekig", function () { st.boven = false; bovenKnop.setAttribute("aria-pressed", "false"); onderKnop.setAttribute("aria-pressed", "true"); werkBij(); });
         bovenKnop.setAttribute("aria-pressed", "true");
         onderKnop.setAttribute("aria-pressed", "false");
-      } else if (soort === "diagonaal") {
-        ctx.knop("Wijzig diagonaal", function () { vulWillekeurig(BASIS); werkBij(); });
       }
       kleinerGroter();
+      if (soort === "diagonaal") {
+        ctx.knop("Wijzig diagonaal", function () { vulWillekeurig(BASIS); werkBij(); });
+      }
       if (prod) maakProductKnop();
     }
 
@@ -1713,25 +1714,6 @@
       werkBij();
     });
 
-    if (opties.wijzigbaar !== false) {
-      // Zonder eigen wijzigA en wijzigB blijft de orde staan en krijgen enkel
-      // de getallen een nieuwe waarde; met letters valt er dan niets te zien.
-      ctx.knop("Wijzig A", function () {
-        if (opties.wijzigA) opties.wijzigA();
-        else if (symbolisch()) return;
-        else vulWillekeurig(A());
-        begin();
-        werkBij();
-      });
-      ctx.knop("Wijzig B", function () {
-        if (opties.wijzigB) opties.wijzigB();
-        else if (symbolisch()) return;
-        else vulWillekeurig(B());
-        begin();
-        werkBij();
-      });
-    }
-
     function begin() {
       st.rij = 0;
       st.kolom = 0;
@@ -1759,6 +1741,25 @@
         werkBij();
       });
     });
+
+    if (opties.wijzigbaar !== false) {
+      // Zonder eigen wijzigA en wijzigB blijft de orde staan en krijgen enkel
+      // de getallen een nieuwe waarde; met letters valt er dan niets te zien.
+      ctx.knop("Wijzig A", function () {
+        if (opties.wijzigA) opties.wijzigA();
+        else if (symbolisch()) return;
+        else vulWillekeurig(A());
+        begin();
+        werkBij();
+      });
+      ctx.knop("Wijzig B", function () {
+        if (opties.wijzigB) opties.wijzigB();
+        else if (symbolisch()) return;
+        else vulWillekeurig(B());
+        begin();
+        werkBij();
+      });
+    }
 
     function zetKnoppen() {
       volledigKnop.setAttribute("aria-pressed", String(st.volledig));

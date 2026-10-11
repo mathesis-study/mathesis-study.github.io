@@ -562,6 +562,26 @@ body.pres-klaar {
   color: var(--kleur-zwak);
 }
 
+/* Extra bewijzen openen afzonderlijk, via het driehoekje van details. */
+.xproof {
+  margin-block: 1em;
+  color: var(--kleur-zwak);
+}
+
+.xproof > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.xproof[open] > summary {
+  margin-bottom: 0.75em;
+}
+
+.xproof > summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
 /* Een grijs deel van een leerplandoel komt in dit hoofdstuk niet aan bod
  * (omgeving leerplandoelen in cursus.cls). */
 .leerplan-grijs {

@@ -22486,6 +22486,8 @@
     maakEditor(opties2) {
       const diagnostics = new Compartment();
       const view = new EditorView({ parent: opties2.parent, state: EditorState.create({ doc: opties2.value || "", extensions: [
+        EditorState.readOnly.of(Boolean(opties2.readOnly)),
+        EditorView.editable.of(!opties2.readOnly),
         lineNumbers(),
         highlightActiveLineGutter(),
         highlightActiveLine(),

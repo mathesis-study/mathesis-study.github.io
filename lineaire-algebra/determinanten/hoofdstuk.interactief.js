@@ -523,7 +523,7 @@
     var marge = 12;
     var naast = Math.min((w - pw - marge) / dx, h / dy);
     var onder = Math.min(w / dx, (h - ph - marge) / dy);
-    var s = Math.max(Math.max(naast, onder), 4);
+    var s = Math.max(Math.max(naast, onder), 0.01);
     var breed = w / s, hoog = h / s;
     var box, vak;
     if (naast >= onder) {
@@ -557,9 +557,8 @@
   // zie je waarom het teken omkeert, de determinant verdubbelt of net gelijk
   // blijft.
   function oppervlakteFiguur(ctx, opties) {
-    // Elke vector blijft binnen GRENS, en ook het vierde hoekpunt v₁ + v₂
-    // blijft in het vlak, zodat het parallellogram nooit onder het tekstvak
-    // verdwijnt.
+    // Bij kolombewerkingen groeit het vlak mee, zodat ook het vierde
+    // hoekpunt v₁ + v₂ zichtbaar blijft naast het tekstvak.
     var GRENS = [-4, 5, 6, -3];
     var HOEK = [-5, 6, 7, -3];
     var BEGIN = [[3, 0], [1, 2]];
@@ -571,6 +570,24 @@
     var paneel = maakPaneel(ctx, bord, PLOT, ["f", "t", "t"], 330,
       opties.eigenschappen ? 300 : 200);
     var schik = paneel.schik;
+
+    function verruim(punten) {
+      punten.forEach(function (p) {
+        GRENS[0] = Math.min(GRENS[0], p[0]);
+        GRENS[1] = Math.max(GRENS[1], p[1]);
+        GRENS[2] = Math.max(GRENS[2], p[0]);
+        GRENS[3] = Math.min(GRENS[3], p[1]);
+      });
+      HOEK[0] = Math.min(HOEK[0], GRENS[0] - 1);
+      HOEK[1] = Math.max(HOEK[1], GRENS[1] + 1);
+      HOEK[2] = Math.max(HOEK[2], GRENS[2] + 1);
+      HOEK[3] = Math.min(HOEK[3], GRENS[3] - 1);
+      PLOT[0] = HOEK[0] - 0.6;
+      PLOT[1] = HOEK[1] + 0.6;
+      PLOT[2] = HOEK[2] + 0.6;
+      PLOT[3] = HOEK[3] - 0.6;
+      schik();
+    }
 
     var O = bord.create("point", [0, 0], { visible: false, fixed: true, name: "" });
     var v1 = roosterpunt(ctx, bord, BEGIN[0], "\\vec v_1", "punt", GRENS);
@@ -687,21 +704,17 @@
       var nieuw = f(p, q);
       var hoek = [nieuw[0][0] + nieuw[1][0], nieuw[0][1] + nieuw[1][1]];
       if (!binnen(nieuw[0]) || !binnen(nieuw[1]) || !binnen(hoek, HOEK)) {
-        st.vorige = {
-          tex: "\\(" + naam + "\\) past niet meer op het bord. Maak \\(\\vec v_1\\) en " +
-            "\\(\\vec v_2\\) eerst wat korter.",
-          tekst: "Die bewerking past niet meer op het bord."
-        };
-      } else {
-        zetPunt(v1, nieuw[0]);
-        zetPunt(v2, nieuw[1]);
-        st.vorige = {
-          tex: "\\(" + naam + "\\): \\(\\det A\\) gaat van \\(" + oud + "\\) naar \\(" +
-            waarde() + "\\). " + uitleg,
-          tekst: "De determinant gaat van " + getal(oud) + " naar " + getal(waarde()) + "."
-        };
+        verruim([nieuw[0], nieuw[1], hoek]);
       }
-      bord.update();
+      bord.suspendUpdate();
+      zetPunt(v1, nieuw[0]);
+      zetPunt(v2, nieuw[1]);
+      st.vorige = {
+        tex: "\\(" + naam + "\\): \\(\\det A\\) gaat van \\(" + oud + "\\) naar \\(" +
+          waarde() + "\\). " + uitleg,
+        tekst: "De determinant gaat van " + getal(oud) + " naar " + getal(waarde()) + "."
+      };
+      bord.unsuspendUpdate();
     }
 
     var knoppen = [];
@@ -729,13 +742,23 @@
       }, "Beide kolommen maal \\(2\\): twee keer zo breed én twee keer zo hoog, dus " +
         "\\(\\det(2A)=2^2\\cdot\\det A\\).");
       maakZetter()(knoppen);
+      var resetKnop = ctx.knop("Reset", herstel);
+      var spacer = div("det-knoppenspacer");
+      spacer.setAttribute("aria-hidden", "true");
+      resetKnop.parentNode.insertBefore(spacer, resetKnop);
     }
 
     function herstel() {
+      [-4, 5, 6, -3].forEach(function (v, k) { GRENS[k] = v; });
+      [-5, 6, 7, -3].forEach(function (v, k) { HOEK[k] = v; });
+      [-5.6, 6.6, 7.6, -3.6].forEach(function (v, k) { PLOT[k] = v; });
+      bord.suspendUpdate();
       zetPunt(v1, BEGIN[0]);
       zetPunt(v2, BEGIN[1]);
       st.vorige = null;
-      bord.update();
+      goed = [BEGIN[0], BEGIN[1]];
+      bord.unsuspendUpdate();
+      schik();
     }
 
     schik();
@@ -823,6 +846,12 @@
         .det-kolom > .det-tekst { width:0; min-width:100%; }
         .det-rij { display:flex; align-items:center; justify-content:center;
           flex-wrap:wrap; gap:1rem 1.25rem; }
+        .det-adjunctschema { display:grid; grid-template-columns:max-content 13rem 24rem;
+          grid-template-rows:minmax(11rem,auto) auto auto;
+          align-items:center; gap:.9rem 1.25rem; }
+        .det-adjunctschema > .det-matrixnaam { justify-self:end; }
+        .det-adjunctschema > .det-kolom { grid-column:3; grid-row:1; }
+        .det-adjunctschema > .det-cofactorstappen { grid-column:2; justify-self:start; }
         .det-cofactorstappen { font-size:1.25rem; min-width:0; max-width:100%; }
         .det-cofactorstappen:empty { display:none; }
         .det-cofactorstappen mjx-container { margin:0 !important; }
@@ -856,6 +885,7 @@
         .det-paneel .det-cofactorstappen { font-size:1.1rem; }
         .det-paneel .det-tekst { font-size:.95rem; }
         .det-paneel > :empty { display:none; }
+        .det-knoppenspacer { flex:1 0 1rem; }
         .interactieve-grafiek-knoppen button mjx-container { margin:0 !important; }
         .det-richting { display:inline-flex; align-items:center; gap:.4rem; }
         @media (max-width:650px) { .det-tekenpatroon { gap:1.5rem 2.25rem; padding:1.5rem .5rem; }
@@ -1046,14 +1076,13 @@
   // Klik op een element: zijn rij en kolom vervagen, en ernaast staat zijn
   // cofactor, het teken uit (−1)^(i+j) maal de minor. Het tekenpatroon kan
   // als schaakbord over de matrix. In de variant voor de adjunctmatrix
-  // verzamel je de cofactoren in een eigen matrix en transponeer je die
-  // daarna.
+  // zie je de cofactorenmatrix en haar getransponeerde onder elkaar.
   function cofactorFiguur(ctx, opties) {
     var n = 3;
     var A = kopie(opties.begin);
-    var st = { i: 0, j: 0, patroon: false, letters: false, adj: false, gedaan: {} };
-    // Bij de adjunctmatrix staat de matrix van cofactoren naast A, en de
-    // berekening van de gekozen cofactor eronder.
+    var st = { i: 0, j: 0, patroon: false, letters: false, gedaan: {} };
+    // Bij de adjunctmatrix staat de berekening van de gekozen cofactor
+    // naast A, en de transponering van de cofactorenmatrix eronder.
     var laag = maakLaag(ctx, opties.verzamel ? "det-onder" : "det-smal");
     var mA = htmlMatrix({
       rijen: n, kolommen: n, klasse: opties.verzamel ? "det-klein" : "",
@@ -1063,19 +1092,36 @@
     var kolom = div("det-kolom");
     var formule = div("det-cofactorstappen");
     var verzameld = div("det-cofactorstappen");
+    var getransponeerdVak = div("det-cofactorstappen");
+    var adjunctNaam = div("det-matrixnaam");
+    var resultaatNaam = div("det-matrixnaam");
     var tekst = div("det-tekst");
     var regels = tekstRegels(tekst, 1);
-    kolom.appendChild(formule);
     kolom.appendChild(tekst);
     if (opties.verzamel) {
-      var boven = div("det-rij");
-      boven.appendChild(groep);
-      boven.appendChild(verzameld);
-      laag.appendChild(boven);
+      var schema = div("det-adjunctschema");
+      schema.appendChild(groep.naam);
+      schema.appendChild(mA.element);
+      schema.appendChild(kolom);
+      kolom.insertBefore(formule, tekst);
+      schema.appendChild(adjunctNaam);
+      schema.appendChild(verzameld);
+      schema.appendChild(resultaatNaam);
+      schema.appendChild(getransponeerdVak);
+      [groep.naam, adjunctNaam, resultaatNaam].forEach(function (naam, rij) {
+        naam.style.gridColumn = "1";
+        naam.style.gridRow = String(rij + 1);
+      });
+      [mA.element, verzameld, getransponeerdVak].forEach(function (matrix, rij) {
+        matrix.style.gridColumn = "2";
+        matrix.style.gridRow = String(rij + 1);
+      });
+      laag.appendChild(schema);
     } else {
+      kolom.insertBefore(formule, tekst);
       laag.appendChild(groep);
+      laag.appendChild(kolom);
     }
-    laag.appendChild(kolom);
     var zet = maakZetter();
 
     function gekozen() { return st.i > 0; }
@@ -1105,14 +1151,14 @@
               eind ? "&=" + eind : ""];
     }
 
-    // De matrix van de cofactoren die al berekend zijn; na Transponeer de
-    // adjunctmatrix. De cofactor van het gekozen element licht op.
+    // De cofactorenmatrix met transponering en de adjunctmatrix op een
+    // tweede regel. De gekozen cofactor licht in beide matrices op.
     function verzameldTex() {
       var rijen = [];
       for (var r = 1; r <= n; r++) {
         var rij = [];
         for (var k = 1; k <= n; k++) {
-          var a = st.adj ? k : r, b = st.adj ? r : k;
+          var a = r, b = k;
           var c;
           if (st.letters) c = cofTex(a, b);
           else if (st.gedaan[a + "," + b]) c = String(cofactor(A, a, b));
@@ -1122,7 +1168,11 @@
         }
         rijen.push(rij);
       }
-      return uitgelijnd([(st.adj ? "\\operatorname{adj}A&=" : "[A_{ij}]&=") + pmat(rijen)]);
+      var getransponeerd = rijen.map(function (_, r) {
+        return rijen.map(function (rij) { return rij[r]; });
+      });
+      return [uitgelijnd([pmat(rijen) + "^{\\mathsf{T}}"]),
+              uitgelijnd([pmat(getransponeerd)])];
     }
 
     function allesGedaan() {
@@ -1133,7 +1183,7 @@
     }
 
     function zin() {
-      if (opties.verzamel && st.adj && allesGedaan() && !st.letters) {
+      if (opties.verzamel && allesGedaan() && !st.letters) {
         var D = det(A);
         if (D === 0) return "\\(\\det A=0\\): \\(A\\) heeft geen inverse matrix.";
         var breukTex = D < 0 ? "-\\frac{1}{" + (-D) + "}" : "\\frac{1}{" + D + "}";
@@ -1159,7 +1209,12 @@
       paren.push([groep.naam, groep.naamTex]);
       paren.push([formule, uitgelijnd(gekozen() ? cofactorRegels()
         : ["A_{ij}&=(-1)^{i+j}\\,M_{ij}"])]);
-      if (opties.verzamel) paren.push([verzameld, verzameldTex()]);
+      if (opties.verzamel) {
+        var matrices = verzameldTex();
+        paren.push([adjunctNaam, "\\(\\operatorname{adj}A=\\)"],
+                   [verzameld, matrices[0]], [resultaatNaam, "\\(=\\)"],
+                   [getransponeerdVak, matrices[1]]);
+      }
       paren.push([regels[0], zin()]);
       zet(paren);
       if (!gekozen()) {
@@ -1191,17 +1246,11 @@
       werkBij();
     });
     var weergave = letterSchakelaar(ctx, function (l) { st.letters = l; werkBij(); });
-    var adjKnop = null;
     if (opties.verzamel) {
       ctx.knop("Alle cofactoren", function () {
         for (var i = 1; i <= n; i++) {
           for (var j = 1; j <= n; j++) st.gedaan[i + "," + j] = true;
         }
-        werkBij();
-      });
-      adjKnop = ctx.knop("Transponeer", function () {
-        st.adj = !st.adj;
-        schakel(adjKnop, st.adj);
         werkBij();
       });
     }
@@ -1215,16 +1264,14 @@
     function herstel() {
       A = kopie(opties.begin);
       st.i = st.j = 0;
-      st.patroon = st.letters = st.adj = false;
+      st.patroon = st.letters = false;
       st.gedaan = {};
       schakel(patroonKnop, false);
       weergave.stand(false);
-      if (adjKnop) schakel(adjKnop, false);
       werkBij();
     }
 
     schakel(patroonKnop, false);
-    if (adjKnop) schakel(adjKnop, false);
     werkBij();
     return { reset: herstel };
   }
@@ -1455,6 +1502,382 @@
     return { reset: herstel };
   }
 
+  // Een element wisselt van rij en kolom; de determinant blijft gelijk.
+  G.registreer("det-transponeren", function (ctx) {
+    var BEGIN = { 2: [[2, 3], [1, 4]], 3: [[2, 1, 3], [0, -1, 2], [1, 4, 0]] };
+    var n = 2, A = kopie(BEGIN[2]), i = 1, j = 2;
+    var laag = maakLaag(ctx, "det-onder det-boven");
+    var rij = div("det-rij");
+    var mA = htmlMatrix({ rijen: 2, kolommen: 2, klik: kies });
+    var mT = htmlMatrix({ rijen: 2, kolommen: 2, klik: function (r, k) { kies(k, r); } });
+    var gA = matrixGroep(mA, "\\(A=\\)");
+    var gT = matrixGroep(mT, "\\(A^{\\mathsf T}=\\)");
+    rij.appendChild(gA);
+    rij.appendChild(gT);
+    var plaats = div("det-tekst");
+    var formule = div("det-cofactorstappen");
+    laag.appendChild(rij);
+    laag.appendChild(plaats);
+    laag.appendChild(formule);
+    var zet = maakZetter();
+    function kies(r, k) { i = r; j = k; werkBij(); }
+    function berekening(B) {
+      if (n === 2) return fac(B[0][0]) + "\\cdot" + fac(B[1][1]) + "-" +
+        fac(B[0][1]) + "\\cdot" + fac(B[1][0]);
+      return B[0].map(function (waarde, k) {
+        return fac(waarde) + "\\cdot" + fac(cofactor(B, 1, k + 1));
+      }).join("+");
+    }
+    function werkBij() {
+      mA.bouw(n, n);
+      mT.bouw(n, n);
+      mA.stand(function (r, k) { return { gekozen: r === i && k === j }; });
+      mT.stand(function (r, k) { return { gekozen: r === j && k === i }; });
+      var T = A[0].map(function (_, k) { return A.map(function (rij) { return rij[k]; }); });
+      var paren = mA.paren(function (r, k) { return getal(A[r - 1][k - 1]); })
+        .concat(mT.paren(function (r, k) { return getal(A[k - 1][r - 1]); }));
+      paren.push([gA.naam, gA.naamTex], [gT.naam, gT.naamTex],
+        [plaats, "Rij " + i + ", kolom " + j + " in \\(A\\) wordt rij " + j + ", kolom " + i + " in \\(A^{\\mathsf T}\\)."],
+        [formule, uitgelijnd([
+          "\\det A&=" + berekening(A) + "=" + det(A),
+          "\\det A^{\\mathsf T}&=" + berekening(T) + "=" + det(T)
+        ])]);
+      zet(paren);
+      schakel(orde2, n === 2);
+      schakel(orde3, n === 3);
+      ctx.toon("Het element " + A[i - 1][j - 1] + " op rij " + i + ", kolom " + j +
+        " komt op rij " + j + ", kolom " + i + ". Beide determinanten zijn " + det(A) + ".");
+    }
+    function kiesOrde(orde) { n = orde; A = kopie(BEGIN[n]); i = 1; j = 2; werkBij(); }
+    var orde2 = ctx.knop("Orde 2", function () { kiesOrde(2); });
+    var orde3 = ctx.knop("Orde 3", function () { kiesOrde(3); });
+    var groep = div("interactieve-grafiek-schakelaar");
+    groep.setAttribute("role", "group");
+    groep.setAttribute("aria-label", "Orde van de matrix");
+    orde2.parentNode.insertBefore(groep, orde2);
+    groep.appendChild(orde2);
+    groep.appendChild(orde3);
+    ctx.knop("Wijzig A", function () { A = willekeurig(n); werkBij(); });
+    werkBij();
+    return { reset: function () { kiesOrde(2); } };
+  });
+
+  // Twee gelijke rijen of kolommen, met de oorspronkelijke beginwaarden.
+  G.registreer("det-gelijke-lijnen", function (ctx) {
+    var n = 2, A = [[4, 5], [1, 2]], richting = "R", lijn = 1;
+    var laag = maakLaag(ctx, "det-onder det-boven");
+    var matrix = htmlMatrix({ rijen: 2, kolommen: 2, haken: "strepen", klik: function (r, c) {
+      lijn = richting === "R" ? r : c; werkBij();
+    } });
+    var formule = div("det-cofactorstappen"), uitleg = div("det-tekst");
+    laag.appendChild(matrix.element); laag.appendChild(uitleg); laag.appendChild(formule);
+    var zet = maakZetter();
+    function werkBij() {
+      var B = kopie(A), tweede = lijn % n + 1;
+      for (var t = 0; t < n; t++) {
+        if (richting === "R") B[tweede - 1][t] = A[lijn - 1][t];
+        else B[t][tweede - 1] = A[t][lijn - 1];
+      }
+      matrix.bouw(n, n);
+      matrix.stand(function (r, c) { var l = richting === "R" ? r : c;
+        return { gekozen: l === lijn || l === tweede }; });
+      var tekst = (richting === "R" ? "Rij " : "Kolom ") + lijn + " = " +
+        (richting === "R" ? "rij " : "kolom ") + tweede + ".";
+      var som = n === 2 ? fac(B[0][0]) + "\\cdot" + fac(B[1][1]) + "-" + fac(B[0][1]) + "\\cdot" + fac(B[1][0])
+        : B[0].map(function (x, c) { return fac(x) + "\\cdot" + fac(cofactor(B, 1, c + 1)); }).join("+");
+      zet(matrix.paren(function (r, c) { return getal(B[r - 1][c - 1]); }).concat([
+        [uitleg, tekst], [formule, "\\(\\displaystyle\\det A=" + som + "=0\\)"]
+      ]));
+      schakel(rijen, richting === "R"); schakel(kolommen, richting === "K");
+      schakel(orde2, n === 2); schakel(orde3, n === 3);
+      ctx.toon(tekst + " Twee gelijke " + (richting === "R" ? "rijen" : "kolommen") + ": determinant nul.");
+    }
+    function groep(knoppen, label) {
+      var g = div("interactieve-grafiek-schakelaar");
+      g.setAttribute("role", "group"); g.setAttribute("aria-label", label);
+      knoppen[0].parentNode.insertBefore(g, knoppen[0]);
+      knoppen.forEach(function (b) { g.appendChild(b); });
+    }
+    var rijen = ctx.knop("Rijen", function () { richting = "R"; werkBij(); });
+    var kolommen = ctx.knop("Kolommen", function () { richting = "K"; werkBij(); });
+    groep([rijen, kolommen], "Rijen of kolommen");
+    function orde(o) { n = o; A = n === 2 ? [[4, 5], [1, 2]] : [[4, 5, 2], [1, 2, 3], [2, -1, 4]]; lijn = 1; werkBij(); }
+    var orde2 = ctx.knop("Orde 2", function () { orde(2); });
+    var orde3 = ctx.knop("Orde 3", function () { orde(3); });
+    groep([orde2, orde3], "Orde van de matrix");
+    ctx.knop("Wijzig A", function () { A = willekeurig(n); werkBij(); });
+    werkBij();
+    return { reset: function () { richting = "R"; orde(2); } };
+  });
+
+  // Dezelfde bediening voor de zes korte voorbeelden bij de eigenschappen.
+  function eigenschapVoorbeeld(ctx, soort) {
+    var BEGIN = { 2: [[2, 3], [1, 4]], 3: [[2, 1, 3], [0, -1, 2], [1, 4, 0]] };
+    var n = 2, A = kopie(BEGIN[2]), richting = "R", lijn = 1, k = 2;
+    var laag = maakLaag(ctx, "det-onder det-boven");
+    var rij = div("det-rij"), matrices = [], groepen = [];
+    var aantal = soort === "som" ? 3 : 2;
+    for (var m = 0; m < aantal; m++) {
+      var matrix = htmlMatrix({ rijen: n, kolommen: n, klik: function (r, c) {
+        lijn = richting === "R" ? r : c; werkBij();
+      } });
+      matrices.push(matrix);
+      groepen.push(matrixGroep(matrix, "\\(" + ["A", "B", "C"][m] + "=\\)"));
+      rij.appendChild(groepen[m]);
+    }
+    var uitleg = div("det-tekst"), formule = div("det-cofactorstappen");
+    laag.appendChild(rij); laag.appendChild(uitleg); laag.appendChild(formule);
+    var zet = maakZetter();
+    function positie(l, t) { return richting === "R" ? [l, t] : [t, l]; }
+    function waarde(B, l, t) { var p = positie(l, t); return B[p[0]][p[1]]; }
+    function vul(B, l, t, x) { var p = positie(l, t); B[p[0]][p[1]] = x; }
+    function werkBij() {
+      var B = kopie(A), C = kopie(A), tweede = lijn % n + 1;
+      for (var t = 0; t < n; t++) {
+        if (soort === "wissel") {
+          vul(B, lijn - 1, t, waarde(A, tweede - 1, t));
+          vul(B, tweede - 1, t, waarde(A, lijn - 1, t));
+        } else if (soort === "evenredig") {
+          vul(B, tweede - 1, t, k * waarde(A, lijn - 1, t));
+        } else if (soort === "som") {
+          vul(B, lijn - 1, t, [1, -2, 3][t]);
+          vul(C, lijn - 1, t, waarde(A, lijn - 1, t) + waarde(B, lijn - 1, t));
+        } else if (soort !== "alles") {
+          vul(B, lijn - 1, t, k * waarde(A, lijn - 1, t));
+        }
+      }
+      if (soort === "alles") B = A.map(function (r) { return r.map(function (x) { return k * x; }); });
+      var data = [A, B, C], paren = [];
+      matrices.forEach(function (matrix, m) {
+        matrix.bouw(n, n);
+        matrix.stand(function (r, c) {
+          var l = richting === "R" ? r : c;
+          return { gekozen: soort === "alles" || l === lijn ||
+            ((soort === "wissel" || soort === "evenredig") && l === tweede) };
+        });
+        paren = paren.concat(matrix.paren(function (r, c) { return getal(data[m][r - 1][c - 1]); }));
+        paren.push([groepen[m].naam, groepen[m].naamTex]);
+      });
+      var woord = richting === "R" ? "rij" : "kolom", beschrijving, regels;
+      var da = det(A), db = det(B), dc = det(C);
+      if (soort === "wissel") {
+        beschrijving = "Verwissel " + woord + " " + lijn + " en " + woord + " " + tweede + ".";
+        regels = ["\\det A&=" + da, "\\det B&=" + db + "=-\\det A"];
+      } else if (soort === "factor") {
+        beschrijving = "Vermenigvuldig " + woord + " " + lijn + " met \\(k=" + k + "\\).";
+        regels = ["\\det A&=" + da, "\\det B&=" + fac(k) + "\\cdot(" + da + ")=" + db + "=k\\det A"];
+      } else if (soort === "uithalen") {
+        beschrijving = "Haal de factor \\(k=" + k + "\\) uit " + woord + " " + lijn + " van \\(B\\).";
+        regels = ["\\det B&=" + db, "&=" + fac(k) + "\\cdot\\det A=" + fac(k) + "\\cdot(" + da + ")"];
+      } else if (soort === "alles") {
+        beschrijving = "Vermenigvuldig alle elementen met \\(k=" + k + "\\): elke rij levert een factor \\(k\\).";
+        regels = ["\\det A&=" + da, "\\det(kA)&=" + fac(k) + "^{" + n + "}\\cdot(" + da + ")=" + db];
+      } else if (soort === "evenredig") {
+        beschrijving = "In \\(B\\) is " + woord + " " + tweede + " gelijk aan \\(k=" + k + "\\) maal " + woord + " " + lijn + ".";
+        regels = ["\\det B&=0", "&=" + fac(k) + "\\cdot0"];
+      } else {
+        beschrijving = "Alleen " + woord + " " + lijn + " verschilt. Tel die twee " + (richting === "R" ? "rijen" : "kolommen") + " op om \\(C\\) te krijgen.";
+        regels = ["\\det A&=" + da + ",\\quad\\det B=" + db, "\\det C&=" + dc + "=" + fac(da) + "+" + fac(db)];
+      }
+      paren.push([uitleg, beschrijving], [formule, uitgelijnd(regels)]);
+      zet(paren);
+      schakel(rijen, richting === "R"); schakel(kolommen, richting === "K");
+      schakel(orde2, n === 2); schakel(orde3, n === 3);
+      if (min) { min.disabled = k === -3; plus.disabled = k === 3; }
+      ctx.toon(plat(beschrijving) + " Determinant A: " + da + ", determinant B: " + db +
+        (soort === "som" ? ", determinant C: " + dc : "") + ".");
+    }
+    function groep(knoppen, label) {
+      var g = div("interactieve-grafiek-schakelaar");
+      g.setAttribute("role", "group"); g.setAttribute("aria-label", label);
+      knoppen[0].parentNode.insertBefore(g, knoppen[0]);
+      knoppen.forEach(function (b) { g.appendChild(b); });
+    }
+    var rijen = ctx.knop("Rijen", function () { richting = "R"; werkBij(); });
+    var kolommen = ctx.knop("Kolommen", function () { richting = "K"; werkBij(); });
+    groep([rijen, kolommen], "Rijen of kolommen");
+    function orde(o) { n = o; A = kopie(BEGIN[n]); lijn = 1; werkBij(); }
+    var orde2 = ctx.knop("Orde 2", function () { orde(2); });
+    var orde3 = ctx.knop("Orde 3", function () { orde(3); });
+    groep([orde2, orde3], "Orde van de matrix");
+    var min, plus;
+    if (soort !== "wissel" && soort !== "som") {
+      min = ctx.knop("k − 1", function () { if (k > -3) { k--; werkBij(); } });
+      plus = ctx.knop("k + 1", function () { if (k < 3) { k++; werkBij(); } });
+      groep([min, plus], "Factor aanpassen");
+    }
+    ctx.knop("Wijzig A", function () { A = willekeurig(n); werkBij(); });
+    werkBij();
+    return { reset: function () { n = 2; A = kopie(BEGIN[2]); richting = "R"; lijn = 1; k = 2; werkBij(); } };
+  }
+  ["wissel", "factor", "uithalen", "alles", "evenredig", "som"].forEach(function (soort) {
+    G.registreer("det-voorbeeld-" + soort, function (ctx) { return eigenschapVoorbeeld(ctx, soort); });
+  });
+
+  // Elementen en cofactoren worden onafhankelijk gekozen. De vervangmatrix
+  // maakt zichtbaar waarom de gemengde som nul is.
+  G.registreer("det-hoofdeigenschap-iii", function (ctx) {
+    var BEGIN = {
+      3: [[2, 1, 3], [0, -1, 2], [1, 4, 0]],
+      4: [[2, 1, 0, 3], [1, 0, 0, 2], [4, 3, 1, 1], [0, 2, 0, 1]]
+    };
+    var st = { n: 3, A: kopie(BEGIN[3]), soort: "K", i: 1, j: 3, letters: false };
+    var flitsTimer = null, flitsBeurt = 0;
+    var laag = maakLaag(ctx, "det-onder det-boven");
+    var boven = div("det-rij");
+    var mA = htmlMatrix({ rijen: 3, kolommen: 3, klik: function (r, k) {
+      st.i = st.soort === "R" ? r : k;
+      var p = positie(st.j, st.soort === "R" ? k : r);
+      werkBij({ r: p[0], k: p[1], minor: false });
+    } });
+    var mC = htmlMatrix({ rijen: 3, kolommen: 3, klik: function (r, k) {
+      st.j = st.soort === "R" ? r : k;
+      werkBij({ r: r, k: k, minor: true });
+    } });
+    mA.raster.dataset.rol = "elementen";
+    mC.raster.dataset.rol = "cofactoren";
+    var groepA = matrixGroep(mA, "\\(A=\\)");
+    var groepC = matrixGroep(mC, "Cofactoren:");
+    boven.appendChild(groepA);
+    boven.appendChild(groepC);
+    var keuze = div("det-tekst");
+    var som = div("det-cofactorstappen");
+    var vervanging = div("det-cofactorstappen");
+    var uitleg = div("det-tekst");
+    [boven, keuze, som, vervanging, uitleg].forEach(function (d) { laag.appendChild(d); });
+    var zet = maakZetter();
+
+    function positie(lijn, k) { return st.soort === "R" ? [lijn, k] : [k, lijn]; }
+    function opLijn(r, k, lijn) { return (st.soort === "R" ? r : k) === lijn; }
+    function wisFlits() {
+      clearTimeout(flitsTimer);
+      vervanging.querySelectorAll('.det-flitsvlak').forEach(function (vlak) { vlak.remove(); });
+      vervanging.querySelectorAll('.det-flitscel').forEach(function (cel) {
+        cel.classList.remove('det-flitscel');
+      });
+    }
+    function toonFlits(keus) {
+      for (var r = 1; r <= st.n; r++) {
+        for (var k = 1; k <= st.n; k++) {
+          var aan = keus.minor ? r !== keus.r && k !== keus.k : r === keus.r && k === keus.k;
+          if (!aan) continue;
+          var cel = vervanging.querySelector('svg .det-vervang-' + r + '-' + k);
+          if (!cel) continue;
+          var box = cel.getBBox();
+          var vlak = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          vlak.setAttribute('class', 'det-flitsvlak');
+          vlak.setAttribute('x', box.x - 100);
+          vlak.setAttribute('y', box.y - 80);
+          vlak.setAttribute('width', box.width + 200);
+          vlak.setAttribute('height', box.height + 160);
+          vlak.setAttribute('rx', '70');
+          vlak.style.fill = 'var(--grafiek-' + (keus.minor ? 'secante' : 'punt') + ')';
+          vlak.style.fillOpacity = '0.3';
+          cel.insertBefore(vlak, cel.firstChild);
+          cel.classList.add('det-flitscel');
+        }
+      }
+      ctx.toon(plat(keus.minor
+        ? 'De ' + (st.n === 3 ? 'vier' : 'negen') + ' gemarkeerde elementen vormen de minor bij \\(' + cofTex(keus.r, keus.k) + '\\).'
+        : 'Het gekozen element komt op rij ' + keus.r + ', kolom ' + keus.k + ' in de vervangmatrix.'));
+      flitsTimer = setTimeout(wisFlits, 1600);
+    }
+    function werkBij(flits) {
+      wisFlits();
+      var beurt = ++flitsBeurt;
+      mA.bouw(st.n, st.n);
+      mC.bouw(st.n, st.n);
+      mA.raster.classList.toggle("det-klein", st.n === 4);
+      mC.raster.classList.toggle("det-klein", st.n === 4);
+      // Het raster krijgt bij een andere orde nieuwe knoppen.
+      mC.vakjes.forEach(function (knop) {
+        knop.style.setProperty("--grafiek-punt", "var(--grafiek-secante)");
+      });
+      mA.stand(function (r, k) { return { gekozen: opLijn(r, k, st.i),
+        merk: opLijn(r, k, st.i) ? "punt" : "" }; });
+      mC.stand(function (r, k) { return { gekozen: opLijn(r, k, st.j),
+        merk: opLijn(r, k, st.j) ? "secante" : "" }; });
+      var paren = mA.paren(function (r, k) {
+        return st.letters ? "\\(" + elTex(r, k) + "\\)" : getal(st.A[r - 1][k - 1]);
+      }).concat(mC.paren(function (r, k) {
+        return st.letters ? "\\(" + cofTex(r, k) + "\\)" : getal(cofactor(st.A, r, k));
+      }));
+      var symbolen = [], getallen = [], producten = [];
+      for (var k = 1; k <= st.n; k++) {
+        var a = positie(st.i, k), c = positie(st.j, k);
+        var waarde = st.A[a[0] - 1][a[1] - 1], cof = cofactor(st.A, c[0], c[1]);
+        symbolen.push(kleurTex("punt", elTex(a[0], a[1])) +
+          kleurTex("secante", cofTex(c[0], c[1])));
+        getallen.push(kleurTex("punt", fac(waarde)) + "\\cdot" + kleurTex("secante", fac(cof)));
+        producten.push(waarde * cof);
+      }
+      var gelijk = st.i === st.j;
+      // De eerste som staat op een eigen regel, zodat de twee kanten van
+      // een aligned geen extra brede kolommen vormen op een telefoon.
+      var regels = ["&" + symbolen.join("+") + "=" + (gelijk ? "\\det A" : "0")];
+      var cijfers = ["=" + getallen.join("+"), "=" + somTex(producten) +
+        "=" + (gelijk ? det(st.A) : "0")];
+      cijfers.forEach(function (regel) {
+        regels.push("&" + (st.letters ? "\\phantom{" + regel + "}" : regel));
+      });
+      var B = st.A.map(function (rij, r) {
+        return rij.map(function (waarde, k) {
+          var bronR = st.soort === "R" && r + 1 === st.j ? st.i : r + 1;
+          var bronK = st.soort === "K" && k + 1 === st.j ? st.i : k + 1;
+          var inhoud = st.letters ? elTex(bronR, bronK) : String(st.A[bronR - 1][bronK - 1]);
+          var gekleurd = opLijn(r + 1, k + 1, st.i) || opLijn(r + 1, k + 1, st.j)
+            ? kleurTex("punt", inhoud) : inhoud;
+          return "\\class{det-vervang-" + (r + 1) + "-" + (k + 1) + "}{" + gekleurd + "}";
+        });
+      });
+      var woord = st.soort === "R" ? "rij" : "kolom";
+      var slot = gelijk ? "Dezelfde " + woord + ": dit is de Laplace-ontwikkeling van \\(\\det A\\)."
+        : "Vervang " + woord + " \\(" + st.j + "\\) door " + woord + " \\(" + st.i +
+          "\\). Twee gelijke " + (st.soort === "R" ? "rijen" : "kolommen") + ": de determinant is \\(0\\).";
+      paren.push([groepA.naam, groepA.naamTex], [groepC.naam, groepC.naamTex],
+        [keuze, "Elementen van " + woord + " \\(" + st.i + "\\), cofactoren van " + woord + " \\(" + st.j + "\\)."],
+        [som, uitgelijnd(regels)],
+        [vervanging, "\\(" + vmat(B) + "=" + (gelijk ? "\\det A" + (st.letters ? "" : "=" + det(st.A)) : "0") + "\\)"],
+        [uitleg, slot]);
+      zet(paren).then(function () {
+        if (flits && beurt === flitsBeurt) toonFlits(flits);
+      });
+      schakel(orde3Knop, st.n === 3);
+      schakel(orde4Knop, st.n === 4);
+      schakel(rijKnop, st.soort === "R");
+      schakel(kolomKnop, st.soort === "K");
+      ctx.toon(plat("Elementen van " + woord + " " + st.i + ", cofactoren van " + woord + " " + st.j + ". " + slot));
+    }
+    function kiesOrde(n) {
+      if (st.n === n) return;
+      st.n = n; st.A = kopie(BEGIN[n]); st.i = 1; st.j = n;
+      werkBij();
+    }
+    var rijKnop = ctx.knop("Rijen", function () { st.soort = "R"; werkBij(); });
+    var kolomKnop = ctx.knop("Kolommen", function () { st.soort = "K"; werkBij(); });
+    var richtingGroep = div("interactieve-grafiek-schakelaar");
+    richtingGroep.setAttribute("role", "group");
+    richtingGroep.setAttribute("aria-label", "Rijen of kolommen");
+    rijKnop.parentNode.insertBefore(richtingGroep, rijKnop);
+    richtingGroep.appendChild(rijKnop);
+    richtingGroep.appendChild(kolomKnop);
+    var letters = letterSchakelaar(ctx, function (aan) { st.letters = aan; werkBij(); });
+    var orde3Knop = ctx.knop("Orde 3", function () { kiesOrde(3); });
+    var orde4Knop = ctx.knop("Orde 4", function () { kiesOrde(4); });
+    var ordeGroep = div("interactieve-grafiek-schakelaar");
+    ordeGroep.setAttribute("role", "group");
+    ordeGroep.setAttribute("aria-label", "Orde van de matrix");
+    orde3Knop.parentNode.insertBefore(ordeGroep, orde3Knop);
+    ordeGroep.appendChild(orde3Knop);
+    ordeGroep.appendChild(orde4Knop);
+    letters.wijzig = ctx.knop("Wijzig A", function () { st.A = willekeurig(st.n); werkBij(); });
+    werkBij();
+    return { vernietig: function () { ++flitsBeurt; wisFlits(); }, reset: function () {
+      st.n = 3; st.A = kopie(BEGIN[3]); st.soort = "K"; st.i = 1; st.j = 3; st.letters = false;
+      letters.stand(false); werkBij();
+    } };
+  });
+
   G.registreer("det-laplace", function (ctx) {
     return laplaceFiguur(ctx, 3);
   });
@@ -1628,33 +2051,25 @@
       return d.cellen.map(function (c) { return fac(waarde(c)); }).join("\\cdot ");
     }
 
-    // +(… + … + …) voor de hoofddiagonalen, −(… + … + …) voor de
-    // nevendiagonalen.
+    // Elke hoofddiagonaal krijgt een plus, elke nevendiagonaal een min.
     function groepTex(plus) {
       var begin = plus ? 0 : 3, delen = [];
       for (var k = begin; k < begin + 3; k++) {
         var d = DIAGONALEN[k], L = lettersTex(d), N = getallenTex(d);
         delen.push(termTex(k, st.letters ? L : N, [L, N]));
       }
-      return (plus ? "+" : "-") + "\\bigl(" + delen.join("+") + "\\bigr)";
+      return (plus ? "+" : "-") + delen.join(plus ? "+" : "-");
     }
 
-    // De producten van een groep als som, 12-12+4, elk getal aanklikbaar.
-    // Het teken van een getal dat nog niet aan bod kwam, is een plus, zoals
-    // in +(… + … + …); een min ervoor neemt dezelfde breedte in.
+    // Verwerk het teken van de diagonaal in elk berekend product.
     function productenTex(begin) {
       var delen = [];
       for (var k = begin; k < begin + 3; k++) {
-        var x = product(DIAGONALEN[k]);
-        var teken = x < 0 && st.getoond[k] ? "-" : "+";
-        delen.push(k === begin ? termTex(k, String(x))
-          : teken + termTex(k, String(Math.abs(x))));
+        var x = product(DIAGONALEN[k]) * (begin === 0 ? 1 : -1);
+        var teken = st.getoond[k] ? (x < 0 ? "-" : "+") : (begin === 0 ? "+" : "-");
+        delen.push(teken + termTex(k, String(Math.abs(x))));
       }
-      return "(" + delen.join("") + ")";
-    }
-
-    function alle(begin) {
-      return st.getoond[begin] && st.getoond[begin + 1] && st.getoond[begin + 2];
+      return delen.join("");
     }
 
     function som(begin) {
@@ -1718,9 +2133,8 @@
       // hoogte, zodat de wissel niets verschuift.
       var P = som(0), Mn = som(3);
       function uitkomst(klaar, x) { return plaats(klaar ? x : "\\cdots", ["\\cdots", x]); }
-      var onder = ["=" + productenTex(0) + "-" + productenTex(3),
-        "=" + uitkomst(alle(0), String(P)) + "-" + uitkomst(alle(3), fac(Mn)) + "=" +
-          uitkomst(alleGetoond(), String(P - Mn)) + "\\vphantom{(}"];
+      var onder = ["=" + productenTex(0) + productenTex(3),
+        "=" + uitkomst(alleGetoond(), String(P - Mn)) + "\\vphantom{(}"];
       var f = ["&=" + groepTex(true), "&\\phantom{=}{}" + groepTex(false)].concat(
         onder.map(function (r) { return "&" + (st.letters ? "\\phantom{" + r + "}" : r); }));
       var u = uitleg();

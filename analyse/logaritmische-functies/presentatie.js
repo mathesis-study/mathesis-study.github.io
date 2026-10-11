@@ -789,14 +789,28 @@
 
   /* --- Kruimelspoor per slide ------------------------------------------ */
 
+  // Afgeleide koppen houden hun oorspronkelijke bronpositie voor de preview.
+  function neemBronpositie(doel, bron) {
+    if (bron && bron.dataset.mkpiBestand && bron.dataset.mkpiRegel) {
+      doel.dataset.mkpiBestand = bron.dataset.mkpiBestand;
+      doel.dataset.mkpiRegel = bron.dataset.mkpiRegel;
+    }
+  }
+
   function zetKruimels() {
     var pad = [];
     slides.forEach(function (s) {
       var niveau = Number(s.dataset.niveau);
       pad.length = niveau - 1;
-      pad[niveau - 1] = s.dataset.titel;
+      pad[niveau - 1] = { titel: s.dataset.titel, kop: s.querySelector("h1, h4, h5, h6") };
       if (niveau > 1 && pad[0]) {
-        var kruimel = el("p", "pres-kruimel", pad.slice(0, niveau - 1).join(" › "));
+        var kruimel = el("p", "pres-kruimel");
+        pad.slice(0, niveau - 1).forEach(function (deel, j) {
+          if (j) kruimel.appendChild(document.createTextNode(" › "));
+          var tekst = el("span", "", deel.titel);
+          neemBronpositie(tekst, deel.kop);
+          kruimel.appendChild(tekst);
+        });
         s.insertBefore(kruimel, s.firstChild);
       }
     });
@@ -1589,14 +1603,17 @@
     if (!scrollNaarStap(volgende.doel, richting, pagina, nu)) volgende.doe();
   }
 
-  // TikZ levert SVG's met een intrinsieke maat in pixels. Druk die maat uit
-  // in rem bij de gewone lettergrootte (17px), zodat ook de figuren de
-  // presentatiestand en een verandering van de venstergrootte volgen.
+  // TikZ gebruikt de 12pt van cursus.cls. Een TeX-punt is 1/72.27 inch;
+  // de intrinsieke SVG-maat gebruikt 96 CSS-pixels per inch. Reken die maat
+  // om naar ex: MathJax stemt zijn wiskunde af op de x-hoogte van het
+  // tekstlettertype, met 0.442em als x-hoogte van zijn TeX-font. Zo volgen
+  // de letters in de figuur dezelfde schaal als de formules eromheen.
   function bereidAfbeeldingenVoor() {
+    var latexLettergrootte = 12 * 96 / 72.27;
     document.querySelectorAll(".slide img.lateximage").forEach(function (afbeelding) {
       function zetMaat() {
         if (!afbeelding.naturalWidth) return;
-        afbeelding.style.width = (afbeelding.naturalWidth / 17) + "rem";
+        afbeelding.style.width = (afbeelding.naturalWidth / latexLettergrootte / 0.442) + "ex";
       }
       if (afbeelding.complete) zetMaat();
       else afbeelding.addEventListener("load", zetMaat, { once: true });
@@ -2583,6 +2600,7 @@
       var kop = item.kop;
       var tekst = el("span");
       if (kop) {
+        neemBronpositie(a, kop);
         Array.prototype.forEach.call(kop.childNodes, function (n) {
           if (n.classList && n.classList.contains("sectionnumber")) return;
           tekst.appendChild(n.cloneNode(true));
@@ -3476,6 +3494,14 @@
 
     maakSlides(stroom);
     if (!slides.length) return;
+    document.querySelectorAll("details.xproof").forEach(function (bewijs) {
+      bewijs.addEventListener("toggle", function () {
+        if (bewijs.open) {
+          bewijs.dispatchEvent(new CustomEvent("pres:zichtbaar", { bubbles: true }));
+        }
+        planRanden();
+      });
+    });
     stelWiskundeUit();
     bereidOefeningenVoor();
     maakSecties();

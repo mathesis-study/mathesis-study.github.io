@@ -238,6 +238,7 @@
 .python-conditie .python-waar { background: var(--kleur-goed); color: var(--kleur-op-accent); }
 .python-conditie .python-onwaar { background: var(--kleur-fout); color: var(--kleur-op-accent); }
 .python-waarden { display: flex; flex-wrap: wrap; gap: .35rem; }
+.python-waarden:not(:last-child) { margin-bottom: .45rem; }
 .python-waarde {
   padding: .15rem .45rem; border: 1px solid var(--kleur-lijn); border-radius: .25rem;
   background: var(--kleur-achtergrond); font-size: .9rem;
@@ -297,3 +298,24 @@
 .python-grafiek > .interactieve-grafiek-uitleg {
   flex: 1 1 auto; margin: .15rem 0 0; text-align: left; color: var(--kleur-zwak); font-size: .85rem;
 }
+
+/* Traceeroefeningen hebben een geopende debugger zonder knopkolom.
+   Hun printuitvoer staat in de debugger, niet in een apart vak. */
+.pythonspoor .python-codegutter { display: none; }
+.pythonspoor .python-codegutter > [hidden] { display: none; }
+.pythonspoor .python-codevak { grid-template-columns: minmax(0, 1fr); }
+.pythonspoor .python-codemirror { grid-column: 1; }
+.pythonspoor .python-toestand { margin-left: 0; }
+
+.python-spoortabel { position: relative; }
+.python-spoorformule { display: none; min-height: 12rem; overflow-x: auto; text-align: center; }
+.python-spoortabel-actief > .python-spoortabel-terugval { display: none; }
+.python-spoortabel-actief > .python-spoorformule { display: block; }
+@media print {
+  .python-spoortabel-actief > .python-spoortabel-terugval { display: block; }
+  .python-spoortabel-actief > .python-spoorformule { display: none; }
+}
+.python-spoorformule .python-spoorhuidig { color: var(--kleur-accent); }
+
+.pythonspoor .python-resultaat { display: none; }
+.python-print { padding: .4rem .5rem; background: var(--kleur-achtergrond); }
