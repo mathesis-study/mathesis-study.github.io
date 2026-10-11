@@ -1,0 +1,21 @@
+{
+ "titel": "Sommaties",
+ "hoofdstuk": null,
+ "code": null,
+ "vak": "Keuze",
+ "domein": "KeuzevakWiskunde",
+ "domeinnaam": "Keuzevak Wiskunde",
+ "url": "keuzevak-wiskunde/sommaties",
+ "secties": [
+  "Sommatienotatie",
+  "Rekenen met sommen",
+  "Kernformules",
+  "Toepassingen",
+  "Oefeningen",
+  "Samenvatting"
+ ],
+ "leerplandoelen": [],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}

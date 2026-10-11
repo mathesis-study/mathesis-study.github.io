@@ -3,7 +3,7 @@
  * De lettertypes van MathJax hebben geen é, ë, ï, ç, ... Staat zo'n letter in
  * \text{...}, dan tekent MathJax ze als SVG-tekst in het lettertype serif van de
  * browser, en dat valt naast de rest van de formule op. De accenten van
- * textmacros (\'e, \"e, \c c, ...) bouwen de letter wel uit glyphs van MathJax
+ * textmacros (\'e, \"e, \v c, ...) bouwen de letter wel uit glyphs van MathJax
  * zelf. Dit bestand zet daarom, vlak voor de TeX-invoer wordt gelezen, elke
  * letter met een accent binnen \text, \textrm, \textit, \textbf, \textsf,
  * \texttt, \textnormal en \mbox om in die schrijfwijze. De bron blijft gewoon
@@ -27,14 +27,16 @@
   // Combinerende teken na NFD-ontbinding naar het accentcommando van textmacros.
   var ACCENTEN = {
     "̀": "\\`", "́": "\\'", "̂": "\\^", "̃": "\\~",
-    "̈": '\\"', "̧": "\\c ", "̌": "\\v "
+    "̈": '\\"', "̌": "\\v "
   };
-  var ACCENTLETTER = /[A-Za-z][̧̀́̂̃̈̌]/g;
+  var ACCENTLETTER = /[A-Za-z][̀́̂̃̈̌]/g;
 
   function accentueer(tekst) {
     return tekst.normalize("NFD").replace(ACCENTLETTER, function (paar) {
-      var letter = paar.charAt(0) === "i" ? "\\i " : paar.charAt(0);
-      return ACCENTEN[paar.charAt(1)] + "{" + letter.replace(/ $/, "") + "}";
+      // Onder een accent hoort een i zonder punt. textmacros kent \i niet,
+      // maar de lettertypes van MathJax hebben het teken zelf.
+      var letter = paar.charAt(0) === "i" ? "\u0131" : paar.charAt(0);
+      return ACCENTEN[paar.charAt(1)] + "{" + letter + "}";
     }).normalize("NFC");
   }
 

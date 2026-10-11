@@ -1,0 +1,2625 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sommaties</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=8bd2a40b321f" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=8bd2a40b321f"></script>
+<script src="mathjax-foreach.js?v=8bd2a40b321f"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=8bd2a40b321f"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+\(\newcommand {\numdots }[1]{\underbrace {\foreach \i in {1,...,#1}{\bullet \,}}_{#1}}\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="35">
+ <header class="cursustitel"> 
+<h1 data-mkpi-bestand="sommaties.tex" data-mkpi-regel="35">Sommaties</h1> </header>
+</p>
+
+
+<!--
+...... section Sommatienotatie ......
+-->
+<h4 id="autosec-2" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="37"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="37">I&#x2003;</span>Sommatienotatie</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+
+<!--
+...... subsection De notatie ......
+-->
+<h5 id="autosec-3" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="39"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="39">1&#x2003;</span>De notatie</h5>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="40">
+Voor reële (of complexe) getallen \(a_0,a_1,\ldots ,a_n\) noteren we 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="41">
+\[ \sum _{i=0}^{n} a_i = a_0 + a_1 + \cdots + a_n .    \]
+</p>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="45">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="45">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="45">•</span> \(\sum \) : <em>sommatieteken</em> 
+</p>
+
+</li>
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="46">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="46">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="46">•</span> \(i\) : <em>sommatie-index</em> 
+</p>
+
+</li>
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="47">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="47">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="47">•</span> \(a_i\) : <em>termen</em>
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Conventies ......
+-->
+<h5 id="autosec-4" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="50"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="50">2&#x2003;</span>Conventies</h5>
+<a id="mkpiweb-autopage-4"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="52">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="52">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="52">•</span> De <em>lege som</em> is \(0\): \(\sum _{i=1}^{0} a_i = 0\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="53">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="53">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="53">•</span> De index kan bij \(0\) of \(1\) starten; let op de context.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Waar ze vandaan komt ......
+-->
+<h5 id="autosec-5" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="56"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="56">3&#x2003;</span>Waar ze vandaan komt</h5>
+<a id="mkpiweb-autopage-5"></a>
+
+
+
+<div class="marginblock" role="note" style="width:142pt; float:right; " data-mkpi-bestand="sommaties.tex" data-mkpi-regel="58">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="58">
+
+<a href="Leonhard_Euler.jpg" target="_blank" ><img
+    src="Leonhard_Euler.jpg"
+    style="
+    width:120pt;
+    "
+    class="inlineimage"
+    alt="(image)" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="58"
+></a>
+</p>
+
+
+<div class="figurecaption" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="58">
+Leonhard Euler, geschilderd door Jakob Emanuel Handmann (Kunstmuseum Basel)
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="63">
+Het teken \(\sum \) is de Griekse hoofdletter sigma, de eerste letter van <em>som</em>. <b>Leonhard Euler</b> voerde de notatie in de achttiende eeuw in
+en maakte ze gangbaar. Ze is er dus gekomen om te schrijven wat je anders met puntjes moet aangeven, en dat scheelt zodra een som van \(n\) termen in een bewijs terechtkomt. In de negentiende eeuw groeide daaruit de theorie
+van de reeksen, bij Cauchy en Riemann, en werd de eindige som de bouwsteen van de integraal.
+</p>
+
+
+<!--
+...... section Rekenen met sommen ......
+-->
+<h4 id="autosec-7" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="70"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="70">II&#x2003;</span>Rekenen met sommen</h4>
+<a id="mkpiweb-autopage-7"></a>
+
+
+
+<!--
+...... subsection Lineariteit ......
+-->
+<h5 id="autosec-8" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="71"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="71">1&#x2003;</span>Lineariteit</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="72">
+Voor alle rijen \((a_i)\) en \((b_i)\) en alle constanten \(k\) en \(l\) geldt 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="73">
+\[ \sum _{i=0}^{n} (k\,a_i + l\,b_i) = k \sum _{i=0}^{n} a_i + l \sum _{i=0}^{n} b_i .             \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="76">
+Sommeren is dus <b>lineair</b>. Dat is de enige rekenregel die je hier moet onthouden; de vertrouwde regels lees je eruit af door \(k\) en \(l\) te kiezen:
+
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="78"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                       n
+                                       X            n
+                                                    X            n
+                                                                 X
+                                             ai +         bi =         (ai + bi )                        (k = l = 1)                                           (groeperen som)
+                                       i=0          i=0          i=0
+                                       n
+                                       X            n
+                                                    X            n
+                                                                 X
+                                             ai −         bi =         (ai − bi )                        (k = 1, l = −1)                                       (groeperen verschil)
+                                       i=0          i=0          i=0
+                                             n
+                                             X                 n
+                                                               X
+                                               (k · ai ) = k ·   ai                                      (l = 0)                                               (scalair product)
+                                             i=0                   i=0
+                                                    n
+                                                    X
+                                                          k = (n + 1) k                                  (ai = 1, l = 0)                                       (som van constanten)
+                                                    i=0
+
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="78">
+
+\begin{align*}
+\sum _{i=0}^{n} a_i + \sum _{i=0}^{n} b_i &amp;= \sum _{i=0}^{n} (a_i+b_i) &amp;&amp; (k=l=1) &amp;&amp; \text {(groeperen som)} \\ \sum _{i=0}^{n} a_i - \sum _{i=0}^{n} b_i &amp;= \sum
+_{i=0}^{n} (a_i-b_i) &amp;&amp; (k=1,\; l=-1) &amp;&amp; \text {(groeperen verschil)} \\ \sum _{i=0}^{n} (k\cdot a_i) &amp;= k \cdot \sum _{i=0}^{n} a_i &amp;&amp; (l=0) &amp;&amp; \text
+{(scalair product)} \\ \sum _{i=0}^{n} k &amp;= (n+1)\,k &amp;&amp; (a_i=1,\; l=0) &amp;&amp; \text {(som van constanten)}
+\end{align*}
+Bij die laatste staat er <span data-mkpi-bestand="sommaties.tex" data-mkpi-regel="88">\(k \cdot \sum _{i=0}^{n} 1\)</span>, en die som telt <span data-mkpi-bestand="sommaties.tex" data-mkpi-regel="88">\(n+1\)</span> enen.
+</p>
+
+
+<div class="marginblock" role="note" style="width:142pt; float:right; " data-mkpi-bestand="sommaties.tex" data-mkpi-regel="93">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="93">
+
+<a href="Giuseppe_Peano.jpg" target="_blank" ><img
+    src="Giuseppe_Peano.jpg"
+    style="
+    width:120pt;
+    "
+    class="inlineimage"
+    alt="(image)" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="93"
+></a>
+</p>
+
+
+<div class="figurecaption" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="93">
+Giuseppe Peano rond 1910, fotograaf onbekend
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="98">
+Dat optellen zich zo gedraagt, lijkt vanzelfsprekend, en juist daarom duurde het lang voor iemand er een eigenschap op zich in zag. <b>Augustin-Louis
+Cauchy</b> draaide de vraag in 1821 om in zijn <em>Cours d’analyse</em>: welke functies voldoen aan \(f(x+y)=f(x)+f(y)\)? Voor continue functies blijven er enkel \(f(x)=cx\) over, de rechten door de oorsprong. Dat
+optellen en een factor buitenbrengen samenhoren, werd pas in 1888 een afspraak, toen <b>Giuseppe Peano</b> ze als axioma’s voor een vectorruimte opschreef. De regel hierboven is precies wat hij daar vastlegde.
+</p>
+
+
+<!--
+...... subsection Bewijs van lineariteit ......
+-->
+<h5 id="autosec-10" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="107"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="107">2&#x2003;</span>Bewijs van lineariteit</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+
+<!--
+...... subsubsection Stelling ......
+-->
+<h6 id="autosec-11" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="109"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="109">&#x2003;</span>Stelling</h6>
+<a id="mkpiweb-autopage-11"></a>
+
+
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="111">
+\[ \sum _{i=0}^{n} (k\,a_i + l\,b_i) = k \sum _{i=0}^{n} a_i + l \sum _{i=0}^{n} b_i \]
+</p>
+
+
+<!--
+...... subsubsection Expansiebewijs ......
+-->
+<h6 id="autosec-12" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="113"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="113">&#x2003;</span>Expansiebewijs</h6>
+<a id="mkpiweb-autopage-12"></a>
+
+
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="115">
+
+
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="115"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                       n
+                                                                                       X
+                                                                                LL =          (k ai + l bi )
+                                                                                        i=0
+
+                                                                                     = (k a0 + l b0 ) + · · · + (k an + l bn )
+                                                                                     = k (a0 + · · · + an ) + l (b0 + · · · + bn )
+                                                                                          n
+                                                                                          X              n
+                                                                                                         X
+                                                                                     =k         ai + l         bi
+                                                                                          i=0            i=0
+
+                                                                                     = RL.
+
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="115">
+
+\begin{align*}
+\text {LL} &amp;= \sum _{i=0}^{n} (k\,a_i + l\,b_i)\\ &amp;= (k\,a_0 + l\,b_0) + \cdots + (k\,a_n + l\,b_n) \\ &amp;= k\,(a_0+\cdots +a_n) + l\,(b_0+\cdots +b_n) \\ &amp;= k \sum _{i=0}^{n}
+a_i + l \sum _{i=0}^{n} b_i\\ &amp;= \text {RL}.
+\end{align*}
+
+</p>
+</div>
+
+
+
+
+<!--
+...... subsubsection Inductiebewijs ......
+-->
+<h6 id="autosec-13" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="126"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="126">&#x2003;</span>Inductiebewijs</h6>
+<a id="mkpiweb-autopage-13"></a>
+
+
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="129">
+
+
+<dl class="description" >
+
+
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="129">Basis:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="129">
+(\(n=0\)) 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="130">
+\[ \sum _{i=0}^{0} (k\,a_i + l\,b_i) = k\,a_0 + l\,b_0 = k \sum _{i=0}^{0} a_i + l \sum _{i=0}^{0} b_i .                               \]
+</p>
+
+
+</dd>
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="134">Inductiehypothese:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="134">
+Neem aan dat de stelling geldt voor \(n-1\). 
+</p>
+
+</dd>
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="135">Inductie Stap:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="135">
+(\(n-1\to n\)): 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="136"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                n
+                                                                                X                        n−1
+                                                                                                         X
+                                                                                      (k ai + l bi ) =         (k ai + l bi ) + (k an + l bn )
+                                                                                i=0                      i=0
+                                                                                                          n−1
+                                                                                                          X               n−1
+                                                                                                                          X
+                                                                                                   =k            ai + l         bi + k an + l bn   (IH)
+                                                                                                          i=0             i=0
+                                                                                                          n
+                                                                                                          X               n
+                                                                                                                          X
+                                                                                                   =k            ai + l         bi .
+                                                                                                          i=0             i=0
+
+
+-->
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="136">
+
+\begin{align*}
+\sum _{i=0}^{n} (k\,a_i + l\,b_i) &amp;= \sum _{i=0}^{n-1} (k\,a_i + l\,b_i) + (k\,a_n + l\,b_n) \\ &amp;= k \sum _{i=0}^{n-1} a_i + l \sum _{i=0}^{n-1} b_i + k\,a_n + l\,b_n \quad \text
+{(IH)}\\ &amp;= k \sum _{i=0}^{n} a_i + l \sum _{i=0}^{n} b_i .
+\end{align*}
+
+</p>
+</dd>
+</dl>
+
+</div>
+
+
+<!--
+...... subsection Werken met het bereik ......
+-->
+<h5 id="autosec-14" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="146"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="146">3&#x2003;</span>Werken met het bereik</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="147">
+Lineariteit gaat over de termen. De regels hieronder laten de termen met rust en veranderen enkel waar de index loopt.
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="150">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="150"></span>
+</p>
+<!--
+...... subsubsection Splitsen ......
+-->
+<h6 id="autosec-15" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="150">Splitsen</h6>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="151">
+Een som mag je bij elke \(m\) in twee stukken knippen: 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="152">
+\[ \sum _{i=0}^{n} a_i = \sum _{i=0}^{m} a_i \;+\; \sum _{i=m+1}^{n} a_i \qquad (m&lt;n).       \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="157">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="157"></span>
+</p>
+<!--
+...... subsubsection Herindexeren ......
+-->
+<h6 id="autosec-16" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="157">Herindexeren</h6>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="158">
+Met \(j=i+c\) schuift het hele bereik \(c\) plaatsen op, terwijl de termen dezelfde blijven: 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="160">
+\[ \sum _{i=m}^{n} f(i) = \sum _{j=m+c}^{n+c} f(j-c).        \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="163">
+Met \(c=1\) geeft dat de verschuiving die je het vaakst nodig hebt: 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="164">
+\[ \sum _{i=m}^{n} f(i) = \sum _{i=m+1}^{n+1} f(i-1).        \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="168">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="168"></span>
+</p>
+<!--
+...... subsubsection Omkeren en herordenen ......
+-->
+<h6 id="autosec-17" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="168">Omkeren en herordenen</h6>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="169">
+Voor eindige sommen mogen de termen vrij herschikt worden, dus mag je ze ook van achter naar voor doorlopen: 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="171">
+\[ \sum _{i=0}^{n} a_i = \sum _{i=0}^{n} a_{n-i}.      \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="174">
+Voor dubbelsommen over <em>eindige</em> verzamelingen geldt 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="175">
+\[ \sum _{i\in I} \sum _{j\in J} b_{ij} = \sum _{j\in J} \sum _{i\in I} b_{ij}.        \]
+</p>
+
+
+<!--
+...... section Kernformules ......
+-->
+<h4 id="autosec-18" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="180"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="180">III&#x2003;</span>Kernformules</h4>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="181">
+Vier sommen kom je zo vaak tegen dat je ze uit het hoofd wil kennen. Elk van de vier staat hier met haar bewijs erbij.
+</p>
+
+
+<!--
+...... subsection Som van natuurlijke getallen ......
+-->
+<h5 id="autosec-19" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="184"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="184">1&#x2003;</span>Som van natuurlijke getallen</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+
+<!--
+...... subsubsection Kinderspel ......
+-->
+<h6 id="autosec-20" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="186"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="186">&#x2003;</span>Kinderspel</h6>
+<a id="mkpiweb-autopage-20"></a>
+
+
+
+<div class="marginblock" role="note" style="width:142pt; float:right; " data-mkpi-bestand="sommaties.tex" data-mkpi-regel="191">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="191">
+
+<a href="Carl_Friedrich_Gauss.jpg" target="_blank" ><img
+    src="Carl_Friedrich_Gauss.jpg"
+    style="
+    width:120pt;
+    "
+    class="inlineimage"
+    alt="(image)" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="191"
+></a>
+</p>
+
+
+<div class="figurecaption" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="191">
+Carl Friedrich Gauss, geschilderd door Gottlieb Biermann naar Christian Albrecht Jensen (1840)
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="196">
+Van <b>Carl&nbsp;F.&nbsp;Gauss</b> wordt verteld dat hij als schooljongen de opgave kreeg om alle getallen van \(1\) tot \(100\) op te tellen, en het
+antwoord \(5050\) in enkele tellen gaf. Hij telde niet van voor naar achter, maar legde de rij twee keer naast elkaar, de tweede keer omgekeerd. Dan staat er honderd keer \(101\). Of het precies zo gegaan is, weet niemand; het
+verhaal staat in de herdenkingsrede van zijn leerling Sartorius von Waltershausen uit 1856. Zijn titel staat wel vast: Gauss heet de <b>prins der wiskundigen</b>, naar de gedenkpenning die koning George V van Hannover in
+1855 liet slaan met het opschrift <em>Mathematicorum principi</em>.
+</p>
+
+
+<!--
+...... subsubsection Formule ......
+-->
+<h6 id="autosec-22" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="207"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="207">&#x2003;</span>Formule</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="208">
+\[ \sum _{i=1}^{n} i = \frac {n(n+1)}{2} \]
+</p>
+
+
+<!--
+...... subsubsection Bewijs ......
+-->
+<h6 id="autosec-23" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="211"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="211">&#x2003;</span>Bewijs</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="214">
+
+
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="214"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                              S = 1 + 2 + · · · + n,
+                                                                              S = n + (n − 1) + · · · + 1,
+                                                                             2S = (n + 1) + (n + 1) + · · · + (n + 1) = n(n + 1),
+                                                                                   n(n + 1)
+                                                                              S=            .
+                                                                                      2
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="214">
+
+\begin{align*}
+S &amp;= 1+2+\cdots +n,\\ S &amp;= n+(n-1)+\cdots +1,\\ 2S &amp;= (n+1)+(n+1)+\cdots +(n+1) = n(n+1),\\ S &amp;= \frac {n(n+1)}{2}.
+\end{align*}
+
+</p>
+</div>
+
+
+
+
+<!--
+...... subsubsection Inductiebewijs ......
+-->
+<h6 id="autosec-24" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="225"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="225">&#x2003;</span>Inductiebewijs</h6>
+<a id="mkpiweb-autopage-24"></a>
+
+
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="228">
+
+
+<dl class="description" >
+
+
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="228">Basis:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="228">
+(\(n=1\)) 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="229">
+\[ \sum _{i=1}^{1} i = 1 = \frac {1\cdot 2}{2} . \]
+</p>
+
+
+</dd>
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="232">Inductiehypothese:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="232">
+Neem aan dat de stelling geldt voor \(n-1\). 
+</p>
+
+</dd>
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="233">Inductie Stap:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="233">
+(\(n-1\to n\)): 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="234"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                            n
+                                                                                            X          n−1
+                                                                                                       X
+                                                                                                  i=         i+n
+                                                                                            i=1        i=1
+
+                                                                                                    (n − 1)n
+                                                                                                  =           + n (IH)
+                                                                                                        2
+                                                                                                    (n − 1)n + 2n
+                                                                                                  =
+                                                                                                          2
+                                                                                                    n(n + 1)
+                                                                                                  =          .
+                                                                                                        2
+
+-->
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="234">
+
+\begin{align*}
+\sum _{i=1}^{n} i &amp;= \sum _{i=1}^{n-1} i + n \\ &amp;= \frac {(n-1)n}{2} + n \quad \text {(IH)}\\ &amp;= \frac {(n-1)n + 2n}{2} \\ &amp;= \frac {n(n+1)}{2} .
+\end{align*}
+
+</p>
+</dd>
+</dl>
+
+</div>
+
+
+<!--
+...... subsection Som van kwadraten via dubbele som ......
+-->
+<h5 id="autosec-25" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="244"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="244">2&#x2003;</span>Som van kwadraten via dubbele som</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+
+<div class="marginblock" role="note" style="width:142pt; float:right; " data-mkpi-bestand="sommaties.tex" data-mkpi-regel="249">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="249">
+
+<a href="Johannes_Kepler.jpg" target="_blank" ><img
+    src="Johannes_Kepler.jpg"
+    style="
+    width:120pt;
+    "
+    class="inlineimage"
+    alt="(image)" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="249"
+></a>
+</p>
+
+
+<div class="figurecaption" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="249">
+Johannes Kepler, olieverfportret uit 1620, schilder onbekend
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="254">
+Wie kanonskogels opstapelt tot een piramide met een vierkante basis, legt onderaan een laag van \(n\times n\) kogels, daarboven een van \((n-1)\times
+(n-1)\), en zo verder tot er bovenaan één kogel overblijft. Het aantal kogels in zo’n stapel is dus precies \(1^2+2^2+\cdots +n^2\). Die vraag is ook echt gesteld: rond 1591 rekende de Engelse wiskundige <b>Thomas
+Harriot</b> ze uit voor Walter Raleigh, die zoveel mogelijk kogels aan boord van zijn schepen wilde krijgen. Harriot wisselde daarover brieven met <b>Johannes Kepler</b>, die in 1611 vermoedde dat je bollen niet dichter kan
+stapelen dan in zo’n piramide. Dat vermoeden raakte pas in 1998 bewezen. Wij houden het hier bij het tellen van de kogels.
+</p>
+
+
+<div class="center" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="266">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="266">
+<iframe data-verhouding="7/5" src="./sum_kwadrate.html?v=bbb330ce8b82" allowfullscreen loading="lazy" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="266"></iframe>
+</p>
+</div>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="270">
+ <span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="270"></span>
+</p>
+<!--
+...... subsubsection Stelling ......
+-->
+<h6 id="autosec-28" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="270">Stelling</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="272">
+\[ \sum _{i=1}^{n} i^2 = \frac {n(n+1)(2n+1)}{6} \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="276">
+ <span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="276"></span>
+</p>
+<!--
+...... subsubsection Grafisch ......
+-->
+<h6 id="autosec-29" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="276">Grafisch</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="279">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="279">
+Leg de lagen van de stapel naast elkaar: laag \(i\) is een \(i\times i\)-vierkant met \(i^2\) bollen. 
+</p>
+<div class="center" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="282">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="282">
+ <span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="282"
+><!--
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="282"
+></span>
+</p>
+</div>
+
+</div>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="292">
+ <span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="292"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld met ......
+-->
+<h6 id="autosec-33" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="292">Voorbeeld met \(n=4\)</h6>
+<a id="mkpiweb-autopage-33"></a>
+
+
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="295">
+
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="295">
+\[\qquad \qquad \left . \begin {array}{c@{\quad }c@{\quad }c@{\quad }c@{\quad }c} \numdots {1} &amp; \numdots {2} &amp; \numdots {3} &amp; \numdots {4} &amp; \;\longrightarrow \; \sum
+_{i=1}^{4} i \\[1ex] &amp; \numdots {2} &amp; \numdots {3} &amp; \numdots {4} &amp; \;\longrightarrow \; \sum _{i=2}^{4} i \\[1ex] &amp; &amp; \numdots {3} &amp; \numdots {4} &amp;
+\;\longrightarrow \; \sum _{i=3}^{4} i \\[1ex] &amp; &amp; &amp; \numdots {4} &amp; \;\longrightarrow \; \sum _{i=4}^{4} i \end {array} \right \} \;\; \displaystyle \sum _{j=1}^4\sum _{i=j}^4
+i \]
+</p>
+
+</div>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="309">
+ <span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="309"></span>
+</p>
+<!--
+...... subsubsection Bewijs ......
+-->
+<h6 id="autosec-34" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="309">Bewijs</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="311">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="311">
+Vertrek van de visualisatie dat \(i^2\) het aantal punten in een \(i\times i\)-vierkant is en groepeer kolomsgewijs: 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="312"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                 n
+                                                 X            X n
+                                                              n X
+                                                       i2 =              i
+                                                 i=1          j=1 i=j
+                                                                                     j−1
+                                                              n n
+                                                                                           !
+                                                              X X                    X
+                                                         =                   i −           i                                                (indexeer vanaf 1)
+                                                              j=1    i=1             i=1
+                                                              n                                                      
+                                                              X   n(n + 1)              (j − 1)(j − 1 + 1)
+                                                         =                            −                                                     (som natuurlijke getallen)
+                                                              j=1
+                                                                             2                   2
+                                                              n              n
+                                                              X   n(n + 1) X j(j − 1)
+                                                         =                −
+                                                              j=1
+                                                                     2      j=1
+                                                                                 2
+                                                                                n
+                                                                               X j(j − 1)
+                                                                    n(n + 1)
+                                                         =n·                 −                                                              (niet afhankelijk van index)
+                                                                       2       j=1
+                                                                                     2
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="312">
+
+\begin{align*}
+\sum _{i=1}^{n} i^2 &amp;= \sum _{j=1}^{n} \sum _{i=j}^{n} i \\ &amp;= \sum _{j=1}^{n}\Biggl (\sum _{i=1}^{n} i \;-\; \sum _{i=1}^{j-1} i\Biggr ) &amp;&amp; \text {(indexeer vanaf 1)}\\ &amp;=
+\sum _{j=1}^{n}\left (\frac {n(n+1)}{2} - \frac {(j-1)(j-1+1)}{2}\right ) &amp;&amp; \text {(som natuurlijke getallen)}\\ &amp;= \sum _{j=1}^{n}\frac {n(n+1)}{2} - \sum _{j=1}^{n}\frac
+{j(j-1)}{2}\\ &amp;= n\cdot \frac {n(n+1)}{2} \;-\; \sum _{j=1}^{n}\frac {j(j-1)}{2} &amp;&amp; \text {(niet afhankelijk van index)}
+\end{align*}
+
+</p>
+
+
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="321"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                              n
+                                                              X                                 n
+                                                                                                X
+                                                   ⇔      2          i2 = n · n(n + 1) −              j(j − 1)
+                                                               i=1                              j=1
+                                                              n
+                                                              X                                n
+                                                                                               X
+                                                                     2           2
+                                                                                                     j2 − j
+                                                                                                              
+                                                   ⇔      2          i = n (n + 1) −
+                                                               i=1                             j=1
+                                                              n
+                                                              X                                n
+                                                                                               X            n
+                                                                                                            X
+                                                   ⇔      2          i2 = n2 (n + 1) −               j2 +         j
+                                                               i=1                             j=1          j=1
+                                                              n                                n
+                                                              X                                X            n(n + 1)
+                                                   ⇔      2          i2 = n2 (n + 1) −               i2 +
+                                                               i=1                             i=1
+                                                                                                               2
+                                                              n
+                                                              X                                n(n + 1)
+                                                   ⇔      3          i2 = n2 (n + 1) +                                                          (sommatie naar LL)
+                                                               i=1
+                                                                                                  2
+                                                              n
+                                                              X
+                                                   ⇔      6          i2 = 2n2 (n + 1) + n(n + 1)
+                                                               i=1
+                                                              n
+                                                              X
+                                                   ⇔      6          i2 = (2n2 + n)(n + 1)
+                                                               i=1
+                                                              n
+                                                              X              n(n + 1)(2n + 1)
+                                                   ⇔                 i2 =                     .
+                                                               i=1
+                                                                                    6
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="321">
+
+\begin{align*}
+\Leftrightarrow \quad 2\sum _{i=1}^n i^2 &amp;= n\cdot n(n+1) - \sum _{j=1}^n j(j-1)\\ \Leftrightarrow \quad 2\sum _{i=1}^n i^2 &amp;= n^2(n+1) - \sum _{j=1}^n \bigl (j^2-j\bigr )\\
+\Leftrightarrow \quad 2\sum _{i=1}^n i^2 &amp;= n^2(n+1) - \sum _{j=1}^n j^2 + \sum _{j=1}^n j\\ \Leftrightarrow \quad 2\sum _{i=1}^n i^2 &amp;= n^2(n+1) - \sum _{i=1}^n i^2 + \frac
+{n(n+1)}{2}\\ \Leftrightarrow \quad 3\sum _{i=1}^n i^2 &amp;= n^2(n+1) + \frac {n(n+1)}{2} &amp;&amp; \text {(sommatie naar LL)}\\ \Leftrightarrow \quad 6\sum _{i=1}^n i^2 &amp;= 2n^2(n+1) +
+n(n+1)\\ \Leftrightarrow \quad 6\sum _{i=1}^n i^2 &amp;= (2n^2+n)(n+1)\\ \Leftrightarrow \quad \;\; \sum _{i=1}^n i^2 &amp;= \frac {n(n+1)(2n+1)}{6}\,.
+\end{align*}
+
+</p>
+</div>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="350">
+ <span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="350"></span>
+</p>
+<!--
+...... subsubsection Inductiebewijs ......
+-->
+<h6 id="autosec-35" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="350">Inductiebewijs</h6>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="351">
+Het bewijs hierboven laat zien waar de formule vandaan komt. Wie ze al kent, kan ze ook gewoon natrekken met inductie. 
+</p>
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="355">
+
+
+<dl class="description" >
+
+
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="355">Basis:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="355">
+(\(n=1\)) 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="356">
+\[ \sum _{i=1}^{1} i^2 = 1 = \frac {1\cdot 2\cdot 3}{6} . \]
+</p>
+
+
+</dd>
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="359">Inductiehypothese:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="359">
+Neem aan dat de stelling geldt voor \(n-1\). 
+</p>
+
+</dd>
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="360">Inductie Stap:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="360">
+(\(n-1\to n\)): 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="361"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                    n
+                                                                                    X             n−1
+                                                                                                  X
+                                                                                           i2 =         i2 + n2
+                                                                                     i=1          i=1
+
+                                                                                               (n − 1)n(2n − 1)
+                                                                                             =                  + n2 (IH)
+                                                                                                       6
+                                                                                               (n − 1)n(2n − 1) + 6n2
+                                                                                             =
+                                                                                                          6
+                                                                                                    2
+                                                                                                                   
+                                                                                               n 2n − 3n + 1 + 6n
+                                                                                             =
+                                                                                                         6
+                                                                                                    2
+                                                                                                             
+                                                                                               n 2n + 3n + 1      n(n + 1)(2n + 1)
+                                                                                             =                  =                  .
+                                                                                                      6                  6
+
+-->
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="361">
+
+\begin{align*}
+\sum _{i=1}^{n} i^2 &amp;= \sum _{i=1}^{n-1} i^2 + n^2 \\ &amp;= \frac {(n-1)n(2n-1)}{6} + n^2 \quad \text {(IH)}\\ &amp;= \frac {(n-1)n(2n-1) + 6n^2}{6} \\ &amp;= \frac {n\bigl
+(2n^2-3n+1+6n\bigr )}{6} \\ &amp;= \frac {n\bigl (2n^2+3n+1\bigr )}{6} = \frac {n(n+1)(2n+1)}{6} .
+\end{align*}
+
+</p>
+</dd>
+</dl>
+
+</div>
+
+
+<!--
+...... subsection Meetkundige som ......
+-->
+<h5 id="autosec-36" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="373"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="373">3&#x2003;</span>Meetkundige som</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+
+<!--
+...... subsubsection Formule ......
+-->
+<h6 id="autosec-37" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="375"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="375">&#x2003;</span>Formule</h6>
+<a id="mkpiweb-autopage-37"></a>
+
+
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="376">
+\[ \sum _{i=1}^{n} x^i = \frac {x-x^{n+1}}{1-x} \qquad (x \neq 1) \]
+</p>
+
+
+<!--
+...... subsubsection Bewijs ......
+-->
+<h6 id="autosec-38" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="378"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="378">&#x2003;</span>Bewijs</h6>
+<a id="mkpiweb-autopage-38"></a>
+
+
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="380">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="380">
+Vermenigvuldig de som met \(x\) en trek af: op één term na valt alles weg. 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="381"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                           S = x + x2 + · · · + xn ,
+                                                                                          xS = x2 + x3 + · · · + xn+1 ,
+                                                                                                                       x − xn+1
+                                                                                     (1 − x)S = x − xn+1 ,      S=              .
+                                                                                                                         1−x
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="381">
+
+\begin{align*}
+S &amp;= x + x^2 + \cdots + x^n,\\ xS &amp;= x^2 + x^3 + \cdots + x^{n+1},\\ (1-x)S &amp;= x - x^{n+1},\qquad S=\frac {x-x^{n+1}}{1-x}.
+\end{align*}
+
+</p>
+</div>
+
+
+
+
+<!--
+...... subsubsection Inductiebewijs ......
+-->
+<h6 id="autosec-39" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="391"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="391">&#x2003;</span>Inductiebewijs</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="392">
+Hetzelfde resultaat volgt ook met inductie. Het rekenwerk zit dan in de stap van \(n-1\) naar \(n\): je telt er één term bij en brengt alles weer op noemer
+\(1-x\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="397">
+
+
+<dl class="description" >
+
+
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="397">Basis:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="397">
+(\(n=1\)) 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="398">
+\[ \sum _{i=1}^{1} x^i = x = \frac {x(1-x)}{1-x} = \frac {x-x^{2}}{1-x} .           \]
+</p>
+
+
+</dd>
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="402">Inductiehypothese:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="402">
+Neem aan dat de stelling geldt voor \(n-1\). 
+</p>
+
+</dd>
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="403">Inductie Stap:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="403">
+(\(n-1\to n\)): 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="404"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                n
+                                                                                                X            n−1
+                                                                                                             X
+                                                                                                      xi =         xi + x n
+                                                                                                i=1          i=1
+                                                                                                          x − xn
+                                                                                                        =        + xn (IH)
+                                                                                                           1−x
+                                                                                                          x − xn + xn (1 − x)
+                                                                                                        =
+                                                                                                                 1−x
+                                                                                                               n+1
+                                                                                                          x−x
+                                                                                                        =          .
+                                                                                                            1−x
+
+-->
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="404">
+
+\begin{align*}
+\sum _{i=1}^{n} x^i &amp;= \sum _{i=1}^{n-1} x^i + x^n \\ &amp;= \frac {x-x^{n}}{1-x} + x^n \quad \text {(IH)}\\ &amp;= \frac {x-x^{n} + x^n(1-x)}{1-x} \\ &amp;= \frac {x-x^{n+1}}{1-x} .
+\end{align*}
+
+</p>
+</dd>
+</dl>
+
+</div>
+
+
+<!--
+...... subsection Telescopische som ......
+-->
+<h5 id="autosec-40" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="414"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="414">4&#x2003;</span>Telescopische som</h5>
+<a id="mkpiweb-autopage-40"></a>
+
+
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="415">
+\[ \sum _{i=1}^{n} \bigl (a_{i+1}-a_i\bigr ) = a_{n+1}-a_1 \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="415">
+Schrijf de som uit: elke term komt een tweede keer voor, met het andere teken. 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="417">
+\[ (a_2-a_1) + (a_3-a_2) + \cdots + (a_{n+1}-a_n) = a_{n+1}-a_1 .           \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="420">
+Alles tussenin valt weg, zoals de buizen van een uitschuifbare telescoop in elkaar schuiven. Herken je in een som zo’n verschil van twee opeenvolgende termen,
+dan ben je er meteen.
+</p>
+
+
+<!--
+...... subsection Gevolgen ......
+-->
+<h5 id="autosec-41" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="424"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="424">5&#x2003;</span>Gevolgen</h5>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="425">
+Met deze vier bereken je nu ook sommen die er op het eerste gezicht niet op lijken. De som van de oneven getallen, en de som van de producten van twee
+opeenvolgende getallen: 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="428"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                        n
+                                                                        X                    n
+                                                                                             X          n
+                                                                                                        X
+                                                                              (2i − 1) = 2         i−         1 = n(n + 1) − n = n2 ,
+                                                                        i=1                  i=1        i=1
+                                                                        n                  n
+                                                                        X                  X                   n(n + 1)(2n + 1) n(n + 1)   n(n + 1)(n + 2)
+                                                                              i(i + 1) =         (i2 + i) =                    +         =                 .
+                                                                        i=1                i=1
+                                                                                                                      6            2              3
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="428">
+
+\begin{align*}
+\sum _{i=1}^{n} (2i-1) &amp;= 2\sum _{i=1}^{n} i - \sum _{i=1}^{n} 1 = n(n+1) - n = n^2,\\ \sum _{i=1}^{n} i(i+1) &amp;= \sum _{i=1}^{n} (i^2+i) = \frac {n(n+1)(2n+1)}{6} + \frac {n(n+1)}{2} =
+\frac {n(n+1)(n+2)}{3}.
+\end{align*}
+In beide stappen doet lineariteit het werk: de som valt uiteen, en elk stuk is een kernformule.
+</p>
+
+
+<!--
+...... section Toepassingen ......
+-->
+<h4 id="autosec-42" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="437"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="437">IV&#x2003;</span>Toepassingen</h4>
+<a id="mkpiweb-autopage-42"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="440">
+ <span class="cursus-buiten-inhoudstafel" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="440"></span>
+</p>
+<!--
+...... subsection Informatica: complexiteitsanalyse ......
+-->
+<h5 id="autosec-43" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="440">Informatica: complexiteitsanalyse</h5>
+<a id="mkpiweb-autopage-43"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="443">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="443">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="443">•</span> Bubblesort-achtige lussen: \(\sum _{i=1}^{n-1} i = \Theta (n^2)\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="444">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="444">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="444">•</span> Geneste lussen: \(\sum _{i=1}^{n} \sum _{j=1}^{i} 1=\sum _{i=1}^{n} i = \frac {n(n+1)}{2}\).
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="448">
+ <span class="cursus-buiten-inhoudstafel" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="448"></span>
+</p>
+<!--
+...... subsection Natuurkunde ......
+-->
+<h5 id="autosec-44" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="448">Natuurkunde</h5>
+<a id="mkpiweb-autopage-44"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="450">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="450">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="450">•</span> Afgelegde weg bij discrete versnelling: \(s=\sum _{k=1}^{n} v_k\Delta t\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="451">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="451">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="451">•</span> Benadering van een integraal via <em>Riemann-sommen</em>: 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="452">
+\[ \int _a^b f(x)\,dx \approx \sum _{i=1}^{n} f(x_i^\ast )\,\Delta x. \]
+</p>
+
+</li>
+</ul>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="458">
+ <span class="cursus-buiten-inhoudstafel" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="458"></span>
+</p>
+<!--
+...... subsection Economie/financien ......
+-->
+<h5 id="autosec-45" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="458">Economie/financiën</h5>
+<a id="mkpiweb-autopage-45"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="460">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="460">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="460">•</span> Samengestelde interest: \(C_n=C_0\,(1+r)^n\) en contante waarde van \(n\) stortingen \(A\): 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="461">
+\[ \text {PV} = A\sum _{i=1}^{n}\frac {1}{(1+r)^i} = A\,\frac {1-(1+r)^{-n}}{r}. \]
+</p>
+
+</li>
+</ul>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="468">
+ <span class="cursus-buiten-inhoudstafel" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="468"></span>
+</p>
+<!--
+...... subsection Kansrekening ......
+-->
+<h5 id="autosec-46" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="468">Kansrekening</h5>
+<a id="mkpiweb-autopage-46"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="470">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="470">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="470">•</span> Verwachtingswaarde als som: \(E[X]=\sum _{x} x\,P(X=x)\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="471">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="471">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="471">•</span> Telescopisch voorbeeld: \(\displaystyle \sum _{k=1}^{n}\frac {1}{k(k+1)} =\sum _{k=1}^{n}\left (\frac {1}{k}-\frac {1}{k+1}\right )=1-\frac {1}{n+1}\).
+</p>
+</li>
+</ul>
+
+
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-47" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="475"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="475">V&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-47"></a>
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="476">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="476">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="476"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-48" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="476">Oefening 1</h6>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="477">
+Bereken zonder rekenmachine: 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="479">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="479">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="479">(a)</span> \(\displaystyle \sum _{i=1}^{50} (3i-2)\)
+</p>
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="482">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="482">
+Lineariteit splitst de som in een scalair product en een som van constanten: 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="484"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                            50
+                                                                                            X               50
+                                                                                                            X     50
+                                                                                                                  X
+                                                                                               (3i − 2) = 3    i−    2
+                                                                                            i=1                      i=1          i=1
+                                                                                                                50 · 51
+                                                                                                           =3·          − 50 · 2
+                                                                                                                   2
+                                                                                                           = 3825 − 100 = 3725.
+
+
+-->
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="484">
+
+\begin{align*}
+\sum _{i=1}^{50} (3i-2) &amp;= 3 \sum _{i=1}^{50} i - \sum _{i=1}^{50} 2\\ &amp;= 3 \cdot \frac {50 \cdot 51}{2} - 50 \cdot 2\\ &amp;= 3825 - 100 = 3725.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="492">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="492">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="492">(b)</span> \(\displaystyle \sum _{k=0}^{n} (k+1)\)
+</p>
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="495">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="495">
+Herindexeren met \(j=k+1\) maakt er de som van de eerste \(n+1\) natuurlijke getallen van: 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="497">
+\[ \sum _{k=0}^{n} (k+1) = \sum _{j=1}^{n+1} j = \frac {(n+1)(n+2)}{2}. \]
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="502">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="502">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="502">(c)</span> \(\displaystyle \sum _{j=2}^{n+1} j^2 - \sum _{i=1}^{n} i^2\)
+</p>
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="505">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="505">
+Beide sommen lopen over dezelfde kwadraten, alleen schuift het bereik één plaats op. We splitsen de eerste som af aan haar bovengrens en de tweede aan
+haar ondergrens: 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="508"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                  n+1
+                                                                                                  X            n
+                                                                                                               X
+                                                                                                        j2 =         j 2 + (n + 1)2 ,
+                                                                                                  j=2          j=2
+                                                                                                  n
+                                                                                                  X                  n
+                                                                                                                     X
+                                                                                                        i2 = 1 +           i2 .
+                                                                                                  i=1                i=2
+
+
+-->
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="508">
+
+\begin{align*}
+\sum _{j=2}^{n+1} j^2 &amp;= \sum _{j=2}^{n} j^2 + (n+1)^2,\\ \sum _{i=1}^{n} i^2 &amp;= 1 + \sum _{i=2}^{n} i^2.
+\end{align*}
+Het gemeenschappelijke stuk valt weg: 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="513">
+\[ \sum _{j=2}^{n+1} j^2 - \sum _{i=1}^{n} i^2 = (n+1)^2 - 1 = n(n+2). \]
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="516">
+De formule voor de som van kwadraten heb je hier dus niet nodig.
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="521">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="521">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="521"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-49" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="521">Oefening 2</h6>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="522">
+Gebruik telescoperen: 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="524">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="524">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="524">(a)</span> \(\displaystyle \sum _{k=1}^{n} \frac {1}{k(k+1)}\)
+</p>
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="527">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="527">
+Splits de breuk eerst in twee stukken: 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="528">
+\[ \frac {1}{k(k+1)} = \frac {(k+1)-k}{k(k+1)} = \frac {1}{k} - \frac {1}{k+1}. \]
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="531">
+Met \(a_k = \dfrac {1}{k}\) staat er \(-(a_{k+1}-a_k)\), dus telescopeert de som: 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="532"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                 n                  n
+                                                                                 X        1        X
+                                                                                                =−   (ak+1 − ak ) = −(an+1 − a1 )
+                                                                                       k(k + 1)
+                                                                                 k=1               k=1
+                                                                                                      1     n
+                                                                                               =1−       =     .
+                                                                                                     n+1   n+1
+
+-->
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="532">
+
+\begin{align*}
+\sum _{k=1}^{n} \frac {1}{k(k+1)} &amp;= -\sum _{k=1}^{n} (a_{k+1}-a_k) = -(a_{n+1}-a_1)\\ &amp;= 1 - \frac {1}{n+1} = \frac {n}{n+1}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="sommaties.tex" data-mkpi-regel="539">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="539">
+<span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="539">(b)</span> \(\displaystyle \sum _{k=1}^{n} \left (\sqrt {k+1}-\sqrt {k}\right )\)
+</p>
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="542">
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="542">
+Hier staat de telescopische vorm er al, met \(a_k = \sqrt {k}\): 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="543">
+\[ \sum _{k=1}^{n} \left (\sqrt {k+1}-\sqrt {k}\right ) = \sum _{k=1}^{n} (a_{k+1}-a_k) = a_{n+1}-a_1 = \sqrt {n+1}-1. \]
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="551">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="551">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="551"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-50" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="551">Oefening 3</h6>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="552">
+Bewijs met inductie dat voor elke \(n \in \mathbb {N}_0\) geldt: 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="553">
+\[ \sum _{i=1}^{n} i^3 = \left (\frac {n(n+1)}{2}\right )^2 .       \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="556">
+De som van de derde machten is dus het kwadraat van de som van de natuurlijke getallen.
+</p>
+
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="561">
+
+
+<dl class="description" >
+
+
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="561">Basis:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="561">
+(\(n=1\)) 
+</p>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="562">
+\[ \sum _{i=1}^{1} i^3 = 1 = \left (\frac {1 \cdot 2}{2}\right )^2 . \]
+</p>
+
+
+</dd>
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="565">Inductiehypothese:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="565">
+Neem aan dat de stelling geldt voor \(n-1\). 
+</p>
+
+</dd>
+<dt><span class="listmarker" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="566">Inductie Stap:</span></dt>
+<dd>
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="566">
+(\(n-1\to n\)): 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="567"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                        n
+                                                                                        X            n−1
+                                                                                                     X
+                                                                                              i3 =         i3 + n3
+                                                                                        i=1          i=1
+                                                                                                                   2
+                                                                                                         (n − 1)n
+                                                                                                =                        + n3   (IH)
+                                                                                                             2
+                                                                                                  n2 (n − 1)2 + 4n3
+                                                                                                =
+                                                                                                          4
+                                                                                                                    
+                                                                                                  n (n − 1)2 + 4n
+                                                                                                   2
+                                                                                                =
+                                                                                                           4
+                                                                                                                           2
+                                                                                                  n (n + 1)2
+                                                                                                   2
+                                                                                                                
+                                                                                                                  n(n + 1)
+                                                                                                =             =               .
+                                                                                                       4              2
+
+-->
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="567">
+
+\begin{align*}
+\sum _{i=1}^{n} i^3 &amp;= \sum _{i=1}^{n-1} i^3 + n^3 \\ &amp;= \left (\frac {(n-1)n}{2}\right )^2 + n^3 \quad \text {(IH)}\\ &amp;= \frac {n^2(n-1)^2 + 4n^3}{4} \\ &amp;= \frac {n^2\left
+((n-1)^2 + 4n\right )}{4} \\ &amp;= \frac {n^2(n+1)^2}{4} = \left (\frac {n(n+1)}{2}\right )^2 .
+\end{align*}
+
+</p>
+</dd>
+</dl>
+
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="580">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="580">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="580"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-51" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="580">Oefening 4</h6>
+<a id="mkpiweb-autopage-51"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="581">
+Toon aan (met herindexeren) dat 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="582">
+\[ \sum _{i=0}^{n} (a_{i+1}-a_i)b_i = a_{n+1}b_n - a_0 b_0 - \sum _{i=0}^{n-1} a_{i+1}(b_{i+1}-b_i).                          \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="586">
+(<em>Discrete “partiële integratie!”</em>.)
+</p>
+
+
+<div class="oplossing" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="589">
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="589">
+We werken het linkerlid uit met lineariteit: 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="590">
+\[ \sum _{i=0}^{n} (a_{i+1}-a_i)b_i = \sum _{i=0}^{n} a_{i+1}b_i - \sum _{i=0}^{n} a_i b_i .                      \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="594">
+Van de eerste som splitsen we de laatste term af, van de tweede de eerste: 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="595"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                n
+                                                                                                X                 n−1
+                                                                                                                  X
+                                                                                                      ai+1 bi =         ai+1 bi + an+1 bn ,
+                                                                                                i=0               i=0
+                                                                                                  n
+                                                                                                  X                        n
+                                                                                                                           X
+                                                                                                        ai bi = a0 b0 +          ai bi .
+                                                                                                  i=0                      i=1
+
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="595">
+
+\begin{align*}
+\sum _{i=0}^{n} a_{i+1}b_i &amp;= \sum _{i=0}^{n-1} a_{i+1}b_i + a_{n+1}b_n,\\ \sum _{i=0}^{n} a_i b_i &amp;= a_0 b_0 + \sum _{i=1}^{n} a_i b_i .
+\end{align*}
+Die laatste som herindexeren we met <span data-mkpi-bestand="sommaties.tex" data-mkpi-regel="599">\(j=i-1\)</span>, zodat ze over hetzelfde bereik loopt als de eerste: 
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="601">
+\[ \sum _{i=1}^{n} a_i b_i = \sum _{j=0}^{n-1} a_{j+1}b_{j+1}.        \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="604">
+Nu lopen beide sommen van \(0\) tot \(n-1\) en groeperen we ze samen: 
+</p>
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="605"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                               n
+                                                                               X                                              n−1
+                                                                                                                              X                 n−1
+                                                                                                                                                X
+                                                                                     (ai+1 − ai )bi = an+1 bn − a0 b0 +             ai+1 bi −         ai+1 bi+1
+                                                                               i=0                                            i=0               i=0
+                                                                                                                              n−1
+                                                                                                                              X
+                                                                                                   = an+1 bn − a0 b0 −              ai+1 (bi+1 − bi ).
+                                                                                                                              i=0
+
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="605">
+
+\begin{align*}
+\sum _{i=0}^{n} (a_{i+1}-a_i)b_i &amp;= a_{n+1}b_n - a_0 b_0 + \sum _{i=0}^{n-1} a_{i+1}b_i - \sum _{i=0}^{n-1} a_{i+1}b_{i+1}\\ &amp;= a_{n+1}b_n - a_0 b_0 - \sum _{i=0}^{n-1}
+a_{i+1}(b_{i+1}-b_i).
+\end{align*}
+Neem je <span data-mkpi-bestand="sommaties.tex" data-mkpi-regel="611">\(b_i=1\)</span> voor elke <span data-mkpi-bestand="sommaties.tex" data-mkpi-regel="611">\(i\)</span>, dan valt de restsom weg en houd je de telescopische som <span data-mkpi-bestand="sommaties.tex" data-mkpi-regel="611">\(a_{n+1}-a_0\)</span> over.
+</p>
+</div>
+
+</div>
+
+
+
+<div class="cursusappendix" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="624"><a href="sommaties_Appendix.pdf" download="sommaties_Appendix.pdf"></a></div>
+
+
+<!--
+...... section Samenvatting ......
+-->
+<h4 id="autosec-52" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="625"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="625">A&#x2003;</span>Samenvatting</h4>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="627">
+<div class="sameslide" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="627">
+</p>
+
+
+<!--
+...... subsection Notatie ......
+-->
+<h5 id="autosec-53" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="629"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="629">1&#x2003;</span>Notatie</h5>
+<a id="mkpiweb-autopage-53"></a>
+
+
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="630">
+\[ \sum _{i=0}^{n} a_i = a_0 + a_1 + \cdots + a_n \]
+</p>
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="633">
+met \(\sum \) het <em>sommatieteken</em>, \(i\) de <em>sommatie-index</em> en \(a_i\) de <em>termen</em>.
+</p>
+
+
+<!--
+...... subsection Lineariteit ......
+-->
+<h5 id="autosec-54" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="635"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="635">2&#x2003;</span>Lineariteit</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="636">
+\[ \sum _{i=0}^{n} (k\,a_i + l\,b_i) = k \sum _{i=0}^{n} a_i + l \sum _{i=0}^{n} b_i \]
+</p>
+
+
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="639"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                   n
+                                                   X            n
+                                                                X             n
+                                                                              X
+                                                         ai +          bi =         (ai + bi ),                             (groeperen som)
+                                                   i=0          i=0           i=0
+                                                   n
+                                                   X            n
+                                                                X             n
+                                                                              X
+                                                         ai −          bi =         (ai − bi ),                             (groeperen verschil)
+                                                   i=0          i=0           i=0
+                                                         n
+                                                         X                       n
+                                                                                 X
+                                                               (k · ai ) = k ·          ai ,                                (scalair product)
+                                                         i=0                     i=0
+                                                                 n
+                                                                 X
+                                                                       k = (n + 1) k.                                       (som van constanten)
+                                                                 i=0
+
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="639">
+
+\begin{align*}
+\sum _{i=0}^{n} a_i + \sum _{i=0}^{n} b_i &amp;= \sum _{i=0}^{n} (a_i+b_i), &amp;&amp; \text {(groeperen som)}\\ \sum _{i=0}^{n} a_i - \sum _{i=0}^{n} b_i &amp;= \sum _{i=0}^{n} (a_i-b_i),
+&amp;&amp; \text {(groeperen verschil)}\\ \sum _{i=0}^{n} (k\cdot a_i) &amp;= k \cdot \sum _{i=0}^{n} a_i, &amp;&amp; \text {(scalair product)}\\ \sum _{i=0}^{n} k &amp;= (n+1)\,k. &amp;&amp;
+\text {(som van constanten)}
+\end{align*}
+
+</p>
+
+
+<!--
+...... subsection Bereik ......
+-->
+<h5 id="autosec-55" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="646"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="646">3&#x2003;</span>Bereik</h5>
+<a id="mkpiweb-autopage-55"></a>
+
+
+
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="647"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                    n
+                                                    X             m
+                                                                  X              n
+                                                                                 X
+                                                          ai =          ai +           ai   (m < n),                               (splitsen)
+                                                    i=0           i=0          i=m+1
+                                                  n
+                                                  X                n+c
+                                                                   X
+                                                        f (i) =            f (j − c),                                              (herindexeren)
+                                                  i=m             j=m+c
+                                                    n
+                                                    X             n
+                                                                  X
+                                                          ai =          an−i .                                                     (omkeren)
+                                                    i=0           i=0
+
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="647">
+
+\begin{align*}
+\sum _{i=0}^{n} a_i &amp;= \sum _{i=0}^{m} a_i + \sum _{i=m+1}^{n} a_i \quad (m&lt;n), &amp;&amp; \text {(splitsen)}\\ \sum _{i=m}^{n} f(i) &amp;= \sum _{j=m+c}^{n+c} f(j-c), &amp;&amp; \text
+{(herindexeren)}\\ \sum _{i=0}^{n} a_i &amp;= \sum _{i=0}^{n} a_{n-i}. &amp;&amp; \text {(omkeren)}
+\end{align*}
+
+</p>
+
+
+<!--
+...... subsection Kernformules ......
+-->
+<h5 id="autosec-56" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="653"><span class="sectionnumber" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="653">4&#x2003;</span>Kernformules</h5>
+<a id="mkpiweb-autopage-56"></a>
+
+
+
+<span class="hidden" data-mkpi-bestand="sommaties.tex" data-mkpi-regel="654"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                           n
+                                                           X           n(n + 1)
+                                                                 i=             ,                                           (som natuurlijke getallen)
+                                                           i=1
+                                                                          2
+                                                          n
+                                                          X            n(n + 1)(2n + 1)
+                                                                i2 =                    ,                                   (som kwadraten)
+                                                          i=1
+                                                                              6
+                                                          n
+                                                          X            x − xn+1
+                                                                xi =                (x ̸= 1),                               (meetkundige som)
+                                                          i=1
+                                                                         1−x
+                                               n
+                                               X
+                                                                                                                            (telescopische som)
+                                                               
+                                                      ai+1 − ai = an+1 − a1 .
+                                                i=1
+
+
+
+-->
+
+
+<p data-mkpi-bestand="sommaties.tex" data-mkpi-regel="654">
+
+\begin{align*}
+\sum _{i=1}^{n} i &amp;= \frac {n(n+1)}{2}, &amp;&amp; \text {(som natuurlijke getallen)}\\ \sum _{i=1}^{n} i^2 &amp;= \frac {n(n+1)(2n+1)}{6}, &amp;&amp; \text {(som kwadraten)}\\ \sum
+_{i=1}^{n} x^i &amp;= \frac {x-x^{n+1}}{1-x} \quad (x\neq 1), &amp;&amp; \text {(meetkundige som)}\\ \sum _{i=1}^{n} \bigl (a_{i+1}-a_i\bigr ) &amp;= a_{n+1}-a_1. &amp;&amp; \text
+{(telescopische som)}
+\end{align*}
+</div>
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=8bd2a40b321f"></script>
+<script src="statistieken.js?v=8bd2a40b321f"></script>
+</body>
+</html>

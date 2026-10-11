@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Formules van Vieta</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=2d1752cd286d" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * Python runs in the page (Pyodide): exercises with checks and hints,
+//    and code you can step through instruction by instruction or, for a
+//    loop, line by line with its variables in view; each Python section
+//    also comes as a notebook;
+//  * a matrix calculator and a function calculator whose CAS derives step
+//    by step, in the notation of the course;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well.
+//
+
+MathJax = {
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=2d1752cd286d"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=2d1752cd286d"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="10">
+<header class="cursustitel">  <h1 data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="10">Formules van Vieta</h1> </header>
+</p>
+
+
+<!--
+...... section Eén wortel is genoeg ......
+-->
+<h4 id="autosec-2" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="45"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="45">I&#x2003;</span>Eén wortel is genoeg</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="47">
+Stel dat je de vergelijking 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="48">
+\[ 6x^2+x-2=0 \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="51">
+moet oplossen. Iemand verklapt dat \(x_1=\dfrac {1}{2}\) een oplossing is. Je kan dat meteen controleren: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="53">
+\[ 6\left (\frac {1}{2}\right )^2+\frac {1}{2}-2 =\frac {3}{2}+\frac {1}{2}-2=0.          \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="57">
+Moeten we nu nog de discriminant berekenen om de andere oplossing te vinden? Nee. De bekende oplossing geeft ons een factor, en met die factor
+vinden we de andere oplossing bijna zonder rekenwerk.
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="61">
+In dit hoofdstuk noemen we een oplossing van een vergelijking ook een <b>wortel</b>. We gebruiken de namen \(x_1\) en \(x_2\) voor de twee
+wortels.
+</p>
+
+
+<!--
+...... subsection Van een wortel naar een factor ......
+-->
+<h5 id="autosec-3" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="64"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="64">1&#x2003;</span>Van een wortel naar een factor</h5>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="66">
+Je kent al het verband 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="67">
+\[ x_1\text { is een wortel} \iff x-x_1\text { is een factor}.       \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="71">
+Omdat \(x_1=\dfrac {1}{2}\) een wortel is, kunnen we dus schrijven 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="72">
+\[ 6x^2+x-2=\left (x-\frac {1}{2}\right )(\mathord {?}).      \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="75">
+We zoeken de tweede factor. Daarvoor kijken we eerst naar de buitenste termen.
+</p>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="78">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="78">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="78">•</span> Deel de term \(6x^2\) door \(x\). Dat geeft \(6x\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="79">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="79">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="79">•</span> Deel de constante term \(-2\) door \(-\dfrac {1}{2}\). Dat geeft \(4\).
+</p>
+</li>
+</ul>
+
+
+<div class="center" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="83">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="83">
+ <span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="83"
+><!--
+        delen door x
+                       1
+6x2 +x −2 = ( x −        ) · ( 6x + 4 )
+                       2
+                              1
+               delen door −
+                              2
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="83"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="113">
+De ontbrekende factor moet dus \(6x+4\) zijn. We controleren door uit te werken: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="114">
+\[ \left (x-\frac {1}{2}\right )(6x+4) \opl {=6x^2+4x-3x-2=6x^2+x-2.} \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="118">
+Daarmee is de vergelijking volledig ontbonden: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="119">
+\[ \left (x-\frac {1}{2}\right )(6x+4)=0.      \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="122">
+Een product is nul als minstens één factor nul is. De tweede factor geeft 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="123">
+\[ 6x+4=0 \iff x=-\frac {2}{3}.     \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="126">
+De twee wortels zijn dus \(x_1=\dfrac {1}{2}\) en \(x_2=-\dfrac {2}{3}\).
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="129">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="129">
+We gebruikten geen nieuwe formule. We combineerden alleen twee bekende ideeën: een wortel geeft een factor, en de buitenste termen
+bepalen de buitenste termen van het product.
+</p>
+
+</div>
+
+
+<!--
+...... subsection Probeer het zelf ......
+-->
+<h5 id="autosec-7" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="134"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="134">2&#x2003;</span>Probeer het zelf</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="136">
+We weten dat \(x_1=2\) een wortel is van \(3x^2-5x-2=0\).
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="138">
+<b>Stap 1.</b> De bekende wortel geeft de factor 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="140">
+\[ x-x_1=\opl [3cm]{x-2}.       \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="144">
+<b>Stap 2.</b> Zoek de buitenste termen van de tweede factor: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="145">
+\[ \frac {3x^2}{x}=\opl [2.5cm]{3x} \qquad \text {en}\qquad \frac {-2}{-2}=\opl [2.5cm]{1}.        \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="151">
+<b>Stap 3.</b> Vul aan en werk het product uit als controle: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="152">
+\[ 3x^2-5x-2=(x-2)\opl [3cm]{(3x+1)}.     \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="156">
+<b>Stap 4.</b> Stel de nieuwe factor gelijk aan nul: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="157">
+\[ \opl [2.5cm]{3x+1}=0 \iff x_2=\opl [2.5cm]{-\frac {1}{3}}.     \]
+</p>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="161">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="161">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="161"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-8" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="161">Oefening 1</h6>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="162">
+Probeer bij elke vergelijking de voorgestelde eenvoudige getallen. Zodra je een wortel vindt, gebruik je het trucje met de twee buitenste termen om
+de andere wortel te bepalen.
+</p>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="167">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="167">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="167">(a)</span> \(x^2-5x+6=0\). Probeer \(x=0\), \(x=1\) en \(x=2\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="169">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="169">
+Voor \(x=2\) krijgen we \(2^2-5\cdot 2+6=0\). Dus \(x_1=2\) en \(x-2\) is een factor. We zoeken de andere factor: 
+</p>
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="171">
+\[ \frac {x^2}{x}=x \qquad \text {en}\qquad \frac {6}{-2}=-3. \]
+</p>
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="176">
+Daarom is \(x^2-5x+6=(x-2)(x-3)\). De andere wortel is \(x_2=3\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="178">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="178">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="178">(b)</span> \(2x^2+x-3=0\). Probeer \(x=-1\), \(x=0\) en \(x=1\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="180">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="180">
+Voor \(x=1\) krijgen we \(2\cdot 1^2+1-3=0\). Dus \(x_1=1\) en \(x-1\) is een factor. Voor de andere factor vinden we 
+</p>
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="182">
+\[ \frac {2x^2}{x}=2x \qquad \text {en}\qquad \frac {-3}{-1}=3. \]
+</p>
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="187">
+Daarom is \(2x^2+x-3=(x-1)(2x+3)\). De andere wortel is \(x_2=-\dfrac {3}{2}\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="190">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="190">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="190">(c)</span> \(3x^2-7x+2=0\). Probeer \(x=0\), \(x=1\) en \(x=2\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="192">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="192">
+Voor \(x=2\) krijgen we \(3\cdot 2^2-7\cdot 2+2=0\). Dus \(x_1=2\) en \(x-2\) is een factor. Voor de andere factor vinden we 
+</p>
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="194">
+\[ \frac {3x^2}{x}=3x \qquad \text {en}\qquad \frac {2}{-2}=-1. \]
+</p>
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="199">
+Daarom is \(3x^2-7x+2=(x-2)(3x-1)\). De andere wortel is \(x_2=\dfrac {1}{3}\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="202">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="202">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="202">(d)</span> \(2x^2+5x+2=0\). Probeer \(x=-2\), \(x=-1\) en \(x=0\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="204">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="204">
+Voor \(x=-2\) krijgen we \(2\cdot (-2)^2+5\cdot (-2)+2=0\). Dus \(x_1=-2\) en \(x+2\) is een factor. Voor de andere factor vinden we 
+</p>
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="206">
+\[ \frac {2x^2}{x}=2x \qquad \text {en}\qquad \frac {2}{2}=1. \]
+</p>
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="211">
+Daarom is \(2x^2+5x+2=(x+2)(2x+1)\). De andere wortel is \(x_2=-\dfrac {1}{2}\).
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Het trucje met letters ......
+-->
+<h4 id="autosec-9" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="217"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="217">II&#x2003;</span>Het trucje met letters</h4>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="219">
+Het voorbeeld toont hoe de werkwijze loopt. We onderzoeken nu waarom die voor elke tweedegraadsvergelijking werkt.
+</p>
+
+
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="223">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="223">
+Neem 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="224">
+\[ ax^2+bx+c=0 \qquad (a\neq 0) \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="227">
+en veronderstel eerst dat we een wortel \(x_1\neq 0\) kennen. De bijbehorende factor is \(x-x_1\): 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="229">
+\[ ax^2+bx+c=(x-x_1)(\mathord {?}).     \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="232">
+Net als in het voorbeeld bepalen we de twee buitenste termen van de ontbrekende factor: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="234">
+\[ \frac {ax^2}{x}=ax \qquad \text {en}\qquad \frac {c}{-x_1}=-\frac {c}{x_1}.         \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="239">
+We verwachten dus 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="240">
+\[ ax^2+bx+c=(x-x_1)\left (ax-\frac {c}{x_1}\right ).       \]
+</p>
+
+</div>
+
+
+<!--
+...... subsection Waarom klopt de middelste term? ......
+-->
+<h5 id="autosec-10" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="245"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="245">1&#x2003;</span>Waarom klopt de middelste term?</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="247">
+De buitenste termen kloppen zeker, maar we moeten ook de term in \(x\) controleren.
+</p>
+
+
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="251">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="251">
+Omdat \(x_1\) een wortel is, geldt 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="252">
+\[ ax_1^2+bx_1+c=0.   \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="255">
+We delen elke term door \(x_1\). Dat mag omdat \(x_1\neq 0\): 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="256">
+\[ ax_1+b+\frac {c}{x_1}=0.    \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="259">
+Daaruit volgt 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="260">
+\[ b=-ax_1-\frac {c}{x_1}.    \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="263">
+Werk nu ons product uit: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="264">
+\[ (x-x_1)\left (ax-\frac {c}{x_1}\right ) =ax^2+\left (-ax_1-\frac {c}{x_1}\right )x+c =ax^2+bx+c.          \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="269">
+De middelste term klopt dus ook. Daarmee hebben we het trucje bewezen.
+</p>
+</div>
+
+
+<!--
+...... subsection De tweede wortel ......
+-->
+<h5 id="autosec-11" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="272"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="272">2&#x2003;</span>De tweede wortel</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="274">
+De tweede factor levert de tweede wortel: 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="276">
+
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="276">
+\[ ax-\frac {c}{x_1}=0 \iff ax=\frac {c}{x_1} \iff \boxed {x_2=\frac {c}{ax_1}}.           \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="281">
+Dit is de snelste formule wanneer één niet-nulle wortel al bekend is.
+</p>
+</div>
+
+
+<!--
+...... subsection Wat als de bekende wortel nul is? ......
+-->
+<h5 id="autosec-12" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="284"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="284">3&#x2003;</span>Wat als de bekende wortel nul is?</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="286">
+We mogen niet delen door \(x_1\) wanneer \(x_1=0\). In dat geval is het probleem nog eenvoudiger. 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="289">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="289">
+Uit 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="290">
+\[ a\cdot 0^2+b\cdot 0+c=0 \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="293">
+volgt \(c=0\). We kunnen dan \(x\) buitenbrengen: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="294">
+\[ ax^2+bx=x(ax+b).   \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="297">
+De wortels zijn \(x_1=0\) en \(x_2=-\dfrac {b}{a}\). Ook dan is hun product \(0=\dfrac {c}{a}\) en hun som \(-\dfrac {b}{a}\). Het
+nulgeval zal dus aan dezelfde algemene formules voldoen.
+</p>
+</div>
+
+
+<!--
+...... section De formules van Vieta ......
+-->
+<h4 id="autosec-13" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="302"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="302">III&#x2003;</span>De formules van Vieta</h4>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="304">
+Uit het trucje volgt meteen een verband tussen de twee wortels.
+</p>
+
+
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="307">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="307">
+Vermenigvuldig \(x_2=\dfrac {c}{ax_1}\) met \(x_1\): 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="309">
+\[ x_1x_2=\frac {c}{a}.     \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="312">
+We vonden daarnet ook 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="313">
+\[ b=-ax_1-\frac {c}{x_1}.        \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="316">
+Omdat \(\dfrac {c}{x_1}=ax_2\), wordt dit 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="317">
+\[ b=-ax_1-ax_2=-a(x_1+x_2).           \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="320">
+Na delen door \(-a\) volgt het tweede verband: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="321">
+\[ x_1+x_2=-\frac {b}{a}.        \]
+</p>
+
+</div>
+
+
+<!--
+...... subsection Stelling ......
+-->
+<h5 id="autosec-14" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="326"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="326">1&#x2003;</span>Stelling</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="328">
+Als \(x_1\) en \(x_2\) de wortels zijn van 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="329">
+\[ ax^2+bx+c=0 \qquad (a\neq 0), \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="332">
+dan geldt 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="333">
+\[ \boxed {x_1+x_2=-\frac {b}{a}} \qquad \text {en}\qquad \boxed {x_1x_2=\frac {c}{a}}.          \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="338">
+Dit zijn de <b>formules van Vieta</b>.
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="340">
+De eerste formule gaat over de <em>som</em> van de wortels. Let op het minteken. De tweede gaat over het <em>product</em> en heeft geen extra
+minteken.
+</p>
+
+
+<!--
+...... subsection Eerst de coefficienten lezen ......
+-->
+<h5 id="autosec-15" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="343"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="343">2&#x2003;</span>Eerst de coëfficiënten lezen</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="345">
+Voor je de formules gebruikt, schrijf je \(a\), \(b\) en \(c\) op. Vooral het teken van \(b\) of \(c\) wordt anders gemakkelijk vergeten.
+</p>
+
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="349">
+<div class="voorbeeld" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="349"> Bereken de som en het product van de wortels van 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="350">
+\[ 3x^2-7x-6=0 \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="353">
+zonder de vergelijking op te lossen.
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="355">
+We lezen eerst de coëfficiënten af: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="356">
+\[ a=3,\qquad b=-7,\qquad c=-6.     \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="359">
+Daarom 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="360">
+\[ x_1+x_2=-\frac {-7}{3}=\frac {7}{3} \qquad \text {en}\qquad x_1x_2=\frac {-6}{3}=-2.             \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="365">
+We kennen nu de som en het product, hoewel we de wortels zelf niet hebben berekend. </div>
+</p>
+
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="370">
+<div class="voorbeeld" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="370"> Voor \(x^2-6x+9=0\) vinden we 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="371">
+\[ x_1+x_2=6 \qquad \text {en}\qquad x_1x_2=9.        \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="376">
+De twee wortels zijn hier gelijk: \(x_1=x_2=3\). De formules werken dus ook bij een dubbele wortel. </div>
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-16" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="380"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="380">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="384">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="384">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="384"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-17" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="384">Oefening 2</h6>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="385">
+Bereken telkens de som en het product van de wortels zonder de vergelijking op te lossen. Schrijf eerst \(a\), \(b\) en \(c\) op. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="388">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="388">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="388">(a)</span> \(x^2-7x+12=0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="390">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="390">
+\(a=1\), \(b=-7\) en \(c=12\). Dus \(x_1+x_2=7\) en \(x_1x_2=12\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="392">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="392">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="392">(b)</span> \(2x^2+5x-3=0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="394">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="394">
+\(a=2\), \(b=5\) en \(c=-3\). Dus \(x_1+x_2=-\dfrac {5}{2}\) en \(x_1x_2=-\dfrac {3}{2}\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="397">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="397">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="397">(c)</span> \(3x^2-12x=0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="399">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="399">
+\(a=3\), \(b=-12\) en \(c=0\). Dus \(x_1+x_2=4\) en \(x_1x_2=0\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="401">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="401">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="401">(d)</span> \(5x^2-20x+20=0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="403">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="403">
+\(a=5\), \(b=-20\) en \(c=20\). Dus \(x_1+x_2=4\) en \(x_1x_2=4\). De twee wortels zijn gelijk aan \(2\).
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Een bekende wortel gebruiken ......
+-->
+<h4 id="autosec-18" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="411"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="411">IV&#x2003;</span>Een bekende wortel gebruiken</h4>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="413">
+Als één wortel gegeven is, kan je de andere op twee manieren berekenen: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="414">
+\[ x_2=\frac {c}{ax_1} \qquad \text {of}\qquad x_2=-\frac {b}{a}-x_1.        \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="419">
+De productformule is meestal het kortst. De somformule is daarna een handige controle.
+</p>
+
+
+<!--
+...... subsection Een vast stappenplan ......
+-->
+<h5 id="autosec-19" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="422"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="422">1&#x2003;</span>Een vast stappenplan</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="425">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="425">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="425">1.</span> Lees \(a\), \(b\) en \(c\) af. 
+</p>
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="426">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="426">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="426">2.</span> Bereken \(x_2=\dfrac {c}{ax_1}\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="427">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="427">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="427">3.</span> Controleer of \(x_1+x_2=-\dfrac {b}{a}\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="428">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="428">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="428">4.</span> Schrijf indien gevraagd \(ax^2+bx+c=a(x-x_1)(x-x_2)\).
+</p>
+</li>
+</ul>
+
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="433">
+<div class="voorbeeld" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="433"> Los \(4x^2-11x-3=0\) op, wetende dat \(x_1=3\) een wortel is.
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="435">
+Hier is \(a=4\), \(b=-11\) en \(c=-3\). Uit het product volgt 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="436">
+\[ x_2=\frac {c}{ax_1}=\frac {-3}{4\cdot 3}=-\frac {1}{4}.      \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="439">
+We controleren met de som: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="440">
+\[ x_1+x_2=3-\frac {1}{4}=\frac {11}{4} \qquad \text {en}\qquad -\frac {b}{a}=-\frac {-11}{4}=\frac {11}{4}.          \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="445">
+De controle klopt. De oplossingen zijn dus \(3\) en \(-\dfrac {1}{4}\). </div>
+</p>
+
+
+<!--
+...... subsection Ontbinden in factoren ......
+-->
+<h5 id="autosec-20" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="448"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="448">2&#x2003;</span>Ontbinden in factoren</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="450">
+Ken je beide wortels, dan kan je de veelterm ontbinden: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="451">
+\[ ax^2+bx+c=a(x-x_1)(x-x_2).    \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="454">
+Bij breukwortels kan je factoren herschikken om breuken in de haakjes te vermijden.
+</p>
+
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="458">
+<div class="voorbeeld" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="458"> Ontbind \(6x^2+x-2\) in factoren, wetende dat \(x_1=\dfrac {1}{2}\) een wortel is.
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="460">
+We vonden aan het begin al \(x_2=-\dfrac {2}{3}\). Daarom 
+</p>
+<span class="hidden" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="461"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                  
+                                                                                            2               1      2
+                                                                                         6x + x − 2 = 6 x −     x+
+                                                                                                            2      3
+                                                                                                                    
+                                                                                                            1        2
+                                                                                                    =2 x−      3 x+
+                                                                                                            2        3
+                                                                                                      | {z } | {z }
+                                                                                                          2x−1       3x+2
+
+                                                                                                     = (2x − 1)(3x + 2).
+
+
+
+-->
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="461">
+
+\begin{align*}
+6x^2+x-2 &amp;=6\left (x-\frac {1}{2}\right )\left (x+\frac {2}{3}\right )\\ &amp;=\underbrace {2\left (x-\frac {1}{2}\right )}_{2x-1} \underbrace {3\left (x+\frac {2}{3}\right )}_{3x+2}\\
+&amp;=(2x-1)(3x+2).
+\end{align*}
+Uitwerken geeft <span data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="468">\(6x^2+4x-3x-2=6x^2+x-2\)</span>, dus de ontbinding klopt. </div>
+</p>
+
+
+<!--
+...... subsection Geleide oefening ......
+-->
+<h5 id="autosec-21" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="471"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="471">3&#x2003;</span>Geleide oefening</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="473">
+Los \(7x^2-13x-2=0\) op, wetende dat \(x_1=2\) een wortel is.
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="475">
+<b>Stap 1.</b> Lees de coëfficiënten af: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="477">
+\[ a=\opl [2cm]{7},\qquad b=\opl [2cm]{-13},\qquad c=\opl [2cm]{-2}.       \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="481">
+<b>Stap 2.</b> Bepaal de tweede wortel: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="482">
+\[ x_2=\frac {c}{ax_1} =\opl [5cm]{\frac {-2}{7\cdot 2}=-\frac {1}{7}}.         \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="487">
+<b>Stap 3.</b> Controleer met de som: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="488">
+\[ x_1+x_2=\opl [3cm]{\frac {13}{7}} \qquad \text {en}\qquad -\frac {b}{a}=\opl [3cm]{\frac {13}{7}}.         \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="494">
+<b>Stap 4.</b> Ontbind in factoren: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="495">
+\[ 7x^2-13x-2 =\opl [7cm]{7(x-2)\left (x+\frac {1}{7}\right )=(x-2)(7x+1)}.          \]
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-22" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="500"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="500">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="504">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="504">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="504"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-23" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="504">Oefening 3</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="505">
+Bepaal telkens de tweede wortel. Controleer met de som en ontbind daarna in factoren. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="508">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="508">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="508">(a)</span> \(2x^2-5x-3=0\) met \(x_1=3\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="510">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="510">
+\(a=2\), \(b=-5\) en \(c=-3\). Uit het product volgt \(x_2=\dfrac {-3}{2\cdot 3}=-\dfrac {1}{2}\). De som \(3-\dfrac {1}{2}=\dfrac
+{5}{2}=-\dfrac {b}{a}\) klopt. Dus \(2x^2-5x-3=(x-3)(2x+1)\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="515">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="515">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="515">(b)</span> \(3x^2+22x+7=0\) met \(x_1=-\dfrac {1}{3}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="517">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="517">
+\(x_2=\dfrac {7}{3\left (-\frac {1}{3}\right )}=-7\). De som \(-\dfrac {1}{3}-7=-\dfrac {22}{3}=-\dfrac {b}{a}\) klopt. Dus
+\(3x^2+22x+7=(3x+1)(x+7)\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="521">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="521">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="521">(c)</span> \(4x^2-4x-3=0\) met \(x_1=\dfrac {3}{2}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="523">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="523">
+\(x_2=\dfrac {-3}{4\cdot \frac {3}{2}}=-\dfrac {1}{2}\). De som \(\dfrac {3}{2}-\dfrac {1}{2}=1=-\dfrac {b}{a}\) klopt. Dus
+\(4x^2-4x-3=(2x-3)(2x+1)\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="527">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="527">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="527">(d)</span> \(5x^2+13x+6=0\) met \(x_1=-2\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="529">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="529">
+\(x_2=\dfrac {6}{5\cdot (-2)}=-\dfrac {3}{5}\). De som \(-2-\dfrac {3}{5}=-\dfrac {13}{5}=-\dfrac {b}{a}\) klopt. Dus
+\(5x^2+13x+6=(x+2)(5x+3)\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="533">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="533">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="533">(e)</span> \(3x^2-12x=0\) met \(x_1=0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="535">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="535">
+We delen niet door \(x_1\). We brengen \(x\) buiten: \(3x^2-12x=3x(x-4)\). De tweede wortel is \(x_2=4\).
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Twee getallen toetsen ......
+-->
+<h4 id="autosec-24" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="543"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="543">V&#x2003;</span>Twee getallen toetsen</h4>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="545">
+Om na te gaan of twee gegeven getallen de wortels zijn, hoef je ze niet apart in de vergelijking in te vullen. Je vergelijkt hun som en product met de
+formules van Vieta. <em>Beide</em> verbanden moeten kloppen.
+</p>
+
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="550">
+<div class="voorbeeld" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="550"> Zijn \(2\) en \(-\dfrac {3}{4}\) de wortels van \(4x^2+x-6=0\)?
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="552">
+Volgens Vieta moeten de wortels voldoen aan 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="553">
+\[ x_1+x_2=-\frac {1}{4} \qquad \text {en}\qquad x_1x_2=-\frac {3}{2}.           \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="558">
+Voor de twee gegeven getallen vinden we 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="559">
+\[ 2-\frac {3}{4}=\frac {5}{4} \qquad \text {en}\qquad 2\left (-\frac {3}{4}\right )=-\frac {3}{2}.                \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="564">
+Het product klopt, maar de som niet. De getallen zijn dus niet de twee wortels. </div>
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="568">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="568">
+Eén kloppend verband is niet genoeg. Een fout paar kan toevallig het juiste product of de juiste som hebben.
+</p>
+
+</div>
+
+
+<!--
+...... section Een vergelijking bouwen ......
+-->
+<h4 id="autosec-25" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="572"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="572">VI&#x2003;</span>Een vergelijking bouwen</h4>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="574">
+Tot nu toe vertrokken we van een vergelijking. We kunnen ook in de andere richting werken.
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="577">
+Als twee getallen som \(s\) en product \(p\) hebben, dan geldt volgens Vieta 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="578">
+\[ s=-\frac {b}{a} \qquad \text {en}\qquad p=\frac {c}{a}.        \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="583">
+Kies eerst \(a=1\). Dan is \(b=-s\) en \(c=p\). We krijgen de eenvoudige vorm 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="584">
+\[ \boxed {x^2-sx+p=0}.    \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="587">
+Staan er breuken in de vergelijking, dan vermenigvuldigen we nadien alle termen met de kleinste gemeenschappelijke noemer.
+</p>
+
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="591">
+<div class="voorbeeld" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="591"> Schrijf een vergelijking met gehele coëfficiënten waarvan de wortels som \(\dfrac {5}{2}\) en
+product \(-\dfrac {3}{2}\) hebben.
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="594">
+We vullen \(s=\dfrac {5}{2}\) en \(p=-\dfrac {3}{2}\) in: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="595">
+\[ x^2-\frac {5}{2}x-\frac {3}{2}=0.      \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="598">
+We vermenigvuldigen alle termen met \(2\): 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="599">
+\[ 2x^2-5x-3=0.    \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="602">
+Controle: Vieta geeft som \(\dfrac {5}{2}\) en product \(-\dfrac {3}{2}\). </div>
+</p>
+
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="606">
+<div class="voorbeeld" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="606"> Schrijf een vergelijking met wortels \(4\) en \(-1\).
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="608">
+Hun som is \(s=4+(-1)=3\) en hun product is \(p=4\cdot (-1)=-4\). Dus 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="609">
+\[ x^2-3x-4=0.    \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="612">
+We kunnen ook rechtstreeks de factoren gebruiken: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="613">
+\[ (x-4)(x+1)=0 \iff x^2-3x-4=0.     \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="616">
+Beide wegen geven dezelfde vergelijking. </div>
+</p>
+
+
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-26" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="619"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="619">VII&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-26"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="623">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="623">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="623"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-27" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="623">Oefening 4</h6>
+<a id="mkpiweb-autopage-27"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="624">
+Ga na of de twee gegeven getallen de wortels zijn. Gebruik alleen hun som en product. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="627">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="627">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="627">(a)</span> \(-1\) en \(\dfrac {5}{2}\) voor \(2x^2-3x-5=0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="629">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="629">
+De vereiste som is \(\dfrac {3}{2}\) en het vereiste product is \(-\dfrac {5}{2}\). De getallen hebben som \(-1+\dfrac {5}{2}=\dfrac
+{3}{2}\) en product \(-1\cdot \dfrac {5}{2}=-\dfrac {5}{2}\). Beide kloppen, dus het zijn de wortels.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="635">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="635">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="635">(b)</span> \(\dfrac {1}{3}\) en \(-4\) voor \(3x^2+11x-4=0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="637">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="637">
+De vereiste som is \(-\dfrac {11}{3}\) en het vereiste product is \(-\dfrac {4}{3}\). De getallen hebben precies die som en dat product. Het
+zijn dus de wortels.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="641">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="641">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="641">(c)</span> \(2\) en \(3\) voor \(x^2-5x+7=0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="643">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="643">
+De som \(2+3=5\) klopt, maar het product \(2\cdot 3=6\) is niet gelijk aan \(7\). Het zijn dus niet de wortels.
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="650">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="650">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="650"></span>
+</p>
+<!--
+...... subsubsection Oefening 5 ......
+-->
+<h6 id="autosec-28" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="650">Oefening 5</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="651">
+Schrijf telkens een vergelijking met gehele coëfficiënten. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="653">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="653">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="653">(a)</span> De wortels hebben som \(1\) en product \(-12\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="655">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="655">
+Met \(s=1\) en \(p=-12\) krijgen we \(x^2-x-12=0\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="657">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="657">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="657">(b)</span> De wortels hebben som \(\dfrac {7}{3}\) en product \(-2\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="659">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="659">
+Eerst krijgen we \(x^2-\dfrac {7}{3}x-2=0\). Vermenigvuldigen met \(3\) geeft \(3x^2-7x-6=0\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="662">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="662">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="662">(c)</span> De wortels zijn \(\dfrac {1}{2}\) en \(\dfrac {1}{3}\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="664">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="664">
+De som is \(\dfrac {5}{6}\) en het product is \(\dfrac {1}{6}\). Dus \(x^2-\dfrac {5}{6}x+\dfrac {1}{6}=0\). Vermenigvuldigen met
+\(6\) geeft \(6x^2-5x+1=0\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="668">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="668">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="668">(d)</span> De wortels zijn \(2+\sqrt {3}\) en \(2-\sqrt {3}\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="670">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="670">
+De som is \(4\) en het product is \((2+\sqrt {3})(2-\sqrt {3})=4-3=1\). Dus \(x^2-4x+1=0\).
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="676">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="676">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="676"></span>
+</p>
+<!--
+...... subsubsection Oefening 6 ......
+-->
+<h6 id="autosec-29" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="676">Oefening 6</h6>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="677">
+De wortels \(x_1\) en \(x_2\) van \(x^2-6x+4=0\) hoeven niet berekend te worden. Gebruik alleen hun som en product om de uitdrukkingen te
+berekenen. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="680">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="680">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="680">(a)</span> \(x_1+x_2\) en \(x_1x_2\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="682">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="682">
+Volgens Vieta is \(x_1+x_2=6\) en \(x_1x_2=4\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="684">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="684">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="684">(b)</span> \(x_1^2+x_2^2\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="686">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="686">
+We gebruiken \((x_1+x_2)^2=x_1^2+2x_1x_2+x_2^2\): 
+</p>
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="687">
+\[ x_1^2+x_2^2=(x_1+x_2)^2-2x_1x_2=6^2-2\cdot 4=28. \]
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="691">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="691">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="691">(c)</span> \(\dfrac {1}{x_1}+\dfrac {1}{x_2}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="693">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="693">
+\[ \frac {1}{x_1}+\frac {1}{x_2} =\frac {x_1+x_2}{x_1x_2} =\frac {6}{4}=\frac {3}{2}. \]
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="699">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="699">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="699">(d)</span> \((x_1-x_2)^2\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="701">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="701">
+\[ (x_1-x_2)^2=(x_1+x_2)^2-4x_1x_2=6^2-4\cdot 4=20. \]
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Een tweede blik op het bewijs ......
+-->
+<h4 id="autosec-30" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="710"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="710">VIII&#x2003;</span>Een tweede blik op het bewijs</h4>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="712">
+Het deeltrucje verklaarde waar de formules vandaan komen. Er is ook een korte manier om beide formules tegelijk te zien.
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="715">
+Als \(x_1\) en \(x_2\) de wortels zijn, dan is 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="716">
+\[ ax^2+bx+c=a(x-x_1)(x-x_2).     \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="719">
+We werken het rechterlid uit: 
+</p>
+<span class="hidden" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="720"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                     a(x − x1 )(x − x2 ) = a x2 − (x1 + x2 )x + x1 x2
+                                                                                                                                        
+
+                                                                                                        = ax2 − a(x1 + x2 )x + ax1 x2 .
+
+
+
+-->
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="720">
+
+\begin{align*}
+a(x-x_1)(x-x_2) &amp;=a\bigl (x^2-(x_1+x_2)x+x_1x_2\bigr )\\ &amp;=ax^2-a(x_1+x_2)x+ax_1x_2.
+\end{align*}
+Vergelijk dit met <span data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="725">\(ax^2+bx+c\)</span>. De coëfficiënten van dezelfde machten van <span data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="725">\(x\)</span> moeten gelijk zijn: 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="727">
+\[ -a(x_1+x_2)=b \qquad \text {en}\qquad ax_1x_2=c.       \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="732">
+Na delen door \(-a\) en door \(a\) krijgen we opnieuw 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="733">
+\[ x_1+x_2=-\frac {b}{a} \qquad \text {en}\qquad x_1x_2=\frac {c}{a}.         \]
+</p>
+
+
+<!--
+...... section Historische noot ......
+-->
+<h4 id="autosec-31" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="739"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="739">IX&#x2003;</span>Historische noot</h4>
+<a id="mkpiweb-autopage-31"></a>
+
+
+
+<div class="marginblock" role="note" style="width:120pt; float:right; " data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="744">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="744">
+
+<a href="Francois_Viete.jpg" target="_blank" ><img
+    src="Francois_Viete.jpg"
+    style="
+    width:100pt;
+    "
+    class="inlineimage"
+    alt="(image)" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="744"
+></a>
+</p>
+
+
+<div class="figurecaption" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="744">
+François Viète, gravure, maker onbekend
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="749">
+De Franse wiskundige <b>François Viète</b> leefde van 1540 tot 1603. Rond 1591 beschreef hij hoe letters niet alleen onbekenden, maar
+ook gegeven getallen kunnen voorstellen. Daardoor konden wiskundigen een vergelijking als \(ax^2+bx+c=0\) in één keer algemeen bestuderen. De verbanden tussen wortels en coëfficiënten dragen daarom zijn
+naam. Zijn naam werd in het Latijn als <em>Vieta</em> geschreven.
+</p>
+
+
+
+<div class="cursusappendix" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="756"><a href="VietasFormule_Appendix.pdf" download="VietasFormule_Appendix.pdf"></a></div>
+
+
+<!--
+...... section Samenvatting ......
+-->
+<h4 id="autosec-33" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="757"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="757">A&#x2003;</span>Samenvatting</h4>
+<a id="mkpiweb-autopage-33"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="759">
+<div class="sameslide" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="759">
+</p>
+
+
+<!--
+...... subsection De formules ......
+-->
+<h5 id="autosec-34" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="761"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="761">1&#x2003;</span>De formules</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="763">
+Voor de wortels \(x_1\) en \(x_2\) van \(ax^2+bx+c=0\) met \(a\neq 0\) geldt 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="764">
+\[ \boxed {x_1+x_2=-\frac {b}{a}} \qquad \text {en}\qquad \boxed {x_1x_2=\frac {c}{a}}.       \]
+</p>
+
+
+<!--
+...... subsection Eén wortel is bekend ......
+-->
+<h5 id="autosec-35" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="770"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="770">2&#x2003;</span>Eén wortel is bekend</h5>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="772">
+Als \(x_1\neq 0\), dan 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="773">
+\[ x_2=\frac {c}{ax_1}.   \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="776">
+Controleer daarna met \(x_1+x_2=-\dfrac {b}{a}\). Als \(x_1=0\), breng je \(x\) buiten factor.
+</p>
+
+
+<!--
+...... subsection Ontbinden ......
+-->
+<h5 id="autosec-36" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="779"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="779">3&#x2003;</span>Ontbinden</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="781">
+\[ ax^2+bx+c=a(x-x_1)(x-x_2).   \]
+</p>
+
+
+<!--
+...... subsection Een vergelijking bouwen ......
+-->
+<h5 id="autosec-37" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="785"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="785">4&#x2003;</span>Een vergelijking bouwen</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="787">
+Bij som \(s\) en product \(p\) hoort 
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="788">
+\[ x^2-sx+p=0.   \]
+</p>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="791">
+Werk eventuele noemers weg om gehele coëfficiënten te krijgen.
+</p>
+
+
+<!--
+...... subsection Veelgemaakte fouten ......
+-->
+<h5 id="autosec-38" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="793"><span class="sectionnumber" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="793">5&#x2003;</span>Veelgemaakte fouten</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="796">
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="796">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="796">•</span> Vergeet het minteken niet in \(x_1+x_2=-\dfrac {b}{a}\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="797">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="797">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="797">•</span> Neem het teken van \(b\) en \(c\) over wanneer je de coëfficiënten leest. 
+</p>
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="798">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="798">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="798">•</span> Deel nooit door \(x_1\) als \(x_1=0\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="799">
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="799">
+<span class="listmarker" data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="799">•</span> Bij het toetsen van twee getallen moeten zowel de som als het product kloppen.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="VietasFormule.tex" data-mkpi-regel="799">
+</div>
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=2d1752cd286d"></script>
+<script src="statistieken.js?v=2d1752cd286d"></script>
+</body>
+</html>

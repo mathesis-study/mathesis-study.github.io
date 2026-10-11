@@ -1,0 +1,25 @@
+{
+ "titel": "Formules van Vieta",
+ "hoofdstuk": null,
+ "code": null,
+ "vak": "Keuze",
+ "domein": "KeuzevakWiskunde",
+ "domeinnaam": "Keuzevak Wiskunde",
+ "url": "keuzevak-wiskunde/vietas-formule",
+ "secties": [
+  "Eén wortel is genoeg",
+  "Het trucje met letters",
+  "De formules van Vieta",
+  "Een bekende wortel gebruiken",
+  "Twee getallen toetsen",
+  "Een vergelijking bouwen",
+  "Oefeningen",
+  "Een tweede blik op het bewijs",
+  "Historische noot",
+  "Samenvatting"
+ ],
+ "leerplandoelen": [],
+ "interactief": false,
+ "python": false,
+ "oefeningen": true
+}
