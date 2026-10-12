@@ -83,6 +83,10 @@
     return e;
   }
 
+  // Voor modules die hun eigen knoppen in dezelfde stijl nodig hebben
+  // (grm-demo.js): een pictogram uit ICOON op naam.
+  window.mathesisIcoon = function (naam) { return icoon(ICOON[naam]); };
+
   function icoon(pad) {
     var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     svg.setAttribute("viewBox", "0 0 24 24");
@@ -1420,16 +1424,19 @@
       });
     });
     zichtbaar.forEach(function (j) {
-      slides[j].querySelectorAll(".oplossing, .opl, .opl-math, .python-stapblok").forEach(function (element) {
+      slides[j].querySelectorAll(".oplossing, .opl, .opl-math, .python-stapblok, .grm-demo").forEach(function (element) {
         // Compact is een gesloten oplossing weg; haar oogje staat dan voor haar.
         var doel = element;
         if (!doel.getClientRects().length) doel = element._oog;
         if (!doel || !doel.getClientRects().length) return;
         // Een Pythoncodeblok met stappen (pythoncode[step-by-step]) beheert
         // zijn eigen stand; python-oefeningen.js zegt of er een stap is.
+        // Een demo met de rekenmachine (grm-demo.js) doet hetzelfde en geeft
+        // met doel() de tekst van de stap die aan de beurt is, zodat de pagina
+        // naar die stap scrolt en niet naar het einde van de hele demo.
         if (element._codestappen) {
           if (element._codestappen.kan(richting)) {
-            stappen.push({ doel: element, doe: function () {
+            stappen.push({ doel: (element._codestappen.doel && element._codestappen.doel(richting)) || element, doe: function () {
               element._codestappen.doe(richting);
             } });
           }
@@ -3235,8 +3242,8 @@
     var rijen = [
       ["→ · spatie", "volgende slide"],
       ["←", "vorige slide"],
-      ["↓ · Page Down", "scrollen tot de volgende stap in beeld is, dan voorbeeldinvoer, figuurstap, oplossing of kort antwoord, coderegel of slide"],
-      ["↑ · Page Up", "scrollen tot de vorige stap in beeld is, dan vorige figuurstap, oplossing of kort antwoord, coderegel of slide"],
+      ["↓ · Page Down", "scrollen tot de volgende stap in beeld is, dan voorbeeldinvoer, figuurstap, oplossing of kort antwoord, coderegel, stap van een rekenmachinedemo of slide"],
+      ["↑ · Page Up", "scrollen tot de vorige stap in beeld is, dan vorige figuurstap, oplossing of kort antwoord, coderegel, stap van een rekenmachinedemo of slide"],
       ["→ · ←", "bij een grote figuur: volgende of vorige figuur, die groot blijft; ↓ en ↑ nemen dan eerst haar constructiestappen, daarna de figuur ernaast"],
       ["Home · End", "eerste of laatste slide"],
       ["k · l · v", "bladeren: kort, lang of volledig"],

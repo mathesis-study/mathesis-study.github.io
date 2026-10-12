@@ -1,0 +1,31 @@
+{
+ "titel": "Veeltermfuncties",
+ "hoofdstuk": 2,
+ "code": "A02",
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/veeltermfuncties",
+ "secties": [
+  "Reële functies",
+  "Herhaling",
+  "Voorbeeld",
+  "Hogeregraadsvergelijkingen en -ongelijkheden",
+  "Toepassing ICT",
+  "Algemene begrippen",
+  "Even en oneven functies",
+  "Uitgewerkt voorbeeld met GRM (TI-84)",
+  "Kenmerken van een veeltermfunctie bespreken",
+  "Functievoorschriften opstellen",
+  "Vraagstukken: extremumvraagstukken",
+  "Differentiequotiënt"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.18",
+  "WD3_06.08.19",
+  "WD3_06.08.21"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": false
+}
