@@ -823,10 +823,9 @@
   /* --- Keuze van hulpmiddel --------------------------------------------- */
 
   // Een blok hulpmiddelen uit cursus.cls bevat dezelfde werkwijze voor
-  // verschillende hulpmiddelen, zoals het GRM en Python. Het is een extra dat
-  // veel lezers niet nodig hebben, dus staat alles dicht tot iemand een knop
-  // kiest. Een andere knop wisselt, de gekozen knop opnieuw sluit weer. Elk
-  // blok staat op zich en er wordt niets onthouden.
+  // verschillende hulpmiddelen, zoals het GRM en Python. De eerste optie
+  // staat bij het laden open. Een andere knop wisselt, de gekozen knop opnieuw
+  // sluit weer. Elk blok staat op zich en er wordt niets onthouden.
   function zetHulpmiddel(blok, naam) {
     blok.delen.forEach(function (deel, i) {
       var aan = deel.dataset.hulpmiddel === naam;
@@ -893,7 +892,7 @@
         alinea.remove();
       });
       element.insertBefore(balk, element.firstChild);
-      zetHulpmiddel(blok, null);
+      zetHulpmiddel(blok, delen[0].dataset.hulpmiddel);
     });
   }
 

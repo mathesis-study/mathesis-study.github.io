@@ -23,7 +23,7 @@
 
 .grm-demo-rekenmachine {
   position: sticky;
-  top: 4.5rem;
+  top: 1rem;
 }
 
 /* De knoppen zijn die van de figuurbalk (pres-figuurbalk, pres-stapknop). */
@@ -48,7 +48,7 @@
 .grm-demo-rekenmachine iframe {
   display: block;
   width: 100%;
-  height: min(calc(100vh - 17rem), 42rem);
+  height: min(calc(100vh - 15rem), 42rem);
   border: 0;
   border-radius: .75rem;
   /* De witte behuizing van de dagstand heeft een rand nodig tegen de pagina. */
@@ -105,8 +105,8 @@
 @media (max-width: 44rem) {
   .grm-demo,
   .grm-stap { grid-template-columns: minmax(0, 1fr); }
-  .grm-demo-rekenmachine { order: -1; top: 3.5rem; z-index: 2; }
-  .grm-demo-rekenmachine iframe { height: 24rem; }
+  .grm-demo-rekenmachine { order: -1; top: 1rem; z-index: 2; }
+  .grm-demo-rekenmachine iframe { height: min(calc(100vh - 12rem), 34rem); }
 }
 
 @media print {

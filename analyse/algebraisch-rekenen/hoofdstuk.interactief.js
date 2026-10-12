@@ -210,6 +210,7 @@
       .pres-figuur-groot.interactieve-grafiek.a01-html { justify-content:safe center;
         overflow-y:auto; }
       .a01-invoer label { white-space:nowrap; }
+      .a01-invoer label[hidden] { display:none; }
       .a01-invoer { padding-right:5rem; }
       .a01-invoer { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem 1rem;
         font-size:.95rem; }
@@ -965,6 +966,132 @@
     kies(0);
     return { reset: function () { kies(0); } };
   }
+
+  /* --- Bewerkingen met veeltermen ---------------------------------------- */
+
+  function somVeelterm(a, b, teken) {
+    var n = Math.max(a.length, b.length), uit = [];
+    for (var i = 0; i < n; i++) {
+      uit.push(plus(a[i - n + a.length] || NUL,
+        maal(br(teken), b[i - n + b.length] || NUL)));
+    }
+    return zonderNullenVooraan(uit);
+  }
+  function productVeelterm(a, b) {
+    var uit = new Array(a.length + b.length - 1).fill(NUL);
+    a.forEach(function (c, i) {
+      b.forEach(function (d, j) { uit[i + j] = plus(uit[i + j], maal(c, d)); });
+    });
+    if (!uit.every(veilig)) throw new Error("De getallen worden te groot.");
+    return zonderNullenVooraan(uit);
+  }
+
+  G.registreer("veeltermbewerkingen", function (ctx) {
+    var laag = maakLaag(ctx), invoer = el("div", "a01-invoer");
+    laag.appendChild(invoer);
+    var label = el("label", "", "Bewerking"), keuze = el("select");
+    [["som", "Som"], ["verschil", "Verschil"], ["product", "Product"],
+      ["veelvoud", "Scalair veelvoud"], ["macht", "Macht"], ["deling", "Deling"]]
+      .forEach(function (v) {
+        var optie = el("option", "", v[1]); optie.value = v[0]; keuze.appendChild(optie);
+      });
+    label.appendChild(keuze); invoer.appendChild(label);
+    var va = veld(invoer, "A(x) =", "2x^2 - 3x + 1");
+    var vb = veld(invoer, "B(x) =", "x - 1");
+    var vk = veld(invoer, "k =", "-2", true);
+    var vn = veld(invoer, "n =", "2", true);
+    var fout = el("div", "a01-fout"); fout.setAttribute("role", "status");
+    var formule = el("div", "a01-deling");
+    formule.style.textAlign = "center";
+    laag.appendChild(fout); laag.appendChild(formule);
+    var stappen = [], figuur = { stap: 0, aantal: function () { return stappen.length - 1; },
+      naar: function (s) {
+        figuur.stap = Math.max(0, Math.min(stappen.length - 1, s));
+        zet(formule, inline("\\begin{aligned}" + stappen.slice(0, figuur.stap + 1)
+          .map(function (v, i) { return (i ? "&= " : "&") + v; }).join("\\\\") + "\\end{aligned}"));
+        ctx.toon("Stap " + (figuur.stap + 1) + " van " + stappen.length + ".");
+        knoppen();
+      } };
+    var knoppen = stapknoppen(ctx, figuur);
+    function lees() {
+      var soort = keuze.value;
+      vb.parentNode.hidden = soort === "veelvoud" || soort === "macht";
+      vk.parentNode.hidden = soort !== "veelvoud";
+      vn.parentNode.hidden = soort !== "macht";
+      fout.textContent = "";
+      [va, vb, vk, vn].forEach(function (v) { v.removeAttribute("aria-invalid"); });
+      var actief = va;
+      try {
+        var a = leesVeelterm(va.value), b, k, n;
+        if (!vb.parentNode.hidden) { actief = vb; b = leesVeelterm(vb.value); }
+        if (graad(a) > 6 || (b && graad(b) > 6)) throw new Error("Gebruik hier hoogstens graad 6.");
+        var at = veeltermTex(a), bt = b && veeltermTex(b), uit;
+        stappen = [];
+        if (soort === "som" || soort === "verschil") {
+          var teken = soort === "som" ? 1 : -1;
+          stappen.push("(" + at + ")" + (teken === 1 ? "+" : "-") + "(" + bt + ")");
+          var termen = [];
+          [a, b.map(function (c) { return maal(br(teken), c); })].forEach(function (cs) {
+            cs.forEach(function (c, i) { if (!isNul(c)) termen.push(termTex(c, graad(cs) - i, termen.length === 0)); });
+          });
+          stappen.push(termen.join("") || "0");
+          stappen.push(veeltermTex(somVeelterm(a, b, teken)));
+        } else if (soort === "product" || soort === "veelvoud") {
+          if (soort === "veelvoud") {
+            actief = vk; k = leesGetal(vk.value);
+            if (!k || !veilig(k)) throw new Error("Typ een getal voor k, bijvoorbeeld -2 of 2/3.");
+            b = [k]; bt = getalTex(k);
+          }
+          stappen.push("(" + at + ")\\cdot(" + bt + ")");
+          var producten = [];
+          a.forEach(function (c, i) { b.forEach(function (d, j) {
+            if (!isNul(c) && !isNul(d)) producten.push("(" + termTex(c, graad(a) - i, true) +
+              ")\\cdot(" + termTex(d, graad(b) - j, true) + ")");
+          }); });
+          stappen.push(producten.join("+") || "0");
+          stappen.push(veeltermTex(productVeelterm(a, b)));
+        } else if (soort === "macht") {
+          actief = vn;
+          if (!/^\d+$/.test(vn.value.trim()) || +vn.value > 5) throw new Error("Kies een gehele exponent van 0 tot en met 5.");
+          n = +vn.value; uit = [br(1)];
+          stappen.push("(" + at + ")^{" + n + "}");
+          for (var i = 0; i < n; i++) {
+            if (i) stappen.push("(" + veeltermTex(uit) + ")\\cdot(" + at + ")");
+            uit = productVeelterm(uit, a);
+          }
+          stappen.push(veeltermTex(uit));
+        } else {
+          if (isNulveelterm(b)) throw new Error("Delen door de nulveelterm kan niet.");
+          var r = a, q = [NUL];
+          stappen.push("\\frac{" + at + "}{" + bt + "}");
+          while (!isNulveelterm(r) && graad(r) >= graad(b)) {
+            var term = [deel(r[0], b[0])];
+            while (term.length <= graad(r) - graad(b)) term.push(NUL);
+            q = somVeelterm(q, term, 1);
+            r = somVeelterm(r, productVeelterm(term, b), -1);
+            if (!q.every(veilig) || !r.every(veilig)) throw new Error("De getallen worden te groot.");
+          }
+          stappen.push(veeltermTex(q) + (isNulveelterm(r) ? "" : "+\\frac{" + veeltermTex(r) + "}{" + bt + "}"));
+          stappen.push("\\underbrace{" + (isNulveelterm(r) ? veeltermTex(q) : veeltermTex(q) + "+\\frac{" + veeltermTex(r) + "}{" + bt + "}") +
+            "}_{\\text{" + (isNulveelterm(r) ? "veelterm: rest nul" : "geen veelterm: rest niet nul") + "}}");
+        }
+        figuur.naar(0);
+      } catch (e) {
+        actief.setAttribute("aria-invalid", "true"); fout.textContent = e.message;
+        stappen = ["\\text{Controleer de invoer.}"]; figuur.naar(0);
+      }
+    }
+    keuze.addEventListener("change", lees);
+    [va, vb, vk, vn].forEach(function (v) {
+      v.addEventListener("change", lees);
+      v.addEventListener("keydown", function (e) { if (e.key === "Enter") lees(); });
+    });
+    lees();
+    return { reset: function () {
+      keuze.value = "som"; va.value = "2x^2 - 3x + 1"; vb.value = "x - 1";
+      vk.value = "-2"; vn.value = "2"; lees();
+    } };
+  });
 
   /* --- De figuren van het hoofdstuk -------------------------------------- */
 
