@@ -109,7 +109,9 @@
 
     var frame = document.createElement("iframe");
     frame.src = BRON + "&theme=" + thema();
-    frame.loading = "lazy";
+    // De kolom blijft verborgen tot 'ready'; lazy loading zou daardoor
+    // wachten op een zichtbaar frame dat pas na het laden zichtbaar wordt.
+    frame.loading = "eager";
     frame.title = "Rekenmachine TI-84";
     kolom.appendChild(balk);
     kolom.appendChild(frame);
@@ -132,8 +134,7 @@
       if (e.source !== frame.contentWindow || !e.data || typeof e.data !== "object") return;
       if (e.data.ti84 === "ready") {
         klaar = true;
-        // Het frame laadt pas in de buurt van het beeld; intussen kan het
-        // thema gewisseld zijn.
+        // Tijdens het laden kan het thema gewisseld zijn.
         stuur({ ti84: "theme", theme: thema() });
         if (vooraf) herbegin();
         demo.classList.add("grm-demo-actief");
