@@ -1,0 +1,163 @@
+/* Alleen deze presentatie. Alle kleuren volgen het bestaande sitethema. */
+html:has(.deck-hero) { --straal: 18px; }
+html:has(.deck-hero) .slide {
+  position: relative;
+  background: linear-gradient(145deg, var(--kleur-vlak) 65%, var(--kleur-accent-zacht));
+  border-top: 4px solid var(--kleur-accent);
+  max-width: 76rem;
+  margin-inline: max(0px, calc((100% - 76rem) / 2));
+}
+html:has(.deck-hero) .slide :is(h1,h2,h3,h4,h5,h6) {
+  font-size: .88rem; text-transform: uppercase; letter-spacing: .14em;
+  color: var(--kleur-accent); border: 0; margin-bottom: 1.6rem;
+}
+html:has(.deck-hero) .slide p { line-height: 1.55; }
+html:has(.deck-hero) .slide ul {
+  padding-left: 1.2em; margin: .6rem 0; line-height: 1.45;
+}
+html:has(.deck-hero) .slide li { margin: .55em 0; }
+html:has(.deck-hero) .slide li::marker { color: var(--kleur-accent); }
+html:has(.deck-hero) .slide li p { margin: 0; }
+html:has(.deck-hero) .slide :is(.deck-kaart, .deck-route) > :is(ul, ol) { margin-block: 0; }
+html:has(.deck-hero) .slide :is(.deck-kaart, .deck-route) > :is(ul, ol) > li:first-child { margin-top: 0; }
+html:has(.deck-hero) .slide :is(.deck-kaart, .deck-route) > :is(ul, ol) > li:last-child { margin-bottom: 0; }
+.deck-feedback li { margin: .3em 0; }
+.deck-kern {
+  display: block; font-size: clamp(2rem, 4.3vw, 3.5rem);
+  font-weight: 800; line-height: 1.08; letter-spacing: -.035em;
+  max-width: 24ch; margin: .7rem 0 1.7rem;
+  text-wrap: balance;
+}
+.deck-hero { padding: 1.2rem 0 2rem; }
+html:has(.deck-hero) .cursustitel { text-align: left; padding: 0; margin: 0; border: 0; }
+html:has(.deck-hero) .cursustitel h1 { font-family: inherit; font-size: 1rem; text-align: left; margin: 0; }
+html:has(.deck-hero) .cursusondertitel { text-align: left; font-size: 1rem; margin: .5rem 0; }
+html:has(.deck-hero) .pres-korteinhoud { display: none; }
+.deck-hero { position: relative; isolation: isolate; }
+.deck-hero::before { content: "2027"; position: absolute; right: 0; top: 0; font-size: clamp(6rem, 17vw, 14rem); font-weight: 900; color: var(--kleur-accent-zacht); z-index: -1; letter-spacing: -.08em; line-height: 1; }
+.deck-chips .deck-kaart { border-top: 3px solid var(--kleur-accent); }
+.deck-chips .deck-kaart > p:first-child { font-size: 1.8rem; }
+html:has(.deck-hero) .pres-tocnummer { display: none; }
+html:has(.deck-hero) .pres-kop-titel { font-family: inherit; }
+.deck-hero .deck-kern { font-size: clamp(2.6rem, 5.5vw, 4.6rem); max-width: 17ch; }
+.deck-hero > p { font-size: 1.2em; }
+.deck-chips, .deck-duo, .deck-vergelijking, .deck-routes, .deck-links {
+  display: grid; gap: 1rem; margin: 1.6rem 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.deck-duo, .deck-links { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.deck-kaart, .deck-route {
+  padding: 1.3rem; border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal); background: var(--kleur-vlak);
+}
+.deck-kaart > p:first-child, .deck-route > p:first-child {
+  margin-top: 0; color: var(--kleur-accent); font-size: 1.12em;
+}
+.deck-kaart > p:last-child, .deck-route > p:last-child { margin-bottom: 0; }
+.deck-selectieknop, .deck-antwoordknop, .deck-knop {
+  font: inherit; color: inherit; cursor: pointer; border-radius: 12px;
+  border: 1px solid var(--kleur-lijn); background: var(--kleur-vlak);
+  padding: .8rem 1rem; min-height: 44px; text-align: left;
+}
+.deck-selectieknop { width: 100%; font-weight: 700; color: var(--kleur-accent); }
+.deck-selecteerbaar { cursor: pointer; }
+.deck-selecteerbaar:has(.deck-selectieknop[aria-pressed="true"]) {
+  border-color: var(--kleur-accent); background: var(--kleur-accent-zacht);
+}
+.deck-uitvoer { border-left: 4px solid var(--kleur-accent); padding: .8rem 1.2rem; margin: 1rem 0; }
+.deck-stappen { display: grid; gap: .8rem; margin: 1rem 0; }
+.deck-stappen .deck-kaart { display: grid; grid-template-columns: 12rem 1fr; gap: 1.2rem; }
+.deck-stappen .deck-kaart p { margin: 0; }
+.deck-tijdlijn { position: relative; display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: .6rem; margin: 2rem 0; }
+.deck-moment { position: relative; border-top: 3px solid var(--kleur-accent); padding-top: 1rem; }
+.deck-moment::before { content: ""; position: absolute; width: .8rem; height: .8rem; border-radius: 50%; background: var(--kleur-accent); top: -.48rem; left: .5rem; }
+.deck-moment > p { font-size: .9em; }
+.deck-moment.deck-selecteerbaar {
+  border: 1px solid var(--kleur-lijn); border-top: 3px solid var(--kleur-accent);
+  border-radius: var(--straal); background: var(--kleur-vlak); padding: 1rem;
+}
+.deck-moment.deck-selecteerbaar:has(.deck-selectieknop[aria-pressed="true"]) {
+  border-color: var(--kleur-accent); background: var(--kleur-accent-zacht);
+}
+.deck-kalenders {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: .65rem 1rem;
+  width: min(100%, 22rem); margin: 1.2rem 0 0 auto;
+}
+.deck-kalendernaast {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+  gap: 2rem; align-items: start; margin-top: 1.2rem;
+}
+.deck-kalendernaast .deck-kalenders { margin-top: 0; }
+.deck-kalendernaast > p, .deck-kalenders > p { display: none; }
+.deck-kalendertekst > p:first-child, html:has(.deck-hero) .slide .deck-kalendertekst > ul:first-child { margin-top: 0; }
+.deck-maandnaam { display: block; font-size: .7rem; font-weight: 650; color: var(--kleur-zwak); margin-bottom: .3rem; }
+.deck-maanddagen { display: grid; grid-template-columns: repeat(7,minmax(0,1fr)); gap: 2px; }
+.deck-dag { aspect-ratio: 1; border: 1px solid var(--kleur-lijn); border-radius: 1px; background: var(--kleur-vlak); }
+.deck-dag-leeg { visibility: hidden; }
+.deck-dag-belangrijk { background: var(--kleur-accent); border-color: var(--kleur-accent); }
+.deck-dag-selectie { outline: 2px solid var(--kleur-tekst); outline-offset: 1px; }
+.deck-quiz { display: grid; gap: .8rem; margin: 1.3rem 0; counter-reset: antwoord; }
+.deck-vraag[hidden], .deck-quiz[hidden] { display: none; }
+.deck-keuze { counter-increment: antwoord; }
+.deck-antwoordknop { width: 100%; display: flex; align-items: center; gap: 1rem; font-size: 1.15em; }
+.deck-antwoordknop::before { content: counter(antwoord, upper-alpha); display: grid; place-items: center; flex: 0 0 2.4rem; height: 2.4rem; border-radius: 50%; background: var(--kleur-accent-zacht); color: var(--kleur-accent); font-weight: 800; }
+.deck-antwoordknop p { margin: 0; }
+.deck-antwoordknop[aria-expanded="true"] { border: 2px solid var(--kleur-accent); }
+.keuze-goed .deck-antwoordknop[aria-expanded="true"] { border-color: var(--kleur-goed); }
+.deck-feedback { padding: .8rem 1rem; border-left: 3px solid var(--kleur-accent); margin: .6rem 0 1rem; background: var(--kleur-accent-zacht); border-radius: 0 10px 10px 0; }
+.deck-feedback[hidden] { display: none; }
+.deck-feedback > p { margin: 0; }
+.deck-status { display: block; font-weight: 700; color: var(--kleur-accent); margin-bottom: .3rem; }
+.keuze-goed .deck-status { color: var(--kleur-goed); }
+.deck-knop { background: var(--kleur-accent-zacht); color: var(--kleur-accent); font-weight: 650; }
+.deck-bediening { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin: 1rem 0; }
+.deck-klok { font-size: 2.8rem; font-variant-numeric: tabular-nums; font-weight: 800; letter-spacing: -.03em; }
+.deck-oefenklok {
+  display: flex; align-items: center; flex-wrap: wrap; gap: .8rem;
+  border-block: 1px solid var(--kleur-lijn); padding-block: .8rem; margin-block: 1rem;
+}
+.deck-oefenklok > p { margin: 0; }
+.deck-oefenklok .deck-bediening { margin: 0; }
+.deck-oefenklok .deck-klok { font-size: 1.5rem; }
+.deck-oefenklok > p[aria-live] { flex-basis: 100%; }
+.deck-oefenklok > p:empty { display: none; }
+.deck-voorbeeld { border-bottom: 1px solid var(--kleur-lijn); padding-bottom: 1rem; margin-bottom: 1rem; }
+.deck-checklist, .deck-actieplan { display: grid; gap: .7rem; margin: 1.5rem 0; }
+.deck-check { display: flex; align-items: start; gap: 1rem; cursor: pointer; padding: .7rem; }
+.deck-check input { width: 1.4rem; height: 1.4rem; flex: 0 0 1.4rem; accent-color: var(--kleur-accent); margin-top: .2rem; }
+.deck-checklist .deck-kaart, .deck-actieplan .deck-kaart { padding: .6rem; }
+.deck-check:has(input:checked) { background: var(--kleur-accent-zacht); border-radius: 10px; }
+.deck-check > span > p:first-child { color: var(--kleur-accent); }
+.deck-actielinks { padding: .2rem .7rem .5rem 3.1rem; font-size: .9em; }
+.deck-actielinks p { margin: 0; }
+.deck-notitie { display: grid; gap: .4rem; margin: 1rem 0; font-weight: 650; }
+.deck-notitie textarea { font: inherit; color: inherit; background: var(--kleur-vlak); border: 1px solid var(--kleur-lijn); border-radius: 10px; padding: .8rem; width: 100%; box-sizing: border-box; resize: vertical; }
+.deck-kaart a { text-decoration: underline; text-underline-offset: .2em; }
+.deck-qr .lateximagesource {
+  display: inline-block; width: min(100%, 12rem); padding: .5rem;
+  background: var(--kleur-qr-achtergrond); border-radius: .5rem;
+}
+.deck-qr img.lateximage { width: 100%; height: auto; filter: none; mix-blend-mode: normal; }
+html:has(.deck-hero) :is(button,a,input,textarea):focus-visible { outline: 3px solid var(--kleur-accent); outline-offset: 4px; }
+@media (prefers-reduced-motion: no-preference) {
+  html:has(.deck-hero) .slide.pres-actief { animation: deck-binnen .28s ease-out; }
+  @keyframes deck-binnen { from { opacity: .4; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+}
+@media (max-width: 750px) {
+  .deck-kalendernaast { grid-template-columns: 1fr; gap: 1rem; }
+  .deck-chips, .deck-duo, .deck-vergelijking, .deck-routes, .deck-links { grid-template-columns: 1fr; }
+  .deck-chips { grid-template-columns: repeat(3,minmax(0,1fr)); font-size: .8rem; }
+  .deck-chips .deck-kaart { padding: .7rem; }
+  .deck-stappen .deck-kaart { grid-template-columns: 1fr; gap: .5rem; }
+  .deck-tijdlijn { grid-template-columns: 1fr; gap: 1rem; margin-left: .5rem; }
+  .deck-moment { border-top: 0; border-left: 3px solid var(--kleur-accent); padding: 0 0 0 1.2rem; }
+  .deck-moment.deck-selecteerbaar { border-top-width: 1px; border-left: 3px solid var(--kleur-accent); }
+  .deck-moment::before { left: -.5rem; top: 1rem; }
+  .deck-moment > p { margin: .4rem 0; }
+}
+@media print {
+  .deck-vraag[hidden], .deck-quiz[hidden] { display: block; }
+  .deck-bediening, .deck-knop, .deck-notitie, .deck-klok { display: none; }
+  .deck-feedback[hidden] { display: block; }
+  html:has(.deck-hero) .slide { background: var(--kleur-vlak); animation: none; }
+}

@@ -25,6 +25,7 @@
   --kleur-selectie: #9fc3ea;
   --kleur-zelfcontrole: #4d8fcb;
   --kleur-op-accent: #ffffff;
+  --kleur-qr-achtergrond: #ffffff; /* QR-codes blijven zwart op wit, ook in nachtstand. */
   --kleur-goed: #27823b;
   --kleur-fout: #c43535;
   --kleur-traceback: #7f1d1d;
@@ -116,7 +117,7 @@
 
 html {
   box-sizing: border-box;
-  font-size: 17px;
+  font-size: calc(17px * var(--pres-zoom, 1));
 }
 
 /* Presentatiestand. De hele opmaak rekent in rem, dus volstaat het de maat
@@ -132,8 +133,14 @@ html {
  * vanzelf meeveranderen, klopt de maat ook meteen na het openklappen naar
  * volledig scherm of na het draaien van een tablet: daar hoeft geen script
  * aan te pas te komen. */
+@media screen {
+  html:has(meta[name="mathesis-presentatie"]) { --pres-zoom: 1.25; }
+}
+
 html.pres-groot {
-  font-size: clamp(18px, min(1.45vw, 3vh), 31px);
+  font-size: clamp(calc(18px * var(--pres-zoom, 1)),
+    min(calc(1.45vw * var(--pres-zoom, 1)), calc(3vh * var(--pres-zoom, 1))),
+    calc(31px * var(--pres-zoom, 1)));
 }
 
 /* De kopbalk gaat niet weg, ze wacht boven het scherm. Kom je met de muis

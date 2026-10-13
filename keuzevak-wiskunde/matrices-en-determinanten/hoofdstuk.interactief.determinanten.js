@@ -819,6 +819,7 @@
           box-sizing:border-box; white-space:nowrap; }
         .det-tekenmatrix.det-klein .det-vak { font-size:1.65rem; }
         .det-tekenmatrix button { cursor:pointer; }
+        .det-tekenmatrix.det-sommatrix .det-vak { width:auto; min-width:var(--det-cel); padding:0 .25rem; }
         .det-tekenmatrix button[aria-pressed="true"], .det-tekenmatrix .det-gekozen {
           background:color-mix(in srgb, var(--grafiek-punt) 16%, transparent);
           color:var(--grafiek-punt); border-color:var(--grafiek-punt); }
@@ -1618,11 +1619,13 @@
     var rij = div("det-rij"), matrices = [], groepen = [];
     var aantal = soort === "som" ? 3 : 2;
     for (var m = 0; m < aantal; m++) {
-      var matrix = htmlMatrix({ rijen: n, kolommen: n, klik: function (r, c) {
+      var matrix = htmlMatrix({ rijen: n, kolommen: n, haken: soort === "som" ? "strepen" : undefined, klik: function (r, c) {
         lijn = richting === "R" ? r : c; werkBij();
       } });
       matrices.push(matrix);
-      groepen.push(matrixGroep(matrix, "\\(" + ["A", "B", "C"][m] + "=\\)"));
+      if (soort === "som" && m === 2) matrix.raster.classList.add("det-sommatrix");
+      groepen.push(matrixGroep(matrix, soort === "som" ? ["", "\\(+\\)", "\\(=\\)"][m]
+        : "\\(" + ["A", "B", "C"][m] + "=\\)"));
       rij.appendChild(groepen[m]);
     }
     var uitleg = div("det-tekst"), formule = div("det-cofactorstappen");
@@ -1650,12 +1653,18 @@
       var data = [A, B, C], paren = [];
       matrices.forEach(function (matrix, m) {
         matrix.bouw(n, n);
+        if (soort === "som" && m === 2) matrix.raster.style.gridTemplateColumns = "repeat(" + n + ",max-content)";
         matrix.stand(function (r, c) {
           var l = richting === "R" ? r : c;
           return { gekozen: soort === "alles" || l === lijn ||
             ((soort === "wissel" || soort === "evenredig") && l === tweede) };
         });
-        paren = paren.concat(matrix.paren(function (r, c) { return getal(data[m][r - 1][c - 1]); }));
+        paren = paren.concat(matrix.paren(function (r, c) {
+          if (soort === "som" && m === 2 && (richting === "R" ? r : c) === lijn) {
+            return getal(A[r - 1][c - 1]) + "+" + fac(B[r - 1][c - 1]);
+          }
+          return getal(data[m][r - 1][c - 1]);
+        }));
         paren.push([groepen[m].naam, groepen[m].naamTex]);
       });
       var woord = richting === "R" ? "rij" : "kolom", beschrijving, regels;
@@ -1676,8 +1685,8 @@
         beschrijving = "In \\(B\\) is " + woord + " " + tweede + " gelijk aan \\(k=" + k + "\\) maal " + woord + " " + lijn + ".";
         regels = ["\\det B&=0", "&=" + fac(k) + "\\cdot0"];
       } else {
-        beschrijving = "Alleen " + woord + " " + lijn + " verschilt. Tel die twee " + (richting === "R" ? "rijen" : "kolommen") + " op om \\(C\\) te krijgen.";
-        regels = ["\\det A&=" + da + ",\\quad\\det B=" + db, "\\det C&=" + dc + "=" + fac(da) + "+" + fac(db)];
+        beschrijving = "De overige " + (richting === "R" ? "rijen" : "kolommen") + " zijn gelijk. Tel alleen " + woord + " " + lijn + " op.";
+        regels = [fac(da) + "+" + fac(db) + "&=" + dc];
       }
       paren.push([uitleg, beschrijving], [formule, uitgelijnd(regels)]);
       zet(paren);

@@ -1,0 +1,3107 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Starttoetsen, ijkingstoetsen en toelatingsexamens</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=fba7a888185c" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * you choose how answers wait: compact, as empty frames or all open; in
+//    compact an exercise first shows its short answer, and the full working
+//    only on a second click;
+//  * a series of exercises can be paged through one at a time and comes
+//    with a PDF to print; extra proofs and the instructions per tool (TI-84
+//    or Python) stay folded away until you open them;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a figure with a parameter gets a slider, a figure with several cases
+//    switches between them without losing the camera, and in the large view
+//    you walk from figure to figure through the whole chapter;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * matrices you can click: pick an entry, a row or a diagonal and the
+//    matching term of the formula lights up, and the other way round;
+//  * Python runs in the page (Pyodide, with NumPy): exercises with checks
+//    and hints, code you can step through instruction by instruction or,
+//    for a loop, line by line with its variables in view, trace exercises
+//    that fill a table of the variables as you step, and code that drives
+//    an interactive graph; each Python section also comes as a notebook;
+//  * the instructions for a graphing calculator play step by step on a
+//    working TI-84 beside the text, which you can also press yourself (the
+//    calculator is ti84-calculator by WhitDeckard09, with an embed mode
+//    added for this site);
+//  * a matrix calculator, a calculator for systems of linear equations that
+//    row-reduces step by step and discusses parameters case by case, and a
+//    function calculator whose CAS derives step by step, all in the
+//    notation of the course;
+//  * MathJax is extended where the course needs it, so the page shows what
+//    the PDF shows: foreach loops, matrices with row and column headings,
+//    braces across rows, partial rules in tables, highlighted cells and
+//    terms, the end-of-proof square at the right margin and references
+//    inside a formula; accented letters are real characters, so searching
+//    and copying text works;
+//  * formulas are typeset slide by slide, so a long chapter opens quickly;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * the site has its own icon and can be installed as an app;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well; the one request that may
+//    leave it is an optional visit count per chapter, without cookies or
+//    personal data.
+//
+
+MathJax = {
+     options: { enableMenu: false },
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=fba7a888185c"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=fba7a888185c"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+<meta name="mathesis-presentatie" content="1" />
+<link rel="stylesheet" href="hoofdstuk.presentatie.css?v=fba7a888185c" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="11">
+<header class="cursustitel">  <h1 data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="11">Starttoetsen, ijkingstoetsen en toelatingsexamens</h1> <p
+class="cursusondertitel" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="11">Starttoets, ijkingstoets en toelatingsexamen · 2027</p></header> 
+</p>
+
+<div class="deck-hero" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="13">
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="13">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="13">Jouw volgende stap begint hier.</span>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="13">
+<b>Hoger onderwijs in 2027.</b> Welke toets hoort bij jouw opleiding? 
+</p>
+
+<div class="deck-chips" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="16">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="16">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="16">
+<b>01</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="16">
+Kies je route
+</p>
+</div>
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="16">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="16">
+<b>02</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="16">
+Plan je toets
+</p>
+</div>
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="16">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="16">
+<b>03</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="16">
+Bereid je voor
+</p>
+</div>
+
+</div>
+
+</div>
+
+
+<!--
+...... section Wat is het? ......
+-->
+<h4 id="autosec-2" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="22"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="22">I&#x2003;</span>Wat is het?</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="23">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="23">Waar sta je vóór je start?</span>
+</p>
+
+
+
+<div class="deck-duo" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+<b>Een start- of ijkingstoets</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">•</span> Voor de overgang naar een <b>academische bachelor</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">•</span> Meet je <b>wiskundige voorkennis</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">•</span> Bij sommige opleidingen ook je <b>wetenschappelijke basis</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">•</span> Vergelijkt die met het verwachte <b>instapniveau</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="25">•</span> Bestaat uit <b>meerkeuzevragen</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">
+<b>Waarom deelnemen?</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">•</span> Ontdek je <b>sterke punten</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">•</span> Vind je <b>werkpunten</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">•</span> Bereid je <b>gericht</b> voor.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="32">•</span> Je resultaat is <b>niet selecterend</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="39">
+<b>Doel: je startniveau inschatten en je voorbereiden.</b> <span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="39">Een <b>toelatingsexamen</b> heeft een
+ander doel: het bepaalt of je mag starten. We vergelijken de drie soorten toetsen op de volgende slides.</span>
+</p>
+
+
+<!--
+...... section Wie organiseert dit? ......
+-->
+<h4 id="autosec-3" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="43"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="43">II&#x2003;</span>Wie organiseert dit?</h4>
+<a id="mkpiweb-autopage-3"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="44">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="44">Vijf universiteiten. Eén initiatief.</span>
+</p>
+
+
+
+<div class="deck-duo" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+<b>Start- en ijkingstoetsen</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">•</span> <b>Universiteit Gent</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">•</span> <b>Universiteit Hasselt</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">•</span> <b>Universiteit Antwerpen</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">•</span> <b>Vrije Universiteit Brussel</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="46">•</span> <b>KU Leuven</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">
+<b>Een korte geschiedenis</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">•</span> <b>2013</b>: gezamenlijke ijkingstoetsen. Deelname vrijwillig.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">•</span> <b>2018</b>: deelname verplicht voor <b>burgerlijk ingenieur</b> en <b>burgerlijk ingenieur-architect</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="53">•</span> <b>2023</b>: <b>remediëring verplicht</b> voor wie niet slaagt voor een starttoets.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="60">
+<b>VLIR</b>: Vlaamse Interuniversitaire Raad. Eigenaar van <a href="https://www.ijkingstoets.be/" target="_blank" >de
+gezamenlijke website</a>. 
+</p>
+
+
+<div class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="63">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="63">
+Bronnen: <a href="https://eng.kuleuven.be/nieuws-en-agenda/nieuws/ijkingstoets2013" target="_blank" >KU Leuven,
+2013</a>; <a href="https://nieuws.kuleuven.be/nl/2018/ijkingstoets-vanaf-dit-jaar-verplicht-voor-opleiding-burgerlijk-ingenieur" target="_blank" >KU Leuven, 2018</a>; <a
+href="https://vlir.be/beleidsdomeinen/onderwijs-en-kwaliteitszorg/" target="_blank" >VLIR, remediëring vanaf 2023</a>.
+</p>
+
+</div>
+
+
+<!--
+...... section Burgerlijk ingenieur: vroeger en nu ......
+-->
+<h4 id="autosec-4" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="68"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="68">III&#x2003;</span>Burgerlijk ingenieur: vroeger en nu</h4>
+<a id="mkpiweb-autopage-4"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="69">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="69">Van toelating naar voorbereiding.</span>
+</p>
+
+
+
+<div class="deck-vergelijking" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">
+<b>Vroeger</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">•</span> Een <b>toelatingsexamen</b> vóór de opleiding.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">•</span> <b>Slagen</b> om te mogen starten.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="71">•</span> Ook voor <b>burgerlijk ingenieur-architect</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="76">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="76">
+<b>2004</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="76">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="76">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="76">•</span> Examen <b>afgeschaft</b> vanaf academiejaar <b>2004-2005</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="76">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="76">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="76">•</span> Geen selectie meer via dat examen.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">
+<b>Vandaag</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">•</span> <b>Starttoets</b>: deelname verplicht sinds <b>2018</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">•</span> Resultaat <b>niet bindend</b> voor inschrijving.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="80">•</span> Niet geslaagd? <b>Remediëring</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="86">
+<b>De huidige starttoets is dus geen terugkeer van het oude toelatingsexamen.</b> 
+</p>
+
+
+<div class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="88">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="88">
+Bronnen: <a href="https://www.kuleuven.be/over-kuleuven/pdf/jaarverslag-2005.pdf" target="_blank" >KU Leuven,
+jaarverslag 2005, p&nbsp;33</a>; <a href="https://nieuws.kuleuven.be/nl/2018/ijkingstoets-vanaf-dit-jaar-verplicht-voor-opleiding-burgerlijk-ingenieur" target="_blank" >KU Leuven, verplichte deelname
+vanaf 2018</a>.
+</p>
+
+</div>
+
+
+<!--
+...... section Eerst even kiezen ......
+-->
+<h4 id="autosec-5" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="92"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="92">IV&#x2003;</span>Eerst even kiezen</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="93">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="93">Wat wil jij studeren?</span>
+</p>
+
+
+
+<div class="deck-routes" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="96">
+
+
+
+<div class="deck-route" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="96">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="96">
+<b>Een opleiding met starttoets</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="98">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="98">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="98">•</span> Ingenieur, wiskunde, biomedische wetenschappen, &#x2026;
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="99">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="99">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="99">•</span> <b>Deelname verplicht.</b> 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="100">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="100">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="100">•</span> Resultaat bepaalt de <b>remediëring</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-route" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="104">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="104">
+<b>Een opleiding met ijkingstoets</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="106">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="106">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="106">•</span> Economie, handelsingenieur, handelswetenschappen, logopedie, &#x2026;
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="107">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="107">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="107">•</span> <b>Deelname aanbevolen.</b> 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="108">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="108">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="108">•</span> Feedback over je <b>voorkennis</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-route" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="112">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="112">
+<b>Arts, tandarts of dierenarts</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="114">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="114">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="114">•</span> Afzonderlijk <b>toelatingsexamen</b>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="115">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="115">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="115">•</span> <b>Slagen én gunstig gerangschikt zijn.</b>
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="119">
+<span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="119">Nog geen keuze? Zoek je opleiding in <a href="https://www.ijkingstoets.be/vindjouwtoets"
+target="_blank" >Vind jouw toets</a>. Niet elke opleiding heeft een toets.</span>
+</p>
+
+
+<!--
+...... section Drie toetsen, drie gevolgen ......
+-->
+<h4 id="autosec-6" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="123"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="123">V&#x2003;</span>Drie toetsen, drie gevolgen</h4>
+<a id="mkpiweb-autopage-6"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="124">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="124">Deelnemen? Slagen?</span>
+</p>
+
+
+
+<div class="deck-vergelijking" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">
+<b>Starttoets</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">•</span> <b>Deelname verplicht.</b> Uitzondering mogelijk.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">•</span> Resultaat <b>niet bindend</b> voor inschrijving.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="126">•</span> Niet geslaagd voor de juiste of een compatibele toets? <b>Verplichte remediëring.</b>
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">
+<b>IJkingstoets</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">•</span> <b>Deelname vrijwillig.</b>
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">•</span> Resultaat <b>niet bindend</b> voor inschrijving.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="132">•</span> Ontdek je <b>werkpunten</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">
+<b>Toelatingsexamen</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">•</span> Arts, tandarts en dierenarts.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">•</span> <b>Slagen én gunstig gerangschikt zijn.</b>
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="137">•</span> <b>Diploma secundair</b> uiterlijk 30 september van dat jaar.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="143">
+<span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="143">Start- en ijkingstoetsen meten je <b>voorkennis</b>. Je <b>studiekeuze</b> maak je zelf.</span>
+</p>
+
+
+<!--
+...... section Nieuw in 2027 ......
+-->
+<h4 id="autosec-7" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="146"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="146">VI&#x2003;</span>Nieuw in 2027</h4>
+<a id="mkpiweb-autopage-7"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="147">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="147">Informatica en kine: verplicht.</span>
+</p>
+
+
+
+<div class="deck-duo" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="149">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="149">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="149">
+<b>Informatica</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="149">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="149">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="149">•</span> Informatica of computerwetenschappen en artificiële intelligentie.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="149">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="149">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="149">•</span> <b>Starttoets vanaf 2027.</b>
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="153">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="153">
+<b>Kinesitherapie</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="153">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="153">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="153">•</span> Revalidatiewetenschappen en kinesitherapie.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="153">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="153">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="153">•</span> <b>Starttoets vanaf 2027.</b>
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="158">
+<b>Controleer jouw opleiding</b> bij jouw universiteit. <span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="158">Bron: <a
+href="https://www.ijkingstoets.be/" target="_blank" >VLIR, 9 oktober 2026</a>.</span>
+</p>
+
+
+<!--
+...... section Niet geslaagd. Wat nu? ......
+-->
+<h4 id="autosec-8" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="161"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="161">VII&#x2003;</span>Niet geslaagd. Wat nu?</h4>
+<a id="mkpiweb-autopage-8"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="162">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="162">Starttoets niet gehaald. Mag je starten?</span>
+</p>
+
+
+
+<div class="deck-quiz" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="164">
+
+
+
+<div class="deck-keuze keuze-fout" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="164">
+
+
+<div class="deck-antwoord" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="164">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="164">
+Nee. Eerst slagen.
+</p>
+</div>
+
+
+<div class="deck-feedback" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="164">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="164">
+<b>Resultaat niet bindend.</b> Je mag inschrijven na deelname.
+</p>
+</div>
+
+</div>
+
+
+
+<div class="deck-keuze keuze-goed" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="166">
+
+
+<div class="deck-antwoord" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="166">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="166">
+Ja, met verplichte remediëring.
+</p>
+</div>
+
+
+<div class="deck-feedback" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="166">
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="166">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="166">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="166">•</span> <b>Starten mag.</b>
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="166">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="166">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="166">•</span> <b>Voorkennis bijwerken</b> via je universiteit.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+
+
+<div class="deck-keuze keuze-fout" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="170">
+
+
+<div class="deck-antwoord" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="170">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="170">
+Ja, zonder verdere voorwaarden.
+</p>
+</div>
+
+
+<div class="deck-feedback" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="170">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="170">
+<b>Remediëring blijft verplicht.</b> Vrijstelling vereist slagen voor de juiste of een compatibele toets.
+</p>
+</div>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="173">
+<span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="173"><b>Uitzonderingen en compatibiliteit</b>: vraag je opleiding. Deelname aan een toelatingsexamen kan
+een standaarduitzondering opleveren. Niet alle voorwaarden vervallen automatisch.</span>
+</p>
+
+
+<!--
+...... section Zet 2027 in je agenda ......
+-->
+<h4 id="autosec-9" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="177"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="177">VIII&#x2003;</span>Zet 2027 in je agenda</h4>
+<a id="mkpiweb-autopage-9"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="178">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="178">Inschrijven. Deelnemen.</span>
+</p>
+
+
+
+<div class="deck-tijdlijn" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+
+
+
+<div class="deck-moment datum-20270115" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+<b>15 januari</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+<b>Inschrijvingen open.</b> Beide sessies.
+</p>
+</div>
+
+
+<div class="deck-moment datum-20270615" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+<b>15 juni</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+<b>Deadline</b> sessie 1.
+</p>
+</div>
+
+
+<div class="deck-moment datum-20270701" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+<b>1 juli · donderdag</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+<b>Sessie 1.</b> Start- en ijkingstoetsen.
+</p>
+</div>
+
+
+<div class="deck-moment datum-20270815" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+<b>15 augustus</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+<b>Deadline</b> sessie 2.
+</p>
+</div>
+
+
+<div class="deck-moment datum-20270821" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+<b>21 augustus · zaterdag</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="180">
+<b>Sessie 2.</b> Alleen starttoetsen.
+</p>
+</div>
+
+</div>
+
+
+
+<div class="deck-kalendernaast" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="187">
+
+
+<div class="deck-kalendertekst" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="187">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="187">
+<span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="187">Bron: <a href="https://www.ijkingstoets.be/" target="_blank" >officiële kalender 2027</a>.
+<b>Uur en locatie</b>: controleer je toets en uitnodiging.</span>
+</p>
+</div>
+
+
+<div class="deck-kalenders" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="187">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="187">
+<span data-kalenderjaar="2027" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="187"></span>
+</p>
+</div>
+
+</div>
+
+
+<!--
+...... section Twee plannen op één dag? ......
+-->
+<h4 id="autosec-10" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="191"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="191">IX&#x2003;</span>Twee plannen op één dag?</h4>
+<a id="mkpiweb-autopage-10"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="192">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="192">9 uur én 14 uur. Kan dat?</span>
+</p>
+
+
+
+<div class="deck-quiz" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="194">
+
+
+
+<div class="deck-keuze keuze-fout" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="194">
+
+
+<div class="deck-antwoord" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="194">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="194">
+Ja, als ik snel genoeg ben.
+</p>
+</div>
+
+
+<div class="deck-feedback" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="194">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="194">
+<b>Eén toets per sessie.</b> Ook bij verschillende dagdelen.
+</p>
+</div>
+
+</div>
+
+
+
+<div class="deck-keuze keuze-goed" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">
+
+
+<div class="deck-antwoord" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">
+Nee. Eén toets per sessie.
+</p>
+</div>
+
+
+<div class="deck-feedback" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">•</span> <b>Juli én augustus</b> kan wel.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">•</span> Dezelfde of verschillende starttoetsen.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="196">•</span> Vrijwillige ijkingstoets? <b>Alleen juli.</b>
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="202">
+<span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="202"><b>Toetslocatie vrij te kiezen.</b> Je latere universiteit ligt daarmee niet vast.</span>
+</p>
+
+
+<!--
+...... section Toelatingsexamens door de jaren ......
+-->
+<h4 id="autosec-11" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="204"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="204">X&#x2003;</span>Toelatingsexamens door de jaren</h4>
+<a id="mkpiweb-autopage-11"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="205">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="205">Van slagen naar slagen én rangschikken.</span>
+</p>
+
+
+
+<div class="deck-stappen" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="207">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="207">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="207">
+<b>1997 · Arts en tandarts</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="207">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="207">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="207">•</span> Invoering van het <b>toelatingsexamen arts en tandarts</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="207">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="207">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="207">•</span> <b>Slagen</b> wordt een toelatingsvoorwaarde.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="211">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="211">
+<b>2018 · Vergelijkende examens</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="211">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="211">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="211">•</span> <b>Afzonderlijke examens</b> voor arts en tandarts.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="211">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="211">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="211">•</span> <b>Slagen én gunstig gerangschikt zijn</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="215">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="215">
+<b>2023 · Ook dierenarts</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="215">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="215">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="215">•</span> Een <b>toelatingsexamen dierenarts</b> komt erbij.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="215">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="215">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="215">•</span> Ook hier bepaalt de <b>rangschikking</b> wie mag starten.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+
+
+
+<div class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="221">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="221">
+Bronnen: Vlaamse overheid, <a
+href="https://themis.vlaanderen.be/files/1c18ceec-d653-11e9-99f3-0242ac1b0003/download" target="_blank" >historiek sinds 1997</a>, <a href="https://publicaties.vlaanderen.be/view-file/36250"
+target="_blank" >rangschikking vanaf 2018</a> en <a href="https://themis.vlaanderen.be/files/62a0b2c64173eb000c00014e/download" target="_blank" >invoering voor diergeneeskunde vanaf 2023-2024</a>.
+</p>
+
+</div>
+
+
+<!--
+...... section Wat vraagt een toelatingsexamen? ......
+-->
+<h4 id="autosec-12" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="227"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="227">XI&#x2003;</span>Wat vraagt een toelatingsexamen?</h4>
+<a id="mkpiweb-autopage-12"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="228">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="228">Wetenschappen én algemene vaardigheden.</span>
+</p>
+
+
+
+<div class="deck-vergelijking" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">
+<b>KIW · Wetenschappen</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">•</span> <b>Kennis en Inzicht in de Wetenschappen</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">•</span> <b>Biologie, chemie, fysica en wiskunde</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="230">•</span> Begrijpen, analyseren en <b>toepassen</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">
+<b>GC · Generieke Competenties</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">•</span> <b>Empathie en communicatie</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">•</span> <b>Teksten en figuren</b> verwerken.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="235">•</span> Analyseren, <b>redeneren</b> en verbanden leggen.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">
+<b>Toelating</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">•</span> <b>Slagen</b> voor de examenonderdelen.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">•</span> <b>Gunstige rangschikking</b> binnen het startquotum.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="240">•</span> <b>Diploma secundair</b> uiterlijk 30 september van dat jaar.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="246">
+<b>Slagen alleen geeft dus nog geen plaats in de opleiding.</b> 
+</p>
+
+
+<div class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="248">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="248">
+<a href="https://www.vlaanderen.be/onderwijs-en-vorming/toelatingsexamens/examenonderdelen" target="_blank"
+>Bekijk de examenonderdelen</a> en <a href="https://www.vlaanderen.be/onderwijs-en-vorming/toelatingsexamens/voorbereiden/proefexamen" target="_blank" >officiële voorbeeldexamens</a>. De
+onderdelen KIW en GC blijven in 2027. Controleer het <b>leerstofoverzicht 2027</b> en het actuele examenreglement.
+</p>
+
+</div>
+
+
+<!--
+...... section Arts, tandarts of dierenarts ......
+-->
+<h4 id="autosec-13" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="254"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="254">XII&#x2003;</span>Arts, tandarts of dierenarts</h4>
+<a id="mkpiweb-autopage-13"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="255">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="255">Eigen examen. Eigen inschrijving.</span>
+</p>
+
+
+
+<div class="deck-tijdlijn toelating" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+
+
+
+<div class="deck-moment datum-20270301" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+<b>1 maart</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+<b>Inschrijvingen open.</b>
+</p>
+</div>
+
+
+<div class="deck-moment datum-20270517" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+<b>17 mei</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+<b>Inschrijfdeadline.</b>
+</p>
+</div>
+
+
+<div class="deck-moment datum-20270702" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+<b>2 juli · vrijdag</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+Toelatingsexamen <b>arts</b>.
+</p>
+</div>
+
+
+<div class="deck-moment datum-20270703" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+<b>3 juli · zaterdag</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+Toelatingsexamen <b>tandarts</b>.
+</p>
+</div>
+
+
+<div class="deck-moment datum-20270704" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+<b>4 juli · zondag</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="257">
+Toelatingsexamen <b>dierenarts</b>.
+</p>
+</div>
+
+</div>
+
+
+
+<div class="deck-kalendernaast" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="265">
+
+
+<div class="deck-kalendertekst" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="265">
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="265">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="265">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="265">•</span> <b>KIW</b>: Kennis en Inzicht in de Wetenschappen. 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="266">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="266">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="266">•</span> <b>GC</b>: Generieke Competenties. 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="267">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="267">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="267">•</span> <b>Apart inschrijven</b> voor elk examen.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="269">
+<span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="269">Bron: <a href="https://www.vlaanderen.be/onderwijs-en-vorming/toelatingsexamens"
+target="_blank" >Vlaanderen, 2027</a>. <b>Leerstofoverzicht 2027</b>: update in het najaar. Controleer bedragen, locaties en hulpmiddelen voor 2027.</span>
+</p>
+</div>
+
+
+<div class="deck-kalenders" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="269">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="269">
+<span data-kalenderjaar="2027" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="269"></span>
+</p>
+</div>
+
+</div>
+
+
+<!--
+...... section Inschrijven is meer dan een account ......
+-->
+<h4 id="autosec-14" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="274"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="274">XIII&#x2003;</span>Inschrijven is meer dan een account</h4>
+<a id="mkpiweb-autopage-14"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="275">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="275">Account \(\neq \) inschrijving.</span>
+</p>
+
+
+
+<div class="deck-stappen" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="277">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="277">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="277">
+<b>1 · Registreer</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="277">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="277">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="277">•</span> Maak een <b>account</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="277">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="277">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="277">•</span> Bevestig je <b>e-mailadres</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="281">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="281">
+<b>2 · Kies</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="281">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="281">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="281">•</span> Kies <b>toets, sessie en locatie</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="281">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="281">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="281">•</span> Start- en ijkingstoetsen: <b>gratis</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="285">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="285">
+<b>3 · Controleer</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="285">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="285">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="285">•</span> <b>Bevestig</b> je inschrijving.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="285">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="285">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="285">•</span> Controleer je <b>mail en account</b>. Ook spam.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="289">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="289">
+<b>4 · Plan je reis</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="289">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="289">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="289">•</span> Praktische info: <b>uiterlijk één week vooraf</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="289">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="289">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="289">•</span> Controleer <b>startuur, lokaal en route</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="294">
+<a href="https://www.ijkingstoets.be/nl/inschrijven" target="_blank" >Inschrijfinformatie start- en ijkingstoetsen.</a>
+</p>
+
+
+<!--
+...... section Wat wordt er getest? ......
+-->
+<h4 id="autosec-15" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="296"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="296">XIV&#x2003;</span>Wat wordt er getest?</h4>
+<a id="mkpiweb-autopage-15"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="297">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="297">Kennen. Begrijpen. Toepassen.</span>
+</p>
+
+
+
+<div class="deck-duo" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+<b>De vorm</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">•</span> <b>Meerkeuze</b>: vier opties.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">•</span> <b>Eén antwoord</b> per vraag.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">•</span> <b>Blanco = fout.</b>
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="299">•</span> <b>Vier uur</b>, inclusief één uur extra voor iedereen.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">
+<b>De inhoud</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">•</span> <b>Verschilt per opleiding.</b>
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">•</span> Bekijk <b>Inhoud, Voorbereiding en Verloop</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="305">•</span> Controleer <b>formularium en hulpmiddelen</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="311">
+<span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="311"><b>Slaaggrens</b>: zie <em>Resultaat &amp; verder</em> bij jouw toets. Bron: <a
+href="https://www.ijkingstoets.be/faq" target="_blank" >officiële FAQ</a>.</span>
+</p>
+
+
+<!--
+...... section Even zelf proberen ......
+-->
+<h4 id="autosec-16" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="314"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="314">XV&#x2003;</span>Even zelf proberen</h4>
+<a id="mkpiweb-autopage-16"></a>
+
+
+
+
+<div class="deck-voorbeeld" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="317">
+
+
+
+<div class="deck-oefenklok" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="317">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="317">
+<b>Voorbeeldvraag:</b>
+</p>
+</div>
+
+
+
+<div class="deck-vraag" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="320">
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="320">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="320">Welke oplossing klopt?</span>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="320">
+Voor welke reële \(x\) geldt \(\sqrt {x+2}=x\)?
+</p>
+</div>
+
+
+
+<div class="deck-quiz" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="324">
+
+
+
+<div class="deck-keuze keuze-fout" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="324">
+
+
+<div class="deck-antwoord" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="324">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="324">
+\(x=-1\) of \(x=2\)
+</p>
+</div>
+
+
+<div class="deck-feedback" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="324">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="324">
+<b>Kwadrateren geeft kandidaten.</b> \(x=-1\) voldoet niet aan de oorspronkelijke vergelijking.
+</p>
+</div>
+
+</div>
+
+
+
+<div class="deck-keuze keuze-goed" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+
+
+<div class="deck-antwoord" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+Alleen \(x=2\)
+</p>
+</div>
+
+
+<div class="deck-feedback" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">•</span> <b>Voorwaarde</b>: \(x\geq 0\).
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">•</span> <b>Kwadrateren</b>: \(x+2=x^2\).
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">•</span> <b>Ontbinden</b>: \((x-2)(x+1)=0\).
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">•</span> \(x=-1\ \lightning \): buiten de voorwaarde.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="326">•</span> <b>Controle</b>: \(\sqrt {2+2}=2\).
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+
+
+<div class="deck-keuze keuze-fout" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="333">
+
+
+<div class="deck-antwoord" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="333">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="333">
+Geen oplossing
+</p>
+</div>
+
+
+<div class="deck-feedback" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="333">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="333">
+<b>Controleer</b> \(x=2\) in de oorspronkelijke vergelijking.
+</p>
+</div>
+
+</div>
+
+
+<div class="deck-keuze keuze-fout" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="333">
+
+
+<div class="deck-antwoord" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="333">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="333">
+Alleen \(x=-1\)
+</p>
+</div>
+
+
+<div class="deck-feedback" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="333">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="333">
+<b>Vierkantswortel niet negatief.</b> Bij \(x=-1\): \(1=-1\ \lightning \).
+</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="338">
+<span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="338"><b>Eigen voorbeeld</b>, geen officiële toetsvraag. Eén vraag meet je startniveau niet.</span>
+</p>
+
+
+<!--
+...... section Van fouten naar een oefenplan ......
+-->
+<h4 id="autosec-17" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="341"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="341">XVI&#x2003;</span>Van fouten naar een oefenplan</h4>
+<a id="mkpiweb-autopage-17"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="342">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="342">Probeer. Benoem. Herstel.</span>
+</p>
+
+
+
+<div class="deck-stappen" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">
+<b>1 · Probeer</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">•</span> <b>Officiële voorbeeldvragen</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">•</span> Eerst <b>zelfstandig</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="344">•</span> Alleen <b>toegelaten hulpmiddelen</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="349">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="349">
+<b>2 · Benoem</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="349">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="349">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="349">•</span> <b>Kennis, rekenen, lezen of aanpak?</b>
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="349">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="349">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="349">•</span> Noteer de <b>oorzaak</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="353">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="353">
+<b>3 · Herstel</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="353">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="353">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="353">•</span> Herhaal je <b>werkpunt</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="353">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="353">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="353">•</span> Maak een <b>nieuwe vraag</b>, zonder oplossing.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="358">
+<span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="358">Mogelijk ritme: <b>twee korte oefenmomenten per week</b>. Gebruik de voorbereiding van jouw
+toets.</span>
+</p>
+
+
+<!--
+...... section De toetsdag ......
+-->
+<h4 id="autosec-18" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="361"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="361">XVII&#x2003;</span>De toetsdag</h4>
+<a id="mkpiweb-autopage-18"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="362">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="362">Alles klaar vóór je vertrekt?</span>
+</p>
+
+
+
+<div class="deck-checklist" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+<b>Uitnodiging</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+<b>Datum, startuur, campus, lokaal en route</b> gecontroleerd. <b>Reismarge</b> gepland.
+</p>
+</div>
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+<b>Identificatie</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+<b>Identiteitsbewijs en documenten</b> volgens de instructies.
+</p>
+</div>
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+<b>Materiaal</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+<b>Schrijfgerei en hulpmiddelen</b> gecontroleerd. Afspraken over <b>telefoon, uurwerk, eten en drinken</b> gelezen.
+</p>
+</div>
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+<b>Ondersteuning</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="364">
+<b>Ondersteunende maatregelen</b> tijdig aangevraagd.
+</p>
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="371">
+<b>Jouw uitnodiging en reglement</b> geven de afspraken.
+</p>
+
+
+<!--
+...... section Na de toets ......
+-->
+<h4 id="autosec-19" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="373"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="373">XVIII&#x2003;</span>Na de toets</h4>
+<a id="mkpiweb-autopage-19"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="374">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="374">Feedback. Je volgende stap.</span>
+</p>
+
+
+
+<div class="deck-duo" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">
+<b>Start- of ijkingstoets</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">•</span> <b>Feedback binnen zeven dagen</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">•</span> Via <b>mail en account</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="376">•</span> Bekijk je <b>sterke punten en werkpunten</b>.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">
+<b>Starttoets niet gehaald?</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">•</span> Zoek je <b>remediëringspakket</b>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">•</span> <b>Lage score sluit je niet uit.</b>
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="381">•</span> Hoge score garandeert geen studiesucces.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="387">
+<span class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="387"><b>Toelatingsexamens</b>: eigen resultaatprocedure en rangschikking. Volg de communicatie van
+Vlaanderen.</span>
+</p>
+
+
+<!--
+...... section Jouw volgende stap ......
+-->
+<h4 id="autosec-20" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="390"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="390">XIX&#x2003;</span>Jouw volgende stap</h4>
+<a id="mkpiweb-autopage-20"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="391">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="391">Wat doe je deze week?</span>
+</p>
+
+
+
+<div class="deck-actieplan" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="393">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="393">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="393">
+<b>Mijn route</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="393">
+Mijn <b>opleiding en toets</b> opzoeken.
+</p>
+
+<div class="deck-actielinks" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="393">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="393">
+<a href="https://www.ijkingstoets.be/vindjouwtoets" target="_blank" >Vind jouw toets</a>&#x2003;<a href="https://www.vlaanderen.be/onderwijs-en-vorming/toelatingsexamens" target="_blank"
+>Toelatingsexamens</a>
+</p>
+</div>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="398">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="398">
+<b>Mijn agenda</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="398">
+Mijn <b>deadline en toetsdatum</b> noteren.
+</p>
+
+<div class="deck-actielinks" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="398">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="398">
+<a href="https://www.ijkingstoets.be/" target="_blank" >Kalender 2027</a>&#x2003;<a href="https://www.ijkingstoets.be/nl/inschrijven" target="_blank" >Inschrijven</a>
+</p>
+</div>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="403">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="403">
+<b>Mijn voorbereiding</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="403">
+<b>Leerstofoverzicht</b> openen. Eerste <b>oefenreeks</b> maken.
+</p>
+
+<div class="deck-actielinks" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="403">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="403">
+<a href="https://www.ijkingstoets.be/vindjouwtoets" target="_blank" >Voorbereiding per opleiding</a>&#x2003;<a
+href="https://www.vlaanderen.be/onderwijs-en-vorming/toelatingsexamens/voorbereiden/proefexamen" target="_blank" >Voorbeeldexamens arts, tandarts en dierenarts</a>
+</p>
+</div>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="408">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="408">
+<b>Mijn werkpunt</b>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="408">
+<b>Eén vaardigheid</b> gericht bijwerken.
+</p>
+
+<div class="deck-actielinks" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="408">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="408">
+<a href="https://www.ijkingstoets.be/nl/starttoets#verplichte-remediering" target="_blank" >Remediëring via je universiteit</a>&#x2003;<a href="https://www.ijkingstoets.be/faq"
+target="_blank" >Vragen over feedback</a>
+</p>
+</div>
+
+</div>
+
+</div>
+
+
+<!--
+...... section Handige links ......
+-->
+<h4 id="autosec-21" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="415"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="415">XX&#x2003;</span>Handige links</h4>
+<a id="mkpiweb-autopage-21"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="416">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="416">Scan de QR-code.</span>
+</p>
+
+
+
+<div class="deck-duo" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+<b>Alles op één plek</b>
+</p>
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">•</span> <a href="https://www.ijkingstoets.be/" target="_blank" ><b>Start- en ijkingstoetsen</b></a>.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">•</span> <a href="https://www.ijkingstoets.be/vindjouwtoets" target="_blank" ><b>Vind jouw toets</b></a>: opleiding, locatie en startuur.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">•</span> <a href="https://www.ijkingstoets.be/faq" target="_blank" ><b>FAQ</b></a>: praktische vragen.
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="418">•</span> <a href="https://www.vlaanderen.be/onderwijs-en-vorming/toelatingsexamens" target="_blank" ><b>Toelatingsexamens</b></a>: arts, tandarts en dierenarts.
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="deck-kaart" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="424">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="424">
+<b>Snel naar de website</b>
+</p>
+
+
+<div class="deck-qr" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="424">
+<div class="center" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="424">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="424">
+<span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="424"
+><!--
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(QR-code naar de website met start- en ijkingstoetsen)"
+    style=""
+    class="lateximage" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="424"
+></span>
+</p>
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="424">
+<a href="https://www.ijkingstoets.be/" target="_blank" ><b>www.ijkingstoets.be</b></a>
+</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!--
+...... section Bronnen en actualiteit ......
+-->
+<h4 id="autosec-25" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="433"><span class="sectionnumber" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="433">XXI&#x2003;</span>Bronnen en actualiteit</h4>
+<a id="mkpiweb-autopage-25"></a>
+
+
+
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="434">
+<span class="deck-kern" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="434">Gecontroleerd: 13 oktober 2026.</span>
+</p>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="436">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="436">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="436">•</span> <b>Kalender en nieuwe starttoetsen</b>: <a href="https://www.ijkingstoets.be/" target="_blank" >VLIR, 9 oktober 2026</a>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="437">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="437">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="437">•</span> <b>Deelname en remediëring</b>: <a href="https://www.ijkingstoets.be/nl/starttoets" target="_blank" >Starttoets</a>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="438">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="438">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="438">•</span> <b>Opleidingen, uren en locaties</b>: <a href="https://www.ijkingstoets.be/vindjouwtoets" target="_blank" >Vind jouw toets</a>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="439">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="439">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="439">•</span> <b>Inschrijven, toetsvorm en feedback</b>: <a href="https://www.ijkingstoets.be/faq" target="_blank" >FAQ</a>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="440">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="440">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="440">•</span> <b>Toelatingsexamens 2027</b>: <a href="https://www.vlaanderen.be/onderwijs-en-vorming/toelatingsexamens" target="_blank" >Vlaanderen</a>.
+</p>
+</li>
+</ul>
+
+
+
+
+<div class="aside" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="444">
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="444">
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="444">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="444">•</span> Sommige officiële pagina’s bevatten nog <b>details van 2026</b> of afwijkende tekst. 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="445">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="445">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="445">•</span> Geen algemene geldigheidsduur voor deelnameattesten opgenomen. 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="446">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="446">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="446">•</span> Geen onbevestigde praktische afspraken opgenomen. 
+</p>
+
+</li>
+<li data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="447">
+
+<p data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="447">
+<span class="listmarker" data-mkpi-bestand="StartIJkingsIngangs.tex" data-mkpi-regel="447">•</span> <b>Controleer opnieuw</b> vóór je inschrijft.
+</p>
+</li>
+</ul>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=fba7a888185c"></script>
+<script src="hoofdstuk.presentatie.js?v=fba7a888185c"></script>
+<script src="statistieken.js?v=fba7a888185c"></script>
+</body>
+</html>

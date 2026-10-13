@@ -2635,12 +2635,14 @@
     return window.matchMedia("(max-width: 55rem)").matches;
   }
 
-  function wisselZijbalk(open) {
+  function wisselZijbalk(open, onthoud) {
+    var gebruikerskeuze = open === undefined || onthoud === true;
     var dicht = open === undefined
       ? !document.body.classList.contains("pres-zijbalk-dicht")
       : !open;
     document.body.classList.toggle("pres-zijbalk-dicht", dicht);
     knopZijbalk.setAttribute("aria-expanded", String(!dicht));
+    if (gebruikerskeuze) bewaar("zijbalk", dicht ? "dicht" : "open");
   }
 
   // De zoekterm dunt de inhoudstafel uit. De titels van de delen verdwijnen
@@ -3113,7 +3115,7 @@
     }).observe(kop);
 
     sluier = el("div", "pres-sluier");
-    sluier.addEventListener("click", function () { wisselZijbalk(false); });
+    sluier.addEventListener("click", function () { wisselZijbalk(false, true); });
 
     zijbalk = el("nav", "pres-zijbalk");
     zijbalk.id = "pres-zijbalk";
@@ -3243,6 +3245,7 @@
       ["←", "vorige slide"],
       ["↓ · Page Down", "scrollen tot de volgende stap in beeld is, dan voorbeeldinvoer, figuurstap, oplossing of kort antwoord, coderegel, stap van een rekenmachinedemo of slide"],
       ["↑ · Page Up", "scrollen tot de vorige stap in beeld is, dan vorige figuurstap, oplossing of kort antwoord, coderegel, stap van een rekenmachinedemo of slide"],
+      ["↓ · ↑", "bij selecteerbare presentatiekaartjes: volgende of vorige kaart; voorbij de laatste of eerste kaart: volgende of vorige slide"],
       ["→ · ←", "bij een grote figuur: volgende of vorige figuur, die groot blijft; ↓ en ↑ nemen dan eerst haar constructiestappen, daarna de figuur ernaast"],
       ["Home · End", "eerste of laatste slide"],
       ["k · l · v", "bladeren: kort, lang of volledig"],
@@ -3406,9 +3409,20 @@
           blader(-1); break;
         // Het podium heeft zelf de focus niet om te scrollen, dus doen we het
         // hier, afgewisseld met de stappen op de pagina.
-        case "ArrowDown": case "PageDown":
+        case "ArrowDown": case "ArrowUp":
+          var richting = e.key === "ArrowDown" ? 1 : -1;
+          var kaartstap = new CustomEvent("pres:kaartstap", {
+            cancelable: true, detail: { richting: richting, kaarten: false }
+          });
+          document.dispatchEvent(kaartstap);
+          if (!kaartstap.defaultPrevented) {
+            if (kaartstap.detail.kaarten) blader(richting);
+            else stap(richting, false, e.key, e.repeat);
+          }
+          break;
+        case "PageDown":
           stap(1, e.key === "PageDown", e.key, e.repeat); break;
-        case "ArrowUp": case "PageUp":
+        case "PageUp":
           stap(-1, e.key === "PageUp", e.key, e.repeat); break;
         case "Home": naarPositie(0); break;
         case "End": naarPositie(aantalPosities() - 1); break;
@@ -3528,9 +3542,12 @@
 
     document.body.classList.add("pres-klaar");
     zetPresentatiestand(false);
-    // Breed staat de inhoudstafel naast het podium en hoort ze open; smal
-    // ligt ze eroverheen, en dan is de cursus zelf het eerste wat je wil zien.
-    wisselZijbalk(!smalScherm());
+    // Presentaties beginnen zonder inhoudstafel. Een eigen keuze wint;
+    // tijdelijk sluiten voor volledig scherm verandert die voorkeur niet.
+    var zijbalkStand = opgehaald("zijbalk");
+    var presentatie = document.querySelector('meta[name="mathesis-presentatie"]');
+    wisselZijbalk(zijbalkStand === "open" ||
+      (zijbalkStand !== "dicht" && !presentatie && !smalScherm()));
     var dicht = opgehaald("oplossingen-dicht");
     if (dicht === "compact" || dicht === "kaders") laatsteDicht = dicht;
     zetOplossingStand(bewaardeOplossingStand());
