@@ -28,7 +28,7 @@ document.asy.canvasHeight=91;
 
 document.asy.webgl2=false;
 document.asy.ibl=false;
-document.asy.absolute=false;
+document.asy.absolute=false;document.asy.autoplay=true;
 
 document.asy.minBound=[-142.4823,-45.11837,-446.6257];
 document.asy.maxBound=[142.4823,45.11837,-148.8752];
@@ -74,7 +74,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 cylinder([-129.4077,-29.94865,-297.7505],0.4,258.6952,0,0,
 [1.570796,0.2165503],true);
@@ -91,7 +92,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 sphere([-49.29819,-12.32455,-297.7505],1.25,0,1);
 
@@ -101,7 +103,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 patch([
 [-53.636909586,-15.0876128588,-297.750497284],
@@ -325,7 +328,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 cylinder([-1.348476,-1.77561,-297.7505],0.9,49.09638,0,3,
 [1.570796,-2.925042],true);
@@ -342,7 +346,8 @@ material(
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [-1.348476,-1.77561,-301.5018],
@@ -849,8 +854,8 @@ patch([
 
 initTransform();
 
-beginTransform(function(x,t){return asyK.schacht(x,t);},null,1,false);
-patch([
+beginTransform(function(x,t){return asyK.schacht(x,t);},null,1);
+document.asy.autoplay=false;patch([
 [-49.29819,-12.32455,-298.6505],
 [-33.31495,-8.808234,-298.6505],
 [-17.33171,-5.291922,-298.6505],
@@ -929,8 +934,8 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyK.kop(x,t);},null,1,false);
-patch([
+beginTransform(function(x,t){return asyK.kop(x,t);},null,1);
+document.asy.autoplay=false;patch([
 [-1.348476,-1.77561,-301.5018],
 [3.209198,-0.772922,-300.2514],
 [7.766872,0.2297663,-299.0009],
@@ -1028,14 +1033,15 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyK.punt(x,t);},null,1,false);
-material(
+beginTransform(function(x,t){return asyK.punt(x,t);},null,1);
+document.asy.autoplay=false;material(
 [0,0,0,1],
 [0,0,0,1],
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [12.32455,1.129935,-298.9964],
@@ -1296,8 +1302,8 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyK.label(x,t);},null,1,false);
-patch([
+beginTransform(function(x,t){return asyK.label(x,t);},null,1);
+document.asy.autoplay=false;patch([
 [23.4624640088,4.64810873944,-297.750497284],
 [23.7333000088,5.75904713944,-297.750497284],
 [24.0041360088,6.86998553944,-297.750497284],

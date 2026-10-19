@@ -390,11 +390,10 @@ body.pres-klaar {
   z-index: 1;
 }
 
-/* --- Keuze van hulpmiddel ------------------------------------------------ */
+/* --- Keuze van hulpmiddel of oplossingsmethode ----------------------------- */
 
-/* Een blok met dezelfde werkwijze voor bijvoorbeeld het GRM en Python. De
- * lezer kiest met een knop in delen. */
-.pres-hulpmiddelkeuze {
+/* De lezer kiest één hulpmiddel of oplossingsmethode per blok. */
+:is(.pres-hulpmiddelkeuze, .pres-methodekeuze) {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -404,36 +403,41 @@ body.pres-klaar {
   border-top: 1px solid var(--kleur-lijn);
 }
 
+.pres-methodekeuze {
+  border-top: 0;
+  padding-top: 0;
+}
+
 /* Zoals de bladerstanden, maar ook op een smal scherm staan alle knoppen:
  * de lezer moet zien waartussen hij kiest. */
-.pres-hulpmiddelknoppen {
+:is(.pres-hulpmiddelknoppen, .pres-methodeknoppen) {
   display: inline-flex;
   flex: none;
 }
 
-.pres-hulpmiddelknoppen .pres-knop {
+:is(.pres-hulpmiddelknoppen, .pres-methodeknoppen) .pres-knop {
   border-radius: 0;
 }
 
-.pres-hulpmiddelknoppen .pres-knop + .pres-knop {
+:is(.pres-hulpmiddelknoppen, .pres-methodeknoppen) .pres-knop + .pres-knop {
   margin-left: -1px;
 }
 
-.pres-hulpmiddelknoppen .pres-knop:first-child {
+:is(.pres-hulpmiddelknoppen, .pres-methodeknoppen) .pres-knop:first-child {
   border-radius: var(--straal) 0 0 var(--straal);
 }
 
-.pres-hulpmiddelknoppen .pres-knop:last-child {
+:is(.pres-hulpmiddelknoppen, .pres-methodeknoppen) .pres-knop:last-child {
   border-radius: 0 var(--straal) var(--straal) 0;
 }
 
-.pres-hulpmiddelknoppen .pres-knop:hover,
-.pres-hulpmiddelknoppen .pres-knop[aria-pressed="true"] {
+:is(.pres-hulpmiddelknoppen, .pres-methodeknoppen) .pres-knop:hover,
+:is(.pres-hulpmiddelknoppen, .pres-methodeknoppen) .pres-knop[aria-pressed="true"] {
   position: relative;
   z-index: 1;
 }
 
-.hulpmiddel > :first-child {
+:is(.hulpmiddel, .methode) > :first-child {
   margin-top: .4rem;
 }
 
@@ -1576,6 +1580,61 @@ div.marginparblock img {
   height: auto !important;
 }
 
+/* Een rij portretten (\begin{portretten} in cursus.cls): even hoog,
+ * gecentreerd naast elkaar, op een smal scherm onder elkaar. De hoogte in
+ * het style-attribuut van lwarp komt van papier, dus !important. */
+.portretten {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 1rem 2.5rem;
+  margin: 1.2rem 0 .5rem;
+}
+
+.portretten .portret {
+  margin: 0;
+  width: 10rem;
+  text-align: center;
+}
+
+.portretten .portret p {
+  margin: 0;
+}
+
+.portretten .portret img {
+  height: 12rem !important;
+  width: auto;
+  max-width: 100%;
+  object-fit: cover;
+  border-radius: var(--straal);
+}
+
+.portretten figcaption {
+  margin-top: .4rem;
+  color: var(--kleur-zwak);
+  font-size: .8rem;
+  line-height: 1.35;
+}
+
+/* De aan/uit-knop van een figuur (asy-wissel) staat, net als de
+ * schuifregelaar, onder de figuur. */
+.pres-figuur .pres-figuurwissel {
+  display: flex;
+  margin: 0 auto .5rem;
+}
+
+.pres-figuur-groot.pres-met-wissel {
+  display: flex;
+  flex-direction: column;
+}
+
+.pres-figuur-groot.pres-met-wissel iframe {
+  flex: 1;
+  min-height: 0;
+  height: auto !important;
+}
+
 .pres-figuurschuif-naam {
   font-style: italic;
 }
@@ -2427,11 +2486,11 @@ mjx-container .undefsign line {
     visibility: visible;
   }
 
-  .pres-hulpmiddelkeuze {
+  :is(.pres-hulpmiddelkeuze, .pres-methodekeuze) {
     display: none;
   }
 
-  .hulpmiddel[hidden] {
+  :is(.hulpmiddel, .methode)[hidden] {
     display: block !important;
   }
 }
@@ -2468,9 +2527,28 @@ mjx-container .undefsign line {
   align-items: center;
 }
 
+/* Tekst links met een kleine figuur rechts ernaast, zoals de ruitendodecaëder
+ * bij Kristallografie (Keuze5/PlatonischeLichamen). */
+.figuur-bewijs.tekst-figuur {
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+}
+
 .figuur-bewijs > div {
   min-width: 0;
   overflow-x: auto;
+}
+
+/* Een figuurbewijs meteen na \item (Kristallografie in Keuze5/PlatonischeLichamen):
+ * lwarp zet het opsommingsteken dan in een eigen alinea. Die zweeft links,
+ * zodat het teken naast de eerste regel staat en het blok ernaast begint. */
+li > p:has(> .listmarker:only-child):has(+ .figuur-bewijs) {
+  float: left;
+  margin: 0 .3em 0 0;
+}
+
+li > p:has(> .listmarker:only-child) + .figuur-bewijs > div > :is(p, .pres-figuur):first-child,
+li > p:has(> .listmarker:only-child) + .figuur-bewijs > div > p:first-child > .pres-figuur:first-child {
+  margin-top: 0;
 }
 
 /* In de smalle figuurkolom passen de keuzeknoppen van een groep scènes niet op
@@ -2493,7 +2571,8 @@ mjx-container .undefsign line {
 @media (max-width: 44rem) {
   .figuur-bewijs,
   .figuur-bewijs.breed,
-  .figuur-bewijs.grafiek-figuur {
+  .figuur-bewijs.grafiek-figuur,
+  .figuur-bewijs.tekst-figuur {
     grid-template-columns: minmax(0, 1fr);
   }
 }

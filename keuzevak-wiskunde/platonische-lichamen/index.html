@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Platonische lichamen</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=fb9ea748fb1d" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * you choose how answers wait: compact, as empty frames or all open; in
+//    compact an exercise first shows its short answer, and the full working
+//    only on a second click;
+//  * a series of exercises can be paged through one at a time and comes
+//    with a PDF to print; extra proofs and the instructions per tool (TI-84
+//    or Python) stay folded away until you open them;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a figure with a parameter gets a slider, a figure with several cases
+//    switches between them without losing the camera, and in the large view
+//    you walk from figure to figure through the whole chapter;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * matrices you can click: pick an entry, a row or a diagonal and the
+//    matching term of the formula lights up, and the other way round;
+//  * Python runs in the page (Pyodide, with NumPy): exercises with checks
+//    and hints, code you can step through instruction by instruction or,
+//    for a loop, line by line with its variables in view, trace exercises
+//    that fill a table of the variables as you step, and code that drives
+//    an interactive graph; each Python section also comes as a notebook;
+//  * the instructions for a graphing calculator play step by step on a
+//    working TI-84 beside the text, which you can also press yourself (the
+//    calculator is ti84-calculator by WhitDeckard09, with an embed mode
+//    added for this site);
+//  * a matrix calculator, a calculator for systems of linear equations that
+//    row-reduces step by step and discusses parameters case by case, and a
+//    function calculator whose CAS derives step by step, all in the
+//    notation of the course;
+//  * MathJax is extended where the course needs it, so the page shows what
+//    the PDF shows: foreach loops, matrices with row and column headings,
+//    braces across rows, partial rules in tables, highlighted cells and
+//    terms, the end-of-proof square at the right margin and references
+//    inside a formula; accented letters are real characters, so searching
+//    and copying text works;
+//  * formulas are typeset slide by slide, so a long chapter opens quickly;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * the site has its own icon and can be installed as an app;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well; the one request that may
+//    leave it is an optional visit count per chapter, without cookies or
+//    personal data.
+//
+
+MathJax = {
+     options: { enableMenu: false },
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=fb9ea748fb1d"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=fb9ea748fb1d"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="7">
+<header class="cursustitel">  <h1 data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="7">Platonische lichamen</h1> </header>
+</p>
+
+
+<!--
+...... section Definitie ......
+-->
+<h4 id="autosec-2" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="9"><span class="sectionnumber" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="9">I&#x2003;</span>Definitie</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="11">
+Een <b>platonisch lichaam</b> (of <b>regelmatig convex veelvlak</b>) is een convex veelvlak met de volgende eigenschappen:
+
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="14">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="14">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="14">•</span> Alle zijvlakken zijn congruente <em>reguliere</em> veelhoeken. 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="15">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="15">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="15">•</span> In elk hoekpunt komen evenveel zijvlakken samen (gelijke hoekpuntsconfiguratie).
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="18">
+Het blijkt dat er <em>slechts vijf</em> zulke lichamen bestaan.
+</p>
+
+
+<!--
+...... section Welke zijn er? ......
+-->
+<h4 id="autosec-3" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="20"><span class="sectionnumber" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="20">II&#x2003;</span>Welke zijn er?</h4>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="22">
+Hieronder staan de vijf platonische lichamen, elk ingeschreven in dezelfde bol. Hun aantal hoekpunten \(V\), ribben \(E\) en zijvlakken
+\(F\) staat in de tabel bij de eigenschappen.
+</p>
+
+
+<div class="pres-figuurgevallen" data-figuurgevallen data-keuzenaam="Lichaam" data-camera="delen" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+
+
+<div class="pres-figuurgeval" data-naam="Tetraëder" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27"><iframe src="./tetraeder.html?v=91dd6afb5b25" style="height:45vh" loading="lazy" title="Tetraëder" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27"></iframe> <div class="pres-figuurgeval-uitleg" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+4 driehoeken
+</p>
+</div></div>
+
+<div class="pres-figuurgeval" data-naam="Kubus" hidden data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27"><iframe src="./kubus.html?v=68c8ad0cc2ca" style="height:45vh" loading="lazy" title="Kubus" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27"></iframe> <div class="pres-figuurgeval-uitleg" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+6 vierkanten
+</p>
+</div></div>
+
+<div class="pres-figuurgeval" data-naam="Octaëder" hidden data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27"><iframe src="./octaeder.html?v=f5e4af18be72" style="height:45vh" loading="lazy" title="Octaëder" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27"></iframe> <div class="pres-figuurgeval-uitleg" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+8 driehoeken
+</p>
+</div></div>
+
+<div class="pres-figuurgeval" data-naam="Dodecaëder" hidden data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27"><iframe src="./dodecaeder.html?v=fc398d611f3d" style="height:45vh" loading="lazy" title="Dodecaëder" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27"></iframe> <div class="pres-figuurgeval-uitleg" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+12 vijfhoeken
+</p>
+</div></div>
+
+<div class="pres-figuurgeval" data-naam="Icosaëder" hidden data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27"><iframe src="./icosaeder.html?v=afc082ef1bed" style="height:45vh" loading="lazy" title="Icosaëder" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27"></iframe> <div class="pres-figuurgeval-uitleg" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="27">
+20 driehoeken
+</p>
+</div></div>
+
+</div>
+
+
+<!--
+...... section Geschiedenis in het kort ......
+-->
+<h4 id="autosec-4" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="34"><span class="sectionnumber" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="34">III&#x2003;</span>Geschiedenis in het kort</h4>
+<a id="mkpiweb-autopage-4"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="37">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="37">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="37">•</span> <b>5e en 4e eeuw v.Chr.</b> Pythagoreeërs bestuderen regelmatige veelvlakken. 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="39">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="39">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="39">•</span> <b>Plato</b> (ca. 427 tot 347 v.Chr.) verbindt de vijf lichamen aan de oerelementen in de <em>Timaeus</em> (tetraëder = vuur, kubus = aarde, octaëder = lucht,
+icosaëder = water, dodecaëder = kosmos). 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="42">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="42">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="42">•</span> <b>Theaetetos</b> (leerling van Plato) classificeert dat er precies vijf zijn. 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="44">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="44">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="44">•</span> <b>Euclides</b> (<em>Elementen</em>, Boek XIII, ca. 300 v.Chr.): bewijst strikt dat er exact vijf platonische lichamen bestaan en construeert ze. 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="47">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="47">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="47">•</span> <b>Kepler</b> (1571 tot 1630) gebruikt de vijf lichamen in zijn vroege kosmologisch model (<em>Mysterium Cosmographicum</em>) en bestudeert ook dualiteit.
+</p>
+</li>
+</ul>
+
+
+<div class="portretten" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59">
+
+
+<figure class="portret" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59">
+
+<a href="Plato.jpg" target="_blank" ><img
+     src="Plato.jpg"
+     style="
+     height:85pt ;
+     "
+     class="inlineimage"
+     alt="(image)" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59"
+></a>
+</p>
+<figcaption>
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59">
+Plato, kopie naar het portret van Silanion (foto Marie-Lan Nguyen, CC BY 2.5)
+</p>
+</figcaption></figure>
+
+<figure class="portret" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59">
+
+<a href="Euclides.jpg" target="_blank" ><img
+     src="Euclides.jpg"
+     style="
+     height:85pt ;
+     "
+     class="inlineimage"
+     alt="(image)" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59"
+></a>
+</p>
+<figcaption>
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59">
+Euclides, fantasieportret door Justus van Gent (rond 1474)
+</p>
+</figcaption></figure>
+
+<figure class="portret" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59">
+
+<a href="Johannes_Kepler.jpg" target="_blank" ><img
+     src="Johannes_Kepler.jpg"
+     style="
+     height:85pt ;
+     "
+     class="inlineimage"
+     alt="(image)" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59"
+></a>
+</p>
+<figcaption>
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="59">
+Johannes Kepler, olieverfportret uit 1620, schilder onbekend
+</p>
+</figcaption></figure>
+
+</div>
+
+
+<!--
+...... section Eenvoudige eigenschappen ......
+-->
+<h4 id="autosec-5" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="66"><span class="sectionnumber" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="66">IV&#x2003;</span>Eenvoudige eigenschappen</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="68">
+Voor elk platonisch lichaam gelden: 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="70">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="70">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="70">•</span> Alle <em>vlakken</em> zijn congruente regelmatige \(n\)-hoeken. 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="71">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="71">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="71">•</span> In elk <em>hoekpunt</em> komen precies \(q\) vlakken samen (constante hoekpuntsconfiguratie \(\{n,q\}\)). 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="73">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="73">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="73">•</span> <b>Euler</b>: \(V - E + F = 2\) (met \(V\) hoekpunten, \(E\) ribben, \(F\) vlakken). 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="75">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="75">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="75">•</span> Uit \(\{n,q\}\) volgt \(E = \dfrac {nF}{2} = \dfrac {qV}{2}\) en 
+</p>
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="76">
+\[ \frac {1}{n}+\frac {1}{q} &gt; \frac {1}{2}, \]
+</p>
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="79">
+waaruit precies de vijf mogelijkheden volgen.
+</p>
+</li>
+</ul>
+
+
+<div class="center" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="83">
+
+
+<table data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="83">
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="83">Lichaam</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">\(V\)</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">\(E\)</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">\(F\)</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Vlak</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">\(\{n,q\}\)</td>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Duale partner</td>
+</tr>
+
+<tr class="hline">
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Tetraëder</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">4</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">6</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">4</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">driehoek</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">\(\{3,3\}\)</td>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Tetraëder (zelf-duaal)</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Kubus</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">8</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">12</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">6</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">vierkant</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">\(\{4,3\}\)</td>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Octaëder</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Octaëder</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">6</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">12</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">8</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">driehoek</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">\(\{3,4\}\)</td>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Kubus</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Dodecaëder</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">20</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">30</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">12</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">vijfhoek</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">\(\{5,3\}\)</td>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Icosaëder</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Icosaëder</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">12</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">30</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">20</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">driehoek</td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">\(\{3,5\}\)</td>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84">Dodecaëder</td>
+</tr>
+
+<tr class="tbrule" aria-hidden="true">
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84"></td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84"></td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84"></td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84"></td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84"></td>
+<td class="tdc" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84"></td>
+<td class="tdl" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="84"></td>
+</tr>
+</table>
+
+</div>
+
+
+<!--
+...... section Dualiteit ......
+-->
+<h4 id="autosec-8" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="96"><span class="sectionnumber" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="96">V&#x2003;</span>Dualiteit</h4>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="98">
+Het <b>duale</b> van een convex veelvlak ontstaat door in elk vlak een punt te plaatsen en de punten van aangrenzende vlakken te
+verbinden; hoekpunten en vlakken wisselen van rol: 
+</p>
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="101">
+\[ V \longleftrightarrow F, \qquad E \text { blijft gelijk}.       \]
+</p>
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="104">
+Bij platonische lichamen levert dit opnieuw een platonisch lichaam op: 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="106">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="106">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="106">•</span> Kubus \(\longleftrightarrow \) Octaëder 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="107">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="107">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="107">•</span> Dodecaëder \(\longleftrightarrow \) Icosaëder 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="108">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="108">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="108">•</span> Tetraëder is <em>zelf-duaal</em>.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="112">
+ <span
+class="cursus-subtitel-op-slide" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="112"></span>
+</p>
+<!--
+...... subsubsection Schets van constructie ......
+-->
+<h6 id="autosec-9" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="112">Schets van constructie</h6>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="114">
+Neem bv. de kubus: plaats het zwaartepunt in elk vierkant vlak, en verbind de centra van aangrenzende vlakken. Zo ontstaat het
+draadmodel van de octaëder. Omgekeerd geeft de duale operatie op de octaëder weer de kubus.
+</p>
+
+
+<div class="pres-figuurgevallen" data-figuurgevallen data-keuzenaam="Vertrek van" data-camera="delen" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+
+
+<div class="pres-figuurgeval" data-naam="Tetraëder" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119"><iframe src="./duaal_tetraeder.html?v=87650b7292fe" style="height:45vh" loading="lazy" title="Tetraëder" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119"></iframe> <div class="pres-figuurgeval-uitleg" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+\(\to \) tetraëder
+</p>
+</div></div>
+
+<div class="pres-figuurgeval" data-naam="Kubus" hidden data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119"><iframe src="./duaal_kubus.html?v=eb19038a50cc" style="height:45vh" loading="lazy" title="Kubus" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119"></iframe> <div class="pres-figuurgeval-uitleg" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+\(\to \) octaëder
+</p>
+</div></div>
+
+<div class="pres-figuurgeval" data-naam="Octaëder" hidden data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119"><iframe src="./duaal_octaeder.html?v=599e0f72c55f" style="height:45vh" loading="lazy" title="Octaëder" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119"></iframe> <div class="pres-figuurgeval-uitleg" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+\(\to \) kubus
+</p>
+</div></div>
+
+<div class="pres-figuurgeval" data-naam="Dodecaëder" hidden data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119"><iframe src="./duaal_dodecaeder.html?v=87577e95e854" style="height:45vh" loading="lazy" title="Dodecaëder" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119"></iframe> <div
+class="pres-figuurgeval-uitleg" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+\(\to \) icosaëder
+</p>
+</div></div>
+
+<div class="pres-figuurgeval" data-naam="Icosaëder" hidden data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119"><iframe src="./duaal_icosaeder.html?v=b6f0284a6af0" style="height:45vh" loading="lazy" title="Icosaëder" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119"></iframe> <div class="pres-figuurgeval-uitleg" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="119">
+\(\to \) dodecaëder
+</p>
+</div></div>
+
+</div>
+
+
+<!--
+...... section Toepassingen en voorbeelden ......
+-->
+<h4 id="autosec-10" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="126"><span class="sectionnumber" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="126">VI&#x2003;</span>Toepassingen en voorbeelden</h4>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="128">
+Platonische lichamen komen op onverwachte plaatsen in de natuur en wetenschap voor, dankzij hun unieke symmetrie. 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="131">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="131">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="131">•</span> 
+</p>
+<div class="figuur-bewijs tekst-figuur" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="133"><div data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="133">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="133">
+<b>Kristallografie:</b> Mineralen kristalliseren vaak in de vorm van een kubus, een octaëder of een tetraëder.
+Pyriet vormt kubussen en fluoriet vormt octaëders. Een regelmatige dodecaëder of icosaëder kan geen kristal vormen; granaten vormen wel een <em>ruitendodecaëder</em>, met twaalf ruiten als
+zijvlakken.
+</p>
+</div><div data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="133">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="133">
+<iframe data-verhouding="3/2" src="./granaat.html?v=10be96cf231a" allowfullscreen loading="lazy" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="133"></iframe>
+</p>
+</div></div>
+
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="142">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="142">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="142">•</span> 
+</p>
+<div class="figuur-bewijs " data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="144"><div data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="144">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="144">
+<iframe data-verhouding="3/2" src="./faag.html?v=4020e200b0de" allowfullscreen loading="lazy" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="144"></iframe>
+</p>
+</div><div data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="144">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="144">
+<b>Biologie:</b> De capside (eiwitmantel) van veel virussen, zoals het herpesvirus of de kop van een bacteriofaag (in de figuur), is een icosaëder. Dit is een efficiënte en stevige manier om genetisch materiaal in
+te sluiten met identieke eiwit-subunits.
+</p>
+</div></div>
+
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="152">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="152">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="152">•</span> 
+</p>
+<div class="figuur-bewijs tekst-figuur" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="154"><div data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="154">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="154">
+<b>Chemie:</b> De atomen in moleculen kunnen de hoekpunten van een platonisch lichaam innemen. Bijvoorbeeld, de
+waterstofatomen in methaan (CH\(_4\)) vormen een tetraëder rond het koolstofatoom.
+</p>
+
+<div class="center" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="159">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="159">
+ <span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="159"
+><!--
+  H
+H C H
+  H
+--><img
+     src="mkpiweb-images/image-1.svg"
+     alt="(-tikz-&nbsp;diagram)"
+     style=""
+     class="lateximage" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="159"
+></span>
+</p>
+</div>
+
+</div><div data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="167">
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="167">
+<iframe data-verhouding="3/2" src="./methaan.html?v=f62d8d44fc91" allowfullscreen loading="lazy" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="167"></iframe>
+</p>
+</div></div>
+
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="171">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="171">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="171">•</span> <b>Spellen:</b> Dobbelstenen voor spellen (bv. Dungeons &amp; Dragons) zijn vaak platonische lichamen (d4, d6, d8, d12, d20), omdat ze <em>eerlijk</em> zijn: elke zijde heeft een gelijke
+kans om boven te komen. 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="174">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="174">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="174">•</span> <b>Architectuur en kunst:</b> Geodetische koepels, populair gemaakt door Buckminster Fuller, zijn gebaseerd op de icosaëder en bieden een sterke en lichte structuur. De
+vormen duiken ook op in de kunst, bijvoorbeeld in het werk van M.C. Escher. 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="178">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="178">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="178">•</span> <b>Abstracte algebra (groepentheorie):</b> De rotatiesymmetrieën van elk platonisch lichaam vormen een wiskundige <em>groep</em>. De rotatiegroepen van de
+tetraëder, kubus/octaëder en icosaëder/dodecaëder zijn isomorf met de belangrijke groepen \(A_4\), \(S_4\) en \(A_5\). Deze dienen als fundamentele, concrete voorbeelden in de studie van de
+eindige groepentheorie. 
+</p>
+
+</li>
+<li data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="183">
+
+<p data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="183">
+<span class="listmarker" data-mkpi-bestand="PlatonischeLichamen.tex" data-mkpi-regel="183">•</span> <b>Computer graphics en modellering:</b> Voor het efficiënt benaderen van een bol in 3D-software wordt vaak een icosaëder als startpunt gebruikt. Door de
+driehoekige vlakken recursief onder te verdelen en de nieuwe hoekpunten naar buiten te projecteren op de omhullende bol, ontstaat een <em>icosphere</em> of geodetisch netwerk. Dit garandeert een quasi-uniforme verdeling van
+punten, wat cruciaal is voor o.a. 3D-modellering, simulaties en het projecteren van texturen op planeten in games.
+</p>
+</li>
+</ul>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=fb9ea748fb1d"></script>
+<script src="statistieken.js?v=fb9ea748fb1d"></script>
+</body>
+</html>

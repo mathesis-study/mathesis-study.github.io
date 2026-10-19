@@ -820,15 +820,15 @@
     });
   }
 
-  /* --- Keuze van hulpmiddel --------------------------------------------- */
+  /* --- Keuze van hulpmiddel of oplossingsmethode ------------------------- */
 
-  // Een blok hulpmiddelen uit cursus.cls bevat dezelfde werkwijze voor
-  // verschillende hulpmiddelen, zoals het GRM en Python. De eerste optie
+  // Keuzeblokken uit cursus.cls tonen verschillende hulpmiddelen of
+  // oplossingsmethodes. De eerste optie
   // staat bij het laden open. Een andere knop wisselt, de gekozen knop opnieuw
   // sluit weer. Elk blok staat op zich en er wordt niets onthouden.
-  function zetHulpmiddel(blok, naam) {
+  function zetKeuze(blok, naam) {
     blok.delen.forEach(function (deel, i) {
-      var aan = deel.dataset.hulpmiddel === naam;
+      var aan = (deel.dataset.methode || deel.dataset.hulpmiddel) === naam;
       deel.hidden = !aan;
       blok.knoppen[i].setAttribute("aria-pressed", String(aan));
     });
@@ -848,23 +848,28 @@
       "/blob/" + repository[2] + pad;
   }
 
-  function bereidHulpmiddelenVoor() {
-    document.querySelectorAll(".hulpmiddelen").forEach(function (element) {
+  function bereidKeuzeblokkenVoor() {
+    document.querySelectorAll(".hulpmiddelen, .methoden").forEach(function (element) {
+      var methoden = element.classList.contains("methoden");
+      var soort = methoden ? "methode" : "hulpmiddel";
       var delen = Array.prototype.filter.call(element.children, function (kind) {
-        return kind.classList.contains("hulpmiddel");
+        return kind.classList.contains(soort);
       });
       if (!delen.length) return;
       var blok = { delen: delen, knoppen: [] };
-      var balk = el("div", "pres-hulpmiddelkeuze");
+      var balk = el("div", "pres-" + soort + "keuze");
       balk.setAttribute("role", "group");
-      balk.setAttribute("aria-label", "Uitleg per hulpmiddel");
-      var groep = el("div", "pres-hulpmiddelknoppen");
+      balk.setAttribute("aria-label", methoden ? "Oplossingsmethode" : "Uitleg per hulpmiddel");
+      if (methoden && element.dataset.label) {
+        balk.appendChild(el("span", "pres-methodenaam", element.dataset.label + ":"));
+      }
+      var groep = el("div", "pres-" + soort + "knoppen");
       blok.knoppen = delen.map(function (deel) {
-        var naam = deel.dataset.hulpmiddel;
+        var naam = deel.dataset[soort];
         var knop = el("button", "pres-knop", naam);
         knop.type = "button";
         knop.addEventListener("click", function () {
-          zetHulpmiddel(blok, knop.getAttribute("aria-pressed") === "true" ? null : naam);
+          zetKeuze(blok, knop.getAttribute("aria-pressed") === "true" ? null : naam);
         });
         groep.appendChild(knop);
         return knop;
@@ -892,7 +897,7 @@
         alinea.remove();
       });
       element.insertBefore(balk, element.firstChild);
-      zetHulpmiddel(blok, delen[0].dataset.hulpmiddel);
+      zetKeuze(blok, delen[0].dataset[soort]);
     });
   }
 
@@ -1742,6 +1747,10 @@
         werkFiguurschuifBij(frame, bericht);
         return;
       }
+      if (frame && bericht && bericht.type === "asy-wissel") {
+        werkFiguurwisselBij(frame, bericht);
+        return;
+      }
       if (!frame || !bericht || bericht.type !== "asy-stappen") return;
       var toestand = frame._stappen;
       toestand.stap = bericht.stap;
@@ -1795,6 +1804,41 @@
     }
     schuif.invoer.value = String(schuif.index);
     toonSchuifwaarde(schuif);
+  }
+
+  // Een figuur met iets dat aan of uit kan, zoals de omgeschreven bol rond
+  // een platonisch lichaam, meldt zich met asy-wissel: het opschrift en haar
+  // stand. Onder de figuur komt dan een knop, die de figuur met
+  // asy-zet-wissel aan of uit zet. In een groep asyvarianten geldt de stand
+  // voor de hele groep, zodat de bol blijft staan bij een ander geval. Laadt
+  // de figuur opnieuw, dan krijgt ze de gekozen stand terug.
+  function werkFiguurwisselBij(frame, bericht) {
+    if (!frame.parentNode) return;
+    var drager = frame.closest("[data-figuurgevallen]") || frame;
+    var stand = drager._wissel;
+    if (!stand) stand = drager._wissel = { aan: Boolean(bericht.aan), frames: [] };
+    if (!frame._wisselknop) {
+      var knop = el("button", "pres-knop pres-figuurwissel", String(bericht.naam || "Toon"));
+      knop.type = "button";
+      knop.addEventListener("click", function (e) {
+        e.stopPropagation();
+        stand.aan = !stand.aan;
+        stand.frames.forEach(function (ander) {
+          ander._wisselknop.setAttribute("aria-pressed", String(stand.aan));
+          if (ander.contentWindow) {
+            ander.contentWindow.postMessage({ type: "asy-zet-wissel", aan: stand.aan }, "*");
+          }
+        });
+      });
+      frame._wisselknop = knop;
+      stand.frames.push(frame);
+      frame.parentNode.classList.add("pres-met-wissel");
+      frame.parentNode.appendChild(knop);
+    }
+    frame._wisselknop.setAttribute("aria-pressed", String(stand.aan));
+    if (Boolean(bericht.aan) !== stand.aan) {
+      frame.contentWindow.postMessage({ type: "asy-zet-wissel", aan: stand.aan }, "*");
+    }
   }
 
   function toonSchuifwaarde(schuif) {
@@ -1962,7 +2006,7 @@
       if (!doos.closest("section.slide")) return false;
       var geval = doos.closest(".pres-figuurgeval");
       if (geval && geval.hidden) return false;
-      var deel = doos.closest("[data-hulpmiddel]");
+      var deel = doos.closest("[data-hulpmiddel], [data-methode]");
       return !(deel && deel.hidden);
     });
   }
@@ -3526,7 +3570,7 @@
     bereidOefeningenVoor();
     maakSecties();
     zetKruimels();
-    bereidHulpmiddelenVoor();
+    bereidKeuzeblokkenVoor();
     bereidOplossingenVoor();
     volgWiskunde();
     bereidAfbeeldingenVoor();

@@ -305,3 +305,18 @@ main {
   outline: 2px solid var(--kleur-accent);
   outline-offset: 2px;
 }
+
+/* Houd de vijfdes links en de zesdes rechts, ongeacht de kaarthoogte. */
+@media (min-width: 44rem) {
+  .vak-keuze {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-count: auto;
+    gap: 0 1.25rem;
+    align-items: start;
+  }
+
+  .vak-keuze h2 {
+    grid-column: 1 / -1;
+  }
+}

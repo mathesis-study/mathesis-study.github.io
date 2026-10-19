@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Zoeken en benaderen</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=78b32a4cc760" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=5c0258407520" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -281,10 +281,10 @@ MathJax = {
 </script>
 
 
-<script src="mathjax-accenten.js?v=78b32a4cc760"></script>
+<script src="mathjax-accenten.js?v=5c0258407520"></script>
 <script
           id="MathJax-script"
-          src="tex-svg-full.js?v=78b32a4cc760"
+          src="tex-svg-full.js?v=5c0258407520"
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
@@ -294,9 +294,9 @@ MathJax = {
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
 <meta name="mathesis-statistieken" content="mathesis" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=78b32a4cc760" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=78b32a4cc760" />
-<link rel="stylesheet" href="python-oefeningen.css?v=78b32a4cc760" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=5c0258407520" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=5c0258407520" />
+<link rel="stylesheet" href="python-oefeningen.css?v=5c0258407520" />
 </head>
 <body>
 
@@ -1819,7 +1819,7 @@ Stel de vraag in de voorwaarde van de lus niet, maar in de lus zelf. Dan heb je 
 rechts = 100
 gok = (links + rechts) // 2
 pogingen = 1
-antwoord = input("Is het " + str(gok) + "? ")
+antwoord = input("Is het " + str(gok) + "? (h/l/j) ")
 while antwoord != "j":
     ...
 print("Gevonden na", pogingen, "pogingen")</code></pre>
@@ -1948,23 +1948,53 @@ pogingen. Wiskundig is dit het aantal cijfers van \(n\) in het tweetallig stelse
 
 
 <p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="657">
-Voor welke \(x\) is \(2^x = x^2\)? Met wat proberen vind je \(x = 2\) en \(x = 4\), want \(2^2 = 2^2\) en \(2^4 = 16 =
-4^2\). Maar er is nog een derde oplossing, met een negatieve \(x\). Teken je de grafieken van \(y = 2^x\) en \(y = x^2\), dan zie je ze snijden in de buurt van \(-0.77\).
+Los op:
+</p>
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="657">
+\[2^x = x^2\]
 </p>
 
 
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="661">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="662">
-<figure class="interactieve-grafiek" data-grafiek="snijpunten" data-hoogte="24rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="662"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="662">
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="661">
+\[ x = 2 \Rightarrow \qquad 2^2 = 4 = 2^2 \]
+</p>
+
+</div>
+
+
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="666">
+
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="666">
+\[ x = 4 \Rightarrow \qquad 2^4 = 16 = 4^2 \]
+</p>
+
+</div>
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="670">
+Grafisch: snijpunten van \(y = 2^x\) en \(y = x^2\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677">
+
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="672">
+<figure class="interactieve-grafiek" data-grafiek="snijpunten" data-hoogte="24rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="672"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="672">
 </p>
 
 
-<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="667">
+<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="667">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677">
  <span
     id="lateximage-mkpiweb-7"
-    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="667"
+    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677"
 ><!--
            y
                                 y = 2x
@@ -1982,66 +2012,162 @@ Voor welke \(x\) is \(2^x = x^2\)? Met wat proberen vind je \(x = 2\) en \(x = 4
     src="mkpiweb-images/image-7.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
-    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="667"
+    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677"
 ></span>
 </p>
 </div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="667">
-</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="667"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x\) over de \(x\)-as en vergelijk \(2^x\) met \(x^2\). De band onder de as toont waar \(2^x\) het grootst
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep <span data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677">\(x\)</span> over de <span data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677">\(x\)</span>-as en vergelijk <span data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677">\(2^x\)</span> met <span data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677">\(x^2\)</span>. De band onder de as toont waar <span data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="677">\(2^x\)</span> het grootst
 is.</figcaption> </figure>
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="689">
-Probeer die derde oplossing met algebra te vinden: het lukt niet. Geen enkele rekenregel brengt \(x\) uit de exponent en uit het
-kwadraat tegelijk. Dat is geen uitzondering. De meeste vergelijkingen uit de praktijk kun je niet exact oplossen.
+</div>
+
+
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="701">
+
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="701">
+\[ \Rightarrow \qquad \underbrace {x \approx -0.77}_{\text {derde oplossing}} \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="694">
-Een computer kan wel iets anders: heel snel heel veel rekenen. We zoeken dus een <b>numerieke methode</b>: een algoritme
-dat de oplossing zo dicht benadert als we willen, bijvoorbeeld tot op \(12\) cijfers na de komma.
+</div>
+
+
+<!--
+...... subsection Van exact oplossen naar benaderen ......
+-->
+<h5 id="autosec-45" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="706"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="706">2&#x2003;</span>Van exact oplossen naar benaderen</h5>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="708">
+De derde oplossing van \(2^x = x^2\): 
 </p>
+<span class="hidden" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="709"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                           \(x\) in de exponent én in het kwadraat
+                                                                            ⇒     niet op te lossen met de gekende algebraïsche rekenregels
+
+
+
+-->
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="709">
+
+\begin{align*}
+&amp;\text {$x$ in de exponent én in het kwadraat} \\ &amp;\Rightarrow \qquad \text {niet op te lossen met de gekende algebraïsche rekenregels}
+\end{align*}
+Veel vergelijkingen uit de praktijk kunnen we niet exact oplossen.
+</p>
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="715">
+Een computer rekent snel en herhaalt veel stappen. 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="717">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="717">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="717">•</span> De oplossing stap voor stap benaderen. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="718">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="718">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="718">•</span> Een <b>numerieke methode</b>: een algoritme dat de oplossing benadert tot de gewenste nauwkeurigheid. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="719">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="719">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="719">•</span> Bijvoorbeeld tot op 12 cijfers na de komma.
+</p>
+</li>
+</ul>
 
 
 <!--
 ...... subsection Het idee: halveer het interval ......
 -->
-<h5 id="autosec-45" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="698"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="698">2&#x2003;</span>Het idee: halveer het interval</h5>
-<a id="mkpiweb-autopage-45"></a>
+<h5 id="autosec-46" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="722"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="722">3&#x2003;</span>Het idee: halveer het interval</h5>
+<a id="mkpiweb-autopage-46"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="700">
-Kijk naar de grafiek links van het snijpunt: daar ligt \(2^x\) onder \(x^2\). Rechts ervan ligt \(2^x\) erboven. In \(x = -1\) is
-\(2^{-1} = 0.5\) kleiner dan \((-1)^2 = 1\); in \(x = 0\) is \(2^0 = 1\) groter dan \(0^2 = 0\). Het snijpunt ligt dus ergens in het interval \([-1, 0]\).
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="725">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="725">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="725">•</span> <b>Startinterval \([-1, 0]\):</b> bij \(x=-1\) is \(2^{-1}=0.5&lt;1=(-1)^2\); bij \(x=0\) is \(2^0=1&gt;0=0^2\). Het snijpunt ligt ertussen. 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="705">
-Nu doen we wat we bij het raden deden. We nemen het midden \(-0.5\). Daar is \(2^{-0.5} \approx 0.71\) groter dan
-\(0.25\): we zitten rechts van het snijpunt. Het snijpunt ligt dus in de linkerhelft \([-1, -0.5]\). Zo gaan we verder: 
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="727">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="727">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="727">•</span> <b>Neem het midden \(-0.5\):</b> \(2^{-0.5}\approx 0.71&gt;0.25=(-0.5)^2\). Het midden ligt rechts van het snijpunt. 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="708">
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="729">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="729">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="729">•</span> <b>Behoud de linkerhelft \([-1, -0.5]\)</b> en herhaal.
+</p>
+</li>
+</ul>
+
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="731">
 \[ [-1,\,0] \to [-1,\,-0.5] \to [-1,\,-0.75] \to [-0.875,\,-0.75] \to [-0.8125,\,-0.75] \to \cdots \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="712">
-Elk interval is half zo breed als het vorige en bevat nog altijd het snijpunt. Dit is de <b>bisectiemethode</b> of
-<em>halveringsmethode</em>.
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="735">
+De <b>bisectiemethode</b> of <em>halveringsmethode</em>: 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="737">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="737">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="737">•</span> Het interval wordt telkens half zo breed. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="738">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="738">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="738">•</span> Het snijpunt blijft in het interval.
+</p>
+</li>
+</ul>
+
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="741">
+<figure class="interactieve-grafiek" data-grafiek="bisectie" data-hoogte="26rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="741"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="741">
 </p>
 
 
+<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="747">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="715">
-<figure class="interactieve-grafiek" data-grafiek="bisectie" data-hoogte="26rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="715"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="715">
-</p>
-
-
-<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="721">
-
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="721">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="747">
  <span
     id="lateximage-mkpiweb-8"
-    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="721"
+    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="747"
 ><!--
                                   y
     2
@@ -2057,13 +2183,13 @@ x                                     2x
     src="mkpiweb-images/image-8.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
-    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="721"
+    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="747"
 ></span>
 </p>
 </div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="721">
-</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="721"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op Halveer en volg hoe het interval rond het snijpunt krimpt. Met Inzoomen volgt het beeld het interval, zodat je ook na
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="747">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="747"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op Halveer en volg hoe het interval rond het snijpunt krimpt. Met Inzoomen volgt het beeld het interval, zodat je ook na
 twintig stappen nog ziet wat er gebeurt.</figcaption> </figure>
 </p>
 
@@ -2071,50 +2197,77 @@ twintig stappen nog ziet wat er gebeurt.</figcaption> </figure>
 <!--
 ...... subsection Welke helft kies je? ......
 -->
-<h5 id="autosec-49" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="752"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="752">3&#x2003;</span>Welke helft kies je?</h5>
-<a id="mkpiweb-autopage-49"></a>
+<h5 id="autosec-50" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="778"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="778">4&#x2003;</span>Welke helft kies je?</h5>
+<a id="mkpiweb-autopage-50"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="754">
-We kennen het snijpunt niet, dus we kunnen niet zien in welke helft het ligt. We weten wel hoe de grafieken liggen: links van het
-snijpunt is \(2^x &lt; x^2\), rechts ervan is \(2^x &gt; x^2\). Het volstaat dus om in het midden \(m\) te vergelijken: 
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="780">
+<b>Vergelijk in het midden \(m\):</b> 
 </p>
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="759">
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="759">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="759">•</span> is \(2^m &gt; m^2\), dan ligt \(m\) rechts van het snijpunt en wordt \(m\) de nieuwe rechtergrens; 
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="782">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="782">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="782">•</span> \(2^m &gt; m^2\): \(m\) ligt rechts van het snijpunt. Verplaats de rechtergrens naar \(m\). 
 </p>
 
 </li>
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="761">
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="783">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="761">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="761">•</span> anders ligt \(m\) links van het snijpunt en wordt \(m\) de nieuwe linkergrens.
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="783">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="783">•</span> \(2^m &lt; m^2\): \(m\) ligt links van het snijpunt. Verplaats de linkergrens naar \(m\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="784">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="784">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="784">•</span> \(2^m = m^2\): het snijpunt is gevonden.
 </p>
 </li>
 </ul>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="764">
-In Python heet de linkergrens <kbd>links</kbd>, de rechtergrens <kbd>rechts</kbd> en het midden <kbd>midden</kbd>. Het
-programma hieronder is één ronde van de methode. Het geeft <kbd>links</kbd> en <kbd>rechts</kbd> zelf geen waarde: die krijgt het van de figuur erboven, die het interval bijhoudt. Na elke uitvoering neemt de figuur het
-nieuwe interval over.
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="787">
+<b>In Python:</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="789">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="789">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="789">•</span> Grenzen: <kbd>links</kbd> en <kbd>rechts</kbd>. Midden: <kbd>midden</kbd>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="790">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="790">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="790">•</span> Eén uitvoering is één halvering. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="791">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="791">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="791">•</span> De figuur levert de grenzen aan de code en neemt daarna het nieuwe interval over.
+</p>
+</li>
+</ul>
+
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="794">
+<figure class="interactieve-grafiek" data-grafiek="bisectie-stap" data-hoogte="20rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="794"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="794">
 </p>
 
 
+<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="801">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="770">
-<figure class="interactieve-grafiek" data-grafiek="bisectie-stap" data-hoogte="20rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="770"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="770">
-</p>
-
-
-<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="777">
-
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="777">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="801">
  <span
     id="lateximage-mkpiweb-9"
-    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="777"
+    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="801"
 ><!--
                    y
     2
@@ -2130,63 +2283,214 @@ links   midden    rechts
     src="mkpiweb-images/image-9.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
-    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="777"
+    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="801"
 ></span>
 </p>
 </div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="777">
-</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="777"></div> <figcaption class="interactieve-grafiek-uitleg">De figuur houdt het interval bij en geeft <kbd>links</kbd> en <kbd>rechts</kbd> aan de code eronder. Voer de code uit, of
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="801">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="801"></div> <figcaption class="interactieve-grafiek-uitleg">De figuur houdt het interval bij en geeft <kbd>links</kbd> en <kbd>rechts</kbd> aan de code eronder. Voer de code uit, of
 stap er met de bugknop regel per regel door: elke uitvoering is één ronde. Versleep <kbd>links</kbd> of <kbd>rechts</kbd> om met een ander interval te beginnen.</figcaption> </figure>
 </p>
 
 
-<div class="python-oefening python-codeblok" data-python="code-3" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="809"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="809"><pre class="pythoncode" data-stappen="regel" data-grafiek="bisectie-stap" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="809"><code>midden = (links + rechts) / 2
+<div class="python-oefening python-codeblok" data-python="code-3" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="833"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="833"><pre class="pythoncode" data-stappen="regel" data-grafiek="bisectie-stap" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="833"><code>midden = (links + rechts) / 2
 if 2 ** midden &gt; midden ** 2:
     rechts = midden
 else:
     links = midden
 print(links, rechts)</code></pre></div></div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="818">
-Vanuit \([-1, 0]\) toont het programma <kbd>-1 -0.5</kbd>: het snijpunt ligt in de linkerhelft. Voer je het nog eens uit, dan
-begint het met die nieuwe waarden van <kbd>links</kbd> en <kbd>rechts</kbd>, en halveert het opnieuw. Zo herhaal je met de hand wat straks een <kbd>while</kbd>-lus voor je doet: de code blijft dezelfde, enkel de waarden
-in <kbd>links</kbd> en <kbd>rechts</kbd> gaan van ronde tot ronde mee.
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="842">
+<b>Voer de code opnieuw uit:</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="844">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="844">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="844">•</span> Vanuit \([-1, 0]\) krijg je <kbd>-1 -0.5</kbd>: behoud de linkerhelft. 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="825">
-Het verschil met raden: hier deel je met <kbd>/</kbd> en niet met <kbd>//</kbd>, want \(x\) is een kommagetal. En het midden
-valt niet af: het wordt zelf een grens.
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="845">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="845">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="845">•</span> De volgende uitvoering start met de nieuwe grenzen en halveert opnieuw. 
 </p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="846">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="846">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="846">•</span> Dezelfde code, telkens andere waarden voor <kbd>links</kbd> en <kbd>rechts</kbd>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="847">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="847">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="847">•</span> Straks herhaalt een <kbd>while</kbd>-lus deze stap automatisch.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="850">
+<b>Verschil met het raadspel:</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="852">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="852">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="852">•</span> Deel met <kbd>/</kbd>: het midden mag een kommagetal zijn. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="853">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="853">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="853">•</span> Het midden valt niet af, maar wordt een nieuwe grens.
+</p>
+</li>
+</ul>
 
 
 <!--
 ...... subsection Wanneer stop je? ......
 -->
-<h5 id="autosec-53" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="829"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="829">4&#x2003;</span>Wanneer stop je?</h5>
-<a id="mkpiweb-autopage-53"></a>
+<h5 id="autosec-54" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="856"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="856">5&#x2003;</span>Wanneer stop je?</h5>
+<a id="mkpiweb-autopage-54"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="831">
-Na één stap is het interval \(\tfrac 12\) breed, na twee stappen \(\tfrac 14\), na \(n\) stappen \(\tfrac {1}{2^n}\). Het
-snijpunt ligt altijd in het interval. Is het interval smaller dan \(10^{-12}\), dan kennen we het snijpunt dus tot op \(12\) cijfers na de komma. Omdat \(2^{40} \approx 1.1 \cdot 10^{12}\), is dat na \(40\) stappen.
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="858">
+<b>Hoe smal wordt het interval?</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="860">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="860">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="860">•</span> Na \(1\) stap: 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="862">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="862">
+\(\tfrac 12\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="864">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="864">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="864">•</span> Na \(2\) stappen: 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="866">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="866">
+\(\tfrac 14\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="868">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="868">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="868">•</span> Na \(n\) stappen: 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="870">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="870">
+\(\tfrac {1}{2^n}\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="872">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="872">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="872">•</span> Het snijpunt blijft in het interval. 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="837">
-We weten dus niet hoeveel keer we moeten herhalen, wel wanneer we klaar zijn. Dat is werk voor een <kbd>while</kbd>-lus, met
-de voorwaarde <kbd>rechts - links > 1e-12</kbd>. In Python schrijf je \(10^{-12}\) als <kbd>1e-12</kbd>. Die schrijfwijze is geen nieuwe instructie, enkel een kortere notatie voor het getal <kbd>0.000000000001</kbd>. Zo
-is <kbd>1.2e23</kbd> het getal \(1.2 \cdot 10^{23}\).
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="873">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="873">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="873">•</span> Na \(40\) stappen: 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="875">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="875">
+Smaller dan \(10^{-12}\), want \(2^{40}\approx 1.1\cdot 10^{12}\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="877">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="877">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="877">•</span> Een grens benadert het snijpunt dan met een fout kleiner dan \(10^{-12}\).
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="880">
+<b>Stop op basis van de breedte:</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="882">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="882">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="882">•</span> Herhaal zolang <kbd>rechts - links > 1e-12</kbd>: een <kbd>while</kbd>-lus. 
 </p>
 
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="883">
 
-
-
-<div class="aside" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="845">
-
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="845">
-Vraag niet te veel. Een <kbd>float</kbd> bewaart ongeveer \(16\) beduidende cijfers. Rond \(-0.77\) liggen twee opeenvolgende
-kommagetallen dus zo’n \(10^{-16}\) uit elkaar. Vraag je een interval smaller dan \(10^{-17}\), dan kan het interval nooit zo smal worden en stopt de lus nooit.
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="883">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="883">•</span> <kbd>1e-12</kbd> betekent \(10^{-12}\), dus <kbd>0.000000000001</kbd>. 
 </p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="884">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="884">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="884">•</span> Ook <kbd>1.2e23</kbd> betekent \(1.2\cdot 10^{23}\). Dit is getalnotatie.
+</p>
+</li>
+</ul>
+
+
+
+
+<div class="aside" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="889">
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="889">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="889">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="889">•</span> Een <kbd>float</kbd> bewaart ongeveer \(16\) beduidende cijfers. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="890">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="890">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="890">•</span> Rond \(-0.77\): opeenvolgende kommagetallen liggen ongeveer \(10^{-16}\) uit elkaar. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="891">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="891">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="891">•</span> Een breedte kleiner dan \(10^{-17}\) is daar onhaalbaar: de lus blijft hangen.
+</p>
+</li>
+</ul>
 
 </div>
 
@@ -2194,15 +2498,15 @@ kommagetallen dus zo’n \(10^{-16}\) uit elkaar. Vraag je een interval smaller 
 <!--
 ...... subsection Het programma ......
 -->
-<h5 id="autosec-54" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="851"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="851">5&#x2003;</span>Het programma</h5>
-<a id="mkpiweb-autopage-54"></a>
+<h5 id="autosec-55" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="895"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="895">6&#x2003;</span>Het programma</h5>
+<a id="mkpiweb-autopage-55"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="853">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="897">
 Hieronder staat de volledige methode, met een ruimere nauwkeurigheid van \(0.001\), zodat je er met de bugknop door kunt
 stappen. Let in de strook op de vergelijking van de <kbd>if</kbd>: ze beslist bij elke ronde welke grens verschuift. 
 </p>
-<div class="python-oefening python-codeblok" data-python="code-4" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="857"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="857"><pre class="pythoncode" data-stappen="regel" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="857"><code>links = -1
+<div class="python-oefening python-codeblok" data-python="code-4" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="901"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="901"><pre class="pythoncode" data-stappen="regel" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="901"><code>links = -1
 rechts = 0
 stappen = 0
 while rechts - links &gt; 0.001:
@@ -2215,11 +2519,11 @@ while rechts - links &gt; 0.001:
 print("x ligt tussen", links, "en", rechts)
 print("na", stappen, "stappen")</code></pre></div></div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="872">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="916">
 Met de nauwkeurigheid \(10^{-12}\) en een <kbd>print</kbd> in de lus zie je elk interval voorbijkomen. Voer dit programma uit
 en kijk hoe de cijfers vooraan één voor één vast komen te staan. 
 </p>
-<div class="python-oefening python-codeblok" data-python="code-5" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="875"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="875"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="875"><code>links = -1
+<div class="python-oefening python-codeblok" data-python="code-5" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="919"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="919"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="919"><code>links = -1
 rechts = 0
 while rechts - links &gt; 1e-12:
     midden = (links + rechts) / 2
@@ -2234,46 +2538,135 @@ print("x =", round(links, 12))</code></pre></div></div>
 <!--
 ...... subsection Van snijpunt naar nulwaarde ......
 -->
-<h5 id="autosec-55" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="888"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="888">6&#x2003;</span>Van snijpunt naar nulwaarde</h5>
-<a id="mkpiweb-autopage-55"></a>
+<h5 id="autosec-56" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="932"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="932">7&#x2003;</span>Van snijpunt naar nulwaarde</h5>
+<a id="mkpiweb-autopage-56"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="890">
-Dezelfde methode vindt een <b>nulwaarde</b> van een functie \(f\), een \(x\) met \(f(x) = 0\). Een snijpunt van \(2^x\) en
-\(x^2\) is trouwens een nulwaarde van \(f(x) = 2^x - x^2\).
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="935">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="935">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="935">•</span> Een snijpunt van \(2^x\) en \(x^2\) voldoet aan \(2^x-x^2=0\). 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="894">
-Het idee steunt op één eigenschap. Is \(f\) continu, dus zonder sprongen, en heeft \(f\) in de uiteinden van een interval een
-verschillend teken, dan moet de grafiek ergens in dat interval de \(x\)-as snijden. Dat is de <b>tussenwaardestelling</b>. Bernard Bolzano bewees ze in 1817, lang voor er computers waren; de bisectiemethode is er rechtstreeks
-op gebouwd.
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="936">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="936">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="936">•</span> Het is dus een <b>nulwaarde</b> van \(f(x)=2^x-x^2\): een \(x\) waarvoor \(f(x)=0\).
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="939">
+<b>Waarom werkt bisectie?</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="941">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="941">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="941">•</span> \(f\) is continu op het interval: de grafiek heeft geen sprongen of gaten. 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="900">
-De keuze van de helft wordt dan: heeft \(f(\texttt {midden})\) hetzelfde teken als \(f(\texttt {links})\), dan ligt de
-nulwaarde rechts van het midden. Anders ligt ze links.
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="942">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="942">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="942">•</span> De functiewaarden aan de uiteinden hebben een verschillend teken. 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="904">
-Hoe test je of twee getallen hetzelfde teken hebben? Vermenigvuldig ze: 
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="943">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="943">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="943">•</span> Dan ligt er minstens één nulwaarde tussen: de <b>tussenwaardestelling</b>.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="946">
+<b>Welke helft behoud je?</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="948">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="948">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="948">•</span> Vergelijk het teken van \(f(\texttt {links})\) en \(f(\texttt {midden})\). 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="905">
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="949">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="949">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="949">•</span> Zelfde teken: behoud de rechterhelft. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="950">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="950">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="950">•</span> Tegengesteld teken: behoud de linkerhelft. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="951">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="951">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="951">•</span> \(f(\texttt {midden})=0\): de nulwaarde is gevonden.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="954">
+Test het teken met een product: 
+</p>
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="955">
 \[ \begin {array}{cc|c|l} f(\texttt {links}) &amp; f(\texttt {midden}) &amp; \text {product} &amp; \\ \hline - &amp; - &amp; + &amp; \text {zelfde teken: nulwaarde rechts van het midden} \\ +
 &amp; + &amp; + &amp; \text {zelfde teken: nulwaarde rechts van het midden} \\ - &amp; + &amp; - &amp; \text {tekenwissel: nulwaarde links van het midden} \\ + &amp; - &amp; - &amp; \text
 {tekenwissel: nulwaarde links van het midden} \end {array} \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="914">
-Is het product positief, dan hebben ze hetzelfde teken.
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="964">
+<b>In Python:</b> 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="966">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="966">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="966">•</span> De eerste regel geeft de functie een naam. Die krijg je in de oefeningen. 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="916">
-Om niet telkens het hele voorschrift te herhalen, geven we de functie in Python een naam. De eerste regel hieronder zetten we in de
-oefeningen voor je klaar; daarna schrijf je gewoon <kbd>f(links)</kbd> en <kbd>f(midden)</kbd>, zoals je <kbd>abs(x)</kbd> of <kbd>round(x, 2)</kbd> schrijft. Het programma voert één stap uit, vanuit \([-3, -2]\). Stap
-er met de bugknop door: bij de <kbd>if</kbd> zie je <kbd>f_links</kbd> en <kbd>f_midden</kbd> en de uitkomst van de test. 
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="967">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="967">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="967">•</span> Gebruik daarna <kbd>f(links)</kbd> en <kbd>f(midden)</kbd>. 
 </p>
-<div class="python-oefening python-codeblok" data-python="code-6" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="923"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="923"><pre class="pythoncode" data-stappen="regel" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="923"><code>f = lambda x: x ** 3 - 8 * x - 3
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="968">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="968">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="968">•</span> Hieronder: één stap vanuit \([-3,-2]\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="969">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="969">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="969">•</span> Stap met de bugknop door de code en bekijk het product bij de <kbd>if</kbd>.
+</p>
+</li>
+</ul>
+
+
+<div class="python-oefening python-codeblok" data-python="code-6" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="971"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="971"><pre class="pythoncode" data-stappen="regel" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="971"><code>f = lambda x: x ** 3 - 8 * x - 3
 links = -3
 rechts = -2
 midden = (links + rechts) / 2
@@ -2285,35 +2678,69 @@ else:                            # tekenwissel
     rechts = midden
 print(links, rechts)             # -3 -2.5</code></pre></div></div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="936">
-Het product is \(-6 \cdot 1.375 = -8.25\): een tekenwissel, dus de nulwaarde ligt in \([-3, -2.5]\).
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="985">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="985">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="985">•</span> Product: \(-6\cdot 1.375=-8.25&lt;0\). Er is een tekenwissel. 
 </p>
 
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="986">
 
-
-
-<div class="aside" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="940">
-
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="940">
-<kbd>lambda x:</kbd> betekent: een functie met parameter <kbd>x</kbd>, die de waarde na de dubbele punt teruggeeft. Zelf
-functies schrijven komt later; hier gebruik je er enkel een. Het voordeel: wil je de nulwaarde van een andere functie, dan pas je maar één regel aan. Precies dat maakt de bisectiemethode tot een algemene methode.
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="986">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="986">•</span> Behoud de linkerhelft: \([-3,-2.5]\).
 </p>
+</li>
+</ul>
+
+
+
+
+<div class="aside" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="991">
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="991">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="991">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="991">•</span> <kbd>lambda x:</kbd> maakt een functie met parameter <kbd>x</kbd>; na de dubbele punt staat haar waarde. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="992">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="992">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="992">•</span> Zelf functies schrijven komt later. 
+</p>
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="993">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="993">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="993">•</span> Andere functie? Pas alleen de eerste regel aan. De methode blijft dezelfde.
+</p>
+</li>
+</ul>
 
 </div>
 
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="947">
-<figure class="interactieve-grafiek" data-grafiek="tekenwissel" data-hoogte="24rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="947"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="947">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="997">
+<figure class="interactieve-grafiek" data-grafiek="tekenwissel" data-hoogte="24rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="997"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="997">
 </p>
 
 
-<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="952">
+<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1002">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="952">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1002">
  <span
     id="lateximage-mkpiweb-10"
-    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="952"
+    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1002"
 ><!--
                   y
                  15                 f
@@ -2328,71 +2755,256 @@ functies schrijven komt later; hier gebruik je er enkel een. Het voordeel: wil j
     src="mkpiweb-images/image-10.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
-    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="952"
+    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1002"
 ></span>
 </p>
 </div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="952">
-</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="952"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(l\) en \(r\) over de \(x\)-as. Is er een tekenwissel, dan tonen de stippen de middens van de bisectiemethode en
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1002">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1002"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(l\) en \(r\) over de \(x\)-as. Is er een tekenwissel, dan tonen de stippen de middens van de bisectiemethode en
 de nulwaarde die ze vindt.</figcaption> </figure>
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="976">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1026">
 De figuur toont \(f(x) = x^3 - 8x - 3\), met drie nulwaarden. Twee dingen vallen op: 
 </p>
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="979">
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="979">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="979">•</span> Liggen er meerdere nulwaarden in het interval, dan vindt de methode er één, maar je kiest niet welke. 
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1029">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1029">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1029">•</span> Liggen er meerdere nulwaarden in het interval, dan vindt de methode er één, maar je kiest niet welke. 
 </p>
 
 </li>
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="981">
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1031">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="981">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="981">•</span> Zonder tekenwissel kan de methode niet starten. Toch kunnen er nulwaarden in het interval liggen: in \([-1, 4]\) is \(f\) in beide uiteinden positief, en er liggen er twee tussen.
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1031">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1031">•</span> Zonder tekenwissel kan de methode niet starten. Toch kunnen er nulwaarden in het interval liggen: in \([-1, 4]\) is \(f\) in beide uiteinden positief, en er liggen er twee tussen.
 </p>
 </li>
 </ul>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="985">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1035">
 Een goede start vraagt dus een beetje wiskunde: een schets van de grafiek of een tabel met functiewaarden.
 </p>
 
 
 <!--
-...... subsection Programmeeroefeningen ......
+...... subsection Pen-en-papieroefeningen ......
 -->
-<h5 id="autosec-59" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="988"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="988">7&#x2003;</span>Programmeeroefeningen</h5>
-<a id="mkpiweb-autopage-59"></a>
+<h5 id="autosec-60" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1038"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1038">8&#x2003;</span>Pen-en-papieroefeningen</h5>
+<a id="mkpiweb-autopage-60"></a>
 
 
 
-<div class="cursus-oefenbalk" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="989"></div>
+<div class="cursus-oefenbalk" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1039"></div>
+
+<div class="cursus-oefeningenpdf" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1039"><a href="N01_ZoekenEnBenaderen_Oefeningen2.pdf" download="N01_ZoekenEnBenaderen_Oefeningen2.pdf"></a></div>
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="991">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="991">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="991"></span>
+
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1044">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1044">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1044"></span>
 </p>
 <!--
 ...... subsubsection Oefening 9 ......
 -->
-<h6 id="autosec-60" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="991">Oefening 9</h6>
-<a id="mkpiweb-autopage-60"></a>
+<h6 id="autosec-61" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1044">Oefening 9</h6>
+<a id="mkpiweb-autopage-61"></a>
 
 
-<div class="python-oefening" data-python="bisectie-snijpunt" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="992">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1045">
+We zoeken \(\sqrt {3}\) als nulwaarde van \(f(x)=x^2-3\). 
+</p>
+<ul class="enumerate" style="list-style-type:none">
 
 
-<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="992">
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1047">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1047">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1047">(a)</span> Leg uit waarom \([1,2]\) een geschikt startinterval is. 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1049">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1049">
+De functie is continu, \(f(1)=-2\) en \(f(2)=1\). De functiewaarden hebben tegengestelde tekens, dus er ligt een nulwaarde
+tussen \(1\) en \(2\).
+</p>
+</div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="992">
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1052">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1052">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1052">(b)</span> Voer vier stappen van de bisectiemethode uit op papier. Noteer telkens het interval, het midden, de functiewaarde in het midden en het nieuwe interval. 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1055">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1055">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1055">\([1.6875,\,1.75]\)</span> 
+</p>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1056">
+\[ \begin {array}{c|c|r|r|c} \text {stap} &amp; \text {interval} &amp; m &amp; f(m) &amp; \text {nieuw interval} \\ \hline 1 &amp; [1,\,2] &amp; 1.5 &amp; -0.75 &amp; [1.5,\,2] \\ 2 &amp;
+[1.5,\,2] &amp; 1.75 &amp; 0.0625 &amp; [1.5,\,1.75] \\ 3 &amp; [1.5,\,1.75] &amp; 1.625 &amp; -0.359375 &amp; [1.625,\,1.75] \\ 4 &amp; [1.625,\,1.75] &amp; 1.6875 &amp; -0.15234375 &amp;
+[1.6875,\,1.75] \end {array} \]
+</p>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1065">
+We behouden telkens de helft waarin de functiewaarden van teken wisselen.
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1070">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1070">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1070"></span>
+</p>
+<!--
+...... subsubsection Oefening 10 ......
+-->
+<h6 id="autosec-62" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1070">Oefening 10</h6>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1071">
+Een startinterval heeft breedte \(4\). De bisectiemethode stopt zodra de breedte hoogstens \(0.01\) is. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1074">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1074">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1074">(a)</span> Hoe breed is het interval na \(5\) stappen? 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1076">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1076">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1076">\(0.125\)</span> Elke stap halveert de breedte. Na \(5\) stappen is ze \(4/2^5=0.125\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1079">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1079">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1079">(b)</span> Hoeveel stappen zijn er nodig om te stoppen? Controleer ook dat één stap minder niet volstaat. 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1082">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1082">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1082">\(9\) stappen</span> Na \(8\) stappen is de breedte \(4/2^8=0.015625&gt;0.01\). Na \(9\)
+stappen is ze \(4/2^9=0.0078125\leq 0.01\).
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1089">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1089">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1089"></span>
+</p>
+<!--
+...... subsubsection Oefening 11 ......
+-->
+<h6 id="autosec-63" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1089">Oefening 11</h6>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1090">
+We zoeken een nulwaarde van \(f(x)=x^2-4\) met de bisectiemethode. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1092">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1092">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1092">(a)</span> Kun je starten met \([0,3]\)? Welke helft behoud je na de eerste stap? 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1094">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1094">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1094">ja; \([1.5,\,3]\)</span> De functie is continu, \(f(0)=-4\) en \(f(3)=5\). Het midden is
+\(1.5\), met \(f(1.5)=-1.75\). Omdat \(f(0)\) en \(f(1.5)\) hetzelfde teken hebben, behouden we \([1.5,3]\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1099">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1099">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1099">(b)</span> Kun je starten met \([-3,0]\)? Welke helft behoud je na de eerste stap? 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1101">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1101">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1101">ja; \([-3,\,-1.5]\)</span> Nu is \(f(-3)=5\) en \(f(0)=-4\). Het midden is \(-1.5\), met
+\(f(-1.5)=-1.75\). De tekenwissel zit tussen \(-3\) en \(-1.5\), dus we behouden \([-3,-1.5]\). Een negatieve functiewaarde betekent dus niet altijd dat we de linkergrens vervangen.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1107">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1107">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1107">(c)</span> Een leerling kiest \([3,4]\). Waarom is dat geen geschikt startinterval? 
+</p>
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1109">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1109">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1109">geen tekenwissel en geen nulwaarde in het interval</span> Er geldt \(f(3)=5\) en \(f(4)=12\):
+beide zijn positief. Voor elke \(x\) in \([3,4]\) is bovendien \(x^2-4\geq 5\). Halveren kan hier dus geen nulwaarde opleveren.
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... subsection Programmeeroefeningen ......
+-->
+<h5 id="autosec-64" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1119"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1119">9&#x2003;</span>Programmeeroefeningen</h5>
+<a id="mkpiweb-autopage-64"></a>
+
+
+
+<div class="cursus-oefenbalk" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1120"></div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1122">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1122">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1122"></span>
+</p>
+<!--
+...... subsubsection Oefening 12 ......
+-->
+<h6 id="autosec-65" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1122">Oefening 12</h6>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<div class="python-oefening" data-python="bisectie-snijpunt" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1123">
+
+
+<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1123">
+
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1123">
 <b>Opgave.</b> Schrijf een programma dat de \(x\) met \(2^x = x^2\) in het interval \([-1, 0]\) bepaalt tot op \(12\) cijfers na de komma. Toon \(x\) en het aantal stappen.
 </p>
 
@@ -2400,30 +3012,30 @@ Een goede start vraagt dus een beetje wiskunde: een schets van de grafiek of een
 
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="997">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1128">
 <b>Denk vooraf na:</b> Hoeveel stappen verwacht je?
 </p>
 
 
-<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="999">
+<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1130">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="999">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1130">
 Welke lus gebruik je: een <kbd>for</kbd>- of een <kbd>while</kbd>-lus? Wanneer stopt ze?
 </p>
 </div>
 
 
-<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1002">
+<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1133">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1002">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1133">
 Vergelijk in het midden \(2^x\) met \(x^2\). Is \(2^x\) het grootst, dan zit je rechts van het snijpunt.
 </p>
 </div>
 
 
-<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1005">
+<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1136">
 
-<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1005"><code>links = -1
+<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1136"><code>links = -1
 rechts = 0
 stappen = 0
 while ...:
@@ -2440,7 +3052,7 @@ print("x =", round(links, 12), "na", stappen, "stappen")</code></pre>
 
 
 
-<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1019"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1019"><code>links = -1
+<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1150"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1150"><code>links = -1
 rechts = 0
 stappen = 0
 while rechts - links &gt; 1e-12:
@@ -2452,9 +3064,9 @@ while rechts - links &gt; 1e-12:
     stappen += 1
 print("x =", round(links, 12), "na", stappen, "stappen")</code></pre></div>
 
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1033">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1164">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1033">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1164">
  Je vindt \(x = -0.766664695962\) na \(40\) stappen, want \(2^{40}\) is net meer dan \(10^{12}\). Kies je in de
 <kbd>if</kbd> de verkeerde grens, dan schuift het interval weg van het snijpunt en eindig je bij \(0\) of bij \(-1\).
 </p>
@@ -2467,24 +3079,24 @@ print("x =", round(links, 12), "na", stappen, "stappen")</code></pre></div>
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1040">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1171">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1040">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1040"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1171">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1171"></span>
 </p>
 <!--
-...... subsubsection Oefening 10 ......
+...... subsubsection Oefening 13 ......
 -->
-<h6 id="autosec-61" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1040">Oefening 10</h6>
-<a id="mkpiweb-autopage-61"></a>
+<h6 id="autosec-66" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1171">Oefening 13</h6>
+<a id="mkpiweb-autopage-66"></a>
 
 
-<div class="python-oefening" data-python="wortel-twee" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1041">
+<div class="python-oefening" data-python="wortel-twee" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1172">
 
 
-<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1041">
+<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1172">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1041">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1172">
 <b>Opgave.</b> Bepaal \(\sqrt {2}\) tot op \(12\) cijfers na de komma met de bisectiemethode, zonder <kbd>** 0.5</kbd> of een functie voor de vierkantswortel. Gebruik enkel dat \(\sqrt {2}\) het positieve getal \(x\) is
 met \(x \cdot x = 2\).
 </p>
@@ -2493,22 +3105,22 @@ met \(x \cdot x = 2\).
 
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1047">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1178">
 <b>Denk vooraf na:</b> In welk interval met gehele grenzen ligt \(\sqrt {2}\)?
 </p>
 
 
-<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1049">
+<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1180">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1049">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1180">
 Is \(\texttt {midden} \cdot \texttt {midden}\) kleiner dan \(2\), dan ligt \(\sqrt {2}\) rechts van het midden.
 </p>
 </div>
 
 
-<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1052">
+<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1183">
 
-<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1052"><code>links = ...
+<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1183"><code>links = ...
 rechts = ...
 while ...:
     ...
@@ -2519,7 +3131,7 @@ print("wortel 2 =", round(links, 12))</code></pre>
 
 
 
-<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1060"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1060"><code>links = 1
+<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1191"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1191"><code>links = 1
 rechts = 2
 while rechts - links &gt; 1e-12:
     midden = (links + rechts) / 2
@@ -2529,9 +3141,9 @@ while rechts - links &gt; 1e-12:
         rechts = midden
 print("wortel 2 =", round(links, 12))</code></pre></div>
 
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1072">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1203">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1072">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1203">
  Omdat \(1^2 = 1 &lt; 2\) en \(2^2 = 4 &gt; 2\), ligt \(\sqrt {2}\) in \([1, 2]\). Zo rekenden ook de eerste
 rekenmachines vierkantswortels uit: niet met een formule, maar door te benaderen.
 </p>
@@ -2544,24 +3156,24 @@ rekenmachines vierkantswortels uit: niet met een formule, maar door te benaderen
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1079">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1210">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1079">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1079"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1210">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1210"></span>
 </p>
 <!--
-...... subsubsection Oefening 11 ......
+...... subsubsection Oefening 14 ......
 -->
-<h6 id="autosec-62" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1079">Oefening 11</h6>
-<a id="mkpiweb-autopage-62"></a>
+<h6 id="autosec-67" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1210">Oefening 14</h6>
+<a id="mkpiweb-autopage-67"></a>
 
 
-<div class="python-oefening" data-python="derdegraad" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1080">
+<div class="python-oefening" data-python="derdegraad" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1211">
 
 
-<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1080">
+<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1211">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1080">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1211">
 <b>Opgave.</b> De functie \(f(x) = x^3 - 8x - 3\) heeft drie nulwaarden. Bepaal de kleinste tot op \(12\) cijfers na de komma. Kies zelf een interval met gehele grenzen en toon ook het aantal stappen.
 </p>
 
@@ -2569,30 +3181,30 @@ rekenmachines vierkantswortels uit: niet met een formule, maar door te benaderen
 
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1086">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1217">
 <b>Denk vooraf na:</b> Bereken \(f(-4)\), \(f(-3)\), \(f(-2)\), &#x2026; In welk interval wisselt het teken voor het eerst?
 </p>
 
 
-<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1089">
+<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1220">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1089">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1220">
 \(f(-3) = -6\) en \(f(-2) = 5\): de kleinste nulwaarde ligt in \([-3, -2]\).
 </p>
 </div>
 
 
-<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1091">
+<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1222">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1091">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1222">
 Vergelijk het teken van <kbd>f(midden)</kbd> met het teken van <kbd>f(links)</kbd>. Twee getallen hebben hetzelfde teken als hun product positief is.
 </p>
 </div>
 
 
-<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1095">
+<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1226">
 
-<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1095"><code>f = lambda x: x ** 3 - 8 * x - 3
+<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1226"><code>f = lambda x: x ** 3 - 8 * x - 3
 
 links = ...
 rechts = ...
@@ -2611,7 +3223,7 @@ print("x =", round(links, 12), "na", stappen, "stappen")</code></pre>
 
 
 
-<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1111"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1111"><code>f = lambda x: x ** 3 - 8 * x - 3
+<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1242"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1242"><code>f = lambda x: x ** 3 - 8 * x - 3
 
 links = -3
 rechts = -2
@@ -2625,9 +3237,9 @@ while rechts - links &gt; 1e-12:
     stappen += 1
 print("x =", round(links, 12), "na", stappen, "stappen")</code></pre></div>
 
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1127">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1258">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1127">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1258">
  Je vindt \(x = -2.618033988750\). Dat is \(-\tfrac {3+\sqrt {5}}{2}\): omdat \(f(3) = 0\), kun je \(f(x)\) delen door
 \(x - 3\) en de andere twee nulwaarden met de discriminant vinden. Met een beetje wiskunde kan het hier dus ook exact, maar de bisectiemethode werkt evengoed wanneer dat niet kan.
 </p>
@@ -2642,24 +3254,24 @@ print("x =", round(links, 12), "na", stappen, "stappen")</code></pre></div>
 <!--
 ...... section De secantmethode ......
 -->
-<h4 id="autosec-63" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1139"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1139">IV&#x2003;</span>De secantmethode</h4>
-<a id="mkpiweb-autopage-63"></a>
+<h4 id="autosec-68" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1270"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1270">IV&#x2003;</span>De secantmethode</h4>
+<a id="mkpiweb-autopage-68"></a>
 
 
 
 <!--
 ...... subsection Halveren is traag ......
 -->
-<h5 id="autosec-64" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1141"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1141">1&#x2003;</span>Halveren is traag</h5>
-<a id="mkpiweb-autopage-64"></a>
+<h5 id="autosec-69" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1272"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1272">1&#x2003;</span>Halveren is traag</h5>
+<a id="mkpiweb-autopage-69"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1143">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1274">
 De bisectiemethode werkt altijd, zolang er een tekenwissel is. Maar ze is traag: \(40\) stappen voor \(12\) decimalen. Elke stap
 levert één bit op, en je hebt ongeveer \(3.3\) bits nodig voor één decimaal cijfer.
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1147">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1278">
 Ze gooit ook informatie weg. Stel dat \(f(\texttt {links}) = -100\) en \(f(\texttt {rechts}) = 0.01\). Dan ligt de
 nulwaarde vrijwel zeker vlak bij <kbd>rechts</kbd>. De bisectiemethode kijkt enkel naar het teken en neemt toch het midden.
 </p>
@@ -2668,58 +3280,58 @@ nulwaarde vrijwel zeker vlak bij <kbd>rechts</kbd>. De bisectiemethode kijkt enk
 <!--
 ...... subsection Een rechte door twee punten ......
 -->
-<h5 id="autosec-65" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1152"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1152">2&#x2003;</span>Een rechte door twee punten</h5>
-<a id="mkpiweb-autopage-65"></a>
+<h5 id="autosec-70" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1283"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1283">2&#x2003;</span>Een rechte door twee punten</h5>
+<a id="mkpiweb-autopage-70"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1154">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1285">
 De <b>secantmethode</b> gebruikt ook de grootte van de functiewaarden. Ze vertrekt van twee benaderingen \(x_0\) en
 \(x_1\) en trekt de rechte door \(\bigl (x_0, f(x_0)\bigr )\) en \(\bigl (x_1, f(x_1)\bigr )\). Zo’n rechte door twee punten van een grafiek heet een <em>secante</em>. Waar die rechte de \(x\)-as snijdt, ligt de volgende
 benadering \(x_2\).
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1160">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1291">
 De secante heeft richtingscoëfficiënt 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1161">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1292">
 \[ m = \frac {f(x_1) - f(x_0)}{x_1 - x_0} \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1164">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1295">
 en vergelijking 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1165">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1296">
 \[ s \leftrightarrow y - f(x_1) = m\,(x - x_1).        \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1168">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1299">
 Stel \(y = 0\) en los op naar \(x\): 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1169">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1300">
 \[ x_2 = x_1 - \frac {f(x_1)}{m} = x_1 - f(x_1) \cdot \frac {x_1 - x_0}{f(x_1) - f(x_0)}.               \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1173">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1304">
 Daarna herhalen we met \(x_1\) en \(x_2\), dan met \(x_2\) en \(x_3\), enzovoort. Er is geen interval meer: we houden telkens
 de twee laatste benaderingen bij.
 </p>
 
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1176">
-<figure class="interactieve-grafiek" data-grafiek="secant" data-hoogte="26rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1176"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1176">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1307">
+<figure class="interactieve-grafiek" data-grafiek="secant" data-hoogte="26rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1307"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1307">
 </p>
 
 
-<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1182">
+<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1313">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1182">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1313">
  <span
     id="lateximage-mkpiweb-11"
-    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1182"
+    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1313"
 ><!--
  y
  3                           f
@@ -2737,25 +3349,25 @@ de twee laatste benaderingen bij.
     src="mkpiweb-images/image-11.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
-    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1182"
+    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1313"
 ></span>
 </p>
 </div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1182">
-</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1182"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x_0\) en \(x_1\) over de \(x\)-as, of klik op Volgende stap. De secante door de twee punten snijdt de \(x\)-as in
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1313">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1313"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(x_0\) en \(x_1\) over de \(x\)-as, of klik op Volgende stap. De secante door de twee punten snijdt de \(x\)-as in
 de volgende benadering. Kies bovenaan een andere functie.</figcaption> </figure>
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1210">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1341">
 Voor \(f(x) = x^2 - 2\) met \(x_0 = 1\) en \(x_1 = 2\) is \(f(x_0) = -1\) en \(f(x_1) = 2\). Dan is 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1212">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1343">
 \[ x_2 = 2 - 2 \cdot \frac {2 - 1}{2 - (-1)} = 2 - \frac {2}{3} = \frac {4}{3} \approx 1.333.                 \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1216">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1347">
 Een stap later is \(x_3 = 1.4\), en daarna \(x_4 \approx 1.41463\). Vergelijk met \(\sqrt {2} \approx 1.41421\).
 </p>
 
@@ -2763,16 +3375,16 @@ Een stap later is \(x_3 = 1.4\), en daarna \(x_4 \approx 1.41463\). Vergelijk me
 <!--
 ...... subsection Het programma ......
 -->
-<h5 id="autosec-69" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1219"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1219">3&#x2003;</span>Het programma</h5>
-<a id="mkpiweb-autopage-69"></a>
+<h5 id="autosec-74" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1350"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1350">3&#x2003;</span>Het programma</h5>
+<a id="mkpiweb-autopage-74"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1221">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1352">
 Het programma houdt \(x_0\) en \(x_1\) bij in <kbd>x0</kbd> en <kbd>x1</kbd>, en \(f(x_0)\) en \(f(x_1)\) in
 <kbd>f0</kbd> en <kbd>f1</kbd>. De functie zelf staat bovenaan, net als bij de bisectiemethode. Na elke stap schuift alles één plaats op: de oude <kbd>x1</kbd> wordt <kbd>x0</kbd>, de nieuwe benadering wordt
 <kbd>x1</kbd>. We stoppen wanneer twee opeenvolgende benaderingen bijna gelijk zijn. 
 </p>
-<div class="python-oefening python-codeblok" data-python="code-7" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1227"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1227"><pre class="pythoncode" data-stappen="regel" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1227"><code>f = lambda x: x * x - 2
+<div class="python-oefening python-codeblok" data-python="code-7" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1358"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1358"><pre class="pythoncode" data-stappen="regel" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1358"><code>f = lambda x: x * x - 2
 x0 = 1
 x1 = 2
 stappen = 0
@@ -2785,7 +3397,7 @@ while abs(x1 - x0) &gt; 0.001:
     stappen += 1
 print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre></div></div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1242">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1373">
 De volgorde van <kbd>x0 = x1</kbd> en <kbd>x1 = x2</kbd> is belangrijk. Draai je ze om, dan is de oude <kbd>x1</kbd> al
 overschreven wanneer je hem in <kbd>x0</kbd> wilt stoppen. Dat is hetzelfde probleem als bij het omwisselen van twee variabelen.
 </p>
@@ -2794,28 +3406,28 @@ overschreven wanneer je hem in <kbd>x0</kbd> wilt stoppen. Dat is hetzelfde prob
 <!--
 ...... subsection Een wedstrijd ......
 -->
-<h5 id="autosec-70" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1247"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1247">4&#x2003;</span>Een wedstrijd</h5>
-<a id="mkpiweb-autopage-70"></a>
+<h5 id="autosec-75" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1378"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1378">4&#x2003;</span>Een wedstrijd</h5>
+<a id="mkpiweb-autopage-75"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1249">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1380">
 We laten beide methoden \(\sqrt {2}\) zoeken, als nulwaarde van \(f(x) = x^2 - 2\), en tellen na elke stap hoeveel cijfers na
 de komma al juist zijn.
 </p>
 
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1253">
-<figure class="interactieve-grafiek" data-grafiek="wedstrijd" data-hoogte="24rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1253"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1253">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1384">
+<figure class="interactieve-grafiek" data-grafiek="wedstrijd" data-hoogte="24rem" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1384"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1384">
 </p>
 
 
-<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1258">
+<div class="center" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1389">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1258">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1389">
  <span
     id="lateximage-mkpiweb-12"
-    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1258"
+    class="lateximagesource" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1389"
 ><!--
                    16
 
@@ -2839,17 +3451,17 @@ juiste decimalen
     src="mkpiweb-images/image-12.svg"
     alt="(-tikz-&nbsp;diagram)"
     style=""
-    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1258"
+    class="lateximage" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1389"
 ></span>
 </p>
 </div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1258">
-</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1258"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op Start en volg na elke stap het aantal juiste decimalen van beide methoden. Kies bovenaan welke vergelijking ze
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1389">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1389"></div> <figcaption class="interactieve-grafiek-uitleg">Klik op Start en volg na elke stap het aantal juiste decimalen van beide methoden. Kies bovenaan welke vergelijking ze
 oplossen.</figcaption> </figure>
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1285">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1416">
 De bisectiemethode wint gestaag, ongeveer drie decimalen per tien stappen. De secantmethode begint even traag, maar versnelt:
 bij elke stap komen er ongeveer anderhalve keer zoveel juiste cijfers bij als er al waren. Na \(7\) stappen heeft ze alle cijfers die een <kbd>float</kbd> kan bewaren.
 </p>
@@ -2858,35 +3470,35 @@ bij elke stap komen er ongeveer anderhalve keer zoveel juiste cijfers bij als er
 <!--
 ...... subsection Wanneer het misgaat ......
 -->
-<h5 id="autosec-74" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1290"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1290">5&#x2003;</span>Wanneer het misgaat</h5>
-<a id="mkpiweb-autopage-74"></a>
+<h5 id="autosec-79" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1421"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1421">5&#x2003;</span>Wanneer het misgaat</h5>
+<a id="mkpiweb-autopage-79"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1292">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1423">
 Snelheid heeft een prijs. De secantmethode houdt geen interval bij, dus niets garandeert dat de nulwaarde tussen \(x_0\) en
 \(x_1\) blijft. Twee dingen kunnen misgaan. 
 </p>
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1296">
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1296">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1296">•</span> <b>De secante is horizontaal.</b> Is \(f(x_0) = f(x_1)\), dan snijdt de rechte de \(x\)-as niet en deel je door nul. Voor \(x^2 - 2\) gebeurt dat al met \(x_0 = -1\) en \(x_1 = 1\).
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1427">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1427">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1427">•</span> <b>De secante is horizontaal.</b> Is \(f(x_0) = f(x_1)\), dan snijdt de rechte de \(x\)-as niet en deel je door nul. Voor \(x^2 - 2\) gebeurt dat al met \(x_0 = -1\) en \(x_1 = 1\).
 
 </p>
 
 </li>
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1299">
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1430">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1299">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1299">•</span> <b>De benadering springt weg.</b> Is de secante bijna horizontaal, dan ligt haar snijpunt met de \(x\)-as ver weg, soms bij een andere nulwaarde of nergens in de buurt. Probeer het in
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1430">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1430">•</span> <b>De benadering springt weg.</b> Is de secante bijna horizontaal, dan ligt haar snijpunt met de \(x\)-as ver weg, soms bij een andere nulwaarde of nergens in de buurt. Probeer het in
 de figuur met \(x^3 - 8x - 3\) en \(x_0\) en \(x_1\) rond de top.
 </p>
 </li>
 </ul>
 
 
-<div class="python-oefening python-codeblok" data-python="code-8" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1304"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1304"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1304"><code>f = lambda x: x * x - 2
+<div class="python-oefening python-codeblok" data-python="code-8" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1435"><div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1435"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1435"><code>f = lambda x: x * x - 2
 x0 = -1
 x1 = 1
 f0 = f(x0)
@@ -2894,7 +3506,7 @@ f1 = f(x1)
 x2 = x1 - f1 * (x1 - x0) / (f1 - f0)
 # ZeroDivisionError: division by zero</code></pre></div></div>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1314">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1445">
 De bisectiemethode is traag maar zeker, de secantmethode snel maar onbetrouwbaar. Echte software combineert ze: ze neemt een
 secantstap zolang die binnen een veilig interval blijft, en halveert anders.
 </p>
@@ -2902,9 +3514,9 @@ secantstap zolang die binnen een veilig interval blijft, en halveert anders.
 
 
 
-<div class="aside" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1319">
+<div class="aside" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1450">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1319">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1450">
 Die combinatie heet de methode van Brent, naar Richard Brent, die ze in 1973 beschreef. Ze zit onder meer in de
 Pythonbibliotheek SciPy, in de functie <kbd>brentq</kbd>.
 </p>
@@ -2915,33 +3527,33 @@ Pythonbibliotheek SciPy, in de functie <kbd>brentq</kbd>.
 <!--
 ...... subsection Programmeeroefeningen ......
 -->
-<h5 id="autosec-75" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1324"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1324">6&#x2003;</span>Programmeeroefeningen</h5>
-<a id="mkpiweb-autopage-75"></a>
+<h5 id="autosec-80" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1455"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1455">6&#x2003;</span>Programmeeroefeningen</h5>
+<a id="mkpiweb-autopage-80"></a>
 
 
 
-<div class="cursus-oefenbalk" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1325"></div>
+<div class="cursus-oefenbalk" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1456"></div>
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1327">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1458">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1327">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1327"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1458">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1458"></span>
 </p>
 <!--
-...... subsubsection Oefening 12 ......
+...... subsubsection Oefening 15 ......
 -->
-<h6 id="autosec-76" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1327">Oefening 12</h6>
-<a id="mkpiweb-autopage-76"></a>
+<h6 id="autosec-81" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1458">Oefening 15</h6>
+<a id="mkpiweb-autopage-81"></a>
 
 
-<div class="python-oefening" data-python="secant-wortel-twee" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1328">
+<div class="python-oefening" data-python="secant-wortel-twee" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1459">
 
 
-<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1328">
+<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1459">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1328">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1459">
 <b>Opgave.</b> Bepaal \(\sqrt {2}\) met de secantmethode, vanuit \(x_0 = 1\) en \(x_1 = 2\). Stop wanneer twee opeenvolgende benaderingen minder dan \(10^{-12}\) verschillen. Toon het resultaat en het aantal stappen.
 </p>
 
@@ -2949,22 +3561,22 @@ Pythonbibliotheek SciPy, in de functie <kbd>brentq</kbd>.
 
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1334">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1465">
 <b>Denk vooraf na:</b> Hoeveel stappen had de bisectiemethode nodig voor dezelfde nauwkeurigheid? En de secantmethode?
 </p>
 
 
-<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1337">
+<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1468">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1337">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1468">
 Bereken in elke ronde eerst <kbd>f0</kbd> en <kbd>f1</kbd>, dan <kbd>x2</kbd>, en schuif daarna op.
 </p>
 </div>
 
 
-<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1340">
+<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1471">
 
-<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1340"><code>f = lambda x: x * x - 2
+<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1471"><code>f = lambda x: x * x - 2
 
 x0 = 1
 x1 = 2
@@ -2982,7 +3594,7 @@ print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre>
 
 
 
-<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1355"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1355"><code>f = lambda x: x * x - 2
+<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1486"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1486"><code>f = lambda x: x * x - 2
 
 x0 = 1
 x1 = 2
@@ -2996,9 +3608,9 @@ while abs(x1 - x0) &gt; 1e-12:
     stappen += 1
 print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre></div>
 
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1371">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1502">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1371">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1502">
  Na \(7\) stappen staat er \(1.4142135623730951\), alle cijfers juist. De bisectiemethode had er \(40\) nodig.
 </p>
 
@@ -3010,24 +3622,24 @@ print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre></div>
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1377">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1508">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1377">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1377"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1508">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1508"></span>
 </p>
 <!--
-...... subsubsection Oefening 13 ......
+...... subsubsection Oefening 16 ......
 -->
-<h6 id="autosec-77" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1377">Oefening 13</h6>
-<a id="mkpiweb-autopage-77"></a>
+<h6 id="autosec-82" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1508">Oefening 16</h6>
+<a id="mkpiweb-autopage-82"></a>
 
 
-<div class="python-oefening" data-python="secant-snijpunt" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1378">
+<div class="python-oefening" data-python="secant-snijpunt" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1509">
 
 
-<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1378">
+<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1509">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1378">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1509">
 <b>Opgave.</b> Zoek opnieuw de \(x\) met \(2^x = x^2\), nu met de secantmethode vanuit \(x_0 = -1\) en \(x_1 = 0\). Stop wanneer twee opeenvolgende benaderingen minder dan \(10^{-12}\) verschillen. Toon \(x\) tot
 op \(12\) cijfers na de komma en het aantal stappen.
 </p>
@@ -3036,30 +3648,30 @@ op \(12\) cijfers na de komma en het aantal stappen.
 
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1385">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1516">
 <b>Denk vooraf na:</b> Van welke functie zoek je een nulwaarde?
 </p>
 
 
-<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1387">
+<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1518">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1387">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1518">
 Het snijpunt van \(2^x\) en \(x^2\) is een nulwaarde van \(f(x) = 2^x - x^2\). Vul dat voorschrift in na <kbd>lambda x:</kbd>.
 </p>
 </div>
 
 
-<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1390">
+<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1521">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1390">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1521">
 De lus is dezelfde als bij \(\sqrt {2}\). Enkel de functie en de startwaarden veranderen.
 </p>
 </div>
 
 
-<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1393">
+<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1524">
 
-<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1393"><code>f = lambda x: ...
+<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1524"><code>f = lambda x: ...
 
 x0 = -1
 x1 = 0
@@ -3073,7 +3685,7 @@ print("x =", round(x1, 12), "na", stappen, "stappen")</code></pre>
 
 
 
-<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1404"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1404"><code>f = lambda x: 2 ** x - x ** 2
+<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1535"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1535"><code>f = lambda x: 2 ** x - x ** 2
 
 x0 = -1
 x1 = 0
@@ -3087,9 +3699,9 @@ while abs(x1 - x0) &gt; 1e-12:
     stappen += 1
 print("x =", round(x1, 12), "na", stappen, "stappen")</code></pre></div>
 
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1420">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1551">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1420">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1551">
  Je vindt \(x = -0.766664695962\) na \(8\) stappen, tegenover \(40\) met de bisectiemethode. Buiten de eerste regel en de
 startwaarden is het programma hetzelfde als bij \(\sqrt {2}\): de methode hangt niet af van de functie.
 </p>
@@ -3102,24 +3714,24 @@ startwaarden is het programma hetzelfde als bij \(\sqrt {2}\): de methode hangt 
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1427">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1558">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1427">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1427"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1558">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1558"></span>
 </p>
 <!--
-...... subsubsection Oefening 14 ......
+...... subsubsection Oefening 17 ......
 -->
-<h6 id="autosec-78" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1427">Oefening 14</h6>
-<a id="mkpiweb-autopage-78"></a>
+<h6 id="autosec-83" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1558">Oefening 17</h6>
+<a id="mkpiweb-autopage-83"></a>
 
 
-<div class="python-oefening" data-python="secant-veilig" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1428">
+<div class="python-oefening" data-python="secant-veilig" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1559">
 
 
-<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1428">
+<div class="python-opgave" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1559">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1428">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1559">
 <b>Opgave.</b> Het programma hieronder crasht met een deling door nul. Pas het aan zodat het in dat geval niet crasht, maar <kbd>De secante is horizontaal</kbd> toont. Test ook met \(x_0 = 1\) en \(x_1 = 2\): dan
 moet het gewoon \(\sqrt {2}\) vinden.
 </p>
@@ -3128,30 +3740,30 @@ moet het gewoon \(\sqrt {2}\) vinden.
 
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1434">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1565">
 <b>Denk vooraf na:</b> Welke waarden hebben <kbd>f(x0)</kbd> en <kbd>f(x1)</kbd> bij \(x_0 = -1\) en \(x_1 = 1\)?
 </p>
 
 
-<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1437">
+<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1568">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1437">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1568">
 Je mag in de voorwaarde van de lus ook <kbd>and</kbd> gebruiken. Wat moet er nog waar zijn om verder te rekenen?
 </p>
 </div>
 
 
-<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1440">
+<div class="hint" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1571">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1440">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1571">
 Na de lus weet je niet meteen waarom ze stopte. Test het daarom opnieuw met een <kbd>if</kbd>.
 </p>
 </div>
 
 
-<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1443">
+<div class="python-startcode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1574">
 
-<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1443"><code>f = lambda x: x * x - 2
+<pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1574"><code>f = lambda x: x * x - 2
 
 x0 = -1
 x1 = 1
@@ -3170,7 +3782,7 @@ print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre>
 
 
 
-<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1459"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1459"><code>f = lambda x: x * x - 2
+<div class="python-modelcode" hidden data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1590"><pre class="pythoncode" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1590"><code>f = lambda x: x * x - 2
 
 x0 = -1
 x1 = 1
@@ -3187,9 +3799,9 @@ if abs(x1 - x0) &gt; 1e-12:
 else:
     print("wortel 2 =", x1, "na", stappen, "stappen")</code></pre></div>
 
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1478">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1609">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1478">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1609">
  Omdat \(f\) een naam heeft, kan de voorwaarde van de lus zelf <kbd>f(x1) != f(x0)</kbd> testen, nog voor er gedeeld wordt.
 Na de lus test je opnieuw: liggen <kbd>x0</kbd> en <kbd>x1</kbd> nog ver uit elkaar, dan stopte de lus door de horizontale secante.
 </p>
@@ -3204,49 +3816,49 @@ Na de lus test je opnieuw: liggen <kbd>x0</kbd> en <kbd>x1</kbd> nog ver uit elk
 <!--
 ...... section Oefeningen met pen en papier ......
 -->
-<h4 id="autosec-79" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1490"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1490">V&#x2003;</span>Oefeningen met pen en papier</h4>
-<a id="mkpiweb-autopage-79"></a>
+<h4 id="autosec-84" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1621"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1621">V&#x2003;</span>Oefeningen met pen en papier</h4>
+<a id="mkpiweb-autopage-84"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1492">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1623">
 Een algoritme begrijp je pas echt als je het een paar stappen zelf uitvoert. Gebruik een rekenmachine voor de berekeningen, niet
 voor het algoritme.
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1495">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1495"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1626">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1626"></span>
 </p>
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-80" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1495">Oefeningen</h6>
-<a id="mkpiweb-autopage-80"></a>
+<h6 id="autosec-85" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1626">Oefeningen</h6>
+<a id="mkpiweb-autopage-85"></a>
 
 
 
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1499">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1630">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1499">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1499"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1630">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1630"></span>
 </p>
 <!--
-...... subsubsection Oefening 15 ......
+...... subsubsection Oefening 18 ......
 -->
-<h6 id="autosec-81" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1499">Oefening 15</h6>
-<a id="mkpiweb-autopage-81"></a>
+<h6 id="autosec-86" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1630">Oefening 18</h6>
+<a id="mkpiweb-autopage-86"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1500">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1631">
 Hoeveel pogingen heb je met binair zoeken hoogstens nodig om een getal van \(1\) tot \(500\) te raden? En van \(1\) tot
 \(512\)? 
 </p>
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1503">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1634">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1503">
-<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1503">\(9\) en \(10\)</span> Met \(n\) pogingen vind je een getal uit hoogstens \(2^n - 1\)
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1634">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1634">\(9\) en \(10\)</span> Met \(n\) pogingen vind je een getal uit hoogstens \(2^n - 1\)
 mogelijkheden. Omdat \(2^8 - 1 = 255 &lt; 500 \leq 511 = 2^9 - 1\), volstaan \(9\) pogingen voor \(500\) getallen. Voor \(512\) getallen is dat net één te weinig: je hebt er \(10\) nodig.
 </p>
 </div>
@@ -3255,34 +3867,34 @@ mogelijkheden. Omdat \(2^8 - 1 = 255 &lt; 500 \leq 511 = 2^9 - 1\), volstaan \(9
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1511">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1642">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1511">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1511"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1642">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1642"></span>
 </p>
 <!--
-...... subsubsection Oefening 16 ......
+...... subsubsection Oefening 19 ......
 -->
-<h6 id="autosec-82" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1511">Oefening 16</h6>
-<a id="mkpiweb-autopage-82"></a>
+<h6 id="autosec-87" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1642">Oefening 19</h6>
+<a id="mkpiweb-autopage-87"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1512">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1643">
 Iemand denkt aan \(23\), tussen \(1\) en \(100\). Schrijf de gokken van het programma uit <em>De computer raadt</em> op,
 met telkens <kbd>links</kbd> en <kbd>rechts</kbd>. 
 </p>
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1516">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1647">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1516">
-<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1516">\(50\), \(25\), \(12\), \(18\), \(21\), \(23\)</span> 
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1647">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1647">\(50\), \(25\), \(12\), \(18\), \(21\), \(23\)</span> 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1517">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1648">
 \[ \begin {array}{c|c|c|l} \texttt {links} &amp; \texttt {rechts} &amp; \texttt {gok} &amp; \\ \hline 1 &amp; 100 &amp; 50 &amp; \text {te hoog} \\ 1 &amp; 49 &amp; 25 &amp; \text {te hoog} \\
 1 &amp; 24 &amp; 12 &amp; \text {te laag} \\ 13 &amp; 24 &amp; 18 &amp; \text {te laag} \\ 19 &amp; 24 &amp; 21 &amp; \text {te laag} \\ 22 &amp; 24 &amp; 23 &amp; \text {juist} \end {array} \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1528">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1659">
 Het programma vindt \(23\) na \(6\) pogingen.
 </p>
 </div>
@@ -3291,35 +3903,35 @@ Het programma vindt \(23\) na \(6\) pogingen.
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1532">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1663">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1532">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1532"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1663">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1663"></span>
 </p>
 <!--
-...... subsubsection Oefening 17 ......
+...... subsubsection Oefening 20 ......
 -->
-<h6 id="autosec-83" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1532">Oefening 17</h6>
-<a id="mkpiweb-autopage-83"></a>
+<h6 id="autosec-88" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1663">Oefening 20</h6>
+<a id="mkpiweb-autopage-88"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1533">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1664">
 We zoeken \(\sqrt [3]{10}\), de nulwaarde van \(f(x) = x^3 - 10\). Voer drie stappen van de bisectiemethode uit, vanuit
 het interval \([2, 3]\). 
 </p>
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1536">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1667">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1536">
-<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1536">\([2.125,\, 2.25]\)</span> 
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1667">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1667">\([2.125,\, 2.25]\)</span> 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1537">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1668">
 \[ \begin {array}{c|c|c|c|l} \text {stap} &amp; \text {interval} &amp; m &amp; f(m) &amp; \\ \hline 1 &amp; [2,\, 3] &amp; 2.5 &amp; 5.625 &amp; \text {positief: nieuwe rechtergrens} \\ 2
 &amp; [2,\, 2.5] &amp; 2.25 &amp; 1.390625 &amp; \text {positief: nieuwe rechtergrens} \\ 3 &amp; [2,\, 2.25] &amp; 2.125 &amp; -0.404296875 &amp; \text {negatief: nieuwe linkergrens} \end
 {array} \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1545">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1676">
 Na drie stappen ligt \(\sqrt [3]{10}\) in \([2.125,\, 2.25]\). Inderdaad is \(\sqrt [3]{10} \approx 2.154\).
 </p>
 </div>
@@ -3328,26 +3940,26 @@ Na drie stappen ligt \(\sqrt [3]{10}\) in \([2.125,\, 2.25]\). Inderdaad is \(\s
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1550">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1681">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1550">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1550"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1681">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1681"></span>
 </p>
 <!--
-...... subsubsection Oefening 18 ......
+...... subsubsection Oefening 21 ......
 -->
-<h6 id="autosec-84" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1550">Oefening 18</h6>
-<a id="mkpiweb-autopage-84"></a>
+<h6 id="autosec-89" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1681">Oefening 21</h6>
+<a id="mkpiweb-autopage-89"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1551">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1682">
 Je start de bisectiemethode met een interval van breedte \(1\). Na hoeveel stappen is het interval smaller dan \(10^{-6}\)?
 
 </p>
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1554">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1685">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1554">
-<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1554">\(20\) stappen</span> Na \(n\) stappen is het interval \(\tfrac {1}{2^n}\) breed. We zoeken
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1685">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1685">\(20\) stappen</span> Na \(n\) stappen is het interval \(\tfrac {1}{2^n}\) breed. We zoeken
 de kleinste \(n\) met \(2^n &gt; 10^6\). Omdat \(2^{19} = 524\,288\) en \(2^{20} = 1\,048\,576\), is dat \(n = 20\).
 </p>
 </div>
@@ -3356,42 +3968,42 @@ de kleinste \(n\) met \(2^n &gt; 10^6\). Omdat \(2^{19} = 524\,288\) en \(2^{20}
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1561">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1692">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1561">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1561"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1692">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1692"></span>
 </p>
 <!--
-...... subsubsection Oefening 19 ......
+...... subsubsection Oefening 22 ......
 -->
-<h6 id="autosec-85" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1561">Oefening 19</h6>
-<a id="mkpiweb-autopage-85"></a>
+<h6 id="autosec-90" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1692">Oefening 22</h6>
+<a id="mkpiweb-autopage-90"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1562">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1693">
 We zoeken \(\sqrt {5}\) als nulwaarde van \(f(x) = x^2 - 5\). Voer twee stappen van de secantmethode uit, vanuit \(x_0 =
 2\) en \(x_1 = 3\). 
 </p>
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1565">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1696">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1565">
-<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1565">\(x_2 = 2.2\) en \(x_3 \approx 2.2308\)</span> Met \(f(2) = -1\) en \(f(3) = 4\) is
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1696">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1696">\(x_2 = 2.2\) en \(x_3 \approx 2.2308\)</span> Met \(f(2) = -1\) en \(f(3) = 4\) is
 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1567">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1698">
 \[ x_2 = 3 - 4 \cdot \frac {3 - 2}{4 - (-1)} = 3 - 0.8 = 2.2.      \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1570">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1701">
 Met \(f(2.2) = -0.16\) is 
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1571">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1702">
 \[ x_3 = 2.2 - (-0.16) \cdot \frac {2.2 - 3}{-0.16 - 4} = 2.2 + \frac {0.128}{4.16} \approx 2.2308.         \]
 </p>
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1575">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1706">
 Vergelijk met \(\sqrt {5} \approx 2.2361\).
 </p>
 </div>
@@ -3400,26 +4012,26 @@ Vergelijk met \(\sqrt {5} \approx 2.2361\).
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1579">
+<div class="cursus-oefening" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1710">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1579">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1579"></span>
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1710">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1710"></span>
 </p>
 <!--
-...... subsubsection Oefening 20 ......
+...... subsubsection Oefening 23 ......
 -->
-<h6 id="autosec-86" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1579">Oefening 20</h6>
-<a id="mkpiweb-autopage-86"></a>
+<h6 id="autosec-91" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1710">Oefening 23</h6>
+<a id="mkpiweb-autopage-91"></a>
 
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1580">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1711">
 Leg uit waarom de bisectiemethode niet kan starten voor \(f(x) = x^2 - 2\) op het interval \([-2, 2]\), terwijl er toch twee
 nulwaarden in liggen. Kan de secantmethode vanuit \(x_0 = -2\) en \(x_1 = 2\) wel starten? 
 </p>
-<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1584">
+<div class="oplossing" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1715">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1584">
-<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1584">geen tekenwissel; de secante is horizontaal</span> Omdat \(f(-2) = f(2) = 2\), is er geen
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1715">
+<span class="oplantwoord" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1715">geen tekenwissel; de secante is horizontaal</span> Omdat \(f(-2) = f(2) = 2\), is er geen
 tekenwissel: de methode weet niet welke helft ze moet kiezen. De secantmethode loopt hier ook vast: de secante door \((-2, 2)\) en \((2, 2)\) is horizontaal, dus \(f(x_1) - f(x_0) = 0\) en je deelt door nul.
 </p>
 </div>
@@ -3430,48 +4042,48 @@ tekenwissel: de methode weet niet welke helft ze moet kiezen. De secantmethode l
 <!--
 ...... section Samenvatting ......
 -->
-<h4 id="autosec-87" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1598"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1598">VI&#x2003;</span>Samenvatting</h4>
-<a id="mkpiweb-autopage-87"></a>
+<h4 id="autosec-92" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1729"><span class="sectionnumber" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1729">VI&#x2003;</span>Samenvatting</h4>
+<a id="mkpiweb-autopage-92"></a>
 
 
 
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1600">
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1600">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1600">•</span> Een <b>algoritme</b> is een methode die een computer stap voor stap kan uitvoeren. We beoordelen het op twee vragen: werkt het altijd, en hoeveel stappen heeft het nodig? 
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1731">
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1731">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1731">•</span> Een <b>algoritme</b> is een methode die een computer stap voor stap kan uitvoeren. We beoordelen het op twee vragen: werkt het altijd, en hoeveel stappen heeft het nodig? 
 </p>
 
 </li>
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1603">
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1734">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1603">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1603">•</span> <b>Binair zoeken</b> raadt telkens het midden van wat nog kan. Het werkt enkel in een gerangschikte hoop. Met \(n\) pogingen vind je een getal uit \(2^n - 1\) mogelijkheden: \(7\)
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1734">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1734">•</span> <b>Binair zoeken</b> raadt telkens het midden van wat nog kan. Het werkt enkel in een gerangschikte hoop. Met \(n\) pogingen vind je een getal uit \(2^n - 1\) mogelijkheden: \(7\)
 voor \(100\), \(20\) voor een miljoen. 
 </p>
 
 </li>
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1606">
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1737">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1606">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1606">•</span> De <b>bisectiemethode</b> halveert een interval met een tekenwissel, tot het smal genoeg is. Ze werkt altijd voor een continue functie, maar ze is traag: \(40\) stappen voor \(12\)
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1737">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1737">•</span> De <b>bisectiemethode</b> halveert een interval met een tekenwissel, tot het smal genoeg is. Ze werkt altijd voor een continue functie, maar ze is traag: \(40\) stappen voor \(12\)
 decimalen. 
 </p>
 
 </li>
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1609">
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1740">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1609">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1609">•</span> De <b>secantmethode</b> neemt als volgende benadering het snijpunt van de secante met de \(x\)-as. Ze is veel sneller, maar kan mislukken bij een horizontale secante of een slechte start.
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1740">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1740">•</span> De <b>secantmethode</b> neemt als volgende benadering het snijpunt van de secante met de \(x\)-as. Ze is veel sneller, maar kan mislukken bij een horizontale secante of een slechte start.
 
 </p>
 
 </li>
-<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1612">
+<li data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1743">
 
-<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1612">
-<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1612">•</span> In Python gebruikten we enkel wat je al kende: variabelen die een interval bijhouden, een <kbd>while</kbd> met een stopvoorwaarde en een <kbd>if</kbd> die kiest. De regel <kbd>f =
+<p data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1743">
+<span class="listmarker" data-mkpi-bestand="N01_ZoekenEnBenaderen.tex" data-mkpi-regel="1743">•</span> In Python gebruikten we enkel wat je al kende: variabelen die een interval bijhouden, een <kbd>while</kbd> met een stopvoorwaarde en een <kbd>if</kbd> die kiest. De regel <kbd>f =
 lambda x: &#x2026;</kbd> geeft de functie een naam; wie een andere functie wil, past enkel die regel aan.
 </p>
 </li>
@@ -3483,14 +4095,14 @@ lambda x: &#x2026;</kbd> geeft de functie een naam; wie een andere functie wil, 
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=78b32a4cc760"></script>
-<script src="statistieken.js?v=78b32a4cc760"></script>
-<script src="vendor/jsxgraphcore.js?v=78b32a4cc760"></script>
-<script src="interactieve-grafieken.js?v=78b32a4cc760"></script>
-<script src="hoofdstuk.interactief.js?v=78b32a4cc760"></script>
-<script src="python-config.js?v=78b32a4cc760"></script>
-<script src="codemirror-python.js?v=78b32a4cc760"></script>
-<script src="python-oefeningen.js?v=78b32a4cc760"></script>
-<script src="python-spoortabel.js?v=78b32a4cc760"></script>
+<script src="presentatie.js?v=5c0258407520"></script>
+<script src="statistieken.js?v=5c0258407520"></script>
+<script src="vendor/jsxgraphcore.js?v=5c0258407520"></script>
+<script src="interactieve-grafieken.js?v=5c0258407520"></script>
+<script src="hoofdstuk.interactief.js?v=5c0258407520"></script>
+<script src="python-config.js?v=5c0258407520"></script>
+<script src="codemirror-python.js?v=5c0258407520"></script>
+<script src="python-oefeningen.js?v=5c0258407520"></script>
+<script src="python-spoortabel.js?v=5c0258407520"></script>
 </body>
 </html>

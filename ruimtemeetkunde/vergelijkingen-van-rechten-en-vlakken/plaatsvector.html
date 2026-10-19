@@ -28,7 +28,7 @@ document.asy.canvasHeight=111;
 
 document.asy.webgl2=false;
 document.asy.ibl=false;
-document.asy.absolute=false;
+document.asy.absolute=false;document.asy.autoplay=true;
 
 document.asy.minBound=[-114.1358,-55.39377,-378.7671];
 document.asy.maxBound=[114.1358,55.39377,-126.2557];
@@ -74,7 +74,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 cylinder([-98.35879,-34.15236,-252.5114],0.4,198.7186,0,0,
 [1.570796,0.3217506],true);
@@ -91,7 +92,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 patch([
 [96.2917009061,38.3847907381,-252.511381847],
@@ -586,7 +588,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 patch([
 [-49.4198358821,-19.1561980521,-252.511381847],
@@ -1571,14 +1574,15 @@ patch([
 
 initTransform();
 
-beginTransform(function(x,t){return asyK.schacht(x,t);},null,1,false);
-material(
+beginTransform(function(x,t){return asyK.schacht(x,t);},null,1);
+document.asy.autoplay=false;material(
 [0,0,0,1],
 [1,0,0,1],
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 patch([
 [-45.08111,-16.39313,-253.4114],
@@ -1659,14 +1663,15 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyK.kop(x,t);},null,1,false);
-material(
+beginTransform(function(x,t){return asyK.kop(x,t);},null,1);
+document.asy.autoplay=false;material(
 [1,0,0,1],
 [0,0,0,1],
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [-17.37985,-7.159377,-256.2627],
@@ -1766,14 +1771,15 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyK.punt(x,t);},null,1,false);
-material(
+beginTransform(function(x,t){return asyK.punt(x,t);},null,1);
+document.asy.autoplay=false;material(
 [0,0,0,1],
 [0,0,0,1],
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [-4.098283,-2.834708,-253.7572],
@@ -2034,8 +2040,8 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyK.label(x,t);},null,1,false);
-patch([
+beginTransform(function(x,t){return asyK.label(x,t);},null,1);
+document.asy.autoplay=false;patch([
 [-5.263901,-10.69057,-252.5114],
 [-5.263901,-10.69057,-252.5114],
 [-5.215469,-10.40463,-252.5114],
@@ -2634,8 +2640,8 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyK.midden(x,t);},null,1,false);
-patch([
+beginTransform(function(x,t){return asyK.midden(x,t);},null,1);
+document.asy.autoplay=false;patch([
 [-26.3404721722,-1.61464594223,-252.511381847],
 [-26.0857881722,-0.599017942227,-252.511381847],
 [-26.0696401722,-0.503705942227,-252.511381847],

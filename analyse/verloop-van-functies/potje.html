@@ -28,7 +28,7 @@ document.asy.canvasHeight=326;
 
 document.asy.webgl2=false;
 document.asy.ibl=false;
-document.asy.absolute=false;
+document.asy.absolute=false;document.asy.autoplay=true;
 
 document.asy.minBound=[-99.71256,-162.6613,-572.8086];
 document.asy.maxBound=[99.71256,162.6613,-92.15154];
@@ -70,14 +70,15 @@ light(
 
 initTransform();
 
-beginTransform(function(x,t){return asyPotje.pot(x,t);},null,1,false);
-material(
+beginTransform(function(x,t){return asyPotje.pot(x,t);},null,1);
+document.asy.autoplay=false;material(
 [0.55,0.68,0.84,1],
 [0.1925,0.238,0.294,1],
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [19.37307,-106.5928,-414.7053],
@@ -177,14 +178,15 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyPotje.deksel(x,t);},null,1,false);
-material(
+beginTransform(function(x,t){return asyPotje.deksel(x,t);},null,1);
+document.asy.autoplay=false;material(
 [0.86,0.55,0.22,1],
 [0.301,0.1925,0.077,1],
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [20.14799,-13.32692,-370.3764],

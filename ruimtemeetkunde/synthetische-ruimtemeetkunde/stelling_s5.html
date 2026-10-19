@@ -28,7 +28,7 @@ document.asy.canvasHeight=138;
 
 document.asy.webgl2=false;
 document.asy.ibl=false;
-document.asy.absolute=false;
+document.asy.absolute=false;document.asy.autoplay=true;
 
 document.asy.minBound=[-108.352,-68.87067,-616.8611];
 document.asy.maxBound=[108.352,68.87067,-307.1848];
@@ -74,7 +74,8 @@ material(
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [50.9529,40.58019,-549.2939],
@@ -89,7 +90,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 cylinder([50.9529,40.58019,-549.2939],0.35,97.40299,0,1,
 [0.740895,-0.5332506],true);
@@ -133,7 +135,8 @@ material(
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [79.26007,-20.2901,-533.8932],
@@ -184,7 +187,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 cylinder([79.26007,23.8707,-513.3588],0.65,194.806,0,3,
 [1.015675,-2.849063],true);

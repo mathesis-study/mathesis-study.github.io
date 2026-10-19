@@ -28,7 +28,7 @@ document.asy.canvasHeight=153;
 
 document.asy.webgl2=false;
 document.asy.ibl=false;
-document.asy.absolute=false;
+document.asy.absolute=false;document.asy.autoplay=true;
 
 document.asy.minBound=[-114.1358,-76.04528,-409.5221];
 document.asy.maxBound=[114.1358,76.04528,-136.5074];
@@ -74,7 +74,8 @@ beginStep(1);material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 cylinder([-97.44094,-62.8937,-273.0147],0.25,201.6886,0,0,
 [1.570796,0.3217506],true);
@@ -91,7 +92,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 patch([
 [100.027115003,-1.74086119896,-273.014739214],
@@ -1500,7 +1502,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 cylinder([11.52158,-26.57286,-273.0147],0.5,42.0246,0,2,
 [1.570796,-2.819842],true);
@@ -1517,7 +1520,8 @@ material(
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [11.52158,-26.57286,-276.766],
@@ -2199,7 +2203,8 @@ endStep();beginStep(2);material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 cylinder([-28.34646,-9.570866,-273.0147],0.5,30.29134,0,4,
 [1.570796,-1.570796],true);
@@ -2216,7 +2221,8 @@ material(
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [-28.34646,-9.570866,-276.766],
@@ -2915,14 +2921,15 @@ patch([
 
 endStep();beginStep(3);initTransform();
 
-beginTransform(function(x,t){return asyRechte.veelvoud(x,t,'schacht');},null,1,false);
-material(
+beginTransform(function(x,t){return asyRechte.veelvoud(x,t,'schacht');},null,1);
+document.asy.autoplay=false;material(
 [0,0,0,1],
 [0.65,0.3,0,1],
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 patch([
 [-28.34646,4.429134,-273.5147],
@@ -3003,14 +3010,15 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyRechte.veelvoud(x,t,'kop');},null,1,false);
-material(
+beginTransform(function(x,t){return asyRechte.veelvoud(x,t,'kop');},null,1);
+document.asy.autoplay=false;material(
 [0.65,0.3,0,1],
 [0,0,0,1],
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [11.52158,17.71848,-276.766],
@@ -3110,8 +3118,8 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyRechte.schuif(x,t,0.5);},null,1,false);
-patch([
+beginTransform(function(x,t){return asyRechte.schuif(x,t,0.5);},null,1);
+document.asy.autoplay=false;patch([
 [4.81449965669,21.3536046483,-273.014739214],
 [5.28425965669,21.4332886483,-273.014739214],
 [5.75401965669,21.5129726483,-273.014739214],
@@ -4024,14 +4032,15 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyRechte.schuif(x,t,1);},null,1,false);
-material(
+beginTransform(function(x,t){return asyRechte.schuif(x,t,1);},null,1);
+document.asy.autoplay=false;material(
 [0,0,0,1],
 [0,0,0,1],
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [24.80315,22.04315,-274.2606],
@@ -4582,8 +4591,8 @@ patch([
 endTransform();
 
 endStep();beginStep(4);
-beginTransform(function(x,t){return asyRechte.som(x,t,'schacht');},null,1,false);
-patch([
+beginTransform(function(x,t){return asyRechte.som(x,t,'schacht');},null,1);
+document.asy.autoplay=false;patch([
 [-28.34646,-39.8622,-273.5147],
 [-13.66695,-22.73611,-273.5147],
 [1.012561,-5.610017,-273.5147],
@@ -4662,8 +4671,8 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyRechte.som(x,t,'kop');},null,1,false);
-patch([
+beginTransform(function(x,t){return asyRechte.som(x,t,'kop');},null,1);
+document.asy.autoplay=false;patch([
 [15.69207,11.51608,-276.766],
 [18.7291,15.05927,-275.5156],
 [21.76612,18.60247,-274.2652],
@@ -4761,8 +4770,8 @@ patch([
 endTransform();
 
 
-beginTransform(function(x,t){return asyRechte.schuif(x,t,0.5);},null,1,false);
-patch([
+beginTransform(function(x,t){return asyRechte.schuif(x,t,0.5);},null,1);
+document.asy.autoplay=false;patch([
 [4.5028127726,-24.1319516324,-273.014739214],
 [4.7574967726,-23.1163236324,-273.014739214],
 [4.7736447726,-23.0210116324,-273.014739214],

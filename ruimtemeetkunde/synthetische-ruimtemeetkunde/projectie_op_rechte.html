@@ -28,7 +28,7 @@ document.asy.canvasHeight=115;
 
 document.asy.webgl2=false;
 document.asy.ibl=false;
-document.asy.absolute=false;
+document.asy.absolute=false;document.asy.autoplay=true;
 
 document.asy.minBound=[-128.0591,-57.06169,-807.0729];
 document.asy.maxBound=[128.0591,57.06169,-442.2949];
@@ -74,7 +74,8 @@ beginStep(1);material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 cylinder([37.75532,-33.57456,-658.8869],0.45,135.4304,0,0,
 [0.4933963,1.540835],true);
@@ -334,7 +335,8 @@ material(
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [-63.84695,56.56169,-660.495],
@@ -349,7 +351,8 @@ material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+1);
 
 curve([
 [-63.84695,56.56169,-660.495],
@@ -1085,7 +1088,8 @@ endStep();beginStep(2);material(
 [0.75,0.75,0.75,1],
 0.7,
 0,
-0.04);
+0.04,
+1);
 
 patch([
 [91.15214,37.42887,-710.0986],
@@ -2230,7 +2234,8 @@ endStep();beginStep(3);material(
 [0,0,0,1],
 1,
 0,
-0.04);
+0.04,
+0);
 
 sphere([38.56437,-6.579301,-608.6648],1.75,0,4);
 
