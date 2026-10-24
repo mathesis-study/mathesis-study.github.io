@@ -118,6 +118,41 @@
     demo.appendChild(tekst);
     demo.appendChild(kolom);
 
+    // Op een slide met één demo mag de GRM ook de ruimte naast de titel en
+    // inleiding gebruiken. Meet opnieuw wanneer de slide of haar breedte wijzigt.
+    function plaats() {
+      var slide = demo.closest("section.slide");
+      if (!slide || demo.parentElement !== slide ||
+          slide.querySelectorAll(".grm-demo").length !== 1 || !demo.getClientRects().length) return;
+      slide.classList.add("grm-slide");
+      var boven = slide.getBoundingClientRect().top + parseFloat(getComputedStyle(slide).paddingTop);
+      var aanloop = Math.max(0, demo.getBoundingClientRect().top - boven);
+      var waarde = String(Math.round(aanloop));
+      if (kolom.style.getPropertyValue("--grm-aanloop") !== waarde) {
+        kolom.style.setProperty("--grm-aanloop", waarde);
+      }
+      var scrollvak = slide.parentElement;
+      while (scrollvak && !/auto|scroll/.test(getComputedStyle(scrollvak).overflowY)) {
+        scrollvak = scrollvak.parentElement;
+      }
+      if (scrollvak) {
+        var ruimteBoven = boven - scrollvak.getBoundingClientRect().top + scrollvak.scrollTop;
+        var balkHoogte = balk.getBoundingClientRect().height + parseFloat(getComputedStyle(balk).marginBottom);
+        var hoogte = Math.max(320, Math.floor(scrollvak.clientHeight - ruimteBoven - balkHoogte - 16)) + "px";
+        if (kolom.style.getPropertyValue("--grm-hoogte") !== hoogte) {
+          kolom.style.setProperty("--grm-hoogte", hoogte);
+        }
+      }
+    }
+    var plaatsFrame;
+    function planPlaats() {
+      cancelAnimationFrame(plaatsFrame);
+      plaatsFrame = requestAnimationFrame(plaats);
+    }
+    document.addEventListener("pres:zichtbaar", planPlaats);
+    window.addEventListener("resize", planPlaats);
+    new ResizeObserver(planPlaats).observe(tekst);
+    document.fonts.ready.then(planPlaats);
 
     function stuur(bericht) {
       if (frame.contentWindow) frame.contentWindow.postMessage(bericht, "*");
@@ -138,6 +173,7 @@
         stuur({ ti84: "theme", theme: thema() });
         if (vooraf) herbegin();
         demo.classList.add("grm-demo-actief");
+        planPlaats();
         // Eenmalig de aandacht op de knop voor de eerste stap, zoals de
         // playknop van een figuur met constructiestappen.
         knop.addEventListener("animationend", function () {

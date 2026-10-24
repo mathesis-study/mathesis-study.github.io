@@ -279,6 +279,18 @@
 .python-vooraf[hidden] { display: none; }
 .python-vooraf-label { margin-right: .15rem; }
 
+/* Grafiek en bijbehorende code delen de beschikbare breedte. De breedte
+   van het blok bepaalt of beide kolommen voldoende plaats hebben. */
+.python-met-grafiek {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 24rem), 1fr));
+  align-items: start; gap: 0 1.5rem;
+}
+.python-met-grafiek > .interactieve-grafiek,
+.python-met-grafiek > .python-codeblok { min-width: 0; width: 100%; }
+/* lwarp laat tussen de twee blokken alinea's met enkel witruimte achter. */
+.python-met-grafiek > p { display: none; }
+
 /* Een interactieve grafiek met de optie ingebed staat tussen de code en de
    stapinterface, in dezelfde kolom als de code, zonder eigen kader. Het
    bijschrift staat er als legende links onder. */
@@ -306,6 +318,16 @@
 .pythonspoor .python-codevak { grid-template-columns: minmax(0, 1fr); }
 .pythonspoor .python-codemirror { grid-column: 1; }
 .pythonspoor .python-toestand { margin-left: 0; }
+
+/* Bij een vaste debugger gebruikt de code ook de plaats van de knopkolom. */
+.python-debug-vast .python-codegutter { display: none; }
+.python-debug-vast .python-codevak,
+.python-debug-vast .python-resultaat { grid-template-columns: minmax(0, 1fr); }
+.python-debug-vast .python-codemirror,
+.python-debug-vast .python-resultaatinhoud { grid-column: 1; }
+.python-debug-vast .python-toestand,
+.python-debug-vast .python-vooraf { margin-left: 0; }
+.python-debug-vast .python-markering { display: none; }
 
 .python-spoortabel { position: relative; }
 .python-spoorformule { display: none; min-height: 12rem; overflow-x: auto; text-align: center; }

@@ -11,7 +11,9 @@
   "Omwentelingslichamen",
   "Oefeningen"
  ],
- "leerplandoelen": [],
+ "leerplandoelen": [
+  "BV3_06.20"
+ ],
  "interactief": false,
  "python": false,
  "oefeningen": true

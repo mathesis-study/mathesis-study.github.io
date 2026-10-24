@@ -908,7 +908,7 @@
       spoor: blok.closest(".pythonspoor")?.dataset.spoor || "",
       readOnly: Boolean(blok.closest(".pythonspoor")),
       inlineOutput: Boolean(blok.closest(".pythonspoor")),
-      debugOpen: stapsoort === "regel" && Boolean(blok.closest(".pythonspoor")), namespace: bron.dataset.namespace || "",
+      debugOpen: stapsoort === "regel" && Boolean(blok.closest(".pythonspoor, .python-debug-vast")), namespace: bron.dataset.namespace || "",
       grafiek: codeblok ? bron.dataset.grafiek || "" : "", vooraf: {},
       outputDelay: Number(bron.dataset.outputDelay) || 0,
       outputMax: Number(bron.dataset.outputMax) || 30,

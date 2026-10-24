@@ -1198,7 +1198,7 @@
         tekst = "De code gaf een fout. Het interval blijft " + tekstVan(interval) + ".";
       } else {
         tekst = "De code begint met " + tekstVan(interval) +
-          ". Voer ze uit, of stap er regel per regel door met de bugknop.";
+          ". Doorloop de code regel per regel met de debugger.";
       }
       ctx.toon(tekst);
     }

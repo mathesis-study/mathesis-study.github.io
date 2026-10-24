@@ -26,6 +26,19 @@
   top: 1rem;
 }
 
+/* Reserveer naast de titel en inleiding dezelfde kolom als naast de stappen. */
+@media screen and (min-width: 44.001rem) {
+  .slide.grm-slide > :not(.grm-demo) {
+    max-width: calc(100% - 22.5rem);
+  }
+  .grm-slide > .grm-demo .grm-demo-rekenmachine {
+    margin-top: calc(-1px * var(--grm-aanloop, 0));
+  }
+  .grm-slide > .grm-demo .grm-demo-rekenmachine iframe {
+    height: var(--grm-hoogte, min(calc(100vh - 9rem), 48rem));
+  }
+}
+
 /* De knoppen zijn die van de figuurbalk (pres-figuurbalk, pres-stapknop). */
 .grm-demo-balk {
   display: flex;

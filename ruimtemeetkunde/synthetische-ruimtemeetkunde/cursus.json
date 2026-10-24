@@ -15,7 +15,10 @@
   "Doorsnede van een vlak en een veelvlak construeren",
   "Axioma’s en Stellingen van de Ruimtemeetkunde"
  ],
- "leerplandoelen": [],
+ "leerplandoelen": [
+  "BV3_06.19",
+  "WD3_06.08.42"
+ ],
  "interactief": false,
  "python": false,
  "oefeningen": true
