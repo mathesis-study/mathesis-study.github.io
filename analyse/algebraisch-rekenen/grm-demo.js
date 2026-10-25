@@ -118,15 +118,24 @@
     demo.appendChild(tekst);
     demo.appendChild(kolom);
 
-    // Op een slide met één demo mag de GRM ook de ruimte naast de titel en
-    // inleiding gebruiken. Meet opnieuw wanneer de slide of haar breedte wijzigt.
+    // Op een slide met één demo mag de GRM ook de ruimte naast de kop van de
+    // demo en haar inleiding gebruiken: ze begint op de hoogte van de laatste
+    // kop vóór de demo, niet bovenaan de slide, waar nog andere leerstof kan
+    // staan. Meet opnieuw wanneer de slide of haar breedte wijzigt.
     function plaats() {
       var slide = demo.closest("section.slide");
       if (!slide || demo.parentElement !== slide ||
           slide.querySelectorAll(".grm-demo").length !== 1 || !demo.getClientRects().length) return;
       slide.classList.add("grm-slide");
+      var kop = demo.previousElementSibling;
+      while (kop && !/^H[1-6]$/.test(kop.tagName)) kop = kop.previousElementSibling;
+      for (var el = slide.firstElementChild; el && el !== demo; el = el.nextElementSibling) {
+        var naast = !kop || el === kop || !!(kop.compareDocumentPosition(el) & Node.DOCUMENT_POSITION_FOLLOWING);
+        el.classList.toggle("grm-naast", naast);
+      }
       var boven = slide.getBoundingClientRect().top + parseFloat(getComputedStyle(slide).paddingTop);
-      var aanloop = Math.max(0, demo.getBoundingClientRect().top - boven);
+      var start = kop ? Math.max(boven, kop.getBoundingClientRect().top) : boven;
+      var aanloop = Math.max(0, demo.getBoundingClientRect().top - start);
       var waarde = String(Math.round(aanloop));
       if (kolom.style.getPropertyValue("--grm-aanloop") !== waarde) {
         kolom.style.setProperty("--grm-aanloop", waarde);

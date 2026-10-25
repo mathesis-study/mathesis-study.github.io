@@ -364,6 +364,13 @@
     // Een \subsection* krijgt wel haar eigen slide, maar blijft uit de
     // inhoudstafel: een reeks oefeningen hoort de zijbalk niet vol te zetten.
     merkKoppen("cursus-buiten-inhoudstafel", "buitenInhoudstafel");
+    // Een kop met [optioneel] staat in de cursus maar wordt niet aan het bord
+    // gegeven. Ze heeft geen nummer; de * staat op die plaats, zodat ze ook
+    // in de zijbalk en het kruimelspoor meekomt.
+    merkKoppen("cursus-optioneel", "optioneel");
+    stroom.querySelectorAll("[data-optioneel]").forEach(function (kop) {
+      kop.insertBefore(el("span", "sectionnumber", "*\u2003"), kop.firstChild);
+    });
 
     // De leerplandoelen zijn voor de leraar, niet voor de klas. Ze gaan niet
     // mee in de slides, maar wachten op het venster uit het overloopmenu.
@@ -523,6 +530,15 @@
       if (s.textContent.trim() !== "" || s.querySelector("iframe, img, svg")) return true;
       s.remove();
       return false;
+    });
+    // Wat onder een optionele kop staat, tot de volgende kop van hetzelfde
+    // of een hoger niveau, staat lichter (presentatie.css).
+    var optioneelNiveau = 0;
+    navigatie.forEach(function (item) {
+      if (!item.kop || item.slide.dataset.titelslide) return;
+      if (optioneelNiveau && item.niveau <= optioneelNiveau) optioneelNiveau = 0;
+      if (item.kop.dataset.optioneel) optioneelNiveau = item.niveau;
+      if (optioneelNiveau) item.slide.classList.add("pres-optioneel");
     });
     slides.forEach(function (s) {
       if (!s.dataset.appendixPdf) return;

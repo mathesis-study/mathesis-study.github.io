@@ -26,9 +26,10 @@
   top: 1rem;
 }
 
-/* Reserveer naast de titel en inleiding dezelfde kolom als naast de stappen. */
+/* Reserveer naast de kop en inleiding van de demo (grm-naast, vanaf de laatste
+ * kop ervoor) dezelfde kolom als naast de stappen. */
 @media screen and (min-width: 44.001rem) {
-  .slide.grm-slide > :not(.grm-demo) {
+  .slide.grm-slide > .grm-naast {
     max-width: calc(100% - 22.5rem);
   }
   .grm-slide > .grm-demo .grm-demo-rekenmachine {
@@ -62,6 +63,8 @@
   display: block;
   width: 100%;
   height: min(calc(100vh - 15rem), 42rem);
+  /* Hoger rekt de keypad de toetsen uit tot ze niet meer op een TI-84 lijken. */
+  max-height: 48rem;
   border: 0;
   border-radius: .75rem;
   /* De witte behuizing van de dagstand heeft een rand nodig tegen de pagina. */

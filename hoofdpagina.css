@@ -8,6 +8,9 @@
   --kleur-achtergrond: #eef1f5;
   --kleur-accent: #1d5fa8;
   --kleur-accent-zacht: #e8f0fa;
+  --kleur-truc: #0000ff; /* \truc, zoals blue in de PDF. */
+  --kleur-optioneel: #46505e; /* [optioneel]: lichter dan de tekst, donkerder dan een aside. */
+  --kleur-optioneel-kop: #5582bb;
   --kleur-actieve-regel: rgba(232, 240, 250, .68);
   --kleur-selectie: #9fc3ea;
   --kleur-zelfcontrole: #4d8fcb;
@@ -66,6 +69,9 @@
     --kleur-achtergrond: #0e141a;
     --kleur-accent: #7ab4f0;
     --kleur-accent-zacht: #1d2c3c;
+    --kleur-truc: #7ab4f0;
+    --kleur-optioneel: #b3bfcc;
+    --kleur-optioneel-kop: #5f93c9;
     --kleur-actieve-regel: rgba(29, 44, 60, .68);
     --kleur-selectie: #365b80;
     --kleur-zelfcontrole: #91c5f5;
