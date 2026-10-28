@@ -1,0 +1,2625 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LaTeX in 30 minuten</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=afc4ae5685fa" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * you choose how answers wait: compact, as empty frames or all open; in
+//    compact an exercise first shows its short answer, and the full working
+//    only on a second click;
+//  * a series of exercises can be paged through one at a time and comes
+//    with a PDF to print; extra proofs and the instructions per tool (TI-84
+//    or Python) stay folded away until you open them;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a figure with a parameter gets a slider, a figure with several cases
+//    switches between them without losing the camera, and in the large view
+//    you walk from figure to figure through the whole chapter;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * matrices you can click: pick an entry, a row or a diagonal and the
+//    matching term of the formula lights up, and the other way round;
+//  * Python runs in the page (Pyodide, with NumPy): exercises with checks
+//    and hints, code you can step through instruction by instruction or,
+//    for a loop, line by line with its variables in view, trace exercises
+//    that fill a table of the variables as you step, and code that drives
+//    an interactive graph; each Python section also comes as a notebook;
+//  * the instructions for a graphing calculator play step by step on a
+//    working TI-84 beside the text, which you can also press yourself (the
+//    calculator is ti84-calculator by WhitDeckard09, with an embed mode
+//    added for this site);
+//  * a matrix calculator, a calculator for systems of linear equations that
+//    row-reduces step by step and discusses parameters case by case, and a
+//    function calculator whose CAS derives step by step, all in the
+//    notation of the course;
+//  * MathJax is extended where the course needs it, so the page shows what
+//    the PDF shows: foreach loops, matrices with row and column headings,
+//    braces across rows, partial rules in tables, highlighted cells and
+//    terms, the end-of-proof square at the right margin and references
+//    inside a formula; accented letters are real characters, so searching
+//    and copying text works;
+//  * formulas are typeset slide by slide, so a long chapter opens quickly;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * the site has its own icon and can be installed as an app;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well; the one request that may
+//    leave it is an optional visit count per chapter, without cookies or
+//    personal data.
+//
+
+MathJax = {
+     options: { enableMenu: false },
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=afc4ae5685fa"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=afc4ae5685fa"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+<link rel="stylesheet" href="latexvoorbeeld.css?v=afc4ae5685fa" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\vov }[1]{\aside {{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text {&grave;}}}\mkern -1mu\mathopen {}#1\mathclose {}\mkern -1mu{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text
+{&apos;}}}}}\)
+
+\(\newcommand {\truc }[1]{\class {truc}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="11">
+<header class="cursustitel">  <h1 data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="11">LaTeX in 30 minuten</h1> </header>
+</p>
+
+
+
+
+<!--
+...... section Wat is LaTeX? ......
+-->
+<h4 id="autosec-2" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="19"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="19">I&#x2003;</span>Wat is LaTeX?</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="21">
+Typ eens \(\displaystyle \int _0^1 \frac {x^2}{\sqrt {1+x^3}}\,dx\) in een tekstverwerker. Dat is veel klikken in menu’s.
+</p>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="25">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="25">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="25">•</span> <b>LaTeX</b> is een systeem om tekst te zetten. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="26">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="26">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="26">•</span> Je schrijft gewone tekst met <em>commando’s</em> erin. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="27">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="27">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="27">•</span> Een programma maakt daar een PDF van: <em>compileren</em>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="28">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="28">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="28">•</span> Je denkt aan de inhoud, LaTeX zorgt voor de opmaak.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Waarom LaTeX? ......
+-->
+<h5 id="autosec-3" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="31"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="31">1&#x2003;</span>Waarom LaTeX?</h5>
+<a id="mkpiweb-autopage-3"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="34">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="34">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="34">•</span> Wiskunde ziet er professioneel uit. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="35">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="35">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="35">•</span> Nummering, verwijzingen en inhoudstafel gaan vanzelf. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="36">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="36">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="36">•</span> Duizenden <b>pakketten</b> breiden LaTeX uit. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="37">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="37">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="37">•</span> Inhoud en vormgeving staan los van elkaar.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-4" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="40"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="40">2&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-4"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="42">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="42">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="42">•</span> Deze cursus is zelf in LaTeX geschreven. 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="44">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="44">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="44">–</span> output webpagina. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="45">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="45">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="45">–</span> output pdf.
+</p>
+</li>
+</ul>
+
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="47">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="47">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="47">•</span> De handboeken VBTL en veel andere handboeken. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="48">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="48">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="48">•</span> Thesissen burgerlijk ingenieur en wetenschappelijke richtingen. Sommige humane richtingen ook. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="49">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="49">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="49">•</span> De meeste wetenschappelijke artikels zijn in LaTeX geschreven.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Geschiedenis van LaTeX ......
+-->
+<h5 id="autosec-5" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="51"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="51">3&#x2003;</span>Geschiedenis van LaTeX</h5>
+<a id="mkpiweb-autopage-5"></a>
+
+
+
+<div class="figuur-bewijs tekst-figuur" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="58"><div data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="58">
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="58">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="58">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="58">•</span> 1977: <b>Donald Knuth</b> is ontevreden over de zetting van de formules in zijn boek <em>The Art of Computer Programming</em>. Hij begint aan een eigen zetprogramma: <b><span
+class="latexlogofont" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="58"><span class="latexlogo" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="58">T<span class="latexlogosub" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="58">e</span>X</span></span></b>. Knuth vertelt het zelf in <a href="https://www.webofstories.com/play/17110" target="_blank"
+>dit fragment</a>. 
+</p>
+<div class="center" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="69">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="67">
+
+<a href="TAOCP.png" target="_blank" ><img
+     src="TAOCP.png"
+     style="
+     width:434pt;
+     "
+     class="inlineimage"
+     alt="(image)" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="67"
+></a>
+</p>
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="69">
+The Art of Computer Programming,<br />
+foto van <a href="http://www-cs-faculty.stanford.edu/~knuth/taocp.html" target="_blank" >de pagina van Donald Knuth</a>
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="73">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="73">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="73">•</span> Rond 1984: <b>Leslie Lamport</b> schrijft er macro’s bovenop, zodat je een document beschrijft in plaats van elke regel te zetten: <b><span class="latexlogofont" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="73"><span
+class="latexlogo" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="73">L<span class="latexlogosup" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="73">a</span>T<span class="latexlogosub" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="73">e</span>X</span></span></b>, <em>Lamport <span class="latexlogofont" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="73"><span class="latexlogo" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="73">T<span
+class="latexlogosub" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="73">e</span>X</span></span></em>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="76">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="76">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="76">•</span> 1994: <span class="latexlogofont" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="76"><span class="latexlogo" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="76">L<span class="latexlogosup" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="76">a</span>T<span class="latexlogosub" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="76">e</span>X</span></span><span
+class="latexlogofont" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="76"><span class="latexlogotwoe" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="76">2<span class="latexlogotwoesub" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="76">&#x03B5;</span></span></span>, de versie die we vandaag gebruiken. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="77">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="77">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="77">•</span> De X is de Griekse letter chi: zeg <em>latech</em>, niet <em>latex</em>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="79">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="79">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="79">•</span> Het versienummer van <span class="latexlogofont" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="79"><span class="latexlogo" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="79">T<span class="latexlogosub" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="79">e</span>X</span></span> nadert \(\pi \): bij elke verbetering komt
+er een cijfer bij (nu 3.141592653).
+</p>
+</li>
+</ul>
+
+
+</div><div data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="86">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="82">
+
+<a href="Donald_Knuth.jpg" target="_blank" ><img
+    src="Donald_Knuth.jpg"
+    style="
+    width:434pt;
+    "
+    class="inlineimage"
+    alt="(image)" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="82"
+></a>
+</p>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="86">
+Donald Knuth in 2005,<br />
+foto Jacob Appelbaum (CC BY-SA 2.5)
+</p>
+
+</div></div>
+
+
+<!--
+...... subsection Overal LaTeX ......
+-->
+<h5 id="autosec-7" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="89"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="89">4&#x2003;</span>Overal LaTeX</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="91">
+LaTeX zit in meer programma’s dan je denkt. Wie de schrijfwijze kent, typt overal sneller formules.
+</p>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="95">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="95">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="95">•</span> <b>GeoGebra</b>: vink bij een tekst <em>LaTeX-formule</em> aan. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="96">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="96">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="96">•</span> <b>Desmos</b>: plak <kbd class="mathjax_ignore">\frac{1}{2}x^2</kbd> in een invoerregel en er staat een breuk. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="98">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="98">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="98">•</span> <b>Google Colab</b> en Jupyter: in een tekstcel staat een formule tussen <kbd class="mathjax_ignore">&#x00024;</kbd> en <kbd class="mathjax_ignore">&#x00024;</kbd>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="100">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="100">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="100">•</span> <b>ChatGPT</b> en andere chatbots: de formules in een antwoord zijn LaTeX. Kopieer het antwoord en je ziet <kbd class="mathjax_ignore">\frac</kbd> en <kbd class="mathjax_ignore">&#x00024;&#x00024;</kbd> verschijnen.
+
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="103">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="103">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="103">•</span> <b>Wikipedia</b>: elke formule is LaTeX. Klik op <em>Bewerken</em> en kijk wat er tussen <kbd class="mathjax_ignore">&lt;math&gt;</kbd> en <kbd class="mathjax_ignore">&lt;/math&gt;</kbd> staat. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="105">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="105">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="105">•</span> <b>Word</b> en <b>OneNote</b>: de vergelijkingseditor kent een LaTeX-stand. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="107">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="107">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="107">•</span> <b>Notion</b> en <b>Obsidian</b>: notities met formules tussen <kbd class="mathjax_ignore">&#x00024;</kbd> en <kbd class="mathjax_ignore">&#x00024;</kbd>.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection LaTeX in Google Docs ......
+-->
+<h5 id="autosec-8" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="111"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="111">5&#x2003;</span>LaTeX in Google Docs</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="113">
+Google Docs kent zelf een beetje LaTeX: 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="115">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="115">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="115">•</span> Kies <em>Invoegen</em> \(\to \) <em>Vergelijking</em>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="116">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="116">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="116">•</span> Typ <kbd class="mathjax_ignore">\frac</kbd>, <kbd class="mathjax_ignore">\sqrt</kbd> of <kbd class="mathjax_ignore">\alpha</kbd> gevolgd door een spatie: het wordt een breuk, een wortel of \(\alpha \).
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="121">
+Volledige LaTeX krijg je met de add-on <b>Auto-LaTeX Equations</b>: 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="123">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="123">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="123">1.</span> Kies <em>Extensies</em> \(\to \) <em>Add-ons</em> \(\to \) <em>Add-ons downloaden</em>, zoek <em>Auto-LaTeX Equations</em> en installeer. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="125">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="125">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="125">2.</span> Schrijf de formule in de tekst tussen <kbd class="mathjax_ignore">&#x00024;&#x00024;</kbd> en <kbd class="mathjax_ignore">&#x00024;&#x00024;</kbd>, bijvoorbeeld
+<kbd class="mathjax_ignore">&#x00024;&#x00024;\frac{a}{b}&#x00024;&#x00024;</kbd>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="127">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="127">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="127">3.</span> Kies <em>Extensies</em> \(\to \) <em>Auto-LaTeX Equations</em> \(\to \) <em>Start</em> en klik op <em>Render Equations</em>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="129">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="129">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="129">4.</span> De formules worden afbeeldingen. Wil je er een wijzigen, klik dan op <em>De-render Equation</em>.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="132">
+Lukt het installeren niet met je schoolaccount, dan laat de school geen add-ons toe.
+</p>
+
+
+<!--
+...... subsection Waar schrijf je LaTeX? ......
+-->
+<h5 id="autosec-9" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="135"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="135">6&#x2003;</span>Waar schrijf je LaTeX?</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="138">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="138">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="138">•</span> Online, zonder installatie: <b>Overleaf</b> (<a href="https://www.overleaf.com" target="_blank" >overleaf.com</a>). 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="140">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="140">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="140">•</span> Op je eigen computer: een TeX-distributie (TeX Live, MiKTeX) en een editor.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Beginnen met Overleaf ......
+-->
+<h5 id="autosec-10" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="144"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="144">7&#x2003;</span>Beginnen met Overleaf</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="147">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="147">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="147">1.</span> Surf naar <a href="https://www.overleaf.com" target="_blank" >overleaf.com</a> en log in met je schoolaccount. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="149">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="149">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="149">2.</span> Klik op <b>New Project</b> en kies <b>Blank Project</b>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="150">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="150">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="150">3.</span> Geef het project een naam en klik op <b>Create</b>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="151">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="151">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="151">4.</span> Links staat de broncode (<kbd class="mathjax_ignore">main.tex</kbd>), rechts de PDF. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="152">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="152">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="152">5.</span> Wijzig de code en klik op <b>Recompile</b> (of Ctrl+Enter): de PDF volgt. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="154">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="154">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="154">6.</span> Loopt er iets mis, dan staat er een rood getal bij <b>Logs and output files</b> boven de PDF. Klik erop: je ziet de fouten, met het regelnummer. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="157">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="157">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="157">7.</span> Download de PDF met het downloadicoon boven de PDF.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... section Een eerste document ......
+-->
+<h4 id="autosec-11" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="160"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="160">II&#x2003;</span>Een eerste document</h4>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="162">
+Het kleinste document dat werkt: 
+</p>
+<pre class="latexcode" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="163"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="163">\documentclass</span>{article}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="163">\begin</span>{document}
+Hallo wereld!
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="163">\end</span>{document}</code></pre>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="171">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="171">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="171">•</span> <kbd class="mathjax_ignore">\documentclass</kbd> kiest het soort document: hier een <kbd class="mathjax_ignore">article</kbd>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="173">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="173">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="173">•</span> De tekst staat tussen <kbd class="mathjax_ignore">\begin{document}</kbd> en <kbd class="mathjax_ignore">\end{document}</kbd>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="175">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="175">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="175">•</span> Een commando begint met een <kbd class="mathjax_ignore">\</kbd>, een argument staat tussen <kbd class="mathjax_ignore">{</kbd> en <kbd class="mathjax_ignore">}</kbd>.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="179">
+Na elke wijziging compileer je opnieuw. Overleaf kan dat automatisch.
+</p>
+
+
+<!--
+...... section De preamble ......
+-->
+<h4 id="autosec-12" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="181"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="181">III&#x2003;</span>De preamble</h4>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="183">
+Alles voor <kbd class="mathjax_ignore">\begin{document}</kbd> is de <b>preamble</b>: daar staan de instellingen. 
+</p>
+<pre class="latexcode" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="185"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="185">\documentclass</span>[12pt, a4paper]{article}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="185">\usepackage</span>{graphicx}
+
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="185">\begin</span>{document}
+...
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="185">\end</span>{document}</code></pre>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="195">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="195">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="195">•</span> Opties staan tussen <kbd class="mathjax_ignore">[</kbd> en <kbd class="mathjax_ignore">]</kbd>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="196">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="196">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="196">•</span> <kbd class="mathjax_ignore">12pt</kbd>: de lettergrootte (standaard <kbd class="mathjax_ignore">10pt</kbd>). 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="197">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="197">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="197">•</span> <kbd class="mathjax_ignore">a4paper</kbd>: het papierformaat. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="198">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="198">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="198">•</span> <kbd class="mathjax_ignore">\usepackage</kbd> laadt een pakket: <kbd class="mathjax_ignore">graphicx</kbd> voor afbeeldingen.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... section Titel, auteur en datum ......
+-->
+<h4 id="autosec-13" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="201"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="201">IV&#x2003;</span>Titel, auteur en datum</h4>
+<a id="mkpiweb-autopage-13"></a>
+
+
+
+<pre class="latexcode" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="203"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="203">\documentclass</span>[12pt, a4paper]{article}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="203">\title</span>{Mijn eerste LaTeX-document}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="203">\author</span>{Jan Peeters<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="203">\thanks</span>{Klas 6WEWI}}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="203">\date</span>{<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="203">\today</span>}
+
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="203">\begin</span>{document}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="203">\maketitle</span>
+Hier begint de tekst.
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="203">\end</span>{document}</code></pre>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="216">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="216">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="216">•</span> Titel, auteur en datum staan in de preamble. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="217">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="217">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="217">•</span> <kbd class="mathjax_ignore">\maketitle</kbd> zet ze op de pagina. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="218">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="218">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="218">•</span> <kbd class="mathjax_ignore">\thanks</kbd> maakt een voetnoot bij de auteur. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="219">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="219">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="219">•</span> <kbd class="mathjax_ignore">\today</kbd> is de datum van het compileren.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... section Commentaar ......
+-->
+<h4 id="autosec-14" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="222"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="222">V&#x2003;</span>Commentaar</h4>
+<a id="mkpiweb-autopage-14"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="224"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="224">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="224"><code>Deze zin staat in de PDF.
+<span class="tex-commentaar" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="224">% Deze regel niet: hij is commentaar.</span></code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="224">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="224">
+Deze zin staat in de PDF.
+</p>
+</div></div></div>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="230">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="230">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="230">•</span> Alles na <kbd class="mathjax_ignore">&percnt;</kbd> tot het einde van de regel is <b>commentaar</b>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="232">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="232">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="232">•</span> Een echt procentteken schrijf je als <kbd class="mathjax_ignore">\&percnt;</kbd>.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... section Vet, cursief en onderlijnd ......
+-->
+<h4 id="autosec-15" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="235"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="235">VI&#x2003;</span>Vet, cursief en onderlijnd</h4>
+<a id="mkpiweb-autopage-15"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237"><code>Dit is <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237">\textbf</span>{vet}, dit is <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237">\textit</span>{cursief}
+en dit is <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237">\underline</span>{onderlijnd}.
+
+Een <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237">\emph</span>{nieuw begrip} krijgt nadruk.</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237">
+Dit is <b>vet</b>, dit is <i>cursief</i> en dit is <span class="underline" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237">onderlijnd</span>.
+</p>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="237">
+Een <em>nieuw begrip</em> krijgt nadruk.
+</p>
+</div></div></div>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="245">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="245">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="245">•</span> <kbd class="mathjax_ignore">\emph</kbd> zegt <em>wat</em> je bedoelt, niet <em>hoe</em> het eruitziet. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="246">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="246">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="246">•</span> In cursieve tekst zet <kbd class="mathjax_ignore">\emph</kbd> het woord net recht.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... section Lijsten ......
+-->
+<h4 id="autosec-16" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="249"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="249">VII&#x2003;</span>Lijsten</h4>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="251">
+Een lijst is een <b>omgeving</b>: <kbd class="mathjax_ignore">\begin{...}</kbd> en <kbd class="mathjax_ignore">\end{...}</kbd>. Elk punt begint met <kbd class="mathjax_ignore">\item</kbd>.
+</p>
+
+
+<!--
+...... subsection Opsomming ......
+-->
+<h5 id="autosec-17" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="254"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="254">1&#x2003;</span>Opsomming</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">\begin</span>{itemize}
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">\item</span> brood
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">\item</span> kaas
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">\end</span>{itemize}</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">•</span> brood
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="256">•</span> kaas
+</p>
+</li>
+</ul>
+
+</div></div></div>
+
+
+<!--
+...... subsection Genummerde lijst ......
+-->
+<h5 id="autosec-18" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="263"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="263">2&#x2003;</span>Genummerde lijst</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">\begin</span>{enumerate}
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">\item</span> Lees de opgave.
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">\item</span> Maak een schets.
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">\end</span>{enumerate}</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">
+
+<ul class="enumerate" style="list-style-type:none">
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">1.</span> Lees de opgave.
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="265">2.</span> Maak een schets.
+</p>
+</li>
+</ul>
+
+</div></div></div>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="272">
+LaTeX nummert zelf. Voeg je een punt toe, dan schuift de rest mee.
+</p>
+
+
+<!--
+...... section Wiskunde ......
+-->
+<h4 id="autosec-19" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="274"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="274">VIII&#x2003;</span>Wiskunde</h4>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="276">
+Hier blinkt LaTeX uit. Er zijn twee standen: 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="278">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="278">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="278">•</span> <b>in de tekst</b>: de formule staat in de zin; 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="279">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="279">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="279">•</span> <b>apart</b>: de formule staat gecentreerd op een eigen regel.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Wiskunde in de tekst ......
+-->
+<h5 id="autosec-20" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="282"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="282">1&#x2003;</span>Wiskunde in de tekst</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="284"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="284">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="284"><code>Einstein vond $E=mc^2$.</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="284">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="284">
+Einstein vond \(E=mc^2\).
+</p>
+</div></div></div>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="288">
+<kbd>\(</kbd> &#x2026; <kbd class="mathjax_ignore">\)</kbd> doet hetzelfde als <kbd class="mathjax_ignore">&#x00024;</kbd> &#x2026; <kbd class="mathjax_ignore">&#x00024;</kbd>.
+</p>
+
+
+<!--
+...... subsection Een formule apart ......
+-->
+<h5 id="autosec-21" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="290"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="290">2&#x2003;</span>Een formule apart</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292"><code>Zonder nummer:
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292">\[</span> a^2+b^2=c^2 <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292">\]</span>
+Met nummer:
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292">\begin</span>{equation}
+  a^2+b^2=c^2
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292">\end</span>{equation}</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292">
+Zonder nummer:
+</p>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292">
+\[ a^2+b^2=c^2 \]
+</p>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292">
+Met nummer:
+</p>
+
+<span class="hidden" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                               a2 + b2 = c2                                                   (1)
+
+-->
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="292">
+
+\begin{equation}
+a^2+b^2=c^2
+\end{equation}
+
+</p>
+
+</div></div></div>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="301">
+Gebruik geen <kbd class="mathjax_ignore">&#x00024;&#x00024;</kbd> &#x2026; <kbd class="mathjax_ignore">&#x00024;&#x00024;</kbd>: dat is verouderd.
+</p>
+
+
+<!--
+...... subsection De bouwstenen ......
+-->
+<h5 id="autosec-22" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="303"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="303">3&#x2003;</span>De bouwstenen</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+
+<div class="center" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="306">
+
+
+<table data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="306">
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="306">wat</td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">code</td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">resultaat</td>
+</tr>
+
+<tr class="hline">
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">index</td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308"><kbd class="mathjax_ignore">a_n</kbd></td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">\(a_n\)</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">exponent</td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308"><kbd class="mathjax_ignore">x^2</kbd></td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">\(x^2\)</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">breuk</td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308"><kbd class="mathjax_ignore">\frac{a}{b}</kbd></td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">\(\frac {a}{b}\)</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">wortel</td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308"><kbd class="mathjax_ignore">\sqrt{x^2+1}</kbd></td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">\(\sqrt {x^2+1}\)</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">Griekse letter</td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308"><kbd class="mathjax_ignore">\alpha</kbd>, <kbd class="mathjax_ignore">\Omega</kbd></td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">\(\alpha \), \(\Omega \)</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">functie</td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308"><kbd class="mathjax_ignore">\sin(\beta)</kbd></td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">\(\sin (\beta )\)</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">integraal</td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308"><kbd class="mathjax_ignore">\int_0^1 x\,dx</kbd></td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308">\(\int _0^1 x\,dx\)</td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308"></td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308"></td>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="308"></td>
+</tr>
+</table>
+
+</div>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="322">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="322">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="322">•</span> Meer dan één teken in een index of exponent: zet accolades. <kbd class="mathjax_ignore">x^{10}</kbd> geeft \(x^{10}\), <kbd class="mathjax_ignore">x^10</kbd> geeft \(x^10\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="324">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="324">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="324">•</span> Schrijf <kbd class="mathjax_ignore">\sin</kbd>, niet <kbd class="mathjax_ignore">sin</kbd>: anders staat er \(sin\), schuin als drie variabelen.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Het pakket amsmath ......
+-->
+<h5 id="autosec-25" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="328"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="328">4&#x2003;</span>Het pakket amsmath</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="330">
+<kbd class="mathjax_ignore">amsmath</kbd> is het standaardpakket voor wiskunde. Je laadt het in de preamble: 
+</p>
+<pre class="latexcode" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="332"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="332">\usepackage</span>{amsmath}</code></pre>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="335">
+Het geeft onder meer <kbd class="mathjax_ignore">align*</kbd>: meerdere regels, uitgelijnd op <kbd class="mathjax_ignore">&amp;</kbd>. 
+</p>
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="337"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="337">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="337"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="337">\begin</span>{align*}
+  (a+b)^2 &amp;= (a+b)(a+b) <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="337">\\</span>
+          &amp;= a^2+2ab+b^2
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="337">\end</span>{align*}</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="337">
+
+<span class="hidden" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="337"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                            (a + b)2 = (a + b)(a + b)
+                                                                                                    = a2 + 2ab + b2
+
+
+
+-->
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="337">
+
+\begin{align*}
+(a+b)^2 &amp;= (a+b)(a+b) \\ &amp;= a^2+2ab+b^2
+\end{align*}
+
+</p>
+</div></div></div>
+
+
+<!--
+...... section De structuur van een document ......
+-->
+<h4 id="autosec-26" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="344"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="344">IX&#x2003;</span>De structuur van een document</h4>
+<a id="mkpiweb-autopage-26"></a>
+
+
+
+<!--
+...... subsection Alinea’s en nieuwe regels ......
+-->
+<h5 id="autosec-27" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="346"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="346">1&#x2003;</span>Alinea’s en nieuwe regels</h5>
+<a id="mkpiweb-autopage-27"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="348"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="348">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="348"><code>Dit is de eerste alinea.
+Deze zin hoort er nog bij.
+
+Een lege regel begint een nieuwe alinea.<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="348">\\</span>
+Twee backslashes beginnen een nieuwe regel.</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="348">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="348">
+Dit is de eerste alinea. Deze zin hoort er nog bij.
+</p>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="348">
+Een lege regel begint een nieuwe alinea.<br />
+Twee backslashes beginnen een nieuwe regel.
+</p>
+</div></div></div>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="357">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="357">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="357">•</span> Eén regeleinde in de code telt als een spatie. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="358">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="358">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="358">•</span> Een <b>lege regel</b> begint een nieuwe alinea. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="359">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="359">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="359">•</span> <kbd class="mathjax_ignore">\\</kbd> of <kbd class="mathjax_ignore">\newline</kbd>: een nieuwe regel in dezelfde alinea. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="361">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="361">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="361">•</span> Maak geen witruimte met veel <kbd class="mathjax_ignore">\\</kbd>. Het pakket <kbd class="mathjax_ignore">parskip</kbd> zet witruimte tussen de alinea’s.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Hoofdstukken en secties ......
+-->
+<h5 id="autosec-28" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="365"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="365">2&#x2003;</span>Hoofdstukken en secties</h5>
+<a id="mkpiweb-autopage-28"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367">\section</span>{Inleiding}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367">\subsection</span>{Wat we al weten}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367">\subsubsection</span>{Een detail}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367">\section*</span>{Dankwoord}</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367">
+1&#x2003;Inleiding
+</p>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367">
+1.1&#x2003;Wat we al weten
+</p>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367">
+1.1.1&#x2003;Een detail
+</p>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="367">
+Dankwoord
+</p>
+
+</div></div></div>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="375">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="375">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="375">•</span> LaTeX nummert de koppen zelf: 1, 1.1, 1.1.1, &#x2026;
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="376">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="376">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="376">•</span> Een <kbd class="mathjax_ignore">*</kbd> laat het nummer weg. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="377">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="377">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="377">•</span> <kbd class="mathjax_ignore">\chapter</kbd> bestaat enkel in de klassen <kbd class="mathjax_ignore">book</kbd> en <kbd class="mathjax_ignore">report</kbd>. <kbd class="mathjax_ignore">\part</kbd> bestaat ook in <kbd class="mathjax_ignore">article</kbd>.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Samenvatting ......
+-->
+<h5 id="autosec-29" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="381"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="381">3&#x2003;</span>Samenvatting</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="383">
+Een artikel begint vaak met een korte samenvatting: 
+</p>
+<pre class="latexcode" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="384"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="384">\begin</span>{abstract}
+  We onderzoeken hoe snel een pompoen groeit.
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="384">\end</span>{abstract}</code></pre>
+
+
+<!--
+...... section Tabellen ......
+-->
+<h4 id="autosec-30" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="390"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="390">X&#x2003;</span>Tabellen</h4>
+<a id="mkpiweb-autopage-30"></a>
+
+
+
+<!--
+...... subsection Een eenvoudige tabel ......
+-->
+<h5 id="autosec-31" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="392"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="392">1&#x2003;</span>Een eenvoudige tabel</h5>
+<a id="mkpiweb-autopage-31"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">\begin</span>{center}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">\begin</span>{tabular}{l c r}
+  links &amp; midden &amp; rechts <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">\\</span>
+  a     &amp; b      &amp; c      <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">\\</span>
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">\end</span>{tabular}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">\end</span>{center}</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">
+<div class="center" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">
+<table data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">links</td>
+<td class="tdc" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">midden</td>
+<td class="tdr" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">rechts</td>
+</tr>
+
+<tr>
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">a</td>
+<td class="tdc" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">b</td>
+<td class="tdr" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="394">c</td>
+</tr>
+
+</table>
+
+</div>
+
+</div></div></div>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="404">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="404">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="404">•</span> Per kolom een letter: <kbd class="mathjax_ignore">l</kbd> (links), <kbd class="mathjax_ignore">c</kbd> (midden), <kbd class="mathjax_ignore">r</kbd> (rechts). 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="406">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="406">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="406">•</span> <kbd class="mathjax_ignore">&amp;</kbd> scheidt de cellen, <kbd class="mathjax_ignore">\\</kbd> sluit een rij af. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="408">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="408">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="408">•</span> <kbd class="mathjax_ignore">center</kbd> zet de tabel in het midden.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Lijnen ......
+-->
+<h5 id="autosec-34" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="411"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="411">2&#x2003;</span>Lijnen</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">\begin</span>{tabular}{|c|c|}
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">\hline</span>
+  $x$ &amp; $x^2$ <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">\\</span>
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">\hline</span>
+  1 &amp; 1 <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">\\</span>
+  2 &amp; 4 <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">\\</span>
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">\hline</span>
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">\end</span>{tabular}</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">
+<table data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:          1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">\(x\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">\(x^2\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:          1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">1</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">1</td>
+</tr>
+
+<tr>
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:          1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">2</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413">4</td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdc" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413"></td>
+<td class="tdc" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="413"></td>
+</tr>
+</table>
+
+</div></div></div>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="425">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="425">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="425">•</span> <kbd class="mathjax_ignore">|</kbd> tussen de kolomletters: een verticale lijn. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="426">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="426">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="426">•</span> <kbd class="mathjax_ignore">\hline</kbd>: een horizontale lijn.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... section Figuren en verwijzingen ......
+-->
+<h4 id="autosec-36" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="429"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="429">XI&#x2003;</span>Figuren en verwijzingen</h4>
+<a id="mkpiweb-autopage-36"></a>
+
+
+
+<!--
+...... subsection Een afbeelding ......
+-->
+<h5 id="autosec-37" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="431"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="431">1&#x2003;</span>Een afbeelding</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="433">
+In de preamble: 
+</p>
+<pre class="latexcode" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="434"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="434">\usepackage</span>{graphicx}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="434">\graphicspath</span>{{afbeeldingen/}} <span class="tex-commentaar" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="434">% map met de afbeeldingen</span></code></pre>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="441">
+In de tekst: 
+</p>
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="442"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="442">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="442"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="442">\includegraphics</span>[width=0.75<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="442">\textwidth</span>]{logistisch}</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="442">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="442">
+
+<a href="logistisch.png" target="_blank" ><img
+    src="logistisch.png"
+    style="
+    width:325pt;
+    "
+    class="inlineimage"
+    alt="(image)" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="442"
+></a>
+</p>
+</div></div></div>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="447">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="447">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="447">•</span> <kbd class="mathjax_ignore">\includegraphics</kbd> zet de afbeelding <kbd class="mathjax_ignore">logistisch.png</kbd> (of <kbd class="mathjax_ignore">.jpg</kbd>, <kbd class="mathjax_ignore">.pdf</kbd>) in de tekst. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="449">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="449">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="449">•</span> Laat de extensie weg: LaTeX zoekt zelf. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="450">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="450">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="450">•</span> <kbd class="mathjax_ignore">width=0.75\textwidth</kbd>: driekwart van de breedte van de tekst.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Bijschrift, label en verwijzing ......
+-->
+<h5 id="autosec-38" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="454"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="454">2&#x2003;</span>Bijschrift, label en verwijzing</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+
+<div class="latexvoorbeeld" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456"><div class="lv-raster" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">\begin</span>{figure}[h]
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">\centering</span>
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">\includegraphics</span>[width=0.75<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">\textwidth</span>]{logistisch}
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">\caption</span>{De groei van een pompoen.}
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">\label</span>{fig:pompoen}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">\end</span>{figure}
+
+Figuur~<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">\ref</span>{fig:pompoen} toont de groei.</code></pre>
+
+<div class="latexuitvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">
+
+<figure id="autoid-1" class="figure " data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">
+<div class="center" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">
+
+<a href="logistisch.png" target="_blank" ><img
+    src="logistisch.png"
+    style="
+    width:325pt;
+    "
+    class="inlineimage"
+    alt="(image)" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456"
+></a>
+</p>
+
+
+<div class="figurecaption" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">
+Figuur&nbsp;1: De groei van een pompoen.
+
+</div>
+
+<a id="fig:pompoen"></a>
+
+</div>
+
+</figure>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="456">
+Figuur&nbsp;<a href="index.html#fig:pompoen">1</a> toont de groei.
+</p>
+</div></div></div>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="468">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="468">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="468">•</span> <kbd class="mathjax_ignore">figure</kbd> laat LaTeX een goede plaats kiezen; <kbd class="mathjax_ignore">[h]</kbd> vraagt: hier, als het kan. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="470">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="470">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="470">•</span> <kbd class="mathjax_ignore">\caption</kbd> geeft een bijschrift met een nummer. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="471">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="471">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="471">•</span> <kbd class="mathjax_ignore">\label</kbd> geeft de figuur een naam, <kbd class="mathjax_ignore">\ref</kbd> vult haar nummer in (<kbd class="mathjax_ignore">\pageref</kbd> haar pagina). 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="473">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="473">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="473">•</span> Een tabel gaat net zo, in de omgeving <kbd class="mathjax_ignore">table</kbd>.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="476">
+Verwijzingen kloppen pas na <b>twee keer compileren</b>: de eerste keer onthoudt LaTeX de nummers.
+</p>
+
+
+<!--
+...... section Inhoudstafel ......
+-->
+<h4 id="autosec-40" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="479"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="479">XII&#x2003;</span>Inhoudstafel</h4>
+<a id="mkpiweb-autopage-40"></a>
+
+
+
+<pre class="latexcode" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="481"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="481">\begin</span>{document}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="481">\tableofcontents</span>
+
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="481">\section</span>{Inleiding}
+...
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="481">\section*</span>{Bijlage}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="481">\addcontentsline</span>{toc}{section}{Bijlage}</code></pre>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="492">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="492">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="492">•</span> <kbd class="mathjax_ignore">\tableofcontents</kbd> maakt de inhoudstafel uit de koppen. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="493">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="493">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="493">•</span> Een kop met <kbd class="mathjax_ignore">*</kbd> staat er niet in, tenzij je <kbd class="mathjax_ignore">\addcontentsline</kbd> gebruikt.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... section Pakketten ......
+-->
+<h4 id="autosec-41" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="497"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="497">XIII&#x2003;</span>Pakketten</h4>
+<a id="mkpiweb-autopage-41"></a>
+
+
+
+<pre class="latexcode" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="499"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="499">\usepackage</span>{amsmath}
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="499">\usepackage</span>[a4paper, margin=2cm]{geometry}</code></pre>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="505">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="505">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="505">•</span> Een pakket laad je in de preamble, opties tussen <kbd class="mathjax_ignore">[ ]</kbd>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="506">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="506">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="506">•</span> <kbd class="mathjax_ignore">geometry</kbd> regelt de marges van de pagina. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="507">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="507">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="507">•</span> Een pakket dat niet bestaat, geeft een fout bij het compileren. 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="508">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="508">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="508">•</span> Alle pakketten en hun handleidingen: <b>CTAN</b> (<a href="https://ctan.org" target="_blank" >ctan.org</a>). 
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="510">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="510">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="510">•</span> Overleaf heeft <b>TeX Live</b>: zowat alle pakketten van CTAN.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... section Oefeningen ......
+-->
+<h4 id="autosec-42" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="513"><span class="sectionnumber" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="513">XIV&#x2003;</span>Oefeningen</h4>
+<a id="mkpiweb-autopage-42"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="517">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="517">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="517"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-43" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="517">Oefening 1</h6>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<div class="latexoefening" data-latex="cirkel" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="518">
+
+
+<div class="python-opgave" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="518">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="518">
+<b>Opgave.</b> Zet deze zin in LaTeX: <em>De oppervlakte van een cirkel is \(\pi r^2\).</em> Het woord <em>oppervlakte</em> staat vet.
+</p>
+
+</div>
+
+
+<div class="hint" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="520">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="520">
+De Griekse letter \(\pi \) schrijf je als <kbd class="mathjax_ignore">\pi</kbd>, in een formule.
+</p>
+</div>
+
+
+<div class="latexoefening-model" hidden data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="521"><pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="521"><code>De <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="521">\textbf</span>{oppervlakte} van een cirkel is $<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="521">\pi</span> r^2$.</code></pre></div>
+
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="526">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="526">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="526"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-44" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="526">Oefening 2</h6>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<div class="latexoefening" data-latex="abc-formule" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="527">
+
+
+<div class="python-opgave" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="527">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="527">
+<b>Opgave.</b> Schrijf de formule voor de wortels van een vierkantsvergelijking, apart op een eigen regel:
+</p>
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="527">
+\[ x=\frac {-b\pm \sqrt {b^2-4ac}}{2a} \]
+</p>
+
+</div>
+
+
+<div class="hint" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="530">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="530">
+Het teken \(\pm \) is <kbd class="mathjax_ignore">\pm</kbd>. Een breuk is <kbd class="mathjax_ignore">\frac{teller}{noemer}</kbd>.
+</p>
+</div>
+
+
+<div class="latexoefening-model" hidden data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="531"><pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="531"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="531">\[</span> x=<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="531">\frac</span>{-b<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="531">\pm</span><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="531">\sqrt</span>{b^2-4ac}}{2a} <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="531">\]</span></code></pre></div>
+
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="536">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="536">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="536"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-45" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="536">Oefening 3</h6>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<div class="latexoefening" data-latex="lijst" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="537">
+
+
+<div class="python-opgave" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="537">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="537">
+<b>Opgave.</b> Maak een genummerde lijst met drie stappen: <em>Lees de opgave</em>, <em>Maak een schets</em> en <em>Controleer</em>. Onder de tweede stap staat een opsomming met <em>assen</em> en <em>schaal</em>.
+</p>
+
+</div>
+
+
+<div class="hint" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="540">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="540">
+Een lijst mag in een andere lijst staan: zet de <kbd class="mathjax_ignore">itemize</kbd> na het tweede <kbd class="mathjax_ignore">\item</kbd>.
+</p>
+</div>
+
+
+<div class="latexoefening-model" hidden data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542"><pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542">\begin</span>{enumerate}
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542">\item</span> Lees de opgave.
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542">\item</span> Maak een schets.
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542">\begin</span>{itemize}
+    <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542">\item</span> assen
+    <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542">\item</span> schaal
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542">\end</span>{itemize}
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542">\item</span> Controleer.
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="542">\end</span>{enumerate}</code></pre></div>
+
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="555">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="555">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="555"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-46" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="555">Oefening 4</h6>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<div class="latexoefening" data-latex="fouten" data-soort="verbeter" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="556">
+
+
+<div class="python-opgave" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="556">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="556">
+<b>Opgave.</b> Deze code bevat drie fouten. Verbeter ze. De uitvoer en de meldingen onder de uitvoer helpen je.
+</p>
+
+</div>
+
+
+<div class="latexoefening-start" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="558">
+
+<pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="558"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="558">\section</span>{Machten}
+We weten dat $x^10 <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="558">\cdot</span> x^2 = x^12$.
+Dat is 100<span class="tex-commentaar" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="558">% zeker.</span>
+
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="558">\begin</span>{itemize}
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="558">\item</span> $a^m <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="558">\cdot</span> a^n = a^{m+n}$
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="558">\end</span>{enumerate}</code></pre>
+
+</div>
+
+
+<div class="latexoefening-model" hidden data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="567"><pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="567"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="567">\section</span>{Machten}
+We weten dat $x^{10} <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="567">\cdot</span> x^2 = x^{12}$.
+Dat is 100<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="567">\%</span> zeker.
+
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="567">\begin</span>{itemize}
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="567">\item</span> $a^m <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="567">\cdot</span> a^n = a^{m+n}$
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="567">\end</span>{itemize}</code></pre></div>
+
+<div class="oplossing" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="576">
+
+
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="576">
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="576">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="576">•</span> Een exponent met twee cijfers hoort tussen accolades: <kbd class="mathjax_ignore">x^{10}</kbd> en <kbd class="mathjax_ignore">x^{12}</kbd>.
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="576">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="576">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="576">•</span> <kbd class="mathjax_ignore">&percnt;</kbd> begint commentaar, dus <em>zeker.</em> viel weg: schrijf <kbd class="mathjax_ignore">100\&percnt;</kbd>.
+</p>
+
+</li>
+<li data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="576">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="576">
+<span class="listmarker" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="576">•</span> <kbd class="mathjax_ignore">\begin{itemize}</kbd> sluit met <kbd class="mathjax_ignore">\end{itemize}</kbd>, niet met <kbd class="mathjax_ignore">\end{enumerate}</kbd>.
+</p>
+</li>
+</ul>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="587">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="587">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="587"></span>
+</p>
+<!--
+...... subsubsection Oefening 5 ......
+-->
+<h6 id="autosec-47" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="587">Oefening 5</h6>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<div class="latexoefening" data-latex="tabel" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="588">
+
+
+<div class="python-opgave" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="588">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="588">
+<b>Opgave.</b> Maak deze tabel na, met dezelfde lijnen.
+</p>
+
+</div>
+
+
+<div class="center" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="590">
+
+
+<table data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="590">
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdl tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:         1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="590">vak</td>
+<td class="tdr tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="592">punten</td>
+</tr>
+
+<tr class="hline">
+<td class="tdl tvertbarl tvertbarr" style="border-top: 4px double; border-left: 1px solid black; border-right:           1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="592">wiskunde</td>
+<td class="tdr tvertbarr" style="border-top: 4px double; border-right: 1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="592">18</td>
+</tr>
+
+<tr>
+<td class="tdl tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:         1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="592">fysica</td>
+<td class="tdr tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="592">15</td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdl" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="592"></td>
+<td class="tdr" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="592"></td>
+</tr>
+</table>
+
+</div>
+
+
+<div class="hint" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="599">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="599">
+Twee lijnen vlak onder elkaar: <kbd class="mathjax_ignore">\hline</kbd><kbd class="mathjax_ignore">\hline</kbd>.
+</p>
+</div>
+
+
+<div class="latexoefening-model" hidden data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600"><pre class="latexinvoer" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600"><code><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600">\begin</span>{tabular}{|l|r|}
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600">\hline</span>
+  vak &amp; punten <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600">\\</span>
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600">\hline</span><span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600">\hline</span>
+  wiskunde &amp; 18 <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600">\\</span>
+  fysica &amp; 15 <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600">\\</span>
+  <span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600">\hline</span>
+<span class="tex-commando" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="600">\end</span>{tabular}</code></pre></div>
+
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="612">
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="612">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="612"></span>
+</p>
+<!--
+...... subsubsection Oefening 6 ......
+-->
+<h6 id="autosec-50" data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="612">Oefening 6</h6>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p data-mkpi-bestand="LaTeX.tex" data-mkpi-regel="613">
+Maak in Overleaf een document met een titel, je naam, een inhoudstafel en twee secties. Zet in de eerste sectie een genummerde formule met een label, en verwijs
+ernaar in de tweede sectie.
+</p>
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="presentatie.js?v=afc4ae5685fa"></script>
+<script src="statistieken.js?v=afc4ae5685fa"></script>
+<script src="latexvoorbeeld.js?v=afc4ae5685fa"></script>
+</body>
+</html>

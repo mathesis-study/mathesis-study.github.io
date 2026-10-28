@@ -1,0 +1,29 @@
+{
+ "titel": "LaTeX in 30 minuten",
+ "hoofdstuk": null,
+ "code": null,
+ "vak": "Keuze",
+ "domein": "KeuzevakWiskunde5",
+ "domeinnaam": "Vijfde: Keuzevak wiskunde",
+ "url": "keuzevak-wiskunde/latex",
+ "secties": [
+  "Wat is LaTeX?",
+  "Een eerste document",
+  "De preamble",
+  "Titel, auteur en datum",
+  "Commentaar",
+  "Vet, cursief en onderlijnd",
+  "Lijsten",
+  "Wiskunde",
+  "De structuur van een document",
+  "Tabellen",
+  "Figuren en verwijzingen",
+  "Inhoudstafel",
+  "Pakketten",
+  "Oefeningen"
+ ],
+ "leerplandoelen": [],
+ "interactief": false,
+ "python": false,
+ "oefeningen": true
+}
