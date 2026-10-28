@@ -1,0 +1,1185 @@
+:root,
+:root[data-thema="licht"] {
+  --kleur-tekst: #1c2530;
+  --kleur-zwak: #64748b;
+  --kleur-lijn: #dde3ea;
+  --kleur-vlak: #ffffff;
+  --kleur-vlak-zweef: rgba(255, 255, 255, .88);
+  --kleur-achtergrond: #eef1f5;
+  --kleur-accent: #1d5fa8;
+  --kleur-accent-zacht: #e8f0fa;
+  --kleur-truc: #0000ff; /* \truc, zoals blue in de PDF. */
+  --kleur-optioneel: #46505e; /* [optioneel]: lichter dan de tekst, donkerder dan een aside. */
+  --kleur-optioneel-kop: #5582bb;
+  --kleur-actieve-regel: rgba(232, 240, 250, .68);
+  --kleur-selectie: #9fc3ea;
+  --kleur-zelfcontrole: #4d8fcb;
+  --kleur-op-accent: #ffffff;
+  --kleur-qr-achtergrond: #ffffff; /* QR-codes blijven zwart op wit, ook in nachtstand. */
+  --kleur-goed: #27823b;
+  --kleur-fout: #c43535;
+  --kleur-traceback: #7f1d1d;
+  --kleur-oplossing: #fafcfa;
+  --kleur-oplossing-rand: #d6e4d6;
+  --kleur-oplossing-streep: #f7faf7;
+  --kleur-oplossing-tekst: #3d6b3d;
+  --kleur-figuur: rgba(255, 255, 255, .4);
+  --kleur-figuur-rand: #e9edf2;
+  --kleur-sluier: rgba(20, 28, 38, .45);
+  --schaduw: rgba(0, 0, 0, .18);
+  --figuur-filter: none;
+  --figuur-mengmodus: multiply;
+  --grm-donker: #2e3238;
+  --grm-donker-rand: #2e3238;
+  --grm-donker-tekst: #ffffff;
+  --grm-licht: #ecedef;
+  --grm-licht-rand: #9aa0a6;
+  --grm-licht-tekst: #1b1d20;
+  --grm-bovenrij: #d3d6da;
+  --grm-tweede: #3c9ad6;
+  --grm-tweede-label: #1c78b8;
+  --grm-alfa: #57ae45;
+  --grm-alfa-label: #3a8a2c;
+  --grm-scherm: #ffffff;
+  --grm-scherm-rand: #3a3f45;
+  --grm-scherm-tekst: #1b1d20;
+  --grm-scherm-lijn: #8a9097;
+  --grm-status: #e4e6e9;
+  --grm-status-tekst: #5a6068;
+  --grm-selectie: #2b2f35;
+  --grm-selectie-tekst: #ffffff;
+  --balk: 3.25rem;
+  --zijbalk: 20rem;
+  --straal: 10px;
+}
+
+/* Nachtstand. De accentkleur gaat lichter dan overdag, want ze staat nu op
+ * een donker vlak; het groen van de oplossingen blijft herkenbaar maar
+ * gedempt, zodat een open oplossing niet oplicht in een donkere klas.
+ *
+ * Enkel voor het scherm: wie de slides afdrukt, wil geen zwarte bladen, dus
+ * valt de printbeurt vanzelf op de lijst hierboven terug. */
+@media screen {
+  :root[data-thema="donker"] {
+    --kleur-tekst: #dde5ee;
+    --kleur-zwak: #93a3b6;
+    --kleur-lijn: #2b3745;
+    --kleur-vlak: #182029;
+    --kleur-vlak-zweef: rgba(24, 32, 41, .9);
+    --kleur-achtergrond: #0e141a;
+    --kleur-accent: #7ab4f0;
+    --kleur-accent-zacht: #1d2c3c;
+    --kleur-truc: #7ab4f0;
+    --kleur-optioneel: #b3bfcc;
+    --kleur-optioneel-kop: #5f93c9;
+    --kleur-actieve-regel: rgba(29, 44, 60, .68);
+    --kleur-selectie: #365b80;
+    --kleur-zelfcontrole: #91c5f5;
+    --kleur-op-accent: #0e141a;
+    --kleur-goed: #70c982;
+    --kleur-fout: #f08080;
+    --kleur-traceback: #cc6666;
+    --kleur-oplossing: #1a2822;
+    --kleur-oplossing-rand: #30483a;
+    --kleur-oplossing-streep: #1d2c23;
+    --kleur-oplossing-tekst: #9ccba6;
+    --kleur-figuur: rgba(255, 255, 255, .02);
+    --kleur-figuur-rand: #26313d;
+    --kleur-sluier: rgba(4, 8, 12, .6);
+    --schaduw: rgba(0, 0, 0, .55);
+    --figuur-filter: invert(1) hue-rotate(180deg);
+    --figuur-mengmodus: screen;
+    /* De toetsen houden hun kleur; enkel de donkere krijgen een rand, anders
+     * verdwijnen ze in het vlak. Het scherm van het toestel is gedempt wit. */
+    --grm-donker-rand: #5b636d;
+    --grm-licht: #d9dcdf;
+    --grm-bovenrij: #c3c7cc;
+    --grm-tweede-label: #6db8ea;
+    --grm-alfa-label: #86cf73;
+    --grm-scherm: #dfe3e7;
+    --grm-scherm-rand: #56606b;
+    --grm-status: #c9ced3;
+    --grm-status-tekst: #4a5058;
+  }
+}
+
+/* De browser mag zijn eigen onderdelen mee omkleuren: schuifbalken, het
+ * kruisje in het zoekveld, de rand rond een focus. */
+:root[data-thema="licht"] { color-scheme: light; }
+:root[data-thema="donker"] { color-scheme: dark; }
+/* --- Rekentoestel (grm.sty) --------------------------------------------- */
+
+/* Toetsen, menu's en schermen van de TI-84. De soort van een toets
+ * (grm-donker, grm-licht, ...) komt uit de toetsentabel van grm.sty. */
+kbd.grm-toets {
+  display: inline-block;
+  min-width: 2.1em;
+  margin: 0 .08em;
+  padding: .08em .4em;
+  border: 1px solid;
+  border-radius: .3em;
+  box-shadow: 0 1px 0 var(--schaduw);
+  font-family: inherit;
+  font-size: .8em;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.grm-donker,
+.grm-pijl {
+  background: var(--grm-donker);
+  border-color: var(--grm-donker-rand);
+  color: var(--grm-donker-tekst);
+}
+
+.grm-licht {
+  background: var(--grm-licht);
+  border-color: var(--grm-licht-rand);
+  color: var(--grm-licht-tekst);
+}
+
+.grm-bovenrij {
+  background: var(--grm-bovenrij);
+  border-color: var(--grm-licht-rand);
+  color: var(--grm-licht-tekst);
+}
+
+kbd.grm-bovenrij {
+  border-radius: .15em;
+}
+
+kbd.grm-pijl {
+  min-width: 1.7em;
+  border-radius: .5em;
+}
+
+.grm-tweede {
+  background: var(--grm-tweede);
+  border-color: var(--grm-tweede);
+  color: #ffffff;
+}
+
+.grm-alfa {
+  background: var(--grm-alfa);
+  border-color: var(--grm-alfa);
+  color: #ffffff;
+}
+
+/* 2nd of alpha en de toets erna blijven samen op een regel. */
+.grm-combinatie {
+  white-space: nowrap;
+}
+
+/* Het label boven de toets, zoals het op het toestel gedrukt staat. Het staat
+ * in de ruimte die de bovenmarge van de houder vrijmaakt: de toets blijft zo
+ * op de basislijn van de tekst, en het label schuift niet over de regel
+ * erboven. */
+.grm-gelaagd {
+  position: relative;
+  display: inline-block;
+  padding-top: .75em;
+}
+
+.grm-boven {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: .62em;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.grm-boven-2nd {
+  color: var(--grm-tweede-label);
+}
+
+.grm-boven-alpha {
+  color: var(--grm-alfa-label);
+}
+
+.grm-schermtekst {
+  display: inline-block;
+  padding: 0 .3em;
+  border: 1px solid var(--grm-scherm-rand);
+  border-radius: 2px;
+  background: var(--grm-scherm);
+  color: var(--grm-scherm-tekst);
+  font-size: .85em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.grm-tab {
+  padding: 0 .2em;
+}
+
+/* Begint een stukje scherm in de tekst met een markering, dan loopt die tot
+ * tegen de rand, zoals op het toestel. */
+.grm-schermtekst > .grm-tab:first-child {
+  margin-left: -.3em;
+  padding-left: .3em;
+}
+
+.grm-tab.grm-actief {
+  background: var(--grm-selectie);
+  color: var(--grm-selectie-tekst);
+}
+
+.grm-scherm {
+  width: 19em;
+  max-width: 100%;
+  margin: 1em auto;
+  border: 5px solid var(--grm-scherm-rand);
+  border-radius: 6px;
+  background: var(--grm-scherm);
+  color: var(--grm-scherm-tekst);
+  font-size: .9em;
+  line-height: 1.45;
+}
+
+.grm-status {
+  padding: .15em .4em;
+  background: var(--grm-status);
+  color: var(--grm-status-tekst);
+  font-size: .62em;
+  letter-spacing: .02em;
+}
+
+.grm-inhoud {
+  padding: .25em .4em;
+}
+
+.grm-rechts {
+  text-align: right;
+}
+
+.grm-tabs {
+  display: flex;
+  gap: .4em;
+}
+
+.grm-lijstregel {
+  margin-top: .15em;
+  border-top: 1px solid var(--grm-scherm-lijn);
+}
+
+/* De lijsteditor: de spleet tussen de cellen laat de achtergrond zien en
+ * tekent zo de lijnen tussen de kolommen. */
+.grm-lijsten {
+  display: grid;
+  column-gap: 1px;
+  background: var(--grm-scherm-lijn);
+}
+
+.grm-k1 { grid-template-columns: 1fr; }
+.grm-k2 { grid-template-columns: repeat(2, 1fr); }
+.grm-k3 { grid-template-columns: repeat(3, 1fr); }
+.grm-k4 { grid-template-columns: repeat(4, 1fr); }
+.grm-k5 { grid-template-columns: repeat(5, 1fr); }
+.grm-k6 { grid-template-columns: repeat(6, 1fr); }
+
+.grm-cel {
+  min-height: 1.45em;
+  background: var(--grm-scherm);
+  text-align: center;
+}
+
+.grm-kop {
+  box-shadow: inset 0 -1px var(--grm-scherm-lijn);
+}
+
+/* De leerlingensite (leerlingen/app.js). scripts/leerlingensite.py zet de
+ * kleurnamen van presentatie.css hiervoor, omdat lwarp.css en de
+ * interactieve grafieken ze gebruiken; hieronder krijgen ze de eigen
+ * kleuren van deze site, en komen de kleuren van de status erbij.
+ *
+ * Eerst voor een gsm, daarna breder. */
+
+:root,
+:root[data-thema="licht"] {
+  --kleur-tekst: #1f2a2e;
+  --kleur-zwak: #66737a;
+  --kleur-lijn: #e3ddd2;
+  --kleur-vlak: #fffdf8;
+  --kleur-achtergrond: #f3efe6;
+  --kleur-accent: #0e7c74;
+  --kleur-accent-zacht: #dff1ee;
+  --kleur-op-accent: #ffffff;
+  --kleur-oplossing: #f6f9f4;
+  --kleur-oplossing-rand: #cfe0cb;
+  --kleur-oplossing-tekst: #2f6b3a;
+  --kleur-figuur-rand: #ebe5da;
+  --grafiek-punt: #0e7c74;
+  --s-niet: #b9b2a5;
+  --s-gezien: #3f7fd0;
+  --s-fout: #d9534a;
+  --s-juist: #2e9b55;
+  --s-niet-zacht: #ece7dd;
+  --s-gezien-zacht: #e2ecf9;
+  --s-fout-zacht: #fbe5e3;
+  --s-juist-zacht: #e0f3e6;
+  --kop: rgba(243, 239, 230, .9);
+  --straal: 14px;
+  --schaduw-kaart: 0 1px 2px rgba(60, 45, 20, .06), 0 4px 16px rgba(60, 45, 20, .06);
+  --letter-kop: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", "URW Palladio L", Georgia, serif;
+}
+
+@media screen {
+  :root[data-thema="donker"] {
+    --kleur-tekst: #e4e8e6;
+    --kleur-zwak: #98a5a3;
+    --kleur-lijn: #2a3533;
+    --kleur-vlak: #171e1d;
+    --kleur-achtergrond: #0f1413;
+    --kleur-accent: #5fd0c2;
+    --kleur-accent-zacht: #183632;
+    --kleur-op-accent: #0f1413;
+    --kleur-oplossing: #172420;
+    --kleur-oplossing-rand: #2c4639;
+    --kleur-oplossing-tekst: #9fd2aa;
+    --kleur-figuur-rand: #26302e;
+    --grafiek-punt: #5fd0c2;
+    --s-niet: #59625f;
+    --s-gezien: #6fa8ef;
+    --s-fout: #f07a70;
+    --s-juist: #5cc883;
+    --s-niet-zacht: #222b29;
+    --s-gezien-zacht: #1c2a3c;
+    --s-fout-zacht: #3a2120;
+    --s-juist-zacht: #183223;
+    --kop: rgba(15, 20, 19, .88);
+    --schaduw-kaart: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+  }
+}
+
+html {
+  font-size: 17px;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* lwarp.css zet body op de hoogte van het scherm, zonder schuiven. */
+html body {
+  overflow-y: visible;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  background: var(--kleur-achtergrond);
+  color: var(--kleur-tekst);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+a:link, a:visited { color: var(--kleur-accent); }
+
+h1, h2 {
+  text-align: left;
+  font-family: var(--letter-kop);
+  font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+/* --- Kopbalk ------------------------------------------------------------- */
+
+.gt-kop {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .5rem max(1rem, calc((100% - 58rem) / 2));
+  background: var(--kop);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--kleur-lijn);
+}
+
+.gt-merk {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-right: auto;
+  text-decoration: none;
+  min-width: 0;
+}
+
+.gt-merk:link, .gt-merk:visited { color: var(--kleur-tekst); }
+
+.gt-merkteken {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 50%;
+  background: var(--kleur-accent);
+  color: var(--kleur-op-accent);
+}
+
+.gt-merkteken svg { width: 1.6rem; height: 1.6rem; }
+
+.gt-merknaam {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.gt-merknaam b {
+  font-family: var(--letter-kop);
+  font-size: 1.05rem;
+}
+
+.gt-merknaam span {
+  color: var(--kleur-zwak);
+  font-size: .75rem;
+  white-space: nowrap;
+}
+
+.gt-spring input {
+  width: 8.5rem;
+  height: 2.3rem;
+  box-sizing: border-box;
+  padding: 0 .9rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: 999px;
+  background: var(--kleur-vlak);
+  color: var(--kleur-tekst);
+  font: inherit;
+  font-size: .9rem;
+}
+
+.gt-spring input:focus {
+  outline: 2px solid var(--kleur-accent);
+  outline-offset: 1px;
+}
+
+.gt-schud { animation: gt-schud .3s; }
+
+@keyframes gt-schud {
+  25% { translate: -5px 0; }
+  75% { translate: 5px 0; }
+}
+
+/* --- Knoppen ---------------------------------------------------------------- */
+
+.gt-knop {
+  font: inherit;
+  color: inherit;
+  background: var(--kleur-vlak);
+  border: 1px solid var(--kleur-lijn);
+  cursor: pointer;
+}
+
+.gt-knop:hover:not(:disabled) { border-color: var(--kleur-accent); color: var(--kleur-accent); }
+
+.gt-knop:focus-visible { outline: 2px solid var(--kleur-accent); outline-offset: 2px; }
+
+.gt-knop:disabled { opacity: .35; cursor: default; }
+
+.gt-rond {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.3rem;
+  height: 2.3rem;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.gt-rond svg { width: 1.15rem; height: 1.15rem; }
+
+/* --- Inhoud ------------------------------------------------------------------ */
+
+.gt-inhoud {
+  max-width: 58rem;
+  margin: 0 auto;
+  padding: 1.2rem 1rem 3rem;
+}
+
+.gt-oefeningweergave { max-width: 56rem; }
+
+.gt-held, .gt-reekskop {
+  padding: 1.4rem 1.4rem 1.2rem;
+  margin-bottom: 1.2rem;
+  border-radius: calc(var(--straal) + 4px);
+  background: var(--kleur-vlak);
+  border: 1px solid var(--kleur-lijn);
+  box-shadow: var(--schaduw-kaart);
+}
+
+.gt-held h1, .gt-reekskop h1 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+.gt-held-onder { margin: .2rem 0 1rem; color: var(--kleur-zwak); }
+
+.gt-reekskop h1 { margin: .3rem 0 1rem; }
+
+.gt-reekskop .gt-reekslabel { display: block; margin-bottom: .1rem; }
+
+.gt-terug {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .85rem;
+  text-decoration: none;
+}
+
+.gt-terug::before { content: "‹"; font-size: 1.2em; line-height: 1; }
+
+.gt-terug:link, .gt-terug:visited { color: var(--kleur-zwak); }
+
+.gt-terug:hover { color: var(--kleur-accent); }
+
+/* Voortgang: juist, fout, gezien naast elkaar, de rest is de achtergrond. */
+.gt-balk {
+  display: flex;
+  height: .45rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--s-niet-zacht);
+}
+
+.gt-balk-groot { height: .75rem; }
+
+.gt-balk > span { display: block; height: 100%; }
+
+.gt-balk-juist { background: var(--s-juist); }
+
+.gt-balk-fout { background: var(--s-fout); }
+
+.gt-balk-gezien { background: var(--s-gezien); }
+
+.gt-cijfers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .3rem 1rem;
+  margin: .6rem 0 0;
+  font-size: .9rem;
+  color: var(--kleur-zwak);
+}
+
+.gt-cijfer b { color: var(--kleur-tekst); }
+
+.gt-cijfer-juist b { color: var(--s-juist); }
+
+.gt-cijfer-fout b { color: var(--s-fout); }
+
+.gt-cijfer-gezien b { color: var(--s-gezien); }
+
+.gt-verder {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  width: fit-content;
+  margin-top: 1rem;
+  padding: .5rem .7rem .5rem 1rem;
+  border-radius: 999px;
+  background: var(--kleur-accent);
+  text-decoration: none;
+  font-size: .95rem;
+}
+
+.gt-verder:link, .gt-verder:visited { color: var(--kleur-op-accent); }
+
+.gt-verder span { opacity: .85; }
+
+.gt-verder svg { width: 1rem; height: 1rem; }
+
+/* --- Reeksen ---------------------------------------------------------------- */
+
+.gt-reeksen {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+  gap: .8rem;
+}
+
+.gt-reekskaart {
+  display: flex;
+  gap: .9rem;
+  align-items: flex-start;
+  padding: 1rem;
+  border-radius: var(--straal);
+  background: var(--kleur-vlak);
+  border: 1px solid var(--kleur-lijn);
+  box-shadow: var(--schaduw-kaart);
+  text-decoration: none;
+  transition: border-color .15s, translate .15s;
+}
+
+.gt-reekskaart:link, .gt-reekskaart:visited { color: var(--kleur-tekst); }
+
+.gt-reekskaart:hover { border-color: var(--kleur-accent); translate: 0 -2px; }
+
+.gt-reeksnr {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 12px;
+  background: var(--kleur-accent-zacht);
+  color: var(--kleur-accent);
+  font-family: var(--letter-kop);
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+
+.gt-reekstekst {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.gt-reekslabel {
+  color: var(--kleur-accent);
+  font-family: system-ui, sans-serif;
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.gt-reekstitel {
+  font-family: var(--letter-kop);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.gt-reeksinfo { color: var(--kleur-zwak); font-size: .82rem; }
+
+/* --- Tegels van een reeks ------------------------------------------------------ */
+
+.gt-tegels {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7.5rem, 1fr));
+  gap: .6rem;
+}
+
+.gt-tegel {
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  padding: .7rem .75rem .8rem;
+  border-radius: var(--straal);
+  background: var(--kleur-vlak);
+  border: 1px solid var(--kleur-lijn);
+  text-decoration: none;
+  transition: border-color .15s;
+}
+
+.gt-tegel:link, .gt-tegel:visited { color: var(--kleur-tekst); }
+
+.gt-tegel:hover { border-color: var(--kleur-accent); }
+
+.gt-tegel-af { background: var(--s-juist-zacht); border-color: var(--s-juist); }
+
+.gt-tegelnr {
+  font-family: var(--letter-kop);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.gt-stippen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.gt-stip {
+  display: inline-grid;
+  place-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--s-niet);
+}
+
+.gt-stip svg { width: .85rem; height: .85rem; }
+
+.gt-stip-klein {
+  width: 1.05rem;
+  height: 1.05rem;
+  font-size: .62rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.gt-stip-geheel { width: 2.4rem; border-radius: 999px; }
+
+.gt-stip.gt-s-niet { background: var(--s-niet-zacht); color: var(--kleur-zwak); box-shadow: inset 0 0 0 1px var(--s-niet); }
+
+.gt-stip.gt-s-gezien { background: var(--s-gezien); }
+
+.gt-stip.gt-s-fout { background: var(--s-fout); }
+
+.gt-stip.gt-s-juist { background: var(--s-juist); }
+
+:root[data-thema="donker"] .gt-stip:not(.gt-s-niet) { color: #0f1413; }
+
+.gt-legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1.2rem;
+  margin: 1.4rem 0 0;
+  color: var(--kleur-zwak);
+  font-size: .85rem;
+}
+
+.gt-legende-item { display: inline-flex; align-items: center; gap: .4rem; }
+
+.gt-voet {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--kleur-lijn);
+  color: var(--kleur-zwak);
+  font-size: .85rem;
+}
+
+.gt-voet p { margin: 0 0 .6rem; }
+
+.gt-wis {
+  padding: .35rem .9rem;
+  border-radius: 999px;
+  font-size: .85rem;
+}
+
+.gt-wis.gt-zeker { border-color: var(--s-fout); color: var(--s-fout); }
+
+/* --- Oefening ---------------------------------------------------------------- */
+
+.gt-oefnav { margin-bottom: .8rem; }
+
+.gt-oefrij {
+  display: flex;
+  align-items: center;
+  gap: .7rem;
+  margin: .4rem 0 .5rem;
+}
+
+.gt-oeftitel {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+  font-size: 1.7rem;
+  line-height: 1.2;
+}
+
+.gt-oefwoord { font-weight: 400; }
+
+.gt-oefvan {
+  margin-left: .5rem;
+  color: var(--kleur-zwak);
+  font-family: system-ui, sans-serif;
+  font-size: .9rem;
+  font-weight: 400;
+}
+
+.gt-oefoverzicht {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem .8rem;
+}
+
+.gt-oefstand { color: var(--kleur-zwak); font-size: .85rem; }
+
+.gt-kaart {
+  padding: .4rem 1.4rem 1.1rem;
+  border-radius: calc(var(--straal) + 4px);
+  background: var(--kleur-vlak);
+  border: 1px solid var(--kleur-lijn);
+  box-shadow: var(--schaduw-kaart);
+  overflow-wrap: anywhere;
+}
+
+.gt-kaart p { margin: .6rem 0; }
+
+.gt-laden { color: var(--kleur-zwak); }
+
+.gt-kaart ul.enumerate {
+  padding-left: 0;
+  margin: .5rem 0;
+}
+
+.gt-kaart ul.enumerate > li { margin: .2rem 0; }
+
+/* Een deelvraag: een dun lijntje tussen twee, zodat haar knoppen bij haar horen. */
+.gt-kaart li[data-deel] {
+  padding: .1rem 0 .5rem;
+  border-bottom: 1px dashed var(--kleur-lijn);
+}
+
+.gt-kaart li[data-deel]:last-child { border-bottom: 0; }
+
+.gt-kaart .listmarker {
+  display: inline-block;
+  min-width: 1.8rem;
+  color: var(--kleur-accent);
+  font-weight: 700;
+}
+
+.gt-kaart .center { text-align: center; }
+
+/* Deelvragen altijd in één kolom, ook waar de PDF er twee heeft: in kolommen
+ * verspringen de deelvragen als een oplossing open of dicht gaat. */
+.gt-kaart .multicols { columns: 1; }
+
+.gt-kaart figure.interactieve-grafiek { overflow: hidden; max-width: 100%; }
+
+.gt-kaart img.lateximage {
+  max-width: 100%;
+  height: auto;
+  filter: var(--figuur-filter);
+}
+
+.gt-kaart iframe {
+  max-width: 100%;
+  filter: var(--figuur-filter);
+  mix-blend-mode: var(--figuur-mengmodus);
+}
+
+.gt-kaart mjx-container[display="true"] {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+.aside { color: var(--kleur-zwak); }
+
+.hint { color: var(--kleur-zwak); font-style: italic; }
+
+/* De balk onder een vraag: Antwoord en Uitwerking links, de status rechts;
+ * het antwoord en de uitwerking komen eronder. */
+.gt-oplbalk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .4rem .6rem;
+  margin: .2rem 0 .3rem;
+}
+
+.gt-oplknoppen { display: flex; gap: .3rem; }
+
+.gt-pil {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  height: 1.8rem;
+  padding: 0 .65rem;
+  border-radius: 999px;
+  border-style: dashed;
+  border-color: var(--kleur-oplossing-rand);
+  background: var(--kleur-oplossing);
+  color: var(--kleur-oplossing-tekst);
+  font-size: .8rem;
+}
+
+.gt-pil svg { width: .9rem; height: .9rem; }
+
+.gt-pil[aria-pressed="true"] {
+  border-style: solid;
+  border-color: var(--kleur-oplossing-tekst);
+}
+
+.gt-antwoord {
+  display: none;
+  box-sizing: border-box;
+  width: fit-content;
+  margin: 0 0 .4rem;
+  max-width: 100%;
+  padding: .15rem .7rem;
+  border-radius: 10px;
+  border: 1px solid var(--kleur-oplossing-rand);
+  background: var(--kleur-oplossing);
+  color: var(--kleur-oplossing-tekst);
+  /* Enkel zijdelings schuiven als een antwoord echt te breed is; een hoge
+   * breuk mag geen verticale schuifbalk geven. */
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.gt-antwoord.gt-open { display: flex; align-items: center; }
+
+.oplossing {
+  background: var(--kleur-oplossing);
+  border: 1px solid var(--kleur-oplossing-rand);
+  border-left-width: 4px;
+  border-radius: var(--straal);
+  padding: .2rem 1rem;
+  margin: .3rem 0 .6rem;
+}
+
+.oplossing.gt-dicht { display: none; }
+
+.oplossing > p:first-child:empty { display: none; }
+
+/* De status: vier ronde knoppen, de gekozen gevuld in haar kleur. */
+.gt-status {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: auto;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--s-niet-zacht);
+}
+
+.gt-status .gt-knop {
+  display: inline-grid;
+  grid-auto-flow: column;
+  place-items: center;
+  gap: .3rem;
+  min-width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--kleur-zwak);
+}
+
+.gt-status .gt-knop svg { width: 1rem; height: 1rem; }
+
+.gt-status .gt-knop:hover { color: var(--kleur-tekst); }
+
+.gt-status .gt-knop[aria-checked="true"] { color: #fff; }
+
+.gt-status .gt-s-niet[aria-checked="true"] {
+  background: transparent;
+  color: var(--kleur-zwak);
+  box-shadow: inset 0 0 0 1.5px var(--s-niet);
+}
+
+.gt-status .gt-s-gezien[aria-checked="true"] { background: var(--s-gezien); }
+
+.gt-status .gt-s-fout[aria-checked="true"] { background: var(--s-fout); }
+
+.gt-status .gt-s-juist[aria-checked="true"] { background: var(--s-juist); }
+
+:root[data-thema="donker"] .gt-status .gt-knop[aria-checked="true"]:not(.gt-s-niet) { color: #0f1413; }
+
+.gt-status[data-status="juist"] { background: var(--s-juist-zacht); }
+
+.gt-status[data-status="fout"] { background: var(--s-fout-zacht); }
+
+.gt-status[data-status="gezien"] { background: var(--s-gezien-zacht); }
+
+.gt-status-tekst .gt-knop { padding: 0 .7rem 0 .5rem; font-size: .82rem; }
+
+.gt-oefvoet {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .6rem;
+  margin-top: 1rem;
+  padding-top: .8rem;
+  border-top: 1px dashed var(--kleur-lijn);
+}
+
+.gt-oefvraag { font-weight: 600; }
+
+/* --- Rekenmachine (grmdemo) ----------------------------------------------------- */
+
+/* De knoppen van de demo; de toetsen en schermen komen uit vbtl.css. */
+.grm-demo-balk .pres-knop {
+  font: inherit;
+  font-size: .78rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  padding: .35rem .5rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: var(--straal);
+  background: var(--kleur-vlak);
+  color: var(--kleur-tekst);
+  cursor: pointer;
+}
+
+.grm-demo-balk .pres-knop:hover:not(:disabled) {
+  background: var(--kleur-accent-zacht);
+  border-color: var(--kleur-accent);
+  color: var(--kleur-accent);
+  opacity: 1;
+}
+
+.grm-demo-balk .pres-knop:disabled { cursor: default; opacity: .16; }
+
+.grm-demo-balk .pres-knop svg { width: 1.05em; height: 1.05em; }
+
+/* De rekenmachine kiest zelf haar dag- of nachtstand: niet omkeren zoals een
+ * figuur (.gt-kaart iframe). */
+.gt-kaart .grm-demo iframe {
+  filter: none;
+  mix-blend-mode: normal;
+}
+
+.grm-demo-balk .pres-knop span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* --- Smal scherm ----------------------------------------------------------------- */
+
+/* --- Mathesis en het slot ------------------------------------------------------ */
+
+/* Op mathesis.study: de link naar de hoofdpagina voor het eigen merk, zoals
+ * in de kop van een cursus. Op een telefoon enkel het icoon. */
+.gt-mathesis-groep {
+  display: flex;
+  align-items: center;
+  gap: .2rem;
+  flex: none;
+}
+
+.gt-mathesis {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .3rem .35rem;
+  border-radius: var(--straal);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.gt-mathesis:link, .gt-mathesis:visited { color: var(--kleur-accent); }
+
+.gt-mathesis:hover { background: var(--kleur-accent-zacht); }
+
+/* Zonder rand, schaduw en marge die lwarp.css aan elke img geeft. */
+.gt-mathesis img {
+  width: 1.4rem;
+  height: 1.4rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.gt-kruimel { color: var(--kleur-zwak); }
+
+/* Het slot: één kaart met de vraag naar de toegangscode. */
+.gt-slotweergave { display: grid; place-items: start center; }
+
+.gt-slot {
+  width: 100%;
+  max-width: 28rem;
+  margin-top: 2rem;
+  box-sizing: border-box;
+}
+
+.gt-slot p { margin: 0 0 .9rem; }
+
+.gt-slotteken {
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  margin-bottom: .8rem;
+  border-radius: 50%;
+  background: var(--kleur-accent-zacht);
+  color: var(--kleur-accent);
+}
+
+.gt-slotteken svg { width: 1.3rem; height: 1.3rem; }
+
+.gt-slotrij { display: flex; gap: .5rem; }
+
+.gt-slotrij input {
+  flex: 1;
+  min-width: 0;
+  height: 2.6rem;
+  box-sizing: border-box;
+  padding: 0 1rem;
+  border: 1px solid var(--kleur-lijn);
+  border-radius: 999px;
+  background: var(--kleur-achtergrond);
+  color: var(--kleur-tekst);
+  font: inherit;
+}
+
+.gt-slotrij input:focus { outline: 2px solid var(--kleur-accent); outline-offset: 1px; }
+
+.gt-slotknop {
+  flex: none;
+  height: 2.6rem;
+  padding: 0 1.2rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--kleur-accent);
+  color: var(--kleur-op-accent);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gt-slotknop:disabled { opacity: .6; cursor: default; }
+
+.gt-slotknop:focus-visible { outline: 2px solid var(--kleur-accent); outline-offset: 2px; }
+
+.gt-slotmelding { min-height: 1.4em; margin: .6rem 0 .3rem !important; color: var(--s-fout); }
+
+.gt-slotvoet { font-size: .8rem; color: var(--kleur-zwak); }
+
+@media (max-width: 34rem) {
+  .gt-mathesis-naam { display: none; }
+
+  .gt-merknaam span { display: none; }
+
+  .gt-spring input { width: 6.5rem; }
+
+  .gt-held h1, .gt-reekskop h1 { font-size: 1.6rem; }
+
+  .gt-held, .gt-reekskop { padding: 1.1rem 1rem 1rem; }
+
+  .gt-kaart { padding: .3rem .9rem .9rem; }
+
+  .gt-tegels { grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr)); }
+
+  /* Antwoord, Uitwerking en de status op één regel. */
+  .gt-oplbalk { gap: .3rem; }
+
+  .gt-oplknoppen { gap: .2rem; }
+
+  .gt-pil { gap: .2rem; padding: 0 .4rem; font-size: .75rem; }
+
+  .gt-status { gap: 1px; }
+
+  .gt-status .gt-knop { min-width: 1.6rem; height: 1.6rem; }
+
+  .gt-status-tekst .gt-knop span { display: none; }
+
+  .gt-status-tekst .gt-knop { padding: 0; }
+}
+
+/* --- MathJax in de nachtstand (zoals in presentatie.css) ------------------------- */
+
+:root[data-thema="donker"] mjx-container [fill="whitesmoke"] { fill: var(--kleur-oplossing); }
+
+:root[data-thema="donker"] mjx-container [stroke="darkseagreen"] { stroke: var(--kleur-oplossing-rand); }
+
+:root[data-thema="donker"] .gt-kaart [style*="solid black"],
+:root[data-thema="donker"] .gt-kaart td[class*="tvertbar"],
+:root[data-thema="donker"] .gt-kaart tr.tbrule > td {
+  border-color: var(--kleur-tekst) !important;
+}
+
+@media print {
+  .gt-kop, .gt-oplbalk, .gt-oefnav .gt-rond, .gt-oefvoet { display: none !important; }
+  .oplossing.gt-dicht { display: block; }
+}

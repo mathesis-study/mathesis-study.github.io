@@ -17,6 +17,9 @@
  * waar de vorige demo op de pagina eindigde: haar beginstand is de rekenmachine
  * na alle stappen van die vorige (reset met keys).
  *
+ * Wat later op de pagina komt (een oefening op de vbtl-site), krijgt zijn
+ * demo bij pres:zichtbaar.
+ *
  * Mislukt het laden, dan blijven de statische schermen van de PDF-opmaak
  * staan: pas bij 'ready' krijgt de demo de klasse grm-demo-actief.
  * ------------------------------------------------------------------------- */
@@ -29,8 +32,37 @@
 
   // De rekenmachine volgt de dag- en nachtstand van de site: overdag de witte
   // behuizing, 's nachts de donkere.
+  // Zonder gekozen stand volgt de site het toestel (vbtl).
   function thema() {
-    return document.documentElement.getAttribute("data-thema") === "donker" ? "dark" : "light";
+    var gekozen = document.documentElement.getAttribute("data-thema");
+    if (!gekozen) gekozen = window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "donker" : "licht";
+    return gekozen === "donker" ? "dark" : "light";
+  }
+
+  // De pictogrammen van de knoppen komen uit presentatie.js; een pagina
+  // zonder (de vbtl-site) tekent dezelfde zelf.
+  var PICTOGRAM = {
+    begin: "M5 5v14M19 6l-9 6 9 6z",
+    links: "M15 18l-6-6 6-6",
+    rechts: "M9 18l6-6-6-6",
+    einde: "M19 5v14M5 6l9 6-9 6z"
+  };
+
+  function pictogram(naam) {
+    if (window.mathesisIcoon) return window.mathesisIcoon(naam);
+    var ns = "http://www.w3.org/2000/svg";
+    var svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    svg.setAttribute("aria-hidden", "true");
+    var p = document.createElementNS(ns, "path");
+    p.setAttribute("d", PICTOGRAM[naam]);
+    svg.appendChild(p);
+    return svg;
   }
 
   // De toetsen van alle stappen van de vorige demo op de pagina, met wat
@@ -38,6 +70,10 @@
   var vorigeToetsen = null;
 
   function maak(demo) {
+    // Een pagina die oefeningen pas later toont (vbtl), meldt ze met
+    // pres:zichtbaar; een demo die al gemaakt is, blijft zoals ze is.
+    if (demo._grmDemo) return;
+    demo._grmDemo = true;
     var stappen;
     var vervolg = demo.classList.contains("grm-demo-vervolg");
     var vooraf = vervolg ? vorigeToetsen : "";
@@ -80,11 +116,11 @@
     // in een pres-figuurbalk, met de tekst enkel voor een schermlezer.
     var balk = document.createElement("div");
     balk.className = "pres-figuurbalk grm-demo-balk";
-    function stapknop(pictogram, actie) {
+    function stapknop(naam, actie) {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "pres-knop pres-stapknop";
-      b.appendChild(window.mathesisIcoon(pictogram));
+      b.appendChild(pictogram(naam));
       b.appendChild(document.createElement("span"));
       b.addEventListener("click", actie);
       balk.appendChild(b);
@@ -364,5 +400,11 @@
     opschrift();
   }
 
-  Array.prototype.forEach.call(document.querySelectorAll(".grm-demo"), maak);
+  function maakIn(wortel) {
+    if (wortel.matches && wortel.matches(".grm-demo")) maak(wortel);
+    if (wortel.querySelectorAll) Array.prototype.forEach.call(wortel.querySelectorAll(".grm-demo"), maak);
+  }
+
+  maakIn(document);
+  document.addEventListener("pres:zichtbaar", function (e) { maakIn(e.target); });
 })();

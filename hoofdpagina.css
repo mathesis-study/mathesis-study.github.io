@@ -288,6 +288,34 @@ main {
   color: var(--kleur-zwak);
 }
 
+/* Een site naast de hoofdstukken, zoals de extra oefeningen bij een domein
+ * (extra.json): een knop onderaan de kaart, met een slotje als ze een
+ * toegangscode vraagt. */
+.extra {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  margin: .6rem 0 .5rem;
+  padding: .35rem .85rem;
+  border: 1px solid var(--kleur-accent);
+  border-radius: 999px;
+  font-size: .9rem;
+  font-weight: 600;
+  color: var(--kleur-accent);
+  text-decoration: none;
+}
+
+.extra:hover,
+.extra:focus-visible {
+  background: var(--kleur-accent-zacht);
+}
+
+.extra .slot {
+  width: .95rem;
+  height: .95rem;
+  flex: none;
+}
+
 /* Het woord "Hoofdstuk" staat er voor schermlezers; op het scherm volstaat
  * het getal. */
 .verborgen {
