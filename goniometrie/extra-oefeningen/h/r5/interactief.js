@@ -56,6 +56,24 @@
     }), rol);
   }
 
+  // Eén leesbaar gegevensblok, ook op een smal scherm en voor schermlezers.
+  function gegevens(ctx, regels) {
+    ctx.toon("");
+    var status = ctx.figuur.querySelector(".interactieve-grafiek-status");
+    if (!status) return;
+    status.replaceChildren();
+    status.style.textAlign = "left";
+    status.style.width = "fit-content";
+    status.style.maxWidth = "100%";
+    status.style.marginInline = "auto";
+    regels.forEach(function (regel) {
+      var rij = document.createElement("div");
+      rij.textContent = regel[0];
+      rij.style.color = ctx.kleuren()[regel[1] || "tekst"];
+      status.appendChild(rij);
+    });
+  }
+
   function simpson(BEGIN, beginVerschil, negatief) {
     return function (ctx) {
       var bord = ctx.maakBord({
@@ -139,18 +157,17 @@
 
       function werkBij() {
         var hs = halveSom(), hv = halfVerschil();
-        var tekst = "p = " + g(p(), 1) + "°, q = " + g(q(), 1) + "°, (p + q)/2 = " +
-          g(hs, 1) + "°, (p − q)/2 = " + g(hv, 1) + "°. ";
-        if (!verschil) {
-          tekst += "OS = 2 OM, met OM = cos((p − q)/2) = " + g(cos(hv)) + ". " +
-            "cos p + cos q = " + g(rx()) + " = 2 cos " + g(hs, 1) + "° cos " + g(hv, 1) + "°; " +
-            "sin p + sin q = " + g(ry()) + " = 2 sin " + g(hs, 1) + "° cos " + g(hv, 1) + "°.";
-        } else {
-          tekst += "OD ⊥ OM, met |OD| = |2 sin((p − q)/2)| = " + g(Math.abs(2 * sin(hv))) + ". " +
-            "cos p − cos q = " + g(rx()) + " = −2 sin " + g(hs, 1) + "° sin " + g(hv, 1) + "°; " +
-            "sin p − sin q = " + g(ry()) + " = 2 cos " + g(hs, 1) + "° sin " + g(hv, 1) + "°.";
-        }
-        ctx.toon(tekst);
+        var teken = verschil ? " − " : " + ";
+        gegevens(ctx, [
+          ["p = " + g(p(), 1) + "°, q = " + g(q(), 1) + "°", "punt"],
+          ["(p + q)/2 = " + g(hs, 1) + "°, (p − q)/2 = " + g(hv, 1) + "°", "kromme"],
+          [verschil ? "OD ⟂ OM; |OD| = |2 sin((p − q)/2)| = " + g(Math.abs(2 * sin(hv))) :
+            "OS = 2 OM; OM = cos((p − q)/2) = " + g(cos(hv)), "raaklijn"],
+          ["cos p" + teken + "cos q = " + (verschil ? "−2 sin " : "2 cos ") + g(hs, 1) +
+            "° " + (verschil ? "sin " : "cos ") + g(hv, 1) + "° = " + g(rx()), "secante"],
+          ["sin p" + teken + "sin q = 2 " + (verschil ? "cos " : "sin ") + g(hs, 1) +
+            "° " + (verschil ? "sin " : "cos ") + g(hv, 1) + "° = " + g(ry()), "afgeleide"]
+        ]);
       }
       bord.on("update", werkBij);
 
@@ -191,6 +208,7 @@
           klikknop.setAttribute("aria-pressed", "true");
           zet(BEGIN[0], BEGIN[1], beginVerschil);
         },
+        kleur: werkBij,
         vernietig: function () { JXG.JSXGraph.freeBoard(bord); }
       };
     };

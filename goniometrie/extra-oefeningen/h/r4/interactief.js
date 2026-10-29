@@ -36,6 +36,24 @@
     }), rol || "tekst");
   }
 
+  // Eén leesbaar gegevensblok, ook op een smal scherm en voor schermlezers.
+  function gegevens(ctx, regels) {
+    ctx.toon("");
+    var status = ctx.figuur.querySelector(".interactieve-grafiek-status");
+    if (!status) return;
+    status.replaceChildren();
+    status.style.textAlign = "left";
+    status.style.width = "fit-content";
+    status.style.maxWidth = "100%";
+    status.style.marginInline = "auto";
+    regels.forEach(function (regel) {
+      var rij = document.createElement("div");
+      rij.textContent = regel[0];
+      rij.style.color = ctx.kleuren()[regel[1] || "tekst"];
+      status.appendChild(rij);
+    });
+  }
+
   /* --- rechthoek-32 ------------------------------------------------------ */
 
   G.registreer("r4-rechthoek-32", function (ctx) {
@@ -65,9 +83,9 @@
     var A = plaats(bord, function () { return -cos(a()); }, 0);
     var B = plaats(bord, function () { return -cos(a()); }, function () { return sin(a()); });
     var D = plaats(bord, function () { return cos(a()); }, 0);
-    lijnstuk(ctx, bord, A, B, "secante");
+    lijnstuk(ctx, bord, A, B, "afgeleide");
     lijnstuk(ctx, bord, B, C, "secante");
-    lijnstuk(ctx, bord, C, D, "secante");
+    lijnstuk(ctx, bord, C, D, "afgeleide");
     lijnstuk(ctx, bord, D, A, "secante");
     lijnstuk(ctx, bord, [0, 0], C, "zwak", { strokeWidth: 1, dash: 2 });
     ctx.stijl(bord.create("curve", [
@@ -85,9 +103,13 @@
 
     function werkBij() {
       var h = a();
-      ctx.toon("α = " + h + "°: |AD| = 2 cos α = " + g(2 * cos(h)) +
-        ", |CD| = sin α = " + g(sin(h)) +
-        ", oppervlakte sin 2α = " + g(sin(2 * h)) + ".");
+      gegevens(ctx, [
+        ["α = " + h + "°", "punt"],
+        ["Breedte |AD| = 2 cos α = " + g(2 * cos(h)), "secante"],
+        ["Hoogte |CD| = sin α = " + g(sin(h)), "afgeleide"],
+        ["Oppervlakte = sin 2α = " + g(sin(2 * h))],
+        [h === 45 ? "Maximale oppervlakte: 1" : "Maximale oppervlakte: 1 bij α = 45°"]
+      ]);
     }
     bord.on("update", werkBij);
 
@@ -102,6 +124,7 @@
 
     return {
       reset: function () { zet(BEGIN); },
+      kleur: werkBij,
       vernietig: function () { JXG.JSXGraph.freeBoard(bord); }
     };
   });

@@ -36,6 +36,24 @@
     return ["I", "II", "III", "IV"][Math.floor(a / 90)];
   }
 
+  // Eén leesbaar gegevensblok, ook op een smal scherm en voor schermlezers.
+  function gegevens(ctx, regels) {
+    ctx.toon("");
+    var status = ctx.figuur.querySelector(".interactieve-grafiek-status");
+    if (!status) return;
+    status.replaceChildren();
+    status.style.textAlign = "left";
+    status.style.width = "fit-content";
+    status.style.maxWidth = "100%";
+    status.style.marginInline = "auto";
+    regels.forEach(function (regel) {
+      var rij = document.createElement("div");
+      rij.textContent = regel[0];
+      rij.style.color = ctx.kleuren()[regel[1] || "tekst"];
+      status.appendChild(rij);
+    });
+  }
+
   /* --- Bouwstenen -------------------------------------------------------- */
 
   function plaats(bord, fx, fy) {
@@ -145,26 +163,94 @@
     var c = cirkel(ctx, bord, BEGIN);
     var kleur = kwadranten(ctx, bord, c.a);
 
+    // Op brede borden staan de waarden in de vrije ruimte naast de cirkel.
+    function waarde(rol, functie, naam, hoogte) {
+      ctx.stijl(bord.create("text", [
+        function () { return (1.15 + bord.getBoundingBox()[2]) / 2; },
+        hoogte,
+        function () { var v = functie(c.a()); return naam + " α = " + g(v) + " " + teken(v); }
+      ], {
+        fixed: true, highlight: false, anchorX: "middle", anchorY: "middle",
+        useMathJax: false,
+        visible: function () { return bord.getBoundingBox()[2] - bord.getBoundingBox()[0] > 5; }
+      }), rol);
+    }
+    waarde("secante", cos, "cos", 0.65);
+    waarde("afgeleide", sin, "sin", 0.4);
+
+    function breed() { return bord.getBoundingBox()[2] - bord.getBoundingBox()[0] > 5; }
+    function besluit() {
+      var a = c.a();
+      if (!kwadrant(a)) return "Op een as";
+      return cos(a) * sin(a) > 0 ? "Hetzelfde teken" : "Tegengesteld teken";
+    }
+    ctx.stijl(bord.create("text", [
+      function () { return (1.15 + bord.getBoundingBox()[2]) / 2; },
+      0.9, function () {
+        var a = c.a(), k = kwadrant(a);
+        return "α = " + a + "°" + (k ? ", kwadrant " + k : ", op een as");
+      }
+    ], { fixed: true, highlight: false, anchorX: "middle", anchorY: "middle",
+         useMathJax: false, visible: breed }), "tekst");
+    ctx.stijl(bord.create("text", [
+      function () { return (1.15 + bord.getBoundingBox()[2]) / 2; },
+      0.15, besluit
+    ], { fixed: true, highlight: false, anchorX: "middle", anchorY: "middle",
+         useMathJax: false, visible: breed }), "tekst");
+
+    var oplossing = ctx.figuur.closest(".oplossing");
+    function markeer(k) {
+      if (!oplossing) return false;
+      var rijen = oplossing.querySelectorAll('mjx-container g[data-mml-node="mtr"]');
+      if (rijen.length !== 4) return false;
+      rijen.forEach(function (rij, i) {
+        var vak = rij.querySelector("rect[data-kwadrant-markering]");
+        if (!vak) {
+          var maat = rij.getBBox();
+          vak = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          vak.setAttribute("data-kwadrant-markering", "");
+          vak.setAttribute("x", maat.x - 100);
+          vak.setAttribute("y", maat.y - 80);
+          vak.setAttribute("width", maat.width + 200);
+          vak.setAttribute("height", maat.height + 160);
+          rij.insertBefore(vak, rij.firstChild);
+        }
+        vak.setAttribute("fill", ctx.kleuren().punt);
+        vak.setAttribute("fill-opacity", k === ["I", "II", "III", "IV"][i] ? "0.2" : "0");
+      });
+      return true;
+    }
+    var waarnemer = oplossing && new MutationObserver(function () {
+      if (markeer(kwadrant(c.a()))) waarnemer.disconnect();
+    });
+    if (waarnemer) waarnemer.observe(oplossing, { childList: true, subtree: true });
+
     function werkBij() {
       var a = c.a(), k = kwadrant(a);
-      var tekst = "α = " + a + "°" + (k ? ", α ∈ " + k : ", op een as") +
-        ". cos α = " + g(cos(a)) + " " + teken(cos(a)) +
-        ", sin α = " + g(sin(a)) + " " + teken(sin(a)) + ".";
-      if (k) {
-        tekst += cos(a) * sin(a) > 0 ? " Hetzelfde teken." : " Tegengesteld teken.";
+      markeer(k);
+      var tekst = "α = " + a + "°" + (k ? ", kwadrant " + k : ", op een as") + ".";
+      if (!breed()) {
+        tekst += " cos α = " + g(cos(a)) + " " + teken(cos(a)) +
+          ", sin α = " + g(sin(a)) + " " + teken(sin(a)) + ". " + besluit() + ".";
       }
-      ctx.toon(tekst);
+      ctx.toon(breed() ? "" : tekst);
     }
     bord.on("update", werkBij);
-    ["I", "II", "III", "IV"].forEach(function (naam, i) {
-      ctx.knop(naam, function () { c.zet(40 + 90 * i); });
+    bord.on("down", function (event) {
+      var positie = bord.getMousePosition(event);
+      if (c.P.hasPoint(positie[0], positie[1])) return;
+      var coords = new JXG.Coords(JXG.COORDS_BY_SCREEN, positie, bord).usrCoords;
+      var x = coords[1], y = coords[2];
+      if (nul(x) || nul(y)) return;
+      var i = y > 0 ? (x > 0 ? 0 : 1) : (x < 0 ? 2 : 3);
+      c.zet(40 + 90 * i);
     });
     werkBij();
 
     return {
       reset: function () { c.zet(BEGIN); kleur(); werkBij(); },
       kleur: kleur,
-      vernietig: function () { JXG.JSXGraph.freeBoard(bord); }
+      vernietig: function () { if (waarnemer) waarnemer.disconnect(); JXG.JSXGraph.freeBoard(bord); }
     };
   });
 
@@ -236,20 +322,31 @@
       toonTC();
 
       var kleur = kwadranten(ctx, bord, a);
+      bord.on("down", function (event) {
+        var pos = bord.getMousePosition(event);
+        if (c.P.hasPoint(pos[0], pos[1])) return;
+        var xy = new JXG.Coords(JXG.COORDS_BY_SCREEN, pos, bord).usrCoords;
+        if (nul(xy[1]) || nul(xy[2])) return;
+        var i = xy[2] > 0 ? (xy[1] > 0 ? 0 : 1) : (xy[1] < 0 ? 2 : 3);
+        c.zet(40 + 90 * i);
+      });
+
 
       function werkBij() {
         var h = a(), k = kwadrant(h);
-        ctx.toon("α = " + h + "°" + (k ? ", α ∈ " + k : ", op een as") +
-          ". tan α = " + g(tan(h)) + " " + teken(tan(h)) +
-          ", sec α = " + g(sec(h)) + " " + teken(sec(h)) +
-          ", csc α = " + g(csc(h)) + " " + teken(csc(h)) + ".");
+        gegevens(ctx, [
+          ["α = " + h + "°" + (k ? ", kwadrant " + k : ", op een as")],
+          ["tan α = " + (isFinite(tan(h)) ? g(tan(h)) + " " + teken(tan(h)) : "bestaat niet"), "punt"],
+          ["sec α = " + (isFinite(sec(h)) ? g(sec(h)) + " " + teken(sec(h)) : "bestaat niet"), "secante"],
+          ["csc α = " + (isFinite(csc(h)) ? g(csc(h)) + " " + teken(csc(h)) : "bestaat niet"), "afgeleide"]
+        ]);
       }
       bord.on("update", werkBij);
       werkBij();
 
       return {
         reset: function () { c.zet(BEGIN); kleur(); werkBij(); },
-        kleur: kleur,
+        kleur: function () { kleur(); werkBij(); },
         vernietig: function () { JXG.JSXGraph.freeBoard(bord); }
       };
     };
