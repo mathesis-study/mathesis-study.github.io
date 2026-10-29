@@ -861,6 +861,14 @@ h1, h2 {
 
 .hint { color: var(--kleur-zwak); font-style: italic; }
 
+.gt-hint {
+  border-left: 3px solid var(--kleur-oplossing-rand);
+  padding: .1rem .8rem;
+  margin: .3rem 0 .6rem;
+}
+
+.gt-hint .hint { font-style: normal; }
+
 /* De balk onder een vraag: Antwoord en Uitwerking links, de status rechts;
  * het antwoord en de uitwerking komen eronder. */
 .gt-oplbalk {
@@ -871,7 +879,7 @@ h1, h2 {
   margin: .2rem 0 .3rem;
 }
 
-.gt-oplknoppen { display: flex; gap: .3rem; }
+.gt-oplknoppen { display: flex; flex-wrap: wrap; gap: .3rem; }
 
 .gt-pil {
   display: inline-flex;

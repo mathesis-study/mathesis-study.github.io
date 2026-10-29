@@ -272,6 +272,7 @@
     rechts: "M9 5l7 7-7 7",
     thema: "M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 0 0 0-17zM12 3.5v17",
     antwoord: "M5 12h14M5 7h14M5 17h8",
+    hint: "M9 18h6M10 21h4M9 15c0-2-3-3-3-6a6 6 0 0 1 12 0c0 3-3 4-3 6v1H9z",
     uitwerking: "M4 6h16M8 12h12M8 18h12M4 11v2M4 17v2",
     slot: "M7 11V7a5 5 0 0 1 10 0v4M5 11h14v10H5z"
   };
@@ -638,6 +639,27 @@
       var deelStatus = deel !== null ? deel : (o.delen.length ? null : "");
       function gezien() {
         if (deelStatus !== null && !statusVan(o, deelStatus)) zetStatus(o, deelStatus, "gezien");
+      }
+      var hints = Array.prototype.filter.call(opl.querySelectorAll(".hint-blok"), function (hint) {
+        return hint.closest(".oplossing") === opl;
+      });
+      if (hints.length) {
+        var hintvak = maak("div", "gt-hint");
+        hintvak.hidden = true;
+        hints.forEach(function (hint) { hintvak.appendChild(hint); });
+        opl.parentNode.insertBefore(hintvak, opl);
+        var kh = knop("", "Toon de hint", function () {
+          hintvak.hidden = !hintvak.hidden;
+          kh.setAttribute("aria-expanded", String(!hintvak.hidden));
+          kh.setAttribute("aria-pressed", String(!hintvak.hidden));
+          kh.setAttribute("aria-label", hintvak.hidden ? "Toon de hint" : "Verberg de hint");
+          if (!hintvak.hidden) { gezien(); zichtbaar(hintvak); }
+        }, "gt-pil");
+        kh.appendChild(icoon(ICOON.hint));
+        kh.appendChild(maak("span", null, "Hint"));
+        kh.setAttribute("aria-expanded", "false");
+        kh.setAttribute("aria-pressed", "false");
+        knoppen.appendChild(kh);
       }
       if (ant) {
         chip = maak("span", "gt-antwoord");
