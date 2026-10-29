@@ -52,6 +52,17 @@
   opacity: .65;
 }
 
+.grm-demo-balk .grm-demo-tempo {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.grm-demo-balk .grm-demo-tempo[aria-pressed="true"] {
+  opacity: 1;
+  color: var(--kleur-accent);
+  background: var(--kleur-accent-zacht);
+}
+
 .grm-demo-stand {
   margin-left: .5rem;
   color: var(--kleur-zwak);
@@ -63,6 +74,10 @@
   display: block;
   width: 100%;
   height: min(calc(100vh - 15rem), 42rem);
+  /* Houd plaats voor scherm boven toetsen, ook als de slide laag begint of
+   * het browservenster kort is. De grid reserveert daarvoor zo nodig witruimte
+   * onder de tekst; de pagina mag verder naar beneden doorlopen. */
+  min-height: max(36rem, 540px);
   /* Hoger rekt de keypad de toetsen uit tot ze niet meer op een TI-84 lijken. */
   max-height: 48rem;
   border: 0;

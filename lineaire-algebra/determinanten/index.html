@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Determinanten</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=bdf85273db48" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=c1761dd586fe" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -281,12 +281,12 @@ MathJax = {
 </script>
 
 
-<script src="mathjax-accenten.js?v=bdf85273db48"></script>
-<script src="mathjax-nicematrix.js?v=bdf85273db48"></script>
-<script src="mathjax-markering.js?v=bdf85273db48"></script>
+<script src="mathjax-accenten.js?v=c1761dd586fe"></script>
+<script src="mathjax-nicematrix.js?v=c1761dd586fe"></script>
+<script src="mathjax-markering.js?v=c1761dd586fe"></script>
 <script
           id="MathJax-script"
-          src="tex-svg-full.js?v=bdf85273db48"
+          src="tex-svg-full.js?v=c1761dd586fe"
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
@@ -296,10 +296,10 @@ MathJax = {
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
 <meta name="mathesis-statistieken" content="mathesis" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=bdf85273db48" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=bdf85273db48" />
-<link rel="stylesheet" href="grm-demo.css?v=bdf85273db48" />
-<link rel="stylesheet" href="python-oefeningen.css?v=bdf85273db48" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=c1761dd586fe" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=c1761dd586fe" />
+<link rel="stylesheet" href="grm-demo.css?v=c1761dd586fe" />
+<link rel="stylesheet" href="python-oefeningen.css?v=c1761dd586fe" />
 </head>
 <body>
 
@@ -1818,7 +1818,7 @@ print(hoofddiagonalen - nevendiagonalen)</code></pre></div></div>
 <pre class="pythonuitvoer" data-mkpi-bestand="L03_Determinanten.tex" data-mkpi-regel="585"><code>5</code></pre>
 
 <p data-mkpi-bestand="L03_Determinanten.tex" data-mkpi-regel="589">
-Je kan de getallen in <kbd>A</kbd> wijzigen om een andere determinant te controleren. Deze code gebruikt de regel van Sarrus en geldt
+Je kan de getallen in <kbd class="mathjax_ignore">A</kbd> wijzigen om een andere determinant te controleren. Deze code gebruikt de regel van Sarrus en geldt
 dus enkel voor matrices van orde \(3\).
 </p>
 
@@ -1838,8 +1838,8 @@ dus enkel voor matrices van orde \(3\).
 
 
 <p data-mkpi-bestand="L03_Determinanten.tex" data-mkpi-regel="597">
-De bibliotheek <b>NumPy</b> bevat functies voor numerieke matrixberekeningen. We maken de matrix met <kbd>numpy.array</kbd>
-en berekenen haar determinant met <kbd>numpy.linalg.det</kbd>. In de code importeren we beide functies rechtstreeks. Zo kunnen we <kbd>array</kbd> en <kbd>det</kbd> schrijven.
+De bibliotheek <b>NumPy</b> bevat functies voor numerieke matrixberekeningen. We maken de matrix met <kbd class="mathjax_ignore">numpy.array</kbd>
+en berekenen haar determinant met <kbd class="mathjax_ignore">numpy.linalg.det</kbd>. In de code importeren we beide functies rechtstreeks. Zo kunnen we <kbd class="mathjax_ignore">array</kbd> en <kbd class="mathjax_ignore">det</kbd> schrijven.
 </p>
 
 
@@ -1856,8 +1856,8 @@ print(round(det(A), 10))</code></pre></div></div>
 <pre class="pythonuitvoer" data-mkpi-bestand="L03_Determinanten.tex" data-mkpi-regel="614"><code>5.0</code></pre>
 
 <p data-mkpi-bestand="L03_Determinanten.tex" data-mkpi-regel="618">
-NumPy rekent met benaderingen, waardoor kleine afrondingsfouten kunnen ontstaan. Met <kbd>round(..., 10)</kbd> ronden we de
-uitkomst af op tien cijfers na de decimale punt. De functie <kbd>numpy.linalg.det</kbd> werkt ook voor vierkante matrices van andere ordes.
+NumPy rekent met benaderingen, waardoor kleine afrondingsfouten kunnen ontstaan. Met <kbd class="mathjax_ignore">round(..., 10)</kbd> ronden we de
+uitkomst af op tien cijfers na de decimale punt. De functie <kbd class="mathjax_ignore">numpy.linalg.det</kbd> werkt ook voor vierkante matrices van andere ordes.
 </p>
 
 </div>
@@ -4248,7 +4248,7 @@ else:
 [-1.8, 3.1]</code></pre>
 
 <p data-mkpi-bestand="L03_Determinanten.tex" data-mkpi-regel="1698">
-Je kan de getallen in <kbd>A</kbd> wijzigen om een andere inverse te controleren. Deze code geldt enkel voor matrices van orde \(2\).
+Je kan de getallen in <kbd class="mathjax_ignore">A</kbd> wijzigen om een andere inverse te controleren. Deze code geldt enkel voor matrices van orde \(2\).
 </p>
 
 </div>
@@ -4267,8 +4267,8 @@ Je kan de getallen in <kbd>A</kbd> wijzigen om een andere inverse te controleren
 
 
 <p data-mkpi-bestand="L03_Determinanten.tex" data-mkpi-regel="1706">
-We maken dezelfde matrix met <kbd>numpy.array</kbd>. De functie <kbd>numpy.linalg.inv</kbd> berekent haar inverse. Met
-<kbd>@</kbd> berekenen we het matrixproduct \(AA^{-1}\). Met <kbd>allclose</kbd> controleren we of dat product binnen de afrondingsfout gelijk is aan de eenheidsmatrix <kbd>eye(2)</kbd>.
+We maken dezelfde matrix met <kbd class="mathjax_ignore">numpy.array</kbd>. De functie <kbd class="mathjax_ignore">numpy.linalg.inv</kbd> berekent haar inverse. Met
+<kbd class="mathjax_ignore">@</kbd> berekenen we het matrixproduct \(AA^{-1}\). Met <kbd class="mathjax_ignore">allclose</kbd> controleren we of dat product binnen de afrondingsfout gelijk is aan de eenheidsmatrix <kbd class="mathjax_ignore">eye(2)</kbd>.
 </p>
 
 
@@ -4288,8 +4288,8 @@ print(allclose(A @ B, eye(2)))</code></pre></div></div>
 True</code></pre>
 
 <p data-mkpi-bestand="L03_Determinanten.tex" data-mkpi-regel="1729">
-De controle geeft <kbd>True</kbd>: het product is binnen de afrondingsfout gelijk aan \(I_2\). NumPy rekent met benaderingen. Met
-<kbd>.round(10)</kbd> ronden we de getoonde elementen af op tien cijfers na de decimale punt. De functie <kbd>numpy.linalg.inv</kbd> werkt ook voor reguliere matrices van andere ordes.
+De controle geeft <kbd class="mathjax_ignore">True</kbd>: het product is binnen de afrondingsfout gelijk aan \(I_2\). NumPy rekent met benaderingen. Met
+<kbd class="mathjax_ignore">.round(10)</kbd> ronden we de getoonde elementen af op tien cijfers na de decimale punt. De functie <kbd class="mathjax_ignore">numpy.linalg.inv</kbd> werkt ook voor reguliere matrices van andere ordes.
 </p>
 
 </div>
@@ -6090,16 +6090,17 @@ Bereken \(k\) als de oppervlakte van een driehoek \(\Delta ABC\) met \(A(2,0)\),
 </main>
 
 </div><!-- grid -->
-<script src="presentatie.js?v=bdf85273db48"></script>
-<script src="statistieken.js?v=bdf85273db48"></script>
-<script src="vendor/jsxgraphcore.js?v=bdf85273db48"></script>
-<script src="interactieve-grafieken.js?v=bdf85273db48"></script>
-<script src="matrixbord.js?v=bdf85273db48"></script>
-<script src="hoofdstuk.interactief.js?v=bdf85273db48"></script>
-<script src="grm-toetsen.js?v=bdf85273db48"></script>
-<script src="grm-demo.js?v=bdf85273db48"></script>
-<script src="python-config.js?v=bdf85273db48"></script>
-<script src="codemirror-python.js?v=bdf85273db48"></script>
-<script src="python-oefeningen.js?v=bdf85273db48"></script>
+<script src="vensters.js?v=c1761dd586fe"></script>
+<script src="presentatie.js?v=c1761dd586fe"></script>
+<script src="statistieken.js?v=c1761dd586fe"></script>
+<script src="vendor/jsxgraphcore.js?v=c1761dd586fe"></script>
+<script src="interactieve-grafieken.js?v=c1761dd586fe"></script>
+<script src="matrixbord.js?v=c1761dd586fe"></script>
+<script src="hoofdstuk.interactief.js?v=c1761dd586fe"></script>
+<script src="grm-toetsen.js?v=c1761dd586fe"></script>
+<script src="grm-demo.js?v=c1761dd586fe"></script>
+<script src="python-config.js?v=c1761dd586fe"></script>
+<script src="codemirror-python.js?v=c1761dd586fe"></script>
+<script src="python-oefeningen.js?v=c1761dd586fe"></script>
 </body>
 </html>

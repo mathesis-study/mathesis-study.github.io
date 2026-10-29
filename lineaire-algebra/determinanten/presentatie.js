@@ -27,13 +27,22 @@
   var knopMeer, menuKop, acties = [], spanHoofdstuk, labelsHoofdstuk = [];
   // Het blok van de omgeving leerplandoelen, uit de slides gehaald, en het
   // venster waarin het op vraag verschijnt.
-  var leerplan = null, leerplanvenster = null, leerplanTerug = null;
+  var leerplan = null, leerplanvenster = null, leerplanBediening = null;
   var LEERPLAN_ANKER = "leerplandoelen";
   // De rekenmachine: een markering uit cursus.cls zet de knop in de kopbalk,
   // het venster zelf wordt pas bij de eerste opening gebouwd. De soort zegt
   // welke: de matrix-, de functie- of de stelselrekenmachine.
-  var rekenmachine = null, rekenmachinevenster = null, rekenmachineTerug = null,
+  var rekenmachine = null, rekenmachinevenster = null, rekenmachineBediening = null,
       rekenmachineWerk = null, rekenmachineOpties = {};
+  var vensters = window.Cursusvensters.maak({
+    focusTerug: function (oorsprong) {
+      return menuKop.contains(oorsprong) ? knopMeer : oorsprong;
+    },
+    voorOpen: function () {
+      wisselMenu(false);
+      hulpvenster.removeAttribute("open");
+    }
+  });
   var REKENMACHINES = {
     matrix: { titel: "Matrixrekenmachine", script: "Matrixrekenmachine" },
     functie: { titel: "Functierekenmachine", script: "Functierekenmachine" },
@@ -2824,31 +2833,7 @@
   // open aantreft. Bij het sluiten keert de focus terug naar waar ze was; stond
   // die op de knop in het intussen gesloten menu, dan naar de menuknop.
   function wisselLeerplan(open) {
-    if (!leerplanvenster) return;
-    var nu = leerplanvenster.hasAttribute("open");
-    if (open === undefined) open = !nu;
-    if (open === nu) return;
-    var kader = leerplanvenster.firstChild;
-    if (open) {
-      leerplanTerug = document.activeElement;
-      if (menuKop.contains(leerplanTerug)) leerplanTerug = knopMeer;
-      wisselMenu(false);
-      hulpvenster.removeAttribute("open");
-      leerplanvenster.setAttribute("open", "");
-      kader.scrollTop = 0;
-      kader.focus();
-      return;
-    }
-    leerplanvenster.removeAttribute("open");
-    if (location.hash.slice(1) === LEERPLAN_ANKER && slides[index]) {
-      history.replaceState(null, "", "#" + slides[index].id);
-    }
-    var terug = leerplanTerug;
-    leerplanTerug = null;
-    if (kader.contains(document.activeElement)) {
-      if (terug && terug !== document.body && terug.focus) terug.focus();
-      else kader.blur();
-    }
+    if (leerplanBediening) leerplanBediening.wissel(open);
   }
 
   /* --- Venster met de rekenmachine -------------------------------------- */
@@ -2896,9 +2881,7 @@
     var houder = el("div", "pres-rekenmachine-inhoud");
     kader.appendChild(houder);
     rekenmachinevenster.appendChild(kader);
-    rekenmachinevenster.addEventListener("click", function (e) {
-      if (e.target === rekenmachinevenster) wisselRekenmachine(false);
-    });
+    rekenmachineBediening = vensters.registreer(rekenmachinevenster, { sluittoetsen: ["m"] });
     document.body.appendChild(rekenmachinevenster);
     rekenmachineWerk = window[rekenmachine.script].maak(houder, rekenmachineOpties);
     return true;
@@ -2910,28 +2893,7 @@
     if (!rekenmachine) return;
     if (open !== false && !bouwRekenmachine()) return;
     if (!rekenmachinevenster) return;
-    var nu = rekenmachinevenster.hasAttribute("open");
-    if (open === undefined) open = !nu;
-    if (open === nu) return;
-    var kader = rekenmachinevenster.firstChild;
-    if (open) {
-      rekenmachineTerug = document.activeElement;
-      if (menuKop.contains(rekenmachineTerug)) rekenmachineTerug = knopMeer;
-      wisselMenu(false);
-      hulpvenster.removeAttribute("open");
-      wisselLeerplan(false);
-      rekenmachinevenster.setAttribute("open", "");
-      kader.scrollTop = 0;
-      kader.focus();
-      return;
-    }
-    rekenmachinevenster.removeAttribute("open");
-    var terug = rekenmachineTerug;
-    rekenmachineTerug = null;
-    if (kader.contains(document.activeElement)) {
-      if (terug && terug !== document.body && terug.focus) terug.focus();
-      else kader.blur();
-    }
+    rekenmachineBediening.wissel(open);
   }
 
   /* --- Chroom rond het podium ------------------------------------------ */
@@ -3152,11 +3114,11 @@
     menuKop.appendChild(knopHulp);
     // Na een keuze in het menu gaat het dicht; de focus keert terug naar de
     // menuknop, anders staat ze op een knop die niet meer in beeld is. Opent
-    // de keuze het venster met de leerplandoelen, dan houdt dat de focus.
+    // de keuze een venster, dan houdt dat de focus.
     menuKop.addEventListener("click", function (e) {
       if (!e.target.closest || !e.target.closest(".pres-knop")) return;
       wisselMenu(false);
-      if (e.detail === 0 && !(leerplanvenster && leerplanvenster.hasAttribute("open"))) {
+      if (e.detail === 0 && !vensters.isOpen()) {
         knopMeer.focus();
       }
     });
@@ -3368,8 +3330,13 @@
       lpKader.appendChild(lpKop);
       lpKader.appendChild(leerplan);
       leerplanvenster.appendChild(lpKader);
-      leerplanvenster.addEventListener("click", function (e) {
-        if (e.target === leerplanvenster) wisselLeerplan(false);
+      leerplanBediening = vensters.registreer(leerplanvenster, {
+        sluittoetsen: ["g"],
+        naSluiten: function () {
+          if (location.hash.slice(1) === LEERPLAN_ANKER && slides[index]) {
+            history.replaceState(null, "", "#" + slides[index].id);
+          }
+        }
       });
     }
 
@@ -3414,25 +3381,9 @@
       if (doel && (doel.tagName === "INPUT" || doel.tagName === "TEXTAREA" ||
                    (doel.closest && doel.closest(".cm-editor, .cm-tooltip")))) return;
 
-      // In de rekenmachine typt de leerling; enkel m en Escape doen
-      // daar nog iets, en dan enkel buiten een invoerveld (zie hierboven).
-      if (rekenmachinevenster && rekenmachinevenster.hasAttribute("open")) {
-        if (e.key === "m" || e.key === "M" || e.key === "Escape") {
-          wisselRekenmachine(false);
-          e.preventDefault();
-        }
-        return;
-      }
-
-      // Staan de leerplandoelen open, dan scrollen de toetsen in dat venster;
-      // enkel g en Escape doen iets anders: ze sluiten het.
-      if (leerplanvenster && leerplanvenster.hasAttribute("open")) {
-        if (e.key === "g" || e.key === "G" || e.key === "Escape") {
-          wisselLeerplan(false);
-          e.preventDefault();
-        }
-        return;
-      }
+      // Een open venster verwerkt zijn sluittoetsen en houdt de overige
+      // toetsen bij zijn inhoud. Invoervelden zijn hierboven al afgehandeld.
+      if (vensters.verwerkToets(e)) return;
 
       // Staat de focus in een interactieve grafiek, dan horen de pijltjes bij
       // het punt of de knop daarbinnen, niet bij het bladeren. De overige
@@ -3510,9 +3461,7 @@
         // onderste laagje, en zet je uiteindelijk uit de presentatiestand.
         case "Escape":
           if (hulpvenster.hasAttribute("open")) hulpvenster.removeAttribute("open");
-          else if (rekenmachinevenster && rekenmachinevenster.hasAttribute("open")) {
-            wisselRekenmachine(false);
-          } else if (!menuKop.hidden) wisselMenu(false);
+          else if (!menuKop.hidden) wisselMenu(false);
           else if (groteFiguur) zetGroteFiguur(groteFiguur, false);
           else if (!wisZoek()) zetPresentatiestand(false);
           break;

@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TI-84 in de klas</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=e0aa010a500d" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * you choose how answers wait: compact, as empty frames or all open; in
+//    compact an exercise first shows its short answer, and the full working
+//    only on a second click;
+//  * a series of exercises can be paged through one at a time and comes
+//    with a PDF to print; extra proofs and the instructions per tool (TI-84
+//    or Python) stay folded away until you open them;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a figure with a parameter gets a slider, a figure with several cases
+//    switches between them without losing the camera, and in the large view
+//    you walk from figure to figure through the whole chapter;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * matrices you can click: pick an entry, a row or a diagonal and the
+//    matching term of the formula lights up, and the other way round;
+//  * Python runs in the page (Pyodide, with NumPy): exercises with checks
+//    and hints, code you can step through instruction by instruction or,
+//    for a loop, line by line with its variables in view, trace exercises
+//    that fill a table of the variables as you step, and code that drives
+//    an interactive graph; each Python section also comes as a notebook;
+//  * the instructions for a graphing calculator play step by step on a
+//    working TI-84 beside the text, which you can also press yourself (the
+//    calculator is ti84-calculator by WhitDeckard09, with an embed mode
+//    added for this site);
+//  * a matrix calculator, a calculator for systems of linear equations that
+//    row-reduces step by step and discusses parameters case by case, and a
+//    function calculator whose CAS derives step by step, all in the
+//    notation of the course;
+//  * MathJax is extended where the course needs it, so the page shows what
+//    the PDF shows: foreach loops, matrices with row and column headings,
+//    braces across rows, partial rules in tables, highlighted cells and
+//    terms, the end-of-proof square at the right margin and references
+//    inside a formula; accented letters are real characters, so searching
+//    and copying text works;
+//  * formulas are typeset slide by slide, so a long chapter opens quickly;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * the site has its own icon and can be installed as an app;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well; the one request that may
+//    leave it is an optional visit count per chapter, without cookies or
+//    personal data.
+//
+
+MathJax = {
+     options: { enableMenu: false },
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=e0aa010a500d"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=e0aa010a500d"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+<link rel="stylesheet" href="grm-demo.css?v=e0aa010a500d" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\vov }[1]{\aside {{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text {&grave;}}}\mkern -1mu\mathopen {}#1\mathclose {}\mkern -1mu{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text
+{&apos;}}}}}\)
+
+\(\newcommand {\truc }[1]{\class {truc}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="6">
+<header class="cursustitel">  <h1 data-mkpi-bestand="TI84.tex" data-mkpi-regel="6">TI-84 in de klas</h1> </header>
+</p>
+
+
+<!--
+...... section Kennismaken met het rekentoestel ......
+-->
+<h4 id="autosec-2" data-mkpi-bestand="TI84.tex" data-mkpi-regel="8"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="8">I&#x2003;</span>Kennismaken met het rekentoestel</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="10">
+Een aankoop van 48 euro krijgt 15&percnt; korting. Je voert <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="10">48*(1-0.15)</span> in en drukt op <kbd class="grm-toets
+grm-licht">enter</kbd>. Het resultaat is 40.8 euro. We leren het toestel gebruiken om berekeningen te controleren en grafieken en gegevens te onderzoeken.
+</p>
+
+
+<div class="grm-demo" data-mkpi-bestand="TI84.tex" data-mkpi-regel="16">
+
+
+<div class="grm-stap" data-toetsen="48*(1-0.15)[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="16"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="16">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="16">
+Typ <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="16">48*(1-0.15)</span> en druk op <kbd class="grm-toets grm-licht">enter</kbd>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="16">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="16">
+Na de korting betaal je \(40.8\) euro.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="17">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="17"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="17">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="18"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="18">48*(1-0.15)</div><div class="grm-regel grm-rechts" data-mkpi-bestand="TI84.tex" data-mkpi-regel="18">40.8</div> </div></div>
+
+</div></div>
+
+</div>
+
+
+<!--
+...... subsection Toetsen en menu’s ......
+-->
+<h5 id="autosec-3" data-mkpi-bestand="TI84.tex" data-mkpi-regel="23"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="23">1&#x2003;</span>Toetsen en menu’s</h5>
+<a id="mkpiweb-autopage-3"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="25">
+Met <kbd class="grm-toets grm-donker">on</kbd> zet je het toestel aan. Met <kbd class="grm-toets grm-tweede">2nd</kbd> en daarna <kbd class="grm-toets
+grm-donker">on</kbd> zet je het uit. De gekleurde opschriften boven de toetsen bereik je met <kbd class="grm-toets grm-tweede">2nd</kbd> of <kbd class="grm-toets grm-alfa">alpha</kbd>. Met de pijltjestoetsen
+verplaats je de cursor. <kbd class="grm-toets grm-donker">del</kbd> verwijdert een teken en met <kbd class="grm-toets grm-tweede">2nd</kbd> en <kbd class="grm-toets grm-donker">del</kbd> voeg je een teken in.
+<kbd class="grm-toets grm-donker">clear</kbd> maakt de invoerregel leeg. Met <kbd class="grm-toets grm-tweede">2nd</kbd> en <kbd class="grm-toets grm-donker">mode</kbd> (<span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="25"><kbd
+class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="25"><span class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="25">quit</span><kbd class="grm-toets grm-donker">mode</kbd></span></span>) keer je terug naar het
+rekenscherm. Met de pijltjes omhoog en omlaag kun je eerdere invoer of antwoorden selecteren en met <kbd class="grm-toets grm-licht">enter</kbd> opnieuw gebruiken.
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="34">
+<b>De TI-84 heeft twee mintekens.</b> Gebruik <kbd class="grm-toets grm-licht">(&#x2212;)</kbd> voor een negatief getal en de aftrektoets <kbd
+class="grm-toets grm-licht">&#x2212;</kbd> om af te trekken. Typ bijvoorbeeld \(-3-2\) met eerst <kbd class="grm-toets grm-licht">(&#x2212;)</kbd> en dan <kbd class="grm-toets grm-licht">&#x2212;</kbd>.
+</p>
+
+
+<!--
+...... section Berekeningen ......
+-->
+<h4 id="autosec-4" data-mkpi-bestand="TI84.tex" data-mkpi-regel="38"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="38">II&#x2003;</span>Berekeningen</h4>
+<a id="mkpiweb-autopage-4"></a>
+
+
+
+<!--
+...... subsection Volgorde en haakjes ......
+-->
+<h5 id="autosec-5" data-mkpi-bestand="TI84.tex" data-mkpi-regel="39"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="39">1&#x2003;</span>Volgorde en haakjes</h5>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="41">
+Voor \(\dfrac {2+3}{4-1}\) voer je <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="41">(2+3)/(4-1)</span> in. Zonder haakjes berekent het toestel een andere uitdrukking. Controleer
+of de invoer met de formule overeenkomt. Gebruik de punt als decimaalteken.
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="45">
+Machten voer je in met de machtstoets, kwadraten met <kbd class="grm-toets grm-donker"><em>x</em>&#x00B2;</kbd> en vierkantswortels met <kbd
+class="grm-toets grm-tweede">2nd</kbd> en <kbd class="grm-toets grm-donker"><em>x</em>&#x00B2;</kbd>. Sluit ook bij een wortel de haakjes waar nodig. Voor \(3\cdot 10^5\) gebruik je <span
+class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="45">3</span>, daarna <kbd class="grm-toets grm-tweede">2nd</kbd> en de toets met <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="45">EE</span> erboven, en dan <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="45">5</span>.
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="50">
+Een decimaal antwoord is soms een benadering. Zo geeft \(1/3\) een eindig aantal cijfers op het scherm, hoewel de decimale ontwikkeling blijft doorgaan. Via <kbd
+class="grm-toets grm-donker">math</kbd>, <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="50">Frac</span> en <kbd class="grm-toets grm-licht">enter</kbd> kun je een geschikt antwoord als breuk laten weergeven. Rond pas af op het einde
+en vermeld dat een afgerond antwoord een benadering is.
+</p>
+
+
+<div class="grm-demo" data-mkpi-bestand="TI84.tex" data-mkpi-regel="58">
+
+
+<div class="grm-stap" data-toetsen="(2+3)/(4-1)[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="58"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="58">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="58">
+Zet teller en noemer elk tussen haakjes.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="58">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="58">
+We delen de volledige teller door de volledige noemer.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="59">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="59"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="59">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="60"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="60">(2+3)/(4-1)</div><div class="grm-regel grm-rechts" data-mkpi-bestand="TI84.tex" data-mkpi-regel="60">1.666666667</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[clear][(-)]3-2[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="64"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="64">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="64">
+Typ \(-3-2\): <kbd class="grm-toets grm-licht">(&#x2212;)</kbd> voor het negatieve getal, <kbd class="grm-toets grm-licht">&#x2212;</kbd> voor de
+aftrekking. 
+</p>
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="65">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="65"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="65">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="66"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="66">&#x2212;3-2</div><div class="grm-regel grm-rechts" data-mkpi-bestand="TI84.tex" data-mkpi-regel="66">&#x2212;5</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[clear][wortel]5^2+12^2)[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="70"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="70">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="70">
+Gebruik <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="70"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="70"><span class="grm-boven
+grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="70">&#x221A;</span><kbd class="grm-toets grm-donker"><em>x</em>&#x00B2;</kbd></span></span> en typ <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="70">5<sup>2</sup>+12<sup>2</sup>)</span>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="70">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="70">
+De volledige som staat onder de wortel. We vinden \(13\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="71">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="71"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="71">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="72"> <div class="grm-regel
+grm-rechts" data-mkpi-bestand="TI84.tex" data-mkpi-regel="72">13</div> </div></div>
+
+</div></div>
+
+</div>
+
+
+<!--
+...... subsection Instellingen en geheugen ......
+-->
+<h5 id="autosec-6" data-mkpi-bestand="TI84.tex" data-mkpi-regel="77"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="77">2&#x2003;</span>Instellingen en geheugen</h5>
+<a id="mkpiweb-autopage-6"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="79">
+In <kbd class="grm-toets grm-donker">mode</kbd> kies je onder meer <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="79"><span class="grm-tab
+grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="79">Degree</span></span> voor graden of <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="79"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="79">Radian</span></span> voor radialen. Controleer deze instelling vóór je met goniometrische functies
+rekent. Zo is \(\sin (30\degree )=0.5\), terwijl \(\sin (30)\) in radialen een andere waarde geeft. Kies met de pijltjes een instelling, bevestig met <kbd class="grm-toets grm-licht">enter</kbd> en verlaat het menu met
+<kbd class="grm-toets grm-tweede">2nd</kbd> en <kbd class="grm-toets grm-donker">mode</kbd>.
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="86">
+Je kunt een waarde bewaren voor later. Typ bijvoorbeeld <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="86">5</span>, druk op de opslagtoets <kbd class="grm-toets
+grm-donker">sto&#x2192;</kbd>, kies met <kbd class="grm-toets grm-alfa">alpha</kbd> de letter <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="86">A</span> en druk op <kbd class="grm-toets grm-licht">enter</kbd>. Daarna kun je
+<span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="86">A</span> in een berekening gebruiken. Een nieuwe waarde opslaan onder dezelfde letter vervangt de vorige.
+</p>
+
+
+<div class="grm-demo" data-mkpi-bestand="TI84.tex" data-mkpi-regel="93">
+
+
+<div class="grm-stap" data-toetsen="5[sto][A][enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="93"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="93">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="93">
+Bewaar \(5\) met <kbd class="grm-toets grm-licht">5</kbd> <kbd class="grm-toets grm-donker">sto&#x2192;</kbd> <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="93"><kbd
+class="grm-toets grm-alfa">alpha</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="93"><span class="grm-boven grm-boven-alpha" data-mkpi-bestand="TI84.tex" data-mkpi-regel="93">A</span><kbd class="grm-toets grm-donker">math</kbd></span></span> <kbd class="grm-toets
+grm-licht">enter</kbd>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="93">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="93">
+<span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="93"><kbd class="grm-toets grm-alfa">alpha</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="93"><span class="grm-boven grm-boven-alpha" data-mkpi-bestand="TI84.tex" data-mkpi-regel="93">A</span><kbd class="grm-toets
+grm-donker">math</kbd></span></span> is de alfafunctie boven <kbd class="grm-toets grm-donker">math</kbd>.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="94">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="94"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="94">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="95"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="95">5&#x2192;A</div><div class="grm-regel grm-rechts" data-mkpi-bestand="TI84.tex" data-mkpi-regel="95">5</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[clear]3[A]+2[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="99"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="99">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="99">
+Typ <kbd class="grm-toets grm-licht">3</kbd> <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="99"><kbd class="grm-toets grm-alfa">alpha</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="99"><span
+class="grm-boven grm-boven-alpha" data-mkpi-bestand="TI84.tex" data-mkpi-regel="99">A</span><kbd class="grm-toets grm-donker">math</kbd></span></span> <kbd class="grm-toets grm-licht">+</kbd> <kbd class="grm-toets grm-licht">2</kbd> <kbd
+class="grm-toets grm-licht">enter</kbd>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="99">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="99">
+Het toestel gebruikt de opgeslagen waarde: \(3\cdot 5+2=17\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="100">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="100"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="100">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="101"> <div class="grm-regel
+grm-rechts" data-mkpi-bestand="TI84.tex" data-mkpi-regel="101">17</div> </div></div>
+
+</div></div>
+
+</div>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="106">
+Lees een foutmelding en kies, indien aangeboden, <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="106">Goto</span> om terug te keren naar de plaats waar het toestel een fout vermoedt.
+Controleer haakjes, mintekens en het domein van de gebruikte functies. Een schermantwoord is het resultaat van de ingevoerde berekening: controleer ook of die berekening de vraag juist weergeeft.
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-7" data-mkpi-bestand="TI84.tex" data-mkpi-regel="112"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="112">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="TI84.tex" data-mkpi-regel="114">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="114">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="TI84.tex" data-mkpi-regel="114"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-8" data-mkpi-bestand="TI84.tex" data-mkpi-regel="114">Oefening 1</h6>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="115">
+Bereken en controleer de volgorde van de bewerkingen. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="TI84.tex" data-mkpi-regel="117">
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="117">
+<span class="listmarker" data-mkpi-bestand="TI84.tex" data-mkpi-regel="117">(a)</span> \(\dfrac {7-3}{2+6}\) <span class="opl opl-vast" style="min-width:5cm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="117">\(0.5\)</span> 
+</p>
+
+</li>
+<li data-mkpi-bestand="TI84.tex" data-mkpi-regel="119">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="119">
+<span class="listmarker" data-mkpi-bestand="TI84.tex" data-mkpi-regel="119">(b)</span> \((-2)^4-3^2\) <span class="opl opl-vast" style="min-width:5cm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="119">\(7\)</span> 
+</p>
+
+</li>
+<li data-mkpi-bestand="TI84.tex" data-mkpi-regel="121">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="121">
+<span class="listmarker" data-mkpi-bestand="TI84.tex" data-mkpi-regel="121">(c)</span> \(\sqrt {5^2+12^2}\) <span class="opl opl-vast" style="min-width:5cm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="121">\(13\)</span>
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="TI84.tex" data-mkpi-regel="125">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="125">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="TI84.tex" data-mkpi-regel="125"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-9" data-mkpi-bestand="TI84.tex" data-mkpi-regel="125">Oefening 2</h6>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="126">
+Bereken \(\sin (30\degree )\) en controleer eerst de instelling voor de hoek. 
+</p>
+<div class="oplossing" data-mkpi-bestand="TI84.tex" data-mkpi-regel="128">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="128">
+Kies <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="128"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="128">Degree</span></span>. Het resultaat is \(0.5\).
+</p>
+</div>
+
+</div>
+
+
+<!--
+...... section Functies en grafieken ......
+-->
+<h4 id="autosec-10" data-mkpi-bestand="TI84.tex" data-mkpi-regel="133"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="133">III&#x2003;</span>Functies en grafieken</h4>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="135">
+We onderzoeken \(f(x)=x^2-4\). Een tabel en een grafiek tonen elk een ander beeld van dezelfde functie. 
+</p>
+<!--
+...... subsection Een functie invoeren en een tabel maken ......
+-->
+<h5 id="autosec-11" data-mkpi-bestand="TI84.tex" data-mkpi-regel="137"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="137">1&#x2003;</span>Een functie invoeren en een tabel maken</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="139">
+Druk op <kbd class="grm-toets grm-bovenrij">y=</kbd> en voer bij <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="139">Y<sub>1</sub></span> de uitdrukking <span
+class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="139">X<sup>2</sup>-4</span> in. De toets <kbd class="grm-toets grm-donker">X,T,&#x03B8;,<em>n</em></kbd> voert de variabele <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="139">X</span> in. Wis of deactiveer
+andere functies als je enkel deze grafiek wilt zien.
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="143">
+Met <kbd class="grm-toets grm-tweede">2nd</kbd> en <kbd class="grm-toets grm-bovenrij">window</kbd> open je <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="143"><kbd
+class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="143"><span class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="143">tblset</span><kbd class="grm-toets grm-bovenrij">window</kbd></span></span>. Stel <span
+class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="143">TblStart</span> in op \(-3\), de tabelstap op \(1\) en kies <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="143"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="143">Auto</span></span> voor de onafhankelijke variabele. Met <kbd
+class="grm-toets grm-tweede">2nd</kbd> en <kbd class="grm-toets grm-bovenrij">graph</kbd> open je de tabel. Je leest bijvoorbeeld \(f(-3)=5\) en \(f(2)=0\). Een tabel toont slechts de gekozen waarden: tussen twee
+rijen kan nog veel gebeuren.
+</p>
+
+
+<div class="grm-demo" data-mkpi-bestand="TI84.tex" data-mkpi-regel="151">
+
+
+<div class="grm-stap" data-toetsen="[y=]X^2-4" data-mkpi-bestand="TI84.tex" data-mkpi-regel="151"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="151">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="151">
+Open <kbd class="grm-toets grm-bovenrij">y=</kbd> en voer \(x^2-4\) in bij \(Y_1\).
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="151">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="151">
+Gebruik <kbd class="grm-toets grm-donker">X,T,&#x03B8;,<em>n</em></kbd> voor \(X\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="152">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="152"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="152">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="153"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="153">Y<sub>1</sub>=X<sup>2</sup>-4</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[tblset][(-)]3[enter]1[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="157"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="157">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="157">
+Open <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="157"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="157"><span class="grm-boven
+grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="157">tblset</span><kbd class="grm-toets grm-bovenrij">window</kbd></span></span>. Stel <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="157">TblStart</span> in op \(-3\) en <span
+class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="157">&#x0394;Tbl</span> op \(1\).
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="157">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="157">
+Laat de beide tabelinstellingen op <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="157"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="157">Auto</span></span> staan.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="158">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="158"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="158">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="159"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="159">TblStart=&#x2212;3</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="159">&#x0394;Tbl=1</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[table]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="163"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="163">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="163">
+Open de tabel met <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="163"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="163"><span class="grm-boven
+grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="163">table</span><kbd class="grm-toets grm-bovenrij">graph</kbd></span></span>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="163">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="163">
+We lezen onder meer \(f(-3)=5\) en \(f(2)=0\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="164">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="164"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="164">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165"> <div class="grm-lijsten
+grm-k2" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165"><span class="grm-cel grm-kop" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">X</span><span class="grm-cel grm-kop" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">Y<sub>1</sub></span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">-3</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">5</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">-2</span><span
+class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">0</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">-1</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">-3</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">0</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">-4</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">1</span><span
+class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">-3</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">2</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">0</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">3</span><span class="grm-cel" data-mkpi-bestand="TI84.tex" data-mkpi-regel="165">5</span> </div></div></div>
+
+</div></div>
+
+</div>
+
+
+<!--
+...... subsection Het venster kiezen ......
+-->
+<h5 id="autosec-12" data-mkpi-bestand="TI84.tex" data-mkpi-regel="170"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="170">2&#x2003;</span>Het venster kiezen</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="172">
+Druk op <kbd class="grm-toets grm-bovenrij">graph</kbd>. Zie je de grafiek niet goed, controleer dan met <kbd class="grm-toets grm-bovenrij">window</kbd>
+de grenzen <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="172">Xmin</span>, <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="172">Xmax</span>, <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="172">Ymin</span> en <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="172">Ymax</span>. De waarden
+<span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="172">Xscl</span> en <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="172">Yscl</span> bepalen de afstand tussen de streepjes op de assen. Kies bijvoorbeeld \(-5\) tot \(5\) voor \(x\) en \(-6\) tot \(10\) voor \(y\).
+Via <kbd class="grm-toets grm-bovenrij">zoom</kbd> en <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="172">ZStandard</span> krijg je een standaardvenster.
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="179">
+Een venster kan een deel van de grafiek verbergen. Het uiterlijk van de kromme hangt ook af van de schaal op de assen. Kies daarom een venster dat past bij de vraag
+en controleer zo nodig een tweede venster. Met <kbd class="grm-toets grm-bovenrij">trace</kbd> loop je met de pijltjes langs de grafiek. Onderaan lees je de coördinaten van het geselecteerde punt. Gebruik dit om te
+verkennen, niet om een exact antwoord te bewijzen.
+</p>
+
+
+<div class="grm-demo grm-demo-vervolg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="188">
+
+
+<div class="grm-stap" data-toetsen="[window][(-)]5[enter]5[enter]1[enter][(-)]6[enter]10[enter]1[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="188"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="188">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="188">
+Open <kbd class="grm-toets grm-bovenrij">window</kbd> en vul de venstergrenzen in.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="188">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="188">
+Bevestig elke waarde met <kbd class="grm-toets grm-licht">enter</kbd>.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="189">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="189"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="189">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="190"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="190">Xmin=&#x2212;5</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="190">Xmax=5</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="190">Xscl=1</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="190">Ymin=&#x2212;6</div><div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="190">Ymax=10</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="190">Yscl=1</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[graph][calc]1 2[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="194"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="194">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="194">
+Teken met <kbd class="grm-toets grm-bovenrij">graph</kbd>. Kies <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="194"><kbd class="grm-toets grm-tweede">2nd</kbd><span
+class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="194"><span class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="194">calc</span><kbd class="grm-toets grm-bovenrij">trace</kbd></span></span> <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="194"><span class="grm-tab
+grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="194">1:</span>value</span>, typ \(2\) en bevestig.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="194">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="194">
+Het punt \((2,0)\) ligt op de grafiek.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="195">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="195"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="195">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="196"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="196">X=2&#x2003;Y=0</div> </div></div>
+
+</div></div>
+
+</div>
+
+
+<!--
+...... subsection Nulwaarden, snijpunten en extrema ......
+-->
+<h5 id="autosec-13" data-mkpi-bestand="TI84.tex" data-mkpi-regel="201"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="201">3&#x2003;</span>Nulwaarden, snijpunten en extrema</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="203">
+Via <kbd class="grm-toets grm-tweede">2nd</kbd> en <kbd class="grm-toets grm-bovenrij">trace</kbd> open je het menu <span
+class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="203"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="203"><span class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="203">calc</span><kbd class="grm-toets
+grm-bovenrij">trace</kbd></span></span>. Kies <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="203">zero</span> om een nulwaarde te benaderen. Plaats met de pijltjes achtereenvolgens een linkergrens en een rechtergrens aan weerszijden van
+de nulwaarde en bevestig telkens met <kbd class="grm-toets grm-licht">enter</kbd>. Kies daarna een startpunt binnen die grenzen en bevestig. Voor \(f\) vind je zo \(x=-2\) en \(x=2\), elk met een eigen zoekinterval.
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="210">
+Voor een snijpunt voer je beide functies in, bijvoorbeeld \(Y_1=x^2-4\) en \(Y_2=0\). Kies <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="210">intersect</span> in <span
+class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="210"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="210"><span class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="210">calc</span><kbd class="grm-toets
+grm-bovenrij">trace</kbd></span></span>, selecteer de twee krommen en kies een startpunt dicht bij het gewenste snijpunt. Voor een minimum of maximum kies je <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="210">minimum</span> of
+<span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="210">maximum</span> en geef je opnieuw grenzen en een startpunt. Voor \(f\) vind je het minimum \((0,-4)\).
+</p>
+
+
+<div class="grm-demo grm-demo-vervolg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218">
+
+
+<div class="grm-stap" data-toetsen="[calc]2[(-)]3[enter][(-)]1[enter][enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="218">
+Kies <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218"><span class="grm-boven
+grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218">calc</span><kbd class="grm-toets grm-bovenrij">trace</kbd></span></span> <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218">2:</span>zero</span>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="218">
+Geef \(-3\) als <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218">Left Bound?</span> en \(-1\) als <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218">Right Bound?</span>. Bevestig telkens. Druk bij <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="218">Guess?</span>
+nogmaals op <kbd class="grm-toets grm-licht">enter</kbd>.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="219">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="219"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="219">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="220"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="220">Zero</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="220">X=&#x2212;2&#x2003;Y=0</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[calc]2 1[enter]3[enter][enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="224"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="224">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="224">
+Herhaal <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="224"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="224">2:</span>zero</span> met grenzen \(1\) en \(3\).
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="224">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="224">
+Een andere nulwaarde vraagt een ander zoekinterval.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="225">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="225"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="225">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="226"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="226">Zero</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="226">X=2&#x2003;Y=0</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[calc]3[(-)]1[enter]1[enter]0[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="230"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="230">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="230">
+Kies <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="230"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="230"><span class="grm-boven
+grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="230">calc</span><kbd class="grm-toets grm-bovenrij">trace</kbd></span></span> <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="230"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="230">3:</span>minimum</span>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="230">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="230">
+Neem grenzen \(-1\) en \(1\) en startpunt \(0\). Het minimum is \((0,-4)\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="231">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="231"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="231">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="232"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="232">Minimum</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="232">X=0&#x2003;Y=&#x2212;4</div> </div></div>
+
+</div></div>
+
+</div>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="237">
+Het toestel geeft numerieke benaderingen. Een kleine afwijking van nul kan door afronding ontstaan. Controleer het resultaat door invullen of met een
+algebraïsche berekening; een grafiek alleen bewijst niet dat er geen andere oplossingen zijn.
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-14" data-mkpi-bestand="TI84.tex" data-mkpi-regel="242"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="242">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="TI84.tex" data-mkpi-regel="244">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="244">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="TI84.tex" data-mkpi-regel="244"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-15" data-mkpi-bestand="TI84.tex" data-mkpi-regel="244">Oefening 3</h6>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="245">
+Voer \(g(x)=x^2-2x-3\) in. Maak een tabel met stapgrootte \(1\), teken de grafiek en zoek de nulwaarden en het minimum. Controleer de nulwaarden door in te
+vullen. 
+</p>
+<div class="oplossing" data-mkpi-bestand="TI84.tex" data-mkpi-regel="249">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="249">
+De nulwaarden zijn \(-1\) en \(3\). Het minimum is \((1,-4)\). Invullen van \(-1\) en \(3\) geeft telkens \(0\).
+</p>
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="TI84.tex" data-mkpi-regel="253">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="253">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="TI84.tex" data-mkpi-regel="253"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-16" data-mkpi-bestand="TI84.tex" data-mkpi-regel="253">Oefening 4</h6>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="254">
+Zoek grafisch de snijpunten van \(y=x^2\) en \(y=x+2\). Controleer de \(x\)-waarden door invullen. 
+</p>
+<div class="oplossing" data-mkpi-bestand="TI84.tex" data-mkpi-regel="257">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="257">
+De snijpunten zijn \((-1,1)\) en \((2,4)\). Voor beide punten hebben de twee voorschriften dezelfde waarde.
+</p>
+</div>
+
+</div>
+
+
+<!--
+...... section Matrices ......
+-->
+<h4 id="autosec-17" data-mkpi-bestand="TI84.tex" data-mkpi-regel="325"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="325">IV&#x2003;</span>Matrices</h4>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="327">
+We bewaren de matrices 
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="328">
+\[ A=\begin {pmatrix}1&amp;2\\3&amp;4\end {pmatrix},\qquad B=\begin {pmatrix}2&amp;0\\1&amp;2\end {pmatrix}.       \]
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="332">
+Daarmee kunnen we berekeningen controleren die we ook met de hand uitvoeren. 
+</p>
+<!--
+...... subsection Een matrix invoeren ......
+-->
+<h5 id="autosec-18" data-mkpi-bestand="TI84.tex" data-mkpi-regel="333"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="333">1&#x2003;</span>Een matrix invoeren</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="335">
+Open met <kbd class="grm-toets grm-tweede">2nd</kbd> en de toets voor de inverse het menu <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="335"><kbd class="grm-toets
+grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="335"><span class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="335">matrix</span><kbd class="grm-toets grm-donker"><em>x</em>&#x207B;&#x00B9;</kbd></span></span>. Kies onder
+<span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="335"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="335">EDIT</span></span> de matrix <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="335">[A]</span>. Stel het aantal rijen en kolommen beide in op \(2\) en vul de elementen rij
+per rij in. Bevestig elke invoer met <kbd class="grm-toets grm-licht">enter</kbd>. Voer op dezelfde manier \(B\) in als <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="335">[B]</span>. Keer met <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="335"><kbd
+class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="335"><span class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="335">quit</span><kbd class="grm-toets grm-donker">mode</kbd></span></span> terug naar het rekenscherm.
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="341">
+Om een matrix op te roepen kies je haar naam onder <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="341"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="341">NAMES</span></span> in het menu
+<span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="341"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="341"><span class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="341">matrix</span><kbd class="grm-toets
+grm-donker"><em>x</em>&#x207B;&#x00B9;</kbd></span></span>. Om een element te wijzigen open je de matrix opnieuw onder <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="341"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="341">EDIT</span></span>,
+ga je met de pijltjes naar dat element en voer je de nieuwe waarde in.
+</p>
+
+
+<!--
+...... subsection Bewerkingen en inverse ......
+-->
+<h5 id="autosec-19" data-mkpi-bestand="TI84.tex" data-mkpi-regel="346"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="346">2&#x2003;</span>Bewerkingen en inverse</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="348">
+Roep <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="348">[A]</span> en <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="348">[B]</span> op uit het matrixmenu en bereken <span
+class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="348">[A]+[B]</span> en <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="348">[A]*[B]</span>. Je vindt 
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="350">
+\[ A+B=\begin {pmatrix}3&amp;2\\4&amp;6\end {pmatrix},\qquad AB=\begin {pmatrix}4&amp;4\\10&amp;8\end {pmatrix}.                      \]
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="354">
+Voor \(2A\) voer je <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="354">2*[A]</span> in. De afmetingen moeten bij de bewerking passen: voor \(AB\) moet het aantal kolommen van
+\(A\) gelijk zijn aan het aantal rijen van \(B\). In het algemeen is \(AB\) niet gelijk aan \(BA\).
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="358">
+Voor de determinant kies je <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="358">det(</span> onder de tab <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="358"><span class="grm-tab
+grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="358">MATH</span></span> in het matrixmenu, gevolgd door <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="358">[A]</span> en een sluithaakje. Hier is \(\det A=-2\). Voor de inverse roep je <span
+class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="358">[A]</span> op en druk je op de toets voor de inverse. Omdat de determinant niet nul is, bestaat 
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="362">
+\[ A^{-1}=\begin {pmatrix}-2&amp;1\\1.5&amp;-0.5\end {pmatrix}.             \]
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="365">
+Een vierkante matrix met determinant nul heeft geen inverse.
+</p>
+
+
+<div class="grm-demo" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369">
+
+
+<div class="grm-stap" data-toetsen="[matrix][right][right]1 2[enter]2[enter]1[enter]2[enter]3[enter]4[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="369">
+Open <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369"><span class="grm-boven
+grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369">matrix</span><kbd class="grm-toets grm-donker"><em>x</em>&#x207B;&#x00B9;</kbd></span></span>, ga naar <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369"><span class="grm-tab
+grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369">EDIT</span></span> en kies <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369">1:</span>[A]</span>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="369">
+Geef eerst \(2\) rijen en \(2\) kolommen op. Vul daarna \(1,2,3,4\) rij per rij in. Keer terug met <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369"><span
+class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="369">quit</span><kbd class="grm-toets grm-donker">mode</kbd></span></span>.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="370">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="370"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="370">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="371"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="371">MATRIX[A] 2 × 2</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="371">1&#x2003;2</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="371">3&#x2003;4</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="371">2,2=4</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[quit][matrix]1[inverse][enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="375"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="375">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="375">
+Kies in <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="375"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="375"><span class="grm-boven
+grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="375">matrix</span><kbd class="grm-toets grm-donker"><em>x</em>&#x207B;&#x00B9;</kbd></span></span> onder <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="375"><span class="grm-tab
+grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="375">NAMES</span></span> de matrix <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="375"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="375">1:</span>[A]</span>. Druk op <kbd class="grm-toets
+grm-donker"><em>x</em>&#x207B;&#x00B9;</kbd> en <kbd class="grm-toets grm-licht">enter</kbd>. 
+</p>
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="376">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="376"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="376">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="377"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="377">[[&#x2212;2&#x2003;1]</div><div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="377">[1.5&#x2003;&#x2212;.5]]</div> </div></div>
+
+</div></div>
+
+</div>
+
+
+<!--
+...... subsection Een stelsel oplossen ......
+-->
+<h5 id="autosec-20" data-mkpi-bestand="TI84.tex" data-mkpi-regel="382"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="382">3&#x2003;</span>Een stelsel oplossen</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="384">
+Het stelsel \(x+2y=5\) en \(3x+4y=11\) schrijven we als 
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="385">
+\[ A\begin {pmatrix}x\\y\end {pmatrix}=\begin {pmatrix}5\\11\end {pmatrix}.           \]
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="388">
+Voer de rechterkolom in als een matrix <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="388">[C]</span> met twee rijen en één kolom. Bereken <span
+class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="388">[A]</span>\(^{-1}\)<span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="388">*[C]</span>. Het resultaat is de kolom met \(x=1\) en \(y=2\). Invullen in beide vergelijkingen bevestigt de oplossing. Deze werkwijze gebruikt
+de inverse en kan dus alleen wanneer die bestaat.
+</p>
+
+
+<!--
+...... subsection Een stelsel oplossen met rref ......
+-->
+<h5 id="autosec-21" data-mkpi-bestand="TI84.tex" data-mkpi-regel="393"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="393">4&#x2003;</span>Een stelsel oplossen met rref</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="395">
+We lossen hetzelfde stelsel op zonder een inverse te berekenen: 
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="396">
+\[ \begin {cases} x+2y=5,\\ 3x+4y=11.        \end {cases} \]
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="402">
+We voeren de <b>uitgebreide matrix</b> in: de coëfficiënten staan links, de rechterleden in de laatste kolom. De functie <b>rref</b> herleidt die
+matrix tot de <b>rij-canonieke vorm</b>. 
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="405">
+\[ \left (\begin {array}{rr|r}1&amp;2&amp;5\\3&amp;4&amp;11\end {array}\right ) \overset {\text {rref}}{\sim } \left (\begin {array}{rr|r}1&amp;0&amp;1\\0&amp;1&amp;2\end {array}\right ).                         \]
+</p>
+
+
+<div class="grm-demo" data-mkpi-bestand="TI84.tex" data-mkpi-regel="413">
+
+
+<div class="grm-stap" data-toetsen="[matrix][rechts][rechts]1 2[enter]3[enter]1[enter]2[enter]5[enter]3[enter]4[enter]11[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="413"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="413">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="413">
+Open <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="413"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="413"><span class="grm-boven
+grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="413">matrix</span><kbd class="grm-toets grm-donker"><em>x</em>&#x207B;&#x00B9;</kbd></span></span>, kies <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="413"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="413">EDIT</span></span>
+en <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="413"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="413">1:</span>[A]</span>. Geef \(2\) rijen en \(3\) kolommen op. Voer daarna de elementen rij per rij in.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="415">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="415">
+Neem de rechterleden \(5\) en \(11\) mee als laatste kolom. Dit vervangt de vorige inhoud van <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="415">[A]</span>.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="417">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="417"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="417">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="418"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="418">MATRIX[A] 2 × 3</div> <div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="418">1&#x2003;2&#x2003;5</div> <div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="418">3&#x2003;4&#x2003;11</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[quit][matrix][rechts][onder][onder][onder][onder][onder][onder][onder][onder][onder][onder][onder][enter][matrix]1)[enter]" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425"><div class="grm-stap-tekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="425">
+Keer terug met <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425"><span class="grm-boven
+grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425">quit</span><kbd class="grm-toets grm-donker">mode</kbd></span></span>. Open <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425"><kbd class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425"><span
+class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425">matrix</span><kbd class="grm-toets grm-donker"><em>x</em>&#x207B;&#x00B9;</kbd></span></span>, ga naar <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425"><span class="grm-tab
+grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425">MATH</span></span> en selecteer <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425">rref(</span> met de pijltjes en <kbd class="grm-toets grm-licht">enter</kbd>. Voeg via <span class="grm-combinatie" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425"><kbd
+class="grm-toets grm-tweede">2nd</kbd><span class="grm-gelaagd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425"><span class="grm-boven grm-boven-2nd" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425">matrix</span><kbd class="grm-toets grm-donker"><em>x</em>&#x207B;&#x00B9;</kbd></span></span>,
+<span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425">NAMES</span></span>, <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425"><span class="grm-tab grm-actief" data-mkpi-bestand="TI84.tex" data-mkpi-regel="425">1:</span>[A]</span> de matrix toe. Sluit het haakje en
+druk op <kbd class="grm-toets grm-licht">enter</kbd>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="TI84.tex" data-mkpi-regel="429">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="429">
+We berekenen <span class="grm-schermtekst" data-mkpi-bestand="TI84.tex" data-mkpi-regel="429">rref([A])</span>. Lees de laatste kolom af: \(x=1\) en \(y=2\). Controleer door invullen in het oorspronkelijke stelsel.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="431">
+
+<div class="grm-scherm" data-mkpi-bestand="TI84.tex" data-mkpi-regel="431"><div class="grm-status" data-mkpi-bestand="TI84.tex" data-mkpi-regel="431">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="TI84.tex" data-mkpi-regel="432"> <div class="grm-regel
+grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="432">rref([A])</div> <div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="432">[[1&#x2003;0&#x2003;1]</div> <div class="grm-regel grm-links" data-mkpi-bestand="TI84.tex" data-mkpi-regel="432">[0&#x2003;1&#x2003;2]]</div> </div></div>
+
+</div></div>
+
+</div>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="439">
+<b>Lees altijd de volledige resultaatmatrix.</b> Een rij <span data-mkpi-bestand="TI84.tex" data-mkpi-regel="440">\(\begin {pmatrix}0&amp;0&amp;1\end
+{pmatrix}\)</span> betekent <span data-mkpi-bestand="TI84.tex" data-mkpi-regel="440">\(0=1\ \lightning \)</span>: het stelsel heeft geen oplossing. Een nulrij <span data-mkpi-bestand="TI84.tex" data-mkpi-regel="442">\(\begin
+{pmatrix}0&amp;0&amp;0\end {pmatrix}\)</span> legt geen extra voorwaarde op. Blijft een onbekende vrij en is er geen strijdigheid, dan zijn er oneindig veel oplossingen.
+Met rref kunnen we dus ook stelsels onderzoeken waarvoor de coëfficiëntenmatrix geen inverse heeft.
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-22" data-mkpi-bestand="TI84.tex" data-mkpi-regel="447"><span class="sectionnumber" data-mkpi-bestand="TI84.tex" data-mkpi-regel="447">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="TI84.tex" data-mkpi-regel="449">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="449">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="TI84.tex" data-mkpi-regel="449"></span>
+</p>
+<!--
+...... subsubsection Oefening 5 ......
+-->
+<h6 id="autosec-23" data-mkpi-bestand="TI84.tex" data-mkpi-regel="449">Oefening 5</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="450">
+Gebruik de matrices \(A\) en \(B\) hierboven. Bereken \(BA\) en vergelijk met \(AB\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="TI84.tex" data-mkpi-regel="452">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="452">
+\(BA=\begin {pmatrix}2&amp;4\\7&amp;10\end {pmatrix}\) en dus \(BA\ne AB\).
+</p>
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="TI84.tex" data-mkpi-regel="455">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="455">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="TI84.tex" data-mkpi-regel="455"></span>
+</p>
+<!--
+...... subsubsection Oefening 6 ......
+-->
+<h6 id="autosec-24" data-mkpi-bestand="TI84.tex" data-mkpi-regel="455">Oefening 6</h6>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="456">
+Los met een inverse matrix het stelsel \(2x+y=5\) en \(x+y=3\) op. Controleer door invullen. 
+</p>
+<div class="oplossing" data-mkpi-bestand="TI84.tex" data-mkpi-regel="459">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="459">
+De oplossing is \(x=2\) en \(y=1\). Beide vergelijkingen zijn voldaan.
+</p>
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="TI84.tex" data-mkpi-regel="462">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="462">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="TI84.tex" data-mkpi-regel="462"></span>
+</p>
+<!--
+...... subsubsection Oefening 7 ......
+-->
+<h6 id="autosec-25" data-mkpi-bestand="TI84.tex" data-mkpi-regel="462">Oefening 7</h6>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="463">
+Los met rref het stelsel \(x+y=3\) en \(2x+2y=6\) op. Wat betekent de nulrij in het resultaat? Vervang daarna het tweede rechterlid door \(7\). Wat verandert er?
+
+</p>
+<div class="oplossing" data-mkpi-bestand="TI84.tex" data-mkpi-regel="467">
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="467">
+Met rechterlid \(6\) vinden we 
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="468">
+\[ \left (\begin {array}{rr|r}1&amp;1&amp;3\\0&amp;0&amp;0\end {array}\right ).            \]
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="471">
+De tweede vergelijking legt geen extra voorwaarde op. Er zijn oneindig veel oplossingen: \((x,y)=(3-t,t)\) met \(t\in \R \). Met rechterlid \(7\) vinden we 
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="474">
+\[ \left (\begin {array}{rr|r}1&amp;1&amp;0\\0&amp;0&amp;1\end {array}\right ).            \]
+</p>
+
+<p data-mkpi-bestand="TI84.tex" data-mkpi-regel="477">
+De laatste rij betekent \(0=1\ \lightning \). Het stelsel heeft geen oplossing.
+</p>
+</div>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="vensters.js?v=e0aa010a500d"></script>
+<script src="presentatie.js?v=e0aa010a500d"></script>
+<script src="statistieken.js?v=e0aa010a500d"></script>
+<script src="grm-toetsen.js?v=e0aa010a500d"></script>
+<script src="grm-demo.js?v=e0aa010a500d"></script>
+</body>
+</html>

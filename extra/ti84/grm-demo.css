@@ -1,0 +1,146 @@
+/* Demo met de echte rekenmachine (grm-demo.js). Links de tekst van de stappen,
+ * rechts de rekenmachine; de statische schermen van de afdruk verdwijnen zodra
+ * de rekenmachine er echt staat (klasse grm-demo-actief). */
+.grm-demo {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(16rem, 21rem);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.grm-demo-tekst { min-width: 0; }
+
+/* Een kop tussen de stappen (een gesterde \subsubsection* in een demo die over
+ * meerdere onderdelen loopt) ziet eruit als een kop midden in een slide. */
+.grm-demo :is(h4, h5, h6) {
+  margin: 1.5rem 0 1rem;
+  font-size: 1.6rem;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--kleur-accent);
+  scroll-margin-top: 1.5rem;
+}
+
+.grm-demo-rekenmachine {
+  position: sticky;
+  top: 1rem;
+}
+
+/* Reserveer naast de kop en inleiding van de demo (grm-naast, vanaf de laatste
+ * kop ervoor) dezelfde kolom als naast de stappen. */
+@media screen and (min-width: 44.001rem) {
+  .slide.grm-slide > .grm-naast {
+    max-width: calc(100% - 22.5rem);
+  }
+  .grm-slide > .grm-demo .grm-demo-rekenmachine {
+    margin-top: calc(-1px * var(--grm-aanloop, 0));
+  }
+  .grm-slide > .grm-demo .grm-demo-rekenmachine iframe {
+    height: var(--grm-hoogte, min(calc(100vh - 9rem), 48rem));
+  }
+}
+
+/* De knoppen zijn die van de figuurbalk (pres-figuurbalk, pres-stapknop). */
+.grm-demo-balk {
+  display: flex;
+  align-items: center;
+  gap: .3rem;
+  margin-bottom: .5rem;
+}
+
+.grm-demo-balk .pres-stapknop {
+  opacity: .65;
+}
+
+.grm-demo-balk .grm-demo-tempo {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.grm-demo-balk .grm-demo-tempo[aria-pressed="true"] {
+  opacity: 1;
+  color: var(--kleur-accent);
+  background: var(--kleur-accent-zacht);
+}
+
+.grm-demo-stand {
+  margin-left: .5rem;
+  color: var(--kleur-zwak);
+  font-size: .85em;
+  font-variant-numeric: tabular-nums;
+}
+
+.grm-demo-rekenmachine iframe {
+  display: block;
+  width: 100%;
+  height: min(calc(100vh - 15rem), 42rem);
+  /* Houd plaats voor scherm boven toetsen, ook als de slide laag begint of
+   * het browservenster kort is. De grid reserveert daarvoor zo nodig witruimte
+   * onder de tekst; de pagina mag verder naar beneden doorlopen. */
+  min-height: max(36rem, 540px);
+  /* Hoger rekt de keypad de toetsen uit tot ze niet meer op een TI-84 lijken. */
+  max-height: 48rem;
+  border: 0;
+  border-radius: .75rem;
+  /* De witte behuizing van de dagstand heeft een rand nodig tegen de pagina. */
+  box-shadow: 0 0 0 1px var(--kleur-lijn);
+}
+
+/* Een stap: links de tekst, rechts het statische scherm van de afdruk. */
+.grm-stap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 1.5rem;
+  margin: 0 0 1rem;
+}
+
+.grm-stap-tekst,
+.grm-stap-scherm {
+  min-width: 0;
+  overflow-x: auto;
+}
+
+/* Zonder werkende rekenmachine blijft alles zoals op papier. */
+.grm-demo:not(.grm-demo-actief) .grm-demo-rekenmachine { display: none; }
+.grm-demo:not(.grm-demo-actief) { display: block; }
+
+/* Met rekenmachine staat het scherm rechts van de demo, niet naast elke stap. */
+.grm-demo-actief .grm-stap { grid-template-columns: minmax(0, 1fr); }
+.grm-demo-actief .grm-stap-scherm { display: none; }
+
+/* Uitleg bij een stap: wat in de velden van de rekenmachine komt. Zolang de
+ * rekenmachine er niet is, staan de statische schermen er en is ze overbodig. */
+.grm-demo:not(.grm-demo-actief) .grm-uitleg { display: none; }
+
+.grm-uitleg {
+  margin: .5rem 0 1rem;
+  padding-left: .75rem;
+  border-left: 2px solid var(--kleur-lijn);
+  color: var(--kleur-tekst);
+  font-size: .95em;
+}
+
+.grm-uitleg ul { margin: .3rem 0; padding-left: 1.2rem; }
+
+/* Pas klikbaar zodra de rekenmachine er is. */
+.grm-demo-actief .grm-stap-klik { cursor: pointer; border-radius: .2rem; }
+.grm-demo-actief .grm-stap-klik:hover { background: var(--kleur-actieve-regel); }
+
+.grm-stap-actief {
+  background: var(--kleur-accent-zacht);
+  box-shadow: -.5rem 0 0 var(--kleur-accent-zacht), -.65rem 0 0 var(--kleur-accent);
+  border-radius: .2rem;
+}
+
+@media (max-width: 44rem) {
+  .grm-demo,
+  .grm-stap { grid-template-columns: minmax(0, 1fr); }
+  .grm-demo-rekenmachine { order: -1; top: 1rem; z-index: 2; }
+  .grm-demo-rekenmachine iframe { height: min(calc(100vh - 12rem), 34rem); }
+}
+
+@media print {
+  .grm-demo-rekenmachine { display: none !important; }
+  .grm-demo-actief .grm-stap-scherm { display: block; }
+}

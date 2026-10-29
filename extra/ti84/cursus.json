@@ -1,0 +1,19 @@
+{
+ "titel": "TI-84 in de klas",
+ "hoofdstuk": null,
+ "code": null,
+ "vak": "Extra",
+ "domein": "Extra",
+ "domeinnaam": "Hulpmiddelen",
+ "url": "extra/ti84",
+ "secties": [
+  "Kennismaken met het rekentoestel",
+  "Berekeningen",
+  "Functies en grafieken",
+  "Matrices"
+ ],
+ "leerplandoelen": [],
+ "interactief": false,
+ "python": false,
+ "oefeningen": true
+}

@@ -27,8 +27,10 @@
   "use strict";
 
   var BRON = "vendor/ti84/index.html?embed";
-  var TOETSTEMPO = 450;     // ms na een toets die je aanwijst: [y=], [enter]
-  var TYPTEMPO = 150;       // ms na een getypt teken: 3X^4+8
+  var TOETSTEMPO = 1000;    // ms na een toets die je aanwijst: [y=], [enter]
+  var TYPTEMPO = 400;       // ms na een getypt teken: 3X^4+8
+  var langzaam = false;
+  var tempoVolgers = [];
 
   // De rekenmachine volgt de dag- en nachtstand van de site: overdag de witte
   // behuizing, 's nachts de donkere.
@@ -45,11 +47,12 @@
     begin: "M5 5v14M19 6l-9 6 9 6z",
     links: "M15 18l-6-6 6-6",
     rechts: "M9 18l6-6-6-6",
-    einde: "M19 5v14M5 6l9 6-9 6z"
+    einde: "M19 5v14M5 6l9 6-9 6z",
+    schildpad: "M10 6V4a2 2 0 0 1 4 0v2M8 8 5 6 3 8l4 3m9-3 3-2 2 2-4 3M7 15l-4 3 2 2 4-3m8-2 4 3-2 2-4-3m-4 3 1 2 1-2M18 12c0 4-2.7 7-6 7s-6-3-6-7 2.7-6 6-6 6 2 6 6ZM12 9l3 2-1 4h-4l-1-4 3-2Zm0-3v3m-6 3 3-1m9 1-3-1m-7 6 2-2m6 2-2-2"
   };
 
   function pictogram(naam) {
-    if (window.mathesisIcoon) return window.mathesisIcoon(naam);
+    if (window.mathesisIcoon && naam !== "schildpad") return window.mathesisIcoon(naam);
     var ns = "http://www.w3.org/2000/svg";
     var svg = document.createElementNS(ns, "svg");
     svg.setAttribute("viewBox", "0 0 24 24");
@@ -142,6 +145,18 @@
     stand.className = "grm-demo-stand";
     stand.setAttribute("aria-live", "polite");
     balk.appendChild(stand);
+    var tempoKnop = stapknop("schildpad", function () {
+      langzaam = !langzaam;
+      tempoVolgers.forEach(function (volg) { volg(); });
+    });
+    function volgTempo() {
+      tempoKnop.setAttribute("aria-pressed", String(langzaam));
+      if (!langzaam && traag) stuur({ ti84: "finish" });
+    }
+    tempoVolgers.push(volgTempo);
+    tempoKnop.classList.add("grm-demo-tempo");
+    volgTempo();
+    zetTitel(tempoKnop, "Toetsen langzaam invoeren");
 
     var frame = document.createElement("iframe");
     frame.src = BRON + "&theme=" + thema();
@@ -286,10 +301,10 @@
     function stap() {
       var i = volgende;
       bezig = true;
-      traag = true;
+      traag = langzaam;
       markeer(i);
       opschrift(i + 1);
-      speel(stappen[i].toetsen, TOETSTEMPO, function () {
+      speel(stappen[i].toetsen, langzaam ? TOETSTEMPO : 0, function () {
         bezig = false;
         traag = false;
         volgende = i + 1;

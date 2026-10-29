@@ -102,7 +102,7 @@
 
   /* --- Interactie: codeblokken, grafieken en de rekenmachine ------------ */
 
-  var INTERACTIEF = "figure.interactieve-grafiek, .pres-rekenmachine";
+  var INTERACTIEF = "figure.interactieve-grafiek, .pres-rekenmachine, .latexvoorbeeld, .latexoefening";
 
   function interactie() {
     tel("interactief/" + pagina(), "codeblok, grafiek of rekenmachine");
