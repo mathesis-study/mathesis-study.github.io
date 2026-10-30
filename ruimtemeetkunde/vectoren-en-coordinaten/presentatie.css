@@ -42,9 +42,9 @@
   --schaduw: rgba(0, 0, 0, .18);
   --figuur-filter: none;
   --figuur-mengmodus: multiply;
-  --grm-donker: #2e3238;
-  --grm-donker-rand: #2e3238;
-  --grm-donker-tekst: #ffffff;
+  --grm-donker: #ecedef;
+  --grm-donker-rand: #9aa0a6;
+  --grm-donker-tekst: #1b1d20;
   --grm-licht: #ecedef;
   --grm-licht-rand: #9aa0a6;
   --grm-licht-tekst: #1b1d20;
@@ -102,8 +102,10 @@
     --schaduw: rgba(0, 0, 0, .55);
     --figuur-filter: invert(1) hue-rotate(180deg);
     --figuur-mengmodus: screen;
-    /* De toetsen houden hun kleur; enkel de donkere krijgen een rand, anders
-     * verdwijnen ze in het vlak. Het scherm van het toestel is gedempt wit. */
+    /* Donkere toetsen krijgen een zichtbare rand in de nachtstand.
+     * Het scherm van het toestel is gedempt wit. */
+    --grm-donker: #2e3238;
+    --grm-donker-tekst: #ffffff;
     --grm-donker-rand: #5b636d;
     --grm-licht: #d9dcdf;
     --grm-bovenrij: #c3c7cc;
@@ -2051,34 +2053,50 @@ kbd.grm-pijl {
   white-space: nowrap;
 }
 
-/* Het label boven de toets, zoals het op het toestel gedrukt staat. Het staat
- * in de ruimte die de bovenmarge van de houder vrijmaakt: de toets blijft zo
- * op de basislijn van de tekst, en het label schuift niet over de regel
- * erboven. */
-.grm-gelaagd {
-  position: relative;
+/* Alle toetsvoorbeelden hebben dezelfde compacte Evo-vorm. */
+kbd.grm-evo {
+  box-sizing: border-box;
   display: inline-block;
-  padding-top: .75em;
-}
-
-.grm-boven {
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: .62em;
-  font-weight: 600;
+  position: relative;
+  width: 3.4em;
+  height: 1.6em;
+  min-width: 0;
+  padding: .12em .22em;
+  font-size: 1rem;
+  vertical-align: middle;
   line-height: 1;
-  white-space: nowrap;
+  border-radius: .28em;
+}
+.grm-legendes {
+  position: absolute;
+  top: .12em;
+  left: .22em;
+  right: .22em;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: .75em;
+  line-height: 1;
+}
+.grm-legende-2nd { color: var(--grm-tweede-label); }
+.grm-legende-alpha { color: var(--grm-alfa-label); }
+.grm-legendes > span { font-size: .5em; opacity: .4; }
+.grm-basistekst { position: absolute; bottom: .15em; left: 0; right: 0; font-size: .72em; opacity: .4; }
+.grm-actief-basis .grm-basistekst { opacity: 1; }
+.grm-actief-2nd .grm-basistekst,
+.grm-actief-alpha .grm-basistekst { font-size: .55em; }
+kbd.grm-evo.grm-tweede,
+kbd.grm-evo.grm-alfa { border-color: var(--grm-licht-rand); }
+.grm-evo.grm-tweede .grm-basistekst,
+.grm-evo.grm-alfa .grm-basistekst {
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  font-size: .9em;
 }
 
-.grm-boven-2nd {
-  color: var(--grm-tweede-label);
-}
-
-.grm-boven-alpha {
-  color: var(--grm-alfa-label);
-}
+.grm-actief-2nd .grm-legende-2nd,
+.grm-actief-alpha .grm-legende-alpha { font-size: .9em; opacity: 1; }
 
 .grm-schermtekst {
   display: inline-block;

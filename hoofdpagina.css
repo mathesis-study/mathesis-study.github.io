@@ -29,9 +29,9 @@
   --schaduw: rgba(0, 0, 0, .18);
   --figuur-filter: none;
   --figuur-mengmodus: multiply;
-  --grm-donker: #2e3238;
-  --grm-donker-rand: #2e3238;
-  --grm-donker-tekst: #ffffff;
+  --grm-donker: #ecedef;
+  --grm-donker-rand: #9aa0a6;
+  --grm-donker-tekst: #1b1d20;
   --grm-licht: #ecedef;
   --grm-licht-rand: #9aa0a6;
   --grm-licht-tekst: #1b1d20;
@@ -89,8 +89,10 @@
     --schaduw: rgba(0, 0, 0, .55);
     --figuur-filter: invert(1) hue-rotate(180deg);
     --figuur-mengmodus: screen;
-    /* De toetsen houden hun kleur; enkel de donkere krijgen een rand, anders
-     * verdwijnen ze in het vlak. Het scherm van het toestel is gedempt wit. */
+    /* Donkere toetsen krijgen een zichtbare rand in de nachtstand.
+     * Het scherm van het toestel is gedempt wit. */
+    --grm-donker: #2e3238;
+    --grm-donker-tekst: #ffffff;
     --grm-donker-rand: #5b636d;
     --grm-licht: #d9dcdf;
     --grm-bovenrij: #c3c7cc;

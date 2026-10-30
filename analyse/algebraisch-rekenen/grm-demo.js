@@ -198,7 +198,11 @@
       if (scrollvak) {
         var ruimteBoven = boven - scrollvak.getBoundingClientRect().top + scrollvak.scrollTop;
         var balkHoogte = balk.getBoundingClientRect().height + parseFloat(getComputedStyle(balk).marginBottom);
-        var hoogte = Math.max(320, Math.floor(scrollvak.clientHeight - ruimteBoven - balkHoogte - 16)) + "px";
+        // Houd de toetsen ook in een lager venster voldoende hoog. De kolom
+        // mag daarvoor iets doorlopen onder de zichtbare rand van de slide.
+        var minimumHoogte = Math.round(frame.getBoundingClientRect().width * 2.1);
+        var hoogte = Math.max(320, minimumHoogte,
+          Math.floor(scrollvak.clientHeight - ruimteBoven - balkHoogte - 16)) + "px";
         if (kolom.style.getPropertyValue("--grm-hoogte") !== hoogte) {
           kolom.style.setProperty("--grm-hoogte", hoogte);
         }

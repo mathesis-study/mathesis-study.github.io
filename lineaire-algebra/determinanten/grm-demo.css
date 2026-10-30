@@ -10,6 +10,15 @@
 
 .grm-demo-tekst { min-width: 0; }
 
+/* Reserveer in elke tekstregel ruimte voor de toetsvoorbeelden. Zo bepalen
+ * losse toetsen niet langer hoeveel afstand er tussen twee regels zit. */
+.grm-stap-tekst { line-height: 1.8; }
+.grm-stap-tekst kbd.grm-evo {
+  vertical-align: -.35em;
+  margin-block: -.1em;
+}
+
+
 /* Een kop tussen de stappen (een gesterde \subsubsection* in een demo die over
  * meerdere onderdelen loopt) ziet eruit als een kop midden in een slide. */
 .grm-demo :is(h4, h5, h6) {
