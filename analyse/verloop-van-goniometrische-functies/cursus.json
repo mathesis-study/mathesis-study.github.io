@@ -1,0 +1,27 @@
+{
+ "titel": "Verloop van goniometrische functies",
+ "hoofdstuk": 19,
+ "code": "A19",
+ "herhaling": false,
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/verloop-van-goniometrische-functies",
+ "secties": [
+  "Herhaling",
+  "Afgeleide van sinus en cosinus",
+  "Afgeleide van tangens en cotangens",
+  "Hogere afgeleiden",
+  "De regel van de l’Hospital",
+  "Verloop van goniometrische functies",
+  "Extremumvraagstukken",
+  "Toepassing: harmonische en gedempte trilling"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.28",
+  "WD3_06.08.29"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": false
+}

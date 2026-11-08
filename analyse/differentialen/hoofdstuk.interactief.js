@@ -1,4 +1,4 @@
-/* Interactieve grafieken bij A19_Differentialen.tex.
+/* Interactieve grafieken bij A21_Differentialen.tex.
  *
  * Elke definitie hoort bij één omgeving interactievegrafiek uit de cursus en
  * draagt dezelfde naam als het tweede argument daarvan. De algemene runtime

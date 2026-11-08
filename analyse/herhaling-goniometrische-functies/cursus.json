@@ -1,0 +1,29 @@
+{
+ "titel": "Interactieve herhaling: goniometrische functies",
+ "hoofdstuk": 9,
+ "code": null,
+ "herhaling": true,
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/herhaling-goniometrische-functies",
+ "secties": [
+  "Periodieke functies",
+  "De grafieken van sinus, cosinus en tangens",
+  "De algemene sinusfunctie",
+  "Goniometrische vergelijkingen",
+  "Goniometrische ongelijkheden"
+ ],
+ "leerplandoelen": [
+  "BV3_06.02",
+  "BV3_06.08",
+  "BV3_06.09",
+  "BV3_06.10",
+  "WD3_06.08.18",
+  "WD3_06.08.21",
+  "WD3_06.08.23"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": true
+}

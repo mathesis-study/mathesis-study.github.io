@@ -1,0 +1,2465 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Interactieve herhaling: goniometrische functies</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=845860fc9d21" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * you choose how answers wait: compact, as empty frames or all open; in
+//    compact an exercise first shows its short answer, and the full working
+//    only on a second click;
+//  * a series of exercises can be paged through one at a time and comes
+//    with a PDF to print; extra proofs and the instructions per tool (TI-84
+//    or Python) stay folded away until you open them;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a figure with a parameter gets a slider, a figure with several cases
+//    switches between them without losing the camera, and in the large view
+//    you walk from figure to figure through the whole chapter;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * matrices you can click: pick an entry, a row or a diagonal and the
+//    matching term of the formula lights up, and the other way round;
+//  * Python runs in the page (Pyodide, with NumPy): exercises with checks
+//    and hints, code you can step through instruction by instruction or,
+//    for a loop, line by line with its variables in view, trace exercises
+//    that fill a table of the variables as you step, and code that drives
+//    an interactive graph; each Python section also comes as a notebook;
+//  * the instructions for a graphing calculator play step by step on a
+//    working TI-84 beside the text, which you can also press yourself (the
+//    calculator is ti84-calculator by WhitDeckard09, with an embed mode
+//    added for this site);
+//  * a matrix calculator, a calculator for systems of linear equations that
+//    row-reduces step by step and discusses parameters case by case, and a
+//    function calculator whose CAS derives step by step, all in the
+//    notation of the course;
+//  * MathJax is extended where the course needs it, so the page shows what
+//    the PDF shows: foreach loops, matrices with row and column headings,
+//    braces across rows, partial rules in tables, highlighted cells and
+//    terms, the end-of-proof square at the right margin and references
+//    inside a formula; accented letters are real characters, so searching
+//    and copying text works;
+//  * formulas are typeset slide by slide, so a long chapter opens quickly;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * the site has its own icon and can be installed as an app;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well; the one request that may
+//    leave it is an optional visit count per chapter, without cookies or
+//    personal data.
+//
+
+MathJax = {
+     options: { enableMenu: false },
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=845860fc9d21"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=845860fc9d21"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=845860fc9d21" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=845860fc9d21" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\vov }[1]{\aside {{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text {&grave;}}}\mkern -1mu\mathopen {}#1\mathclose {}\mkern -1mu{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text
+{&apos;}}}}}\)
+
+\(\newcommand {\truc }[1]{\class {truc}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="7">
+ <header class="cursustitel"> <p class="cursushoofdstuk" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="7">Hoofdstuk
+9</p> <h1 data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="7">Interactieve herhaling: goniometrische functies</h1> </header>
+</p>
+
+
+
+
+
+
+
+
+<div class="cursusleerplan" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-2" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-2"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">•</span> <b>BV3_06.02</b> (MD 06.02) De leerlingen brengen met behulp van de grafiek, kenmerken van een functie in verband met de betekenisvolle situatie die door de functie beschreven wordt.
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">•</span> <b>BV3_06.08</b> (MD 06.08) De leerlingen tekenen de grafiek van de functie \(f(x)=\sin x\) vanuit de goniometrische cirkel.
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">•</span> <b>BV3_06.09</b> (MD 06.09) De leerlingen gebruiken transformaties van de vorm \(f(x)+k\), \(f(x-k)\), \(f(x/k)\) en \(k\cdot f(x)\) om de grafiek van een algemene sinusfunctie
+\(f(x)=a\cdot \sin [b(x-c)]+d\) op te bouwen vanuit de grafiek van \(f(x)=\sin x\).
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">•</span> <b>BV3_06.10</b> (MD 06.10) De leerlingen analyseren kenmerken van een algemene sinusfunctie aan de hand van de grafiek: <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">domein</span>, <span
+class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">bereik</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">nulwaarden</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">tekenverloop</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">stijgen/dalen</span>, <span
+class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">extrema</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">symmetrie</span>, periodiciteit en amplitude.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">•</span> <b>WD3_06.08.18</b> (MD 06.08.13) De leerlingen lossen eenvoudige <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">veeltermvergelijkingen</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">rationale
+vergelijkingen</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">irrationale vergelijkingen</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">exponentiële vergelijkingen</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">logaritmische
+vergelijkingen</span> en goniometrische vergelijkingen algebraïsch op.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">–</span> afbakening: <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">deling van veeltermen</span>
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">–</span> afbakening: <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">deling door \((x-a)\)</span>
+</p>
+</li>
+</ul>
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">•</span> <b>WD3_06.08.21</b> (MD 06.08.07) De leerlingen leggen het verband tussen de grafiek en het voorschrift van een functie en haar kenmerken.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">–</span> afbakening: <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">veeltermfuncties</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">rationale functies</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">(elementaire)
+irrationale functies</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">exponentiële functies</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">logaritmische functies \(f(x)=\log _a(x)\)</span>, goniometrische functies \(f(x)=\cos
+x\) en \(f(x)=\tan x\), <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">cyclometrische functies</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">absolute waardenfunctie</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">meervoudig
+functievoorschrift</span>
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">–</span> afbakening: domein, bereik, nulwaarden, tekenverloop, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">stijgen/dalen/constant</span>, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">extrema</span>, <span
+class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">constante/toenemende/afnemende stijging/daling</span>, symmetrie, periode, amplitude, asymptotisch gedrag, <span class="leerplan-grijs" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">gedrag op oneindig</span>
+</p>
+</li>
+</ul>
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="12">•</span> <b>WD3_06.08.23</b> De leerlingen tekenen de grafiek van de functies \(f(x)=\cos x\) en \(f(x)=\tan x\).
+</p>
+</li>
+</ul>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+...... section Periodieke functies ......
+-->
+<h4 id="autosec-3" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="31"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="31">I&#x2003;</span>Periodieke functies</h4>
+<a id="mkpiweb-autopage-3"></a>
+
+
+
+<!--
+...... subsection Samenvatting ......
+-->
+<h5 id="autosec-4" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="33"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="33">1&#x2003;</span>Samenvatting</h5>
+<a id="mkpiweb-autopage-4"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="35">
+Een functie \(f\) is <b>periodiek</b> als er een strikt positief getal
+\(P\) bestaat zodat 
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="37">
+\[ \forall x\in \dom f :    f(x+P)=f(x).   \]
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="40">
+Het kleinste zo’n getal \(P\) is de <b>periode</b>. De grafiek
+schommelt rond de <b>evenwichtsstand</b>. De grootste uitwijking ten opzichte van die evenwichtsstand is de <b>amplitude</b> \(A\).
+</p>
+
+
+<!--
+...... subsection Probeer zelf ......
+-->
+<h5 id="autosec-5" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="44"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="44">2&#x2003;</span>Probeer zelf</h5>
+<a id="mkpiweb-autopage-5"></a>
+
+
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="46">
+<figure class="interactieve-grafiek" data-grafiek="herhaling-periode" data-hoogte="22rem" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="46"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="46">
+</p>
+
+
+<div class="center" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="53">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="53">
+ <span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="53"
+><!--
+    y
+5
+            A=2
+                                      y=3
+3
+
+1                     P =4
+                                             x
+        2         4    6     8   10         12
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="53"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="79">
+Schuiven we deze grafiek over \(4\) eenheden naar rechts, dan valt ze
+samen met zichzelf: \(f(x+4)=f(x)\). Over \(8\) of \(12\) eenheden ook, maar de periode is de kleinste verschuiving: \(P=4\). De evenwichtsstand is \(y=3\) en de amplitude is \(A=2\).
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="79">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="79"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep het punt <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="79">\(s\)</span> over de <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="79">\(x\)</span>-as. De gestreepte grafiek is de grafiek van <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="79">\(f\)</span>, over <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="79">\(s\)</span> eenheden naar rechts
+verschoven. Zoek de kleinste <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="79">\(s&gt;0\)</span> waarvoor beide grafieken samenvallen. Met de knoppen toon je apart de evenwichtsstand, de amplitude en de periode.</figcaption> </figure>
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-9" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="86"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="86">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+
+<div class="cursus-oefenbalk" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="88"></div>
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="90">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="90">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="90"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-10" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="90">Oefening 1</h6>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="91">
+Een periodieke functie \(f\) heeft periode \(3\). Verder is
+\(f(1)=5\) en \(f(2)=-1\). Bereken zonder grafiek: 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="94">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="94">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="94">(a)</span> \(f(4)\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="96">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="96">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="96">\(f(4)=5\)</span>
+\(f(4)=f(1+3)=f(1)=5\)
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="99">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="99">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="99">(b)</span> \(f(-5)\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="101">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="101">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="101">\(f(-5)=5\)</span>
+\(f(-5)=f(-5+2\cdot 3)=f(1)=5\)
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="104">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="104">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="104">(c)</span> \(f(8)\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="106">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="106">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="106">\(f(8)=-1\)</span>
+\(f(8)=f(8-2\cdot 3)=f(2)=-1\)
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="112">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="112">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="112"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-11" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="112">Oefening 2</h6>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="113">
+In een haven schommelt het water tussen \(1.5\)&nbsp;m bij
+laagtij en \(6.5\)&nbsp;m bij hoogtij. Twee hoogtijen volgen elkaar op na \(12.5\) uur. We beschrijven de waterhoogte als een periodieke functie van de tijd. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="117">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="117">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="117">(a)</span> evenwichtsstand 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="119">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="119">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="119">\(y=4\)</span> De evenwichtsstand
+ligt midden tussen laagtij en hoogtij: \(\dfrac {1.5+6.5}{2}=4\), dus \(y=4\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="123">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="123">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="123">(b)</span> amplitude 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="125">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="125">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="125">\(A=2.5\) m</span> De grootste
+uitwijking ten opzichte van de evenwichtsstand: \(A=6.5-4=2.5\)&nbsp;m.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="129">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="129">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="129">(c)</span> periode 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="131">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="131">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="131">\(P=12.5\) uur</span> Na \(12.5\)
+uur herhaalt het patroon zich, dus \(P=12.5\) uur.
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section De grafieken van sinus, cosinus en tangens ......
+-->
+<h4 id="autosec-12" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="138"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="138">II&#x2003;</span>De grafieken van sinus, cosinus en tangens</h4>
+<a id="mkpiweb-autopage-12"></a>
+
+
+
+<!--
+...... subsection Samenvatting ......
+-->
+<h5 id="autosec-13" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="140"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="140">1&#x2003;</span>Samenvatting</h5>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="142">
+Op de goniometrische cirkel hoort bij elke hoek \(x\) een punt
+\(P\). 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="144">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="144">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="144">•</span> \(\sin x\) is de tweede coördinaat van \(P\). Zo ontstaat de <b>sinusoïde</b>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="146">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="146">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="146">•</span> \(\cos x\) is de eerste coördinaat van \(P\). De <b>cosinusoïde</b> is de sinusoïde over \(\frac {\pi }{2}\) naar links verschoven. 
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="148">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="148">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="148">•</span> \(\tan x\) lezen we af op de raaklijn \(x=1\) aan de cirkel. Waar \(\cos x=0\) bestaat \(\tan x\) niet: daar heeft de <b>tangentoïde</b> een verticale asymptoot.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Probeer zelf ......
+-->
+<h5 id="autosec-14" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="153"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="153">2&#x2003;</span>Probeer zelf</h5>
+<a id="mkpiweb-autopage-14"></a>
+
+
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="155">
+<figure class="interactieve-grafiek" data-grafiek="herhaling-cirkel-grafiek" data-hoogte="22rem" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="155"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="155">
+</p>
+
+
+<div class="center" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="162">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="162">
+ <span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="162"
+><!--
+    P
+
+
+x
+        π   π   3π   2π
+        2        2
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="162"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="188">
+De sinus van de hoek \(x\) is de hoogte van \(P\). Zetten we die
+hoogte uit boven \(x\) op de \(x\)-as, voor alle hoeken van \(0\) tot \(2\pi \), dan ontstaat de sinusoïde.
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="188">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="188"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep \(P\) over de goniometrische cirkel, of druk op Afspelen en laat \(P\) zelf ronddraaien. Na een volle toer schuift de
+\(x\)-as mee en loopt de grafiek verder. Kies \(\sin x\), \(\cos x\) of \(\tan x\). Het dikke lijnstuk op de cirkel komt rechts terug als hoogte boven de hoek \(x\).</figcaption> </figure>
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="195">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="195">
+De cotangensfunctie \(\cot x=\dfrac {\cos x}{\sin x}\) heeft
+periode \(\pi \), nulwaarden \(x=\frac {\pi }{2}+k\pi \) en verticale asymptoten \(x=k\pi \).
+</p>
+
+</div>
+
+
+<!--
+...... subsection Test jezelf ......
+-->
+<h5 id="autosec-18" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="199"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="199">3&#x2003;</span>Test jezelf</h5>
+<a id="mkpiweb-autopage-18"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="201">
+Vul de tabel eerst zelf in. Klik daarna op een vak om het te
+controleren.
+</p>
+
+
+<div class="center" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="205">
+
+
+<table data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="205">
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdl tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="205"></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(\sin x\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(\cos x\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(\tan x\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdl tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">domein</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(\R \)</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(\R \)</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(\R \setminus \{\frac {\pi }{2}+k\pi \}\)</span></td>
+</tr>
+
+<tr class="hline">
+<td class="tdl tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">bereik</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\([-1,1]\)</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\([-1,1]\)</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(\R \)</span></td>
+</tr>
+
+<tr class="hline">
+<td class="tdl tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">periode</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(2\pi \)</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(2\pi \)</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(\pi \)</span></td>
+</tr>
+
+<tr class="hline">
+<td class="tdl tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">nulwaarden</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(x=k\pi \)</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(x=\frac {\pi }{2}+k\pi \)</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">\(x=k\pi \)</span></td>
+</tr>
+
+<tr class="hline">
+<td class="tdl tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">symmetrie</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">oneven</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">even</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"><span class="opl opl-vast" style="min-width:3.2cm" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207">oneven</span></td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdl" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"></td>
+<td class="tdc" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"></td>
+<td class="tdc" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"></td>
+<td class="tdc" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="207"></td>
+</tr>
+</table>
+
+</div>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="224">
+Overal is \(k\in \Z \).
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-21" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="226"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="226">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+
+<div class="cursus-oefenbalk" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="228"></div>
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="230">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="230">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="230"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-22" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="230">Oefening 3</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="231">
+Waar of niet waar? Verklaar. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="233">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="233">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="233">(a)</span> De cosinusfunctie is even. 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="235">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="235">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="235">waar</span> Waar: \(\cos
+(-x)=\cos x\). De grafiek is symmetrisch ten opzichte van de \(y\)-as.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="239">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="239">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="239">(b)</span> De periode van de tangensfunctie is \(2\pi \). 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="241">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="241">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="241">niet waar: \(P=\pi \)</span> Niet
+waar. Ook \(\tan (x+2\pi )=\tan x\), maar de periode is de kleinste zo’n verschuiving, en dat is \(\pi \).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="245">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="245">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="245">(c)</span> De grafiek van \(y=\tan x\) heeft een verticale asymptoot \(x=\pi \). 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="247">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="247">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="247">niet waar: \(x=\pi \) is een
+nulwaarde</span> Niet waar. \(\tan \pi =0\), dus \(x=\pi \) is een nulwaarde. De verticale asymptoten liggen waar \(\cos x=0\): \(x=\frac {\pi }{2}+k\pi \).
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="254">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="254">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="254"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-23" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="254">Oefening 4</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="255">
+Bepaal het teken zonder rekenmachine. Gebruik de goniometrische
+cirkel. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="257">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="257">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="257">(a)</span> \(\sin 4\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="259">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="259">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="259">negatief</span> \(\pi \approx
+3.14&lt;4&lt;\frac {3\pi }{2}\approx 4.71\). De hoek ligt in het derde kwadrant, dus \(P\) ligt onder de \(x\)-as: \(\sin 4&lt;0\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="263">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="263">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="263">(b)</span> \(\cos 4\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="265">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="265">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="265">negatief</span> In het derde
+kwadrant ligt \(P\) links van de \(y\)-as: \(\cos 4&lt;0\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="268">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="268">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="268">(c)</span> \(\tan 4\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="270">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="270">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="270">positief</span> \(\tan 4=\dfrac
+{\sin 4}{\cos 4}\) is een quotiënt van twee negatieve getallen, dus \(\tan 4&gt;0\).
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section De algemene sinusfunctie ......
+-->
+<h4 id="autosec-24" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="278"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="278">III&#x2003;</span>De algemene sinusfunctie</h4>
+<a id="mkpiweb-autopage-24"></a>
+
+
+
+<!--
+...... subsection Samenvatting ......
+-->
+<h5 id="autosec-25" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="280"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="280">1&#x2003;</span>Samenvatting</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="282">
+De grafiek van 
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="283">
+\[ y=a\sin \bigl (b(x-c)\bigr )+d \qquad (b&gt;0) \]
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="286">
+ontstaat uit die van \(y=\sin x\) door vier transformaties. 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="288">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="288">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="288">•</span> \(a\): verticale uitrekking. De <b>amplitude</b> is \(A=|a|\). Is \(a&lt;0\), dan is de golf bovendien gespiegeld. 
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="290">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="290">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="290">•</span> \(b\): horizontale verschaling met factor \(\frac {1}{b}\). De <b>periode</b> is \(P=\dfrac {2\pi }{b}\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="292">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="292">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="292">•</span> \(c\): verschuiving over \(c\) naar rechts (naar links als \(c&lt;0\)). 
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="293">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="293">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="293">•</span> \(d\): verschuiving over \(d\) naar boven. De <b>evenwichtslijn</b> is \(y=d\).
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Probeer zelf ......
+-->
+<h5 id="autosec-26" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="297"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="297">2&#x2003;</span>Probeer zelf</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="299">
+<figure class="interactieve-grafiek" data-grafiek="herhaling-parameters" data-hoogte="24rem" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="299"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="299">
+</p>
+
+
+<div class="center" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="304">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="304">
+ <span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="304"
+><!--
+    A = |a|
+                   y=d
+
+c
+
+          P = 2π
+               b
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="304"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="304">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="304"></div> <figcaption class="interactieve-grafiek-uitleg">Verander \(a\), \(b\), \(c\) en \(d\) met de schuifregelaars. De gestreepte grafiek is \(y=\sin x\). De pijl met \(P\) meet
+één periode, de pijl met \(A\) de amplitude.</figcaption> </figure>
+</p>
+
+
+<!--
+...... subsection Raad het voorschrift ......
+-->
+<h5 id="autosec-30" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="330"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="330">3&#x2003;</span>Raad het voorschrift</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="332">
+<figure class="interactieve-grafiek" data-grafiek="herhaling-raad" data-hoogte="24rem" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="332"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="332">
+</p>
+
+
+<div class="center" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="339">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="339">
+ <span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="339"
+><!--
+     y
+ 3
+
+
+ 1
+                                          x
+         π   π   3π   π   5π   3π   7π   2π
+         4   2    4        4    2    4
+−1
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="339"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="362">
+We lezen af: de toppen liggen op hoogte \(3\) en de dalen op
+\(-1\). De evenwichtslijn ligt daar midden tussen, dus \(d=1\), en de amplitude is \(A=3-1=2\). Twee toppen liggen \(\pi \) uit elkaar, dus \(P=\pi =\frac {2\pi }{b}\) en \(b=2\). De grafiek gaat stijgend door de
+evenwichtslijn in \(x=\frac {\pi }{4}\), dus \(c=\frac {\pi }{4}\). Een voorschrift is 
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="367">
+\[ y=2\sin \left (2\left (x-\frac {\pi }{4}\right )\right )+1.             \]
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="367">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="367"></div> <figcaption class="interactieve-grafiek-uitleg">De brede oranje grafiek is gegeven, de smalle blauwe is de jouwe. Stel \(a\), \(b\), \(c\) en \(d\) zo in dat jouw grafiek
+samenvalt met de gegeven grafiek. Druk dan op Controleer. Met Nieuwe opgave krijg je een andere grafiek.</figcaption> </figure>
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-34" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="373"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="373">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+
+<div class="cursus-oefenbalk" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="375"></div>
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="377">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="377">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="377"></span>
+</p>
+<!--
+...... subsubsection Oefening 5 ......
+-->
+<h6 id="autosec-35" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="377">Oefening 5</h6>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="378">
+Geef de amplitude, de periode, de evenwichtslijn en de horizontale
+verschuiving. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="381">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="381">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="381">(a)</span> \(y=3\sin \left (2\left (x-\frac {\pi }{6}\right )\right )+1\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="383">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="383">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="383">\(A=3\), \(P=\pi \), \(y=1\),
+\(\frac {\pi }{6}\) naar rechts</span> \(a=3\), \(b=2\), \(c=\frac {\pi }{6}\) en \(d=1\). Dus \(A=3\), \(P=\frac {2\pi }{2}=\pi \), evenwichtslijn \(y=1\) en een verschuiving over \(\frac {\pi }{6}\) naar rechts.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="388">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="388">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="388">(b)</span> \(y=-\frac {1}{2}\sin \left (\frac {x}{2}\right )-2\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="390">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="390">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="390">\(A=\frac 12\), \(P=4\pi \),
+\(y=-2\), geen verschuiving</span> \(a=-\frac 12\), \(b=\frac 12\), \(c=0\) en \(d=-2\). Dus \(A=\left |-\frac 12\right | =\frac 12\), \(P=\dfrac {2\pi }{\frac 12}=4\pi \) en evenwichtslijn \(y=-2\). Omdat <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="393">\(a&lt;0\)</span> is de golf gespiegeld ten opzichte van de evenwichtslijn.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="395">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="395">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="395">(c)</span> \(y=2\sin (3x+\pi )\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="397">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="397">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="397">\(A=2\), \(P=\frac {2\pi }{3}\),
+\(y=0\), \(\frac {\pi }{3}\) naar links</span> Zet eerst \(b\) buiten haakjes: 
+</p>
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="399">
+\[ y=2\sin \left (3\left (x+\frac {\pi }{3}\right )\right ). \]
+</p>
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="402">
+Dus \(a=2\), \(b=3\), \(c=-\frac {\pi }{3}\) en \(d=0\):
+\(A=2\), \(P=\frac {2\pi }{3}\), evenwichtslijn \(y=0\) en een verschuiving over \(\frac {\pi }{3}\) naar links.
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="409">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="409">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="409"></span>
+</p>
+<!--
+...... subsubsection Oefening 6 ......
+-->
+<h6 id="autosec-36" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="409">Oefening 6</h6>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="410">
+Een sinusoïde heeft als grootste waarde \(5\) en als
+kleinste waarde \(-1\). De periode is \(\pi \). In \(x=\frac {\pi }{4}\) gaat de grafiek stijgend door de evenwichtslijn. Geef een voorschrift van de vorm \(y=a\sin (b(x-c))+d\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="414">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="414">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="414">\(y=3\sin \left (2\left (x-\frac
+{\pi }{4}\right )\right )+2\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="415"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                  5 + (−1)
+                                                                                                d=         =2
+                                                                                                      2
+                                                                                                a=5−2=3
+                                                                                                   2π   2π
+                                                                                                b=    =    =2
+                                                                                                   P     π
+                                                                                                   π
+                                                                                                c=
+                                                                                                   4
+
+
+-->
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="415">
+
+\begin{align*}
+d&amp;=\frac {5+(-1)}{2}=2\\ a&amp;=5-2=3\\ b&amp;=\frac {2\pi }{P}=\frac {2\pi }{\pi }=2\\ c&amp;=\frac {\pi }{4}
+\end{align*}
+Dus <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="421">\(y=3\sin \left (2\left (x-\frac {\pi }{4}\right
+)\right )+2\)</span>.
+</p>
+</div>
+
+</div>
+
+
+<!--
+...... section Goniometrische vergelijkingen ......
+-->
+<h4 id="autosec-37" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="426"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="426">IV&#x2003;</span>Goniometrische vergelijkingen</h4>
+<a id="mkpiweb-autopage-37"></a>
+
+
+
+<!--
+...... subsection Samenvatting ......
+-->
+<h5 id="autosec-38" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="428"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="428">1&#x2003;</span>Samenvatting</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="430">
+Voor de drie basisvergelijkingen geldt, met \(k\in \Z \): 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="431"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                               sin x = sin α ⇐⇒ x = α + k · 2π of x = π − α + k · 2π
+                                                                               cos x = cos α ⇐⇒ x = α + k · 2π of x = −α + k · 2π
+                                                                              tan x = tan α ⇐⇒ x = α + k · π
+
+
+
+-->
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="431">
+
+\begin{align*}
+\sin x=\sin \alpha &amp;\iff x=\alpha +k\cdot 2\pi \ \text { of }\ x=\pi -\alpha +k\cdot 2\pi \\ \cos x=\cos \alpha &amp;\iff x=\alpha +k\cdot 2\pi \ \text { of }\ x=-\alpha +k\cdot 2\pi \\
+\tan x=\tan \alpha &amp;\iff x=\alpha +k\cdot \pi
+\end{align*}
+Een vergelijking <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="436">\(\sin x=a\)</span> of <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="436">\(\cos x=a\)</span> heeft enkel
+oplossingen als <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="436">\(-1\leq a\leq 1\)</span>. Een ingewikkeldere vergelijking herleiden we eerst tot zo’n basisvorm, eventueel met een samengestelde hoek zoals <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="436">\(\sin (2x)=\frac 12\)</span>.
+</p>
+
+
+<!--
+...... subsection Probeer zelf ......
+-->
+<h5 id="autosec-39" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="440"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="440">2&#x2003;</span>Probeer zelf</h5>
+<a id="mkpiweb-autopage-39"></a>
+
+
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="442">
+<figure class="interactieve-grafiek" data-grafiek="herhaling-vergelijking" data-hoogte="22rem" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="442"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="442">
+</p>
+
+
+<div class="center" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="448">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="448">
+ <span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="448"
+><!--
+   1
+ 0.5
+       π   π   5π   π
+       6        6
+                        3π   2π
+−0.5       2             2
+
+ −1
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="448"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="471">
+Voor \(\sin x=\frac 12\) is \(\alpha =\frac {\pi }{6}\), dus
+
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="472">
+\[ x=\frac {\pi }{6}+k\cdot 2\pi \ \text { of }\ x=\frac {5\pi }{6}+k\cdot 2\pi \qquad (k\in \Z ). \]
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="472">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="472"></div> <figcaption class="interactieve-grafiek-uitleg">Kies een functie en verander het rechterlid \(a\) met de schuifregelaar. Lees de oplossingen af op de cirkel en op de grafiek.
+Onder de grafiek staan de oplossingen exact.</figcaption> </figure>
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-43" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="479"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="479">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-43"></a>
+
+
+
+<div class="cursus-oefenbalk" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="481"></div>
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="483">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="483">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="483"></span>
+</p>
+<!--
+...... subsubsection Oefening 7 ......
+-->
+<h6 id="autosec-44" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="483">Oefening 7</h6>
+<a id="mkpiweb-autopage-44"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="484">
+Los op in \(\R \). 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="486">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="486">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="486">(a)</span> \(\sin x=-\dfrac {\sqrt 3}{2}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="488">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="488">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="488">\(V=\left \{-\frac {\pi
+}{3}+k\cdot 2\pi ,\ \frac {4\pi }{3}+k\cdot 2\pi \ \middle |\ k\in \Z \right \}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="489"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                √
+                                                                                                 3
+                                                                                    sin x = −
+                                                                                                2
+                                                                                                 π
+                                                                              ⇐⇒    sin x = sin −
+                                                                                                   3
+                                                                                              π                     π
+                                                                              ⇐⇒        x = − + k · 2π of x = π − −       + k · 2π
+                                                                                               3                      3
+                                                                                              π               4π
+                                                                              ⇐⇒        x = − + k · 2π of x =     + k · 2π
+                                                                                               3               3
+                                                                                                                           
+                                                                                                 π       4π
+                                                                                       V = − + k · 2π,      + k · 2π k ∈ Z
+                                                                                                 3        3
+
+-->
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="489">
+
+\begin{alignat*} {2}
+&amp;&amp;\sin x&amp;=-\frac {\sqrt 3}{2}\\ \iff \quad &amp;&amp;\sin x&amp;=\sin \left (-\frac {\pi }{3}\right )\\ \iff \quad &amp;&amp;x&amp;=-\frac {\pi }{3}+k\cdot 2\pi \ \text { of }\
+x=\pi -\left (-\frac {\pi }{3}\right )+k\cdot 2\pi \\ \iff \quad &amp;&amp;x&amp;=-\frac {\pi }{3}+k\cdot 2\pi \ \text { of }\ x=\frac {4\pi }{3}+k\cdot 2\pi \\ &amp;&amp;V&amp;=\left \{-\frac
+{\pi }{3}+k\cdot 2\pi ,\ \frac {4\pi }{3}+k\cdot 2\pi \ \middle |\ k\in \Z \right \}
+\end{alignat*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="497">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="497">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="497">(b)</span> \(2\cos x+1=0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="499">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="499">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="499">\(V=\left \{\frac {2\pi
+}{3}+k\cdot 2\pi ,\ -\frac {2\pi }{3}+k\cdot 2\pi \ \middle |\ k\in \Z \right \}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="500"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                   2 cos x + 1 = 0
+                                                                                                     1
+                                                                             ⇐⇒         cos x = −
+                                                                                                     2
+                                                                                                         2π
+                                                                             ⇐⇒         cos x = cos
+                                                                                                          3
+                                                                                               2π                    2π
+                                                                             ⇐⇒             x=     + k · 2π of x = −     + k · 2π
+                                                                                                3                     3
+                                                                                                                                 
+                                                                                                 2π             2π
+                                                                                           V =      + k · 2π, −    + k · 2π k ∈ Z
+                                                                                                  3              3
+
+-->
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="500">
+
+\begin{alignat*} {2}
+&amp;&amp;2\cos x+1&amp;=0\\ \iff \quad &amp;&amp;\cos x&amp;=-\frac 12\\ \iff \quad &amp;&amp;\cos x&amp;=\cos \frac {2\pi }{3}\\ \iff \quad &amp;&amp;x&amp;=\frac {2\pi }{3}+k\cdot 2\pi \
+\text { of }\ x=-\frac {2\pi }{3}+k\cdot 2\pi \\ &amp;&amp;V&amp;=\left \{\frac {2\pi }{3}+k\cdot 2\pi ,\ -\frac {2\pi }{3}+k\cdot 2\pi \ \middle |\ k\in \Z \right \}
+\end{alignat*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="508">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="508">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="508">(c)</span> \(\tan x=-1\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="510">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="510">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="510">\(V=\left \{-\frac {\pi
+}{4}+k\cdot \pi \ \middle |\ k\in \Z \right \}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="511"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                             tan x = −1
+                                                                                                          π
+                                                                                      ⇐⇒     tan x = tan −
+                                                                                                           4
+                                                                                                       π
+                                                                                      ⇐⇒         x=− +k·π
+                                                                                                       4
+                                                                                                     n π                         o
+                                                                                                V = − +k·π                 k∈Z
+                                                                                                         4
+
+-->
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="511">
+
+\begin{alignat*} {2}
+&amp;&amp;\tan x&amp;=-1\\ \iff \quad &amp;&amp;\tan x&amp;=\tan \left (-\frac {\pi }{4}\right )\\ \iff \quad &amp;&amp;x&amp;=-\frac {\pi }{4}+k\cdot \pi \\ &amp;&amp;V&amp;=\left \{-\frac
+{\pi }{4}+k\cdot \pi \ \middle |\ k\in \Z \right \}
+\end{alignat*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="518">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="518">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="518">(d)</span> \(\sin x=2\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="520">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="520">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="520">\(V=\emptyset \)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="521"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                     sin x = 2
+                                                                                           want               − 1 ≤ sin x ≤ 1
+                                                                                                         V =∅
+
+
+-->
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="521">
+
+\begin{alignat*} {2}
+&amp;&amp;\sin x&amp;=2\ \lightning \\ \text {want}\quad &amp;&amp;&amp;-1\leq \sin x\leq 1\\ &amp;&amp;V&amp;=\emptyset
+\end{alignat*}
+
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="530">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="530">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="530"></span>
+</p>
+<!--
+...... subsubsection Oefening 8 ......
+-->
+<h6 id="autosec-45" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="530">Oefening 8</h6>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="531">
+Los op in \(\R \). Werk eerst met de samengestelde hoek en keer
+daarna terug naar \(x\). 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="534">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="534">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="534">(a)</span> \(\sin (2x)=\dfrac 12\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="536">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="536">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="536">\(V=\left \{\frac {\pi
+}{12}+k\cdot \pi ,\ \frac {5\pi }{12}+k\cdot \pi \ \middle |\ k\in \Z \right \}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="537"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                   1
+                                                                                       sin(2x) =
+                                                                                                   2
+                                                                                                       π
+                                                                                 ⇐⇒    sin(2x) = sin
+                                                                                                       6
+                                                                                                π                      π
+                                                                                 ⇐⇒        2x =   + k · 2π of 2x = π − + k · 2π
+                                                                                                6                       6
+                                                                                                π                  5π
+                                                                                 ⇐⇒        2x = + k · 2π of 2x =       + k · 2π
+                                                                                                6                   6
+                                                                                                π                 5π
+                                                                                 ⇐⇒         x=     + k · π of x =     +k·π
+                                                                                                12                12
+                                                                                                                              
+                                                                                                  π           5π
+                                                                                            V =      + k · π,    +k·π k ∈Z
+                                                                                                  12          12
+
+-->
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="537">
+
+\begin{alignat*} {2}
+&amp;&amp;\sin (2x)&amp;=\frac 12\\ \iff \quad &amp;&amp;\sin (2x)&amp;=\sin \frac {\pi }{6}\\ \iff \quad &amp;&amp;2x&amp;=\frac {\pi }{6}+k\cdot 2\pi \ \text { of }\ 2x=\pi -\frac {\pi
+}{6}+k\cdot 2\pi \\ \iff \quad &amp;&amp;2x&amp;=\frac {\pi }{6}+k\cdot 2\pi \ \text { of }\ 2x=\frac {5\pi }{6}+k\cdot 2\pi \\ \iff \quad &amp;&amp;x&amp;=\frac {\pi }{12}+k\cdot \pi \ \text
+{ of }\ x=\frac {5\pi }{12}+k\cdot \pi \\ &amp;&amp;V&amp;=\left \{\frac {\pi }{12}+k\cdot \pi ,\ \frac {5\pi }{12}+k\cdot \pi \ \middle |\ k\in \Z \right \}
+\end{alignat*}
+Bij het delen door <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="545">\(2\)</span> wordt ook de periode gedeeld: <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="545">\(k\cdot
+2\pi \)</span> wordt <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="545">\(k\cdot \pi \)</span>.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="548">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="548">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="548">(b)</span> \(2\sin \left (x-\dfrac {\pi }{4}\right )=\sqrt 2\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="550">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="550">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="550">\(V=\left \{\frac {\pi
+}{2}+k\cdot 2\pi ,\ \pi +k\cdot 2\pi \ \middle |\ k\in \Z \right \}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="551"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                           π √
+                                                                                  2 sin x −     = 2
+                                                                                            4
+                                                                                                  √
+                                                                                           π       2
+                                                                            ⇐⇒      sin x −     =
+                                                                                            4       2
+                                                                                           π         π
+                                                                            ⇐⇒      sin x −     = sin
+                                                                                            4          4
+                                                                                              π   π                    π       π
+                                                                            ⇐⇒           x − = + k · 2π of x − = π − + k · 2π
+                                                                                              4   4                    4       4
+                                                                                                  π
+                                                                            ⇐⇒                x = + k · 2π of x = π + k · 2π
+                                                                                                  2
+                                                                                                  nπ                             o
+                                                                                             V =       + k · 2π, π + k · 2π k ∈ Z
+                                                                                                     2
+
+-->
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="551">
+
+\begin{alignat*} {2}
+&amp;&amp;2\sin \left (x-\frac {\pi }{4}\right )&amp;=\sqrt 2\\ \iff \quad &amp;&amp;\sin \left (x-\frac {\pi }{4}\right )&amp;=\frac {\sqrt 2}{2}\\ \iff \quad &amp;&amp;\sin \left (x-\frac
+{\pi }{4}\right )&amp;=\sin \frac {\pi }{4}\\ \iff \quad &amp;&amp;x-\frac {\pi }{4}&amp;=\frac {\pi }{4}+k\cdot 2\pi \ \text { of }\ x-\frac {\pi }{4}=\pi -\frac {\pi }{4}+k\cdot 2\pi \\ \iff
+\quad &amp;&amp;x&amp;=\frac {\pi }{2}+k\cdot 2\pi \ \text { of }\ x=\pi +k\cdot 2\pi \\ &amp;&amp;V&amp;=\left \{\frac {\pi }{2}+k\cdot 2\pi ,\ \pi +k\cdot 2\pi \ \middle |\ k\in \Z \right \}
+\end{alignat*}
+
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Goniometrische ongelijkheden ......
+-->
+<h4 id="autosec-46" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="564"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="564">V&#x2003;</span>Goniometrische ongelijkheden</h4>
+<a id="mkpiweb-autopage-46"></a>
+
+
+
+<!--
+...... subsection Samenvatting ......
+-->
+<h5 id="autosec-47" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="566"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="566">1&#x2003;</span>Samenvatting</h5>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="568">
+Een goniometrische ongelijkheid lossen we in drie stappen op.
+
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="570">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="570">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="570">1.</span> Los de bijbehorende vergelijking op: dat geeft de <b>grenspunten</b>. 
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="572">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="572">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="572">2.</span> Kijk op de cirkel of op de grafiek aan welke kant van de grenspunten de ongelijkheid klopt. 
+</p>
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="574">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="574">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="574">3.</span> Schrijf de oplossingen op en tel er de periode bij op.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="576">
+Bij \(&lt;\) en \(&gt;\) horen de grenspunten er niet bij, bij
+\(\leq \) en \(\geq \) wel. Een verticale asymptoot hoort er nooit bij.
+</p>
+
+
+<!--
+...... subsection Probeer zelf ......
+-->
+<h5 id="autosec-48" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="579"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="579">2&#x2003;</span>Probeer zelf</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="581">
+<figure class="interactieve-grafiek" data-grafiek="herhaling-ongelijkheid" data-hoogte="22rem" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="581"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="581">
+</p>
+
+
+<div class="center" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="587">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="587">
+ <span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="587"
+><!--
+ 1
+ 1
+ 2
+
+     π   π   5π   π
+     6   2    6
+                      3π   2π
+                       2
+
+−1
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="587"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="612">
+Voor \(\sin x\leq \frac 12\) zijn de grenspunten \(\frac {\pi
+}{6}\) en \(\frac {5\pi }{6}\). De grafiek ligt op of onder de rechte \(y=\frac 12\) op \(\left [0,\frac {\pi }{6}\right ]\) en op \(\left [\frac {5\pi }{6},2\pi \right [\). Tellen we er \(k\cdot 2\pi \) bij op,
+dan vinden we alle oplossingen.
+</p>
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="612">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="612"></div> <figcaption class="interactieve-grafiek-uitleg">Kies een functie, een ongelijkheidsteken en het rechterlid \(a\). De dikke stukken op de cirkel en op de grafiek zijn de
+oplossingen. Een open bolletje hoort er niet bij, een vol wel.</figcaption> </figure>
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-52" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="619"><span class="sectionnumber" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="619">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-52"></a>
+
+
+
+<div class="cursus-oefenbalk" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="621"></div>
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="623">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="623">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="623"></span>
+</p>
+<!--
+...... subsubsection Oefening 9 ......
+-->
+<h6 id="autosec-53" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="623">Oefening 9</h6>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="624">
+Los op in \([0,2\pi [\). 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="626">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="626">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="626">(a)</span> \(\cos x&gt;\dfrac 12\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="628">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="628">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="628">\(V=\left [0,\frac {\pi
+}{3}\right [\,\cup \,\left ]\frac {5\pi }{3},2\pi \right [\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="629"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                              1
+                                                                                                      cos x >
+                                                                                                              2
+                                                                                                              1
+                                                                                      grenspunten:    cos x =
+                                                                                                              2
+                                                                                                              π        5π
+                                                                                                          x=    of x =
+                                                                                                              3         3
+                                                                                                              h π h  5π       
+                                                                                                         V = 0,    ∪      , 2π
+                                                                                                                3      3
+
+-->
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="629">
+
+\begin{alignat*} {2}
+&amp;&amp;\cos x&amp;&gt;\frac 12\\ \text {grenspunten:}\quad &amp;&amp;\cos x&amp;=\frac 12\\ &amp;&amp;x&amp;=\frac {\pi }{3} \ \text { of }\ x=\frac {5\pi }{3}\\ &amp;&amp;V&amp;=\left
+[0,\frac {\pi }{3}\right [\,\cup \,\left ]\frac {5\pi }{3},2\pi \right [
+\end{alignat*}
+Rechts op de cirkel is de cosinus groter dan <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="635">\(\frac 12\)</span>. De
+ongelijkheid is strikt, dus de grenspunten horen er niet bij.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="638">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="638">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="638">(b)</span> \(\sin x\leq -\dfrac {\sqrt 2}{2}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="640">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="640">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="640">\(V=\left [\frac {5\pi
+}{4},\frac {7\pi }{4}\right ]\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="641"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                   √
+                                                                                                                    2
+                                                                                                       sin x ≤ −
+                                                                                                                   2
+                                                                                                                  √
+                                                                                                                    2
+                                                                                       grenspunten:    sin x = −
+                                                                                                                   2
+                                                                                                               5π           7π
+                                                                                                           x=        of x =
+                                                                                                                4            4
+                                                                                                                       
+                                                                                                                 5π 7π
+                                                                                                          V =        ,
+                                                                                                                  4 4
+
+-->
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="641">
+
+\begin{alignat*} {2}
+&amp;&amp;\sin x&amp;\leq -\frac {\sqrt 2}{2}\\ \text {grenspunten:}\quad &amp;&amp;\sin x&amp;=-\frac {\sqrt 2}{2}\\ &amp;&amp;x&amp;=\frac {5\pi }{4} \ \text { of }\ x=\frac {7\pi }{4}\\
+&amp;&amp;V&amp;=\left [\frac {5\pi }{4},\frac {7\pi }{4}\right ]
+\end{alignat*}
+Onderaan op de cirkel is de sinus het kleinst. De grenspunten horen
+erbij.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="650">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="650">
+<span class="listmarker" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="650">(c)</span> \(\tan x\geq 1\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="652">
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="652">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="652">\(V=\left [\frac {\pi }{4},\frac
+{\pi }{2}\right [\,\cup \, \left [\frac {5\pi }{4},\frac {3\pi }{2}\right [\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="654"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                     tan x ≥ 1
+                                                                                     grenspunten:    tan x = 1
+                                                                                                            π          5π
+                                                                                                        x=      of x =
+                                                                                                            4           4
+                                                                                                            h π π h  5π 3π 
+                                                                                                        V =    ,    ∪     ,
+                                                                                                              4 2       4 2
+
+-->
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="654">
+
+\begin{alignat*} {2}
+&amp;&amp;\tan x&amp;\geq 1\\ \text {grenspunten:}\quad &amp;&amp;\tan x&amp;=1\\ &amp;&amp;x&amp;=\frac {\pi }{4} \ \text { of }\ x=\frac {5\pi }{4}\\ &amp;&amp;V&amp;=\left [\frac {\pi
+}{4},\frac {\pi }{2}\right [\,\cup \, \left [\frac {5\pi }{4},\frac {3\pi }{2}\right [
+\end{alignat*}
+De tangens stijgt tot aan de asymptoten <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="661">\(x=\frac {\pi }{2}\)</span>
+en <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="661">\(x=\frac {3\pi }{2}\)</span>, en die horen er nooit bij.
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="667">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="667">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="667"></span>
+</p>
+<!--
+...... subsubsection Oefening 10 ......
+-->
+<h6 id="autosec-54" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="667">Oefening 10</h6>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="668">
+Los op in \(\R \): \(2\sin x-1&gt;0\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="670">
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="670">
+<span class="oplantwoord" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="670">\(V=\left \{x\in \R \ \middle |\
+\frac {\pi }{6}+k\cdot 2\pi &lt;x&lt;\frac {5\pi }{6}+k\cdot 2\pi \text { met } k\in \Z \right \}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="672"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                  2 sin x − 1 > 0
+                                                                                               1
+                                                                          ⇐⇒           sin x >
+                                                                                               2
+                                                                                               1
+                                                                   grenspunten:        sin x =
+                                                                                               2
+                                                                                               π         5π
+                                                                                           x=    of x =          in [0, 2π[
+                                                                                               6          6
+                                                                                                                                                
+                                                                                                       π                    5π
+                                                                                          V = x∈R         + k · 2π < x <       + k · 2π met k ∈ Z
+                                                                                                       6                     6
+
+
+-->
+
+
+<p data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="672">
+
+\begin{alignat*} {2}
+&amp;&amp;2\sin x-1&amp;&gt;0\\ \iff \quad &amp;&amp;\sin x&amp;&gt;\frac 12\\ \text {grenspunten:}\quad &amp;&amp;\sin x&amp;=\frac 12\\ &amp;&amp;x&amp;=\frac {\pi }{6} \ \text { of }\
+x=\frac {5\pi }{6}\qquad \text {in } [0,2\pi [\\ &amp;&amp;V&amp;=\left \{x\in \R \ \middle |\ \frac {\pi }{6}+k\cdot 2\pi &lt;x&lt;\frac {5\pi }{6}+k\cdot 2\pi \text { met } k\in \Z \right \}
+\end{alignat*}
+Bovenaan op de cirkel, tussen de twee grenspunten, is de sinus
+groter dan <span data-mkpi-bestand="X_A09_InteractieveHerhalingGoniometrischeFuncties.tex" data-mkpi-regel="680">\(\frac 12\)</span>.
+</p>
+</div>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="vensters.js?v=845860fc9d21"></script>
+<script src="presentatie.js?v=845860fc9d21"></script>
+<script src="statistieken.js?v=845860fc9d21"></script>
+<script src="vendor/jsxgraphcore.js?v=845860fc9d21"></script>
+<script src="interactieve-grafieken.js?v=845860fc9d21"></script>
+<script src="hoofdstuk.interactief.js?v=845860fc9d21"></script>
+</body>
+</html>
