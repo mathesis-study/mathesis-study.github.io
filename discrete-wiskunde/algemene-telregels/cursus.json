@@ -2,6 +2,7 @@
  "titel": "Algemene telregels",
  "hoofdstuk": 1,
  "code": "D01",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "DiscreteWiskunde",
  "domeinnaam": "Discrete wiskunde",

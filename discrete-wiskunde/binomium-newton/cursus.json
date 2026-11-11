@@ -2,6 +2,7 @@
  "titel": "Binomium van Newton",
  "hoofdstuk": 3,
  "code": "D03",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "DiscreteWiskunde",
  "domeinnaam": "Discrete wiskunde",

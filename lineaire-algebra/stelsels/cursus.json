@@ -2,6 +2,7 @@
  "titel": "Stelsels van lineaire vergelijkingen",
  "hoofdstuk": 4,
  "code": "L04",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "LineaireAlgebra",
  "domeinnaam": "Lineaire algebra",

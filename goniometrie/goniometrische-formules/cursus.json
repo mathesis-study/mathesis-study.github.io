@@ -2,6 +2,7 @@
  "titel": "Goniometrische formules",
  "hoofdstuk": 3,
  "code": "G03",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "Goniometrie",
  "domeinnaam": "Goniometrie",
@@ -18,5 +19,5 @@
  ],
  "interactief": true,
  "python": false,
- "oefeningen": true
+ "oefeningen": false
 }

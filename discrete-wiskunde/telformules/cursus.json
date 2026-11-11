@@ -2,6 +2,7 @@
  "titel": "Telformules",
  "hoofdstuk": 2,
  "code": "D02",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "DiscreteWiskunde",
  "domeinnaam": "Discrete wiskunde",

@@ -2,6 +2,7 @@
  "titel": "De cirkel",
  "hoofdstuk": 2,
  "code": "M02",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "AnalytischeMeetkunde",
  "domeinnaam": "Analytische meetkunde",

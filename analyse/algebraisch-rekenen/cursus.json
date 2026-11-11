@@ -2,6 +2,7 @@
  "titel": "Algebraïsch rekenen met veeltermen",
  "hoofdstuk": 1,
  "code": "A01",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "Analyse",
  "domeinnaam": "Analyse",

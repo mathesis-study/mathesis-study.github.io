@@ -2,6 +2,7 @@
  "titel": "Herhaling Meetkunde",
  "hoofdstuk": 1,
  "code": "M01",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "AnalytischeMeetkunde",
  "domeinnaam": "Analytische meetkunde",

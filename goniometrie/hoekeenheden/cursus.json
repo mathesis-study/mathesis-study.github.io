@@ -2,6 +2,7 @@
  "titel": "Hoekeenheden",
  "hoofdstuk": 1,
  "code": "G01",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "Goniometrie",
  "domeinnaam": "Goniometrie",

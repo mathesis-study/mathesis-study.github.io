@@ -2254,6 +2254,14 @@ svg {
   height: auto;
 }
 
+/* In een tabelcel niet: is de tabel breder dan de slide, dan knijpt de tabel
+ * eerst de cellen, en een formule die mee mag krimpen, verdwijnt dan bijna
+ * helemaal ($x_i$ in een liggende dataset). De tabel schuift dan liever. */
+.slide td mjx-container:not([display="true"]),
+.slide td mjx-container:not([display="true"]) svg {
+  max-width: none;
+}
+
 /* Het kader dat MathJax rond \opl tekent, komt uit \bbox in cursus.cls en
  * draagt dus vaste kleuren als attribuut. Een regel hier weegt zwaarder dan
  * zo'n attribuut, dus volstaat dit om het mee te laten kleuren. */
@@ -2557,6 +2565,10 @@ mjx-container .undefsign line {
   grid-template-columns: minmax(0, 2fr) minmax(0, 5fr);
   align-items: start;
   gap: 1.5rem;
+}
+
+.figuur-bewijs.aansluitend {
+  gap: .5rem;
 }
 
 .figuur-bewijs.breed {

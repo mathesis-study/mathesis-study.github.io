@@ -2,6 +2,7 @@
  "titel": "Toepassingen met matrices",
  "hoofdstuk": 2,
  "code": "L02",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "LineaireAlgebra",
  "domeinnaam": "Lineaire algebra",

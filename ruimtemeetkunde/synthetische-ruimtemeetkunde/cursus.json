@@ -2,6 +2,7 @@
  "titel": "Synthetische ruimtemeetkunde",
  "hoofdstuk": 1,
  "code": "R01",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "Ruimtemeetkunde",
  "domeinnaam": "Ruimtemeetkunde",

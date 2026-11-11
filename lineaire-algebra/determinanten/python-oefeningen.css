@@ -311,6 +311,19 @@
   flex: 1 1 auto; margin: .15rem 0 0; text-align: left; color: var(--kleur-zwak); font-size: .85rem;
 }
 
+/* Bij [stap-per-aanroep] staat de grafiek (de call stack) rechts over de
+   hele hoogte van de kolom met afleiding, code, debugger en uitvoer, en onder elkaar op een smal scherm. */
+@media (min-width: 56rem) {
+  .python-editor.python-grafiek-rechts {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(15rem, 20rem);
+    column-gap: 1.5rem; align-items: start;
+  }
+  .python-editor.python-grafiek-rechts > * { grid-column: 1; min-width: 0; }
+  .python-editor.python-grafiek-rechts > .python-grafiek {
+    grid-column: 2; grid-row: 1 / span 12; margin: .55rem 0 0;
+  }
+}
+
 /* Traceeroefeningen hebben een geopende debugger zonder knopkolom.
    Hun printuitvoer staat in de debugger, niet in een apart vak. */
 .pythonspoor .python-codegutter { display: none; }
@@ -341,3 +354,20 @@
 
 .pythonspoor .python-resultaat { display: none; }
 .python-print { padding: .4rem .5rem; background: var(--kleur-achtergrond); }
+
+/* Een blok van een groep (pythoncode[groep=...]) dat niet het laatste is, heeft
+   geen playknop en toont enkel een fout. */
+.python-groep-stil .python-codegutter { display: none; }
+.python-groep-stil .python-codevak { grid-template-columns: minmax(0, 1fr); }
+.python-groep-stil .python-codemirror { grid-column: 1; }
+.python-groep-stil .python-resultaat:not(.fout) { display: none; }
+/* Staan de blokken van een groep naast elkaar, dan begint de rij waar de code
+   van het blok met de playknop begint: na de knopkolom (2.5rem plus .5rem). */
+.figuur-bewijs:has(.python-groep-stil) { margin-left: 3rem; }
+/* Naast elkaar even hoog: de blokken rekken tot de hoogte van het hoogste. */
+.figuur-bewijs:has(.python-groep-stil) { align-items: stretch; }
+.figuur-bewijs:has(.python-groep-stil) > div { display: flex; flex-direction: column; }
+.figuur-bewijs:has(.python-groep-stil) .python-codeblok,
+.figuur-bewijs:has(.python-groep-stil) .python-editor { flex: 1; display: flex; flex-direction: column; }
+.figuur-bewijs:has(.python-groep-stil) .python-codevak { flex: 1; grid-template-rows: minmax(0, 1fr); }
+.figuur-bewijs:has(.python-groep-stil) .python-codemirror .cm-editor { height: 100%; max-height: none; }

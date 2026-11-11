@@ -2,6 +2,7 @@
  "titel": "Matrices",
  "hoofdstuk": 1,
  "code": "L01",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "LineaireAlgebra",
  "domeinnaam": "Lineaire algebra",

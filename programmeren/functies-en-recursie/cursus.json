@@ -1,0 +1,21 @@
+{
+ "titel": "Functies en recursie",
+ "hoofdstuk": 2,
+ "code": "N02",
+ "herhaling": false,
+ "vak": "Informatica",
+ "domein": "Programmeren",
+ "domeinnaam": "Programmeren",
+ "url": "programmeren/functies-en-recursie",
+ "secties": [
+  "Zelf een functie schrijven",
+  "Een functie die zichzelf aanroept",
+  "Recursie met een retourwaarde",
+  "Recursie of lus?",
+  "Samenvatting"
+ ],
+ "leerplandoelen": [],
+ "interactief": true,
+ "python": true,
+ "oefeningen": true
+}

@@ -179,7 +179,8 @@
 
   function knoppen() {
     editors.forEach(editor => {
-      const actief = Boolean(bezig && bezig.editor === editor);
+      const actief = Boolean(bezig && (bezig.editor === editor ||
+        (editor.groep && bezig.editor.groep === editor.groep)));
       const laden = Boolean(actief && bezig.fase === "laden");
       const stapActief = Boolean(actief && bezig.stapsgewijs);
       const gewoonActief = actief && !stapActief;
@@ -270,11 +271,11 @@
     knoppen();
     taak.editor.status.textContent = taak.editor.codeblok ? "Python voert je code uit…" : "Python voert je code uit en controleert het resultaat…";
     clearTimeout(klok);
-    klok = setTimeout(() => afronden("Gestopt na 5 seconden. Controleer of je lus stopt.", true), 5000);
+    klok = setTimeout(() => afronden("Gestopt na 9 seconden. Stopt elke lus en recursie?", true), 9000);
     worker.postMessage({ actie: "uitvoeren", naam: taak.editor.naam,
-      bron: taak.bron, invoer: taak.invoer, stapsgewijs: taak.stapsgewijs,
+      bron: taak.bron, invoer: taak.invoer, stapsgewijs: taak.stapsgewijs, aanroepen: taak.aanroepen,
       namespace: taak.namespace, modeloplossing: taak.modeloplossing,
-      outputDelay: taak.editor.outputDelay, variabelen: Boolean(taak.editor.grafiek),
+      outputDelay: taak.editor.outputDelay, doorsturen: !taak.stapsgewijs, variabelen: Boolean(taak.editor.grafiek),
       vooraf: taak.editor.grafiek ? taak.editor.vooraf : null });
   }
 
@@ -316,6 +317,22 @@
     if (!taak.outputTimer) werkUitvoerBij(taak);
   }
 
+  // Zonder output-delay verschijnt elke print zodra Python haar uitvoert:
+  // een trage berekening toont zo regel na regel waar ze de tijd verliest.
+  // Het eindresultaat vervangt die tekst daarna door de volledige uitvoer.
+  function toonUitvoerDeel(taak, tekst) {
+    const uitvoer = taak.editor.uitvoer;
+    if (!taak.directeUitvoer) {
+      taak.directeUitvoer = document.createTextNode("");
+      uitvoer.replaceChildren(taak.directeUitvoer);
+      uitvoer.hidden = false;
+      taak.editor.resultaat.hidden = false;
+    }
+    const onderaan = uitvoer.scrollHeight - uitvoer.scrollTop - uitvoer.clientHeight < 4;
+    taak.directeUitvoer.data += tekst;
+    if (onderaan) uitvoer.scrollTop = uitvoer.scrollHeight;
+  }
+
   function sluitUitvoerAf(taak) {
     if (taak.uitvoerbuffer) taak.uitvoerwachtrij.push(taak.uitvoerbuffer);
     taak.uitvoerbuffer = "";
@@ -344,6 +361,7 @@
     if (!bezig) return;
     if (event.data.uitvoerDeel !== undefined) {
       if (bezig.editor.outputDelay) voegUitvoerToe(bezig, event.data.uitvoerDeel);
+      else toonUitvoerDeel(bezig, event.data.uitvoerDeel);
       return;
     }
     const huidig = bezig.editor;
@@ -394,7 +412,7 @@
     const traceback = resultaat.fout || "";
     if (editor.outputDelay) {
       await sluitUitvoerAf(taak);
-    } else {
+    } else if (!taak.directeUitvoer || taak.directeUitvoer.data !== uitvoer) {
       editor.uitvoer.replaceChildren(document.createTextNode(uitvoer));
       editor.uitvoer.hidden = false;
     }
@@ -435,7 +453,7 @@
       editor.uitvoer.appendChild(formulier);
       setTimeout(() => veld.focus(), 0);
     } else if (!(uitvoer + traceback).trim()) {
-      editor.uitvoer.textContent = "Geen uitvoer. Gebruik print() om een waarde te tonen.";
+      editor.uitvoer.textContent = editor.groep ? "Uitgevoerd." : "Geen uitvoer. Gebruik print() om een waarde te tonen.";
     }
     requestAnimationFrame(() => {
       editor.uitvoer.scrollTop = editor.uitvoer.scrollHeight;
@@ -508,6 +526,21 @@
     initialiseerWorker().catch(() => vernietigWorker());
   }
 
+  // Codeblokken met dezelfde groep (pythoncode[groep=naam]) delen hun
+  // variabelen, en elke playknop van de groep voert ze allemaal uit, in de
+  // volgorde van het document. Een fout in een blok stopt de rest.
+  let groepGestopt = false;
+  async function startGroep(editor) {
+    if (bezig) return;
+    groepGestopt = false;
+    for (const lid of editors.filter(e => e.groep === editor.groep)) {
+      if (groepGestopt) break;
+      await start(lid);
+      while (bezig) await new Promise(klaar => setTimeout(klaar, 30));
+      if (lid.resultaat.classList.contains("fout") || lid.status.textContent.startsWith("Gestopt")) break;
+    }
+  }
+
   async function start(editor, stapsgewijs, invoerSessie) {
     if (bezig) return;
     const sessie = invoerSessie || { antwoorden: [] };
@@ -516,9 +549,10 @@
     const bron = editor.code.getValue();
     const taak = { editor, bron, invoer: sessie.antwoorden,
       invoerSessie: sessie, fase: "laden", stapsgewijs: stapsgewijs || false, namespace: editor.namespace,
+      aanroepen: Boolean(editor.aanroepen),
       modeloplossing: Boolean(editor.modeloplossing && bron === editor.modeloplossing),
       runtimeVerloren: Boolean(editor.namespace && runtimeVerloren), uitvoerbuffer: "",
-      uitvoerwachtrij: [], uitvoerGesloten: false, outputTimer: null, outputKlaar: null,
+      uitvoerwachtrij: [], uitvoerGesloten: false, outputTimer: null, outputKlaar: null, directeUitvoer: null,
       getoondeUitvoerregels: 0 };
     if (taak.namespace) namespacesInGebruik = true;
     if (taak.runtimeVerloren) runtimeVerloren = false;
@@ -900,15 +934,18 @@
     const codeblok = blok.classList.contains("python-codeblok");
     // Een programma met input moet na iedere vraag kunnen pauzeren; dat past
     // niet bij de vooraf opgenomen stapweergave.
-    const soorten = { "1": "instructie", regel: "regel" };
+    const soorten = { "1": "instructie", regel: "regel", aanroep: "regel" };
     const stapsoort = codeblok && !/\binput\s*\(/.test(bron.textContent)
       ? soorten[bron.dataset.stappen] || "" : "";
     const stapsgewijs = Boolean(stapsoort);
     const editor = { naam: blok.dataset.python, codeblok, blok, stapsoort,
+      aanroepen: bron.dataset.stappen === "aanroep",
       spoor: blok.closest(".pythonspoor")?.dataset.spoor || "",
       readOnly: Boolean(blok.closest(".pythonspoor")),
       inlineOutput: Boolean(blok.closest(".pythonspoor")),
-      debugOpen: stapsoort === "regel" && Boolean(blok.closest(".pythonspoor, .python-debug-vast")), namespace: bron.dataset.namespace || "",
+      debugOpen: stapsoort === "regel" && (bron.dataset.stappen === "aanroep" || Boolean(blok.closest(".pythonspoor, .python-debug-vast"))),
+      groep: codeblok ? bron.dataset.groep || "" : "",
+      namespace: bron.dataset.namespace || (codeblok && bron.dataset.groep ? "groep-" + bron.dataset.groep : ""),
       grafiek: codeblok ? bron.dataset.grafiek || "" : "", vooraf: {},
       outputDelay: Number(bron.dataset.outputDelay) || 0,
       outputMax: Number(bron.dataset.outputMax) || 30,
@@ -938,8 +975,13 @@
     const codevak = element("div", "python-codevak");
     const codegutter = element("div", "python-codegutter");
     editor.uitvoerknop = knop(codegutter, "", () => {
-      if (bezig && bezig.editor === editor) {
+      if (bezig && bezig.editor.groep === editor.groep && editor.groep) {
+        groepGestopt = true;
         afronden("Gestopt. Je kunt de code aanpassen en opnieuw uitvoeren.", true);
+      } else if (bezig && bezig.editor === editor) {
+        afronden("Gestopt. Je kunt de code aanpassen en opnieuw uitvoeren.", true);
+      } else if (editor.groep) {
+        startGroep(editor);
       } else {
         start(editor);
       }
@@ -1124,6 +1166,7 @@
         editor.grafiek + '"]');
       if (ingebed) {
         ingebed.classList.add("python-grafiek");
+        if (editor.aanroepen) paneel.classList.add("python-grafiek-rechts");
         paneel.append(ingebed);
       }
     }
@@ -1235,6 +1278,7 @@
     }
     editors.push(editor);
     meldToestand(editor);
+    if (editor.aanroepen) blok.classList.add("python-debug-vast");
     if (editor.debugOpen) {
       editor.toestand.hidden = false;
       editor.toestandkop.textContent = "De stappen worden klaargezet…";
@@ -1243,6 +1287,30 @@
       });
       zichtbaar.observe(blok);
     }
+  });
+  // In een groep heeft enkel het laatste blok een playknop (en uitvoer); de
+  // andere zijn definities die mee uitgevoerd worden.
+  const laatsteVanGroep = new Map();
+  editors.forEach(editor => { if (editor.groep) laatsteVanGroep.set(editor.groep, editor); });
+  editors.forEach(editor => {
+    if (editor.groep && laatsteVanGroep.get(editor.groep) !== editor) editor.blok.classList.add("python-groep-stil");
+  });
+  // Groepsblokken naast elkaar blijven even hoog, ook wanneer de lezer er een
+  // met de sleephoek groter of kleiner maakt.
+  document.querySelectorAll(".figuur-bewijs").forEach(rij => {
+    const vakken = Array.from(rij.querySelectorAll(".python-groep-stil .cm-editor"));
+    if (vakken.length < 2) return;
+    const waarnemer = new ResizeObserver(metingen => {
+      metingen.forEach(({ target }) => {
+        const hoogte = Math.round(target.getBoundingClientRect().height);
+        vakken.forEach(ander => {
+          if (ander !== target && Math.abs(ander.getBoundingClientRect().height - hoogte) > 1) {
+            ander.style.height = hoogte + "px";
+          }
+        });
+      });
+    });
+    vakken.forEach(vak => waarnemer.observe(vak));
   });
   knoppen();
 

@@ -2,6 +2,7 @@
  "titel": "Euclidische ruimtemeetkunde",
  "hoofdstuk": 4,
  "code": "R04",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "Ruimtemeetkunde",
  "domeinnaam": "Ruimtemeetkunde",

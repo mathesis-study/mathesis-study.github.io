@@ -2,6 +2,7 @@
  "titel": "Determinanten",
  "hoofdstuk": 3,
  "code": "L03",
+ "herhaling": false,
  "vak": "Wiskunde",
  "domein": "LineaireAlgebra",
  "domeinnaam": "Lineaire algebra",

@@ -2573,6 +2573,65 @@
     toon(item.slideIndex, opties);
   }
 
+  // #bron=bestand.tex:regel is de voorwaartse zoektocht vanuit de editor:
+  // toon het laatste blok dat in dat bestand op of voor die regel begint.
+  // Kopieën in kruimelspoor en overzicht tellen niet; die staan op een
+  // andere slide dan het blok zelf.
+  function naarBron(plek) {
+    var dubbelpunt = plek.lastIndexOf(":");
+    var bestand = plek.slice(0, dubbelpunt);
+    var regel = Number(plek.slice(dubbelpunt + 1));
+    if (dubbelpunt < 1 || !(regel >= 1)) return false;
+    var doel = null, beste = 0;
+    document.querySelectorAll(".slide [data-mkpi-regel]").forEach(function (blok) {
+      if (blok.dataset.mkpiBestand !== bestand) return;
+      // lwarp's lege span.hidden heeft geen plaats om naartoe te scrollen.
+      if (blok.closest(".pres-kruimel, .pres-korteinhoud, .hidden")) return;
+      var r = Number(blok.dataset.mkpiRegel);
+      if (r <= regel && r > beste) {
+        beste = r;
+        doel = blok;
+      }
+    });
+    if (!doel) return false;
+    var slideIndex = slides.indexOf(doel.closest(".slide"));
+    if (slideIndex < 0) return false;
+    // In een bladerreeks moet eerst de juiste oefening zichtbaar staan; toon
+    // houdt die keuze daarna aan.
+    var oefening = doel.closest(".cursus-oefening");
+    var reeks = oefening && oefening.parentElement;
+    if (reeks && reeks._oefeningen && reeks._oefeningen.indexOf(oefening) >= 0) {
+      zetOefening(reeks, reeks._oefeningen.indexOf(oefening), { zonderHash: true });
+    }
+    // Een kop bovenaan haar slide toont gewoon de slide.
+    if (doel.closest(KOPPEN) === slides[slideIndex].querySelector(KOPPEN)) doel = null;
+    toon(slideIndex, { vanHash: true, doel: doel });
+    houdBovenaan(doel);
+    return true;
+  }
+
+  // MathJax en figuren maken de slide nog hoger nadat we gescrold hebben,
+  // waardoor het doel naar onder schuift. Zet het bij elke groei terug
+  // bovenaan, tot de lezer zelf iets doet of de opmaak een tijd stil ligt.
+  function houdBovenaan(doel) {
+    if (!doel || !window.ResizeObserver) return;
+    var invoer = ["wheel", "keydown", "mousedown", "touchstart"];
+    var timer = null;
+    var waarnemer = new ResizeObserver(function () {
+      scrollNaar(doel, "instant");
+      clearTimeout(timer);
+      timer = setTimeout(stop, 2000);
+    });
+    function stop() {
+      clearTimeout(timer);
+      waarnemer.disconnect();
+      invoer.forEach(function (soort) { window.removeEventListener(soort, stop, true); });
+    }
+    invoer.forEach(function (soort) { window.addEventListener(soort, stop, true); });
+    waarnemer.observe(doel.closest(".slide"));
+    timer = setTimeout(stop, 2000);
+  }
+
   function naarHash(vanLaden) {
     var id = decodeURIComponent(location.hash.slice(1));
     if (!id) return false;
@@ -2582,6 +2641,7 @@
       wisselLeerplan(true);
       return false;
     }
+    if (id.indexOf("bron=") === 0) return naarBron(id.slice(5));
     var item = navigatie.find(function (n) { return n.id === id; });
     if (item) {
       naarNavigatie(item, { vanHash: true });
