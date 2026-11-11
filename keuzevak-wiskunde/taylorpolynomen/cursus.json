@@ -1,0 +1,24 @@
+{
+ "titel": "Taylorpolynomen",
+ "hoofdstuk": null,
+ "code": null,
+ "herhaling": false,
+ "vak": "Keuze",
+ "domein": "KeuzevakWiskunde6",
+ "domeinnaam": "Zesde: Keuzevak wiskunde",
+ "url": "keuzevak-wiskunde/taylorpolynomen",
+ "secties": [
+  "Inleiding",
+  "Benaderen met een raaklijn",
+  "Benaderen met een parabool",
+  "Het Taylorpolynoom",
+  "Hoe goed is de benadering?"
+ ],
+ "leerplandoelen": [
+  "BV3_06.03",
+  "WD3_06.08.28"
+ ],
+ "interactief": true,
+ "python": true,
+ "oefeningen": true
+}

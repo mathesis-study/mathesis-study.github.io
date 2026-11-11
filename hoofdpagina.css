@@ -2,6 +2,7 @@
 :root[data-thema="licht"] {
   --kleur-tekst: #1c2530;
   --kleur-zwak: #64748b;
+  --kleur-schrap: #a3afbf; /* schrapstreep van \cancel, zoals cursusschrap in de PDF. */
   --kleur-lijn: #dde3ea;
   --kleur-vlak: #ffffff;
   --kleur-vlak-zweef: rgba(255, 255, 255, .88);
@@ -63,6 +64,7 @@
   :root[data-thema="donker"] {
     --kleur-tekst: #dde5ee;
     --kleur-zwak: #93a3b6;
+    --kleur-schrap: #56657a;
     --kleur-lijn: #2b3745;
     --kleur-vlak: #182029;
     --kleur-vlak-zweef: rgba(24, 32, 41, .9);

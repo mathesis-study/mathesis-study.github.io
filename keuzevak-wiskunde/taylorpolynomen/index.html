@@ -1,0 +1,3629 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Taylorpolynomen</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=bf69ae73e590" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * you choose how answers wait: compact, as empty frames or all open; in
+//    compact an exercise first shows its short answer, and the full working
+//    only on a second click;
+//  * a series of exercises can be paged through one at a time and comes
+//    with a PDF to print; extra proofs and the instructions per tool (TI-84
+//    or Python) stay folded away until you open them;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a figure with a parameter gets a slider, a figure with several cases
+//    switches between them without losing the camera, and in the large view
+//    you walk from figure to figure through the whole chapter;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * matrices you can click: pick an entry, a row or a diagonal and the
+//    matching term of the formula lights up, and the other way round;
+//  * Python runs in the page (Pyodide, with NumPy): exercises with checks
+//    and hints, code you can step through instruction by instruction or,
+//    for a loop, line by line with its variables in view, trace exercises
+//    that fill a table of the variables as you step, and code that drives
+//    an interactive graph; each Python section also comes as a notebook;
+//  * the instructions for a graphing calculator play step by step on a
+//    working TI-84 beside the text, which you can also press yourself (the
+//    calculator is ti84-calculator by WhitDeckard09, with an embed mode
+//    added for this site);
+//  * a matrix calculator, a calculator for systems of linear equations that
+//    row-reduces step by step and discusses parameters case by case, and a
+//    function calculator whose CAS derives step by step, all in the
+//    notation of the course;
+//  * MathJax is extended where the course needs it, so the page shows what
+//    the PDF shows: foreach loops, matrices with row and column headings,
+//    braces across rows, partial rules in tables, highlighted cells and
+//    terms, the end-of-proof square at the right margin and references
+//    inside a formula; accented letters are real characters, so searching
+//    and copying text works;
+//  * formulas are typeset slide by slide, so a long chapter opens quickly;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * the site has its own icon and can be installed as an app;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well; the one request that may
+//    leave it is an optional visit count per chapter, without cookies or
+//    personal data.
+//
+
+MathJax = {
+     options: { enableMenu: false },
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=bf69ae73e590"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=bf69ae73e590"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=bf69ae73e590" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=bf69ae73e590" />
+<link rel="stylesheet" href="grm-demo.css?v=bf69ae73e590" />
+<link rel="stylesheet" href="functierekenmachine.css?v=bf69ae73e590" />
+<link rel="stylesheet" href="python-oefeningen.css?v=bf69ae73e590" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\vov }[1]{\aside {{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text {&grave;}}}\mkern -1mu\mathopen {}#1\mathclose {}\mkern -1mu{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text
+{&apos;}}}}}\)
+
+\(\newcommand {\truc }[1]{\class {truc}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="18">
+<header class="cursustitel">  <h1 data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="18">Taylorpolynomen</h1> </header>
+</p>
+
+
+<div class="center" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="25">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="25">
+ <span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="25"
+><!--
+P1    P11
+     sin x
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="25"
+></span>
+</p>
+</div>
+
+
+<div class="cursusrekenmachine" data-soort="functie" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="51"></div>
+
+
+
+<div class="cursusleerplan" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">•</span> <b>BV3_06.03</b> (MD 06.03) De leerlingen interpreteren de afgeleide als limiet van een differentiequotiënt en als richtingscoëfficiënt van de raaklijn aan de
+grafiek.
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">•</span> <b>WD3_06.08.28</b> De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit veeltermfuncties, rationale functies, irrationale functies, exponentiële
+functies, logaritmische functies, goniometrische functies en cyclometrische functies.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">–</span> afbakening: afleidbaarheid
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">–</span> afbakening: rekenregels: afgeleide van een som, product, quotiënt van functies en afgeleide van een samengestelde functie (kettingregel)
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">–</span> afbakening: <span class="leerplan-grijs" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">regel van de l’Hôpital</span>
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">–</span> <b>WD3_06.08.28.01</b> (MD 06.08.17) De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit veeltermfuncties, rationale functies, irrationale functies,
+exponentiële functies, logaritmische functies en goniometrische functies.
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">–</span> <b>WD3_06.08.28.02</b> De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit cyclometrische functies.
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="54">
+<b>Extra uitleg:</b> faculteit en sommatieteken, lineaire benadering, Taylorpolynoom rond \(0\) en rond \(a\), Taylorpolynomen van \(e^x\), \(\sin x\), \(\cos x\), \(\ln (1+x)\) en \(\sqrt {x}\), restterm van Lagrange
+en foutafschatting
+</p>
+
+</div>
+
+
+<!--
+...... section Inleiding ......
+-->
+<h4 id="autosec-6" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="62"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="62">I&#x2003;</span>Inleiding</h4>
+<a id="mkpiweb-autopage-6"></a>
+
+
+
+<!--
+...... subsection Hoe rekent een rekenmachine? ......
+-->
+<h5 id="autosec-7" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="64"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="64">1&#x2003;</span>Hoe rekent een rekenmachine?</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="66">
+Typ \(\sin 0.3\) in je rekenmachine (in radialen). Je krijgt meteen 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="67">
+\[ \sin 0.3 = 0.295\,520\,206\,6\ldots \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="70">
+Maar hoe weet de rekenmachine dat? Een chip kan enkel optellen, aftrekken, vermenigvuldigen en delen. Een sinus uitrekenen staat daar niet bij.
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="73">
+Een <b>veelterm</b> kan een chip wel uitrekenen: daar komen enkel die vier bewerkingen in voor. Kijk wat deze veelterm doet: 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="75">
+\[ x - \frac {x^3}{6} + \frac {x^5}{120} \qquad \Rightarrow \qquad 0.3 - \frac {0.027}{6} + \frac {0.002\,43}{120} = 0.3 - 0.0045 + 0.000\,020\,25 = 0.295\,520\,25.                       \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="81">
+Dat zijn zeven juiste cijfers na de komma, met een paar vermenigvuldigingen.
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="83">
+In dit hoofdstuk ontdekken we waar die veelterm vandaan komt, waarom er net \(6\) en \(120\) in de noemers staan, en hoe we voor bijna elke
+functie zo’n veelterm vinden. Die veelterm heet een <b>Taylorpolynoom</b>.
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="88">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="88">
+Een echte rekenmachine combineert dit idee met andere trucs, zoals tabellen en het herleiden van een grote hoek naar een kleine. Maar het hart
+van de berekening blijft een veelterm.
+</p>
+
+</div>
+
+
+<!--
+...... subsection Zo werk je met dit hoofdstuk ......
+-->
+<h5 id="autosec-8" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="93"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="93">2&#x2003;</span>Zo werk je met dit hoofdstuk</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="95">
+Dit hoofdstuk verwerk je zelfstandig. Neem er pen en papier bij: je leert het meest als je de voorbeelden eerst zelf probeert.
+</p>
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="99">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="99">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="99">•</span> Werk de slides in volgorde af. Elk onderdeel steunt op het vorige. 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="100">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="100">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="100">•</span> Bij elke interactieve grafiek staat wat je kunt verslepen of aanklikken. Probeer het echt uit: de grafieken tonen wat in de tekst staat. 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="102">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="102">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="102">•</span> Na elk deel volgen oefeningen bij die leerstof. Maak ze meteen, op papier, voor je verdergaat. 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="104">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="104">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="104">•</span> Een oplossing staat verborgen achter een oogje. Probeer de oefening eerst zelf en kijk dan pas. 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="106">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="106">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="106">•</span> Bovenaan staat de knop <b>Rekenmachine</b> (sneltoets <kbd class="mathjax_ignore">m</kbd>). Typ bijvoorbeeld <kbd class="mathjax_ignore">f(x) = ln(1+x)</kbd> en daarna <kbd class="mathjax_ignore">f’’’(0)</kbd>: je krijgt de derde afgeleide in
+\(0\), stap voor stap. In het deel <b>Grafiek</b> teken je een functie samen met de veelterm die je zelf vond, zoals <kbd class="mathjax_ignore">g(x) = x - x&#x0302;3/6</kbd>. Zo controleer je je werk. 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="111">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="111">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="111">•</span> De Python-codeblokken kun je op de site uitvoeren en aanpassen.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Voorkennis: de faculteit ......
+-->
+<h5 id="autosec-9" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="114"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="114">3&#x2003;</span>Voorkennis: de faculteit</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="116">
+We zullen vaak het product \(1\cdot 2\cdot 3\cdots n\) nodig hebben. Daar is een korte notatie voor: de <b>faculteit</b> van \(n\),
+
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="118">
+\[ n!    = 1\cdot 2\cdot 3\cdots n \qquad \text {en we spreken af:}\qquad 0!        = 1.   \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="122">
+Een faculteit groeit erg snel: 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="123">
+\[ \begin {array}{c|ccccccccccc} n &amp; 0 &amp; 1 &amp; 2 &amp; 3 &amp; 4 &amp; 5 &amp; 6 &amp; 7 &amp; 8 &amp; 9 &amp; 10 \\ \hline n!                 &amp; 1 &amp; 1 &amp; 2 &amp; 6 &amp; 24 &amp; 120
+&amp; 720 &amp; 5040 &amp; 40320 &amp; 362880 &amp; 3628800 \end {array} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="129">
+Herken je de \(6\) en de \(120\) uit de inleiding? Dat is \(3!\) en \(5!\).
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="131">
+Handig om te onthouden is 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="132">
+\[ n!    = n\cdot (n-1)!   \qquad \text {bijvoorbeeld}\qquad \frac {7!}{6!} = \frac {7\cdot \cancel {6!}}{\cancel {6!}} = 7.            \]
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="139">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="139">
+De afspraak \(0!=1\) past bij deze regel: met \(n=1\) staat er \(1!   = 1\cdot 0!\), dus moet \(0!\) wel \(1\) zijn.
+</p>
+
+</div>
+
+
+<!--
+...... subsection Voorkennis: het sommatieteken ......
+-->
+<h5 id="autosec-10" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="143"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="143">4&#x2003;</span>Voorkennis: het sommatieteken</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="145">
+Een lange som schrijven we korter met het <b>sommatieteken</b> \(\sum \) (de Griekse hoofdletter sigma, van <em>som</em>): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="147">
+\[ \sum _{k=0}^{4} \frac {x^k}{k!} = \frac {x^0}{0!} + \frac {x^1}{1!} + \frac {x^2}{2!} + \frac {x^3}{3!} + \frac {x^4}{4!} = 1 + x + \frac {x^2}{2} + \frac {x^3}{6} + \frac {x^4}{24}.                            \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="152">
+Lees dit als: <em>neem voor \(k\) achtereenvolgens \(0\), \(1\), \(2\), \(3\) en \(4\), vul in, en tel alles op</em>. De letter \(k\) is de
+<em>index</em>: ze telt enkel en staat niet meer in het resultaat.
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="156">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="156"></span>
+</p>
+<!--
+...... subsubsection Probeer zelf ......
+-->
+<h6 id="autosec-11" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="156">Probeer zelf</h6>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="158">
+Schrijf voluit: 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="159">
+\[ \sum _{k=1}^{4} \frac {(-1)^{k+1}}{k} = \opl {1 - \frac 12 + \frac 13 - \frac 14} \]
+</p>
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="163">
+\[ \sum _{k=0}^{3} 2^k x^k = \opl {1 + 2x + 4x^2 + 8x^3} \]
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="169">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="169">
+De factor \((-1)^{k+1}\) is een gekend kunstje: hij is \(+1\) voor oneven \(k\) en \(-1\) voor even \(k\). Zo wisselen de tekens af.
+</p>
+
+</div>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-12" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="173"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="173">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="177">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="177">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="177"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-13" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="177">Oefening 1</h6>
+<a id="mkpiweb-autopage-13"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="178">
+Bereken zonder rekenmachine. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="180">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="180">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="180">(a)</span> \(5!\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="182">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="182">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="182">\(5! = 120\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="183"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                   5! = 1 · 2 · 3 · 4 · 5
+                                                                                                      = 120
+
+
+-->
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="183">
+
+\begin{align*}
+5! &amp;= 1\cdot 2\cdot 3\cdot 4\cdot 5\\ &amp;= 120
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="188">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="188">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="188">(b)</span> \(\dfrac {8!}{6!}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="190">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="190">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="190">\(\dfrac {8!}{6!} = 56\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="191"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                     8!   8 · 7 · 6!
+                                                                                                        =
+                                                                                                     6!       6!
+                                                                                                        =8·7
+                                                                                                        = 56
+
+
+-->
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="191">
+
+\begin{align*}
+\frac {8!}{6!} &amp;= \frac {8\cdot 7\cdot \cancel {6!}}{\cancel {6!}}\\ &amp;= 8\cdot 7\\ &amp;= 56
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="197">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="197">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="197">(c)</span> \(\dfrac {(n+1)!}{n!}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="199">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="199">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="199">\(\dfrac {(n+1)!}{n!} = n+1\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="200"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                              (n + 1)!   (n + 1) · n
+                                                                                                                   !
+                                                                                                       =
+                                                                                                 n!          !
+                                                                                                             n
+                                                                                                       =n+1
+
+
+-->
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="200">
+
+\begin{align*}
+\frac {(n+1)!}{n!} &amp;= \frac {(n+1)\cdot \cancel {n!}}{\cancel {n!}}\\ &amp;= n+1
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="205">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="205">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="205">(d)</span> \(\displaystyle \sum _{k=0}^{3} \frac {x^{2k}}{k!}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="207">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="207">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="207">\(1 + x^2 + \dfrac {x^4}{2} + \dfrac {x^6}{6}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="208"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                        3
+                                                                                        X x2k           x0   x2   x4   x6
+                                                                                                    =      +    +    +
+                                                                                              k!        0!   1!   2!   3!
+                                                                                        k=0
+
+                                                                                                                    x4   x6
+                                                                                                    = 1 + x2 +         +
+                                                                                                                    2    6
+
+-->
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="208">
+
+\begin{align*}
+\sum _{k=0}^{3} \frac {x^{2k}}{k!} &amp;= \frac {x^0}{0!} + \frac {x^2}{1!} + \frac {x^4}{2!} + \frac {x^6}{3!}\\ &amp;= 1 + x^2 + \frac {x^4}{2} + \frac {x^6}{6}
+\end{align*}
+
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Benaderen met een raaklijn ......
+-->
+<h4 id="autosec-14" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="219"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="219">II&#x2003;</span>Benaderen met een raaklijn</h4>
+<a id="mkpiweb-autopage-14"></a>
+
+
+
+<!--
+...... subsection Inzoomen op een grafiek ......
+-->
+<h5 id="autosec-15" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="221"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="221">1&#x2003;</span>Inzoomen op een grafiek</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="223">
+Zoom in op een grafiek rond een punt waar ze een raaklijn heeft. Hoe verder je inzoomt, hoe rechter de grafiek lijkt. Uiteindelijk zie je het
+verschil met de raaklijn niet meer.
+</p>
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="227">
+<figure class="interactieve-grafiek" data-grafiek="inzoomen" data-hoogte="24rem" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="227"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="227">
+</p>
+
+
+<div class="center" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="234">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="234">
+ <span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="234"
+><!--
+           y
+               f (x) = ex
+           5
+           4
+           3
+ P2                   t
+           2
+           1
+
+−2    −1       1          2   x
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="234"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="234">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="234"></div> <figcaption class="interactieve-grafiek-uitleg">De grafiek van <span data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="234">\(f(x)=e^x\)</span> met haar raaklijn <span data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="234">\(t\)</span> in <span data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="234">\((0,1)\)</span>. Klik op Inzoomen en kijk hoe grafiek en raaklijn
+samenvallen. Met Parabool tonen verschijnt een betere benadering, die er nog langer tegenaan blijft liggen.</figcaption> </figure>
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="256">
+De raaklijn \(t\) aan de grafiek van \(f\) in het punt \(\bigl (a,f(a)\bigr )\) ken je uit het hoofdstuk over afgeleiden: 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="258">
+\[ t \leftrightarrow y - f(a) = f&apos;(a)\,(x-a) \qquad \iff \qquad y = f(a) + f&apos;(a)\,(x-a).                 \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="263">
+Omdat grafiek en raaklijn dicht bij \(a\) bijna samenvallen, gebruiken we de raaklijn als benadering: 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="265">
+\[ \boxed {\;f(x) \approx f(a) + f&apos;(a)\,(x-a) \qquad \text {voor $x$ dicht bij $a$}\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="269">
+Dat heet de <b>lineaire benadering</b> van \(f\) rond \(a\). Een eerstegraads veelterm, dus: we noemen ze \(P_1(x)\).
+</p>
+
+
+<!--
+...... subsection Voorbeeld:     ......
+-->
+<h5 id="autosec-19" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="272"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="272">2&#x2003;</span>Voorbeeld: \(e^{0.1}\)</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="274">
+<b>1. Kies de functie en het steunpunt.</b>
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="276">
+We benaderen \(e^{0.1}\) met \(f(x)=e^x\) rond \(a=0\), want \(e^0=1\). 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="277"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                               f (x) = ex                                                               f (0) = 1
+                                                               f ′ (x) = ex                                                             f ′ (0) = 1
+
+
+
+-->
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="277">
+
+\begin{align*}
+f(x) &amp;= e^x &amp; f(0) &amp;= 1\\ f&apos;(x) &amp;= e^x &amp; f&apos;(0) &amp;= 1
+\end{align*}
+
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="282">
+<b>2. Stel de lineaire benadering op.</b> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="283"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                           P1 (x) = f (a) + f ′ (a) (x − a)
+                                                                                                  = 1 + 1 · (x − 0)
+                                                                                                  =1+x
+
+
+
+-->
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="283">
+
+\begin{align*}
+P_1(x) &amp;= f(a)+f&apos;(a)\,(x-a)\\ &amp;= 1+1\cdot (x-0)\\ &amp;= 1+x
+\end{align*}
+
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="289">
+<b>3. Vul \(x=0.1\) in.</b> 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="290">
+\[ e^{0.1} \approx P_1(0.1)=1+0.1=\boxed {1.1}.     \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="293">
+Controle: \(e^{0.1}=1.105\,17\ldots \) De fout is ongeveer \(0.005\).
+</p>
+
+
+<!--
+...... subsection Voorbeeld:     ......
+-->
+<h5 id="autosec-20" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="295"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="295">3&#x2003;</span>Voorbeeld: \(\sqrt {4.1}\)</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="297">
+<b>1. Kies de functie en het steunpunt.</b>
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="299">
+We benaderen \(\sqrt {4.1}\) met \(f(x)=\sqrt {x}\) rond \(a=4\), want \(\sqrt {4}=2\). 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="300"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                         √
+                                                               f (x) =       x                                                            f (4) = 2
+                                                                        1                                                                          1   1
+                                                              f ′ (x) = √                                                                f ′ (4) = √ =
+                                                                       2 x                                                                        2 4  4
+
+
+-->
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="300">
+
+\begin{align*}
+f(x) &amp;= \sqrt {x} &amp; f(4) &amp;= 2\\ f&apos;(x) &amp;= \frac {1}{2\sqrt {x}} &amp; f&apos;(4) &amp;= \frac {1}{2\sqrt {4}}=\frac 14
+\end{align*}
+
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="305">
+<b>2. Stel de lineaire benadering op.</b> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="306"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                 P1 (x) = f (a) + f ′ (a) (x − a)
+                                                                                                               1
+                                                                                                        =2+      (x − 4)
+                                                                                                               4
+
+
+-->
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="306">
+
+\begin{align*}
+P_1(x) &amp;= f(a)+f&apos;(a)\,(x-a)\\ &amp;= 2+\frac 14\,(x-4)
+\end{align*}
+
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="311">
+<b>3. Vul \(x=4.1\) in.</b> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="312"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                          √                      1
+                                                                                              4.1 ≈ P1 (4.1) = 2 + (4.1 − 4)
+                                                                                                                 4
+                                                                                                                 1
+                                                                                                            = 2 + · 0.1 = 2.025 .
+                                                                                                                 4
+
+
+-->
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="312">
+
+\begin{align*}
+\sqrt {4.1} \approx P_1(4.1) &amp;= 2+\frac 14\,(4.1-4)\\ &amp;= 2+\frac 14\cdot 0.1=\boxed {2.025}.
+\end{align*}
+Controle: <span data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="316">\(\sqrt {4.1}=2.024\,845\ldots \)</span> De fout is ongeveer <span data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="316">\(0.000\,15\)</span>.
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="319">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="319">
+Kies \(a\) dicht bij het getal dat je invult, zodat je \(f(a)\) en \(f&apos;(a)\) gemakkelijk kunt berekenen.
+</p>
+
+</div>
+
+
+<!--
+...... subsection Waar de raaklijn tekortschiet ......
+-->
+<h5 id="autosec-21" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="323"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="323">4&#x2003;</span>Waar de raaklijn tekortschiet</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="325">
+Kijk nog eens naar de grafiek van \(e^x\) met haar raaklijn. Hoe verder \(x\) van \(0\) ligt, hoe groter de fout. Dat is logisch: de grafiek
+<em>buigt</em>, de raaklijn niet. 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="328">
+\[ \begin {array}{c|c|c|c} x &amp; e^x &amp; 1+x &amp; \text {fout} \\ \hline 0.1 &amp; 1.105\,17 &amp; 1.1 &amp; 0.005 \\ 0.5 &amp; 1.648\,72 &amp; 1.5 &amp; 0.149 \\ 1 &amp; 2.718\,28 &amp; 2
+&amp; 0.718 \end {array} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="336">
+De raaklijn heeft dezelfde <em>hoogte</em> en dezelfde <em>helling</em> als de grafiek in \(a\). Om ook het buigen na te bootsen, hebben we
+iets nodig met dezelfde <em>kromming</em>. Die kromming meet de tweede afgeleide. We hebben dus een kromme lijn nodig: een parabool.
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-22" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="341"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="341">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-22"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="345">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="345">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="345"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-23" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="345">Oefening 2</h6>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="346">
+Benader met de raaklijn (de lineaire benadering). Kies zelf een geschikt punt \(a\) en vergelijk met je rekenmachine. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="349">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="349">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="349">(a)</span> \(\sqrt {9.2}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="351">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="351">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="351">\(\sqrt {9.2} \approx 3.0333\)</span> \(f(x) = \sqrt {x}\) en \(a = 9\): \(f(9) = 3\) en \(f&apos;(x)
+= \dfrac {1}{2\sqrt {x}}\), dus \(f&apos;(9) = \dfrac 16\). 
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="354">
+\[ \sqrt {9.2} \approx 3 + \frac 16\cdot 0.2 = 3.0333\ldots \]
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="357">
+Exact is \(\sqrt {9.2} = 3.0332\ldots \)
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="359">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="359">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="359">(b)</span> \(\ln 1.05\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="361">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="361">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="361">\(\ln 1.05 \approx 0.05\)</span> \(f(x) = \ln x\) en \(a = 1\): \(f(1) = 0\) en \(f&apos;(x) = \dfrac
+1x\), dus \(f&apos;(1) = 1\). 
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="364">
+\[ \ln 1.05 \approx 0 + 1\cdot 0.05 = 0.05 \]
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="367">
+Exact is \(\ln 1.05 = 0.0488\ldots \)
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Benaderen met een parabool ......
+-->
+<h4 id="autosec-24" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="374"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="374">III&#x2003;</span>Benaderen met een parabool</h4>
+<a id="mkpiweb-autopage-24"></a>
+
+
+
+<!--
+...... subsection Drie voorwaarden ......
+-->
+<h5 id="autosec-25" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="376"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="376">1&#x2003;</span>Drie voorwaarden</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="378">
+We zoeken een tweedegraadsveelterm 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="379">
+\[ P_2(x) = c_0 + c_1 x + c_2 x^2 \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="382">
+die zo goed mogelijk bij \(f(x) = e^x\) past rond \(0\). We eisen dat \(P_2\) in \(0\) dezelfde waarde, dezelfde eerste afgeleide en dezelfde
+tweede afgeleide heeft als \(f\): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="385">
+\[ P_2(0) = f(0), \qquad P_2&apos;(0) = f&apos;(0), \qquad P_2&apos;&apos;(0) = f&apos;&apos;(0).               \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="388">
+We leiden \(P_2\) af en vullen \(0\) in: 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="389">
+\[ \begin {array}{lll} P_2(x) = c_0 + c_1x + c_2x^2 &amp; \Rightarrow &amp; P_2(0) = c_0 \\[0.4em] P_2&apos;(x) = c_1 + 2c_2x &amp; \Rightarrow &amp; P_2&apos;(0) = c_1 \\[0.4em]
+P_2&apos;&apos;(x) = 2c_2 &amp; \Rightarrow &amp; P_2&apos;&apos;(0) = 2c_2 \end {array} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="396">
+Voor \(f(x) = e^x\) zijn alle afgeleiden opnieuw \(e^x\), dus \(f(0) = f&apos;(0) = f&apos;&apos;(0) = 1\). De drie voorwaarden
+worden 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="398">
+\[ \begin {cases} c_0 = 1\\ c_1 = 1\\ 2c_2 = 1 \end {cases} \qquad \Rightarrow \qquad c_0 = 1, \quad c_1 = 1, \quad c_2 = \frac 12.                   \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="407">
+Besluit: 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="408">
+\[ \boxed {\;e^x \approx 1 + x + \frac {x^2}{2}\qquad \text {voor $x$ dicht bij $0$}\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="411">
+Let op de \(\frac 12\): die komt van de factor \(2\) die verschijnt als je \(x^2\) twee keer afleidt.
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="415">
+ <span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="415"></span>
+</p>
+<!--
+...... subsubsection Grafische verduidelijking ......
+-->
+<h6 id="autosec-26" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="415">Grafische verduidelijking</h6>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="417">
+We bouwen de benadering van \(f(x)=e^x\) rond \(0\) stap voor stap op: 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="419">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="419">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="419">•</span> \(P(x)=1\): dezelfde <b>hoogte</b>, maar nog een horizontale lijn. 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="420">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="420">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="420">•</span> \(P(x)=1+x\): ook dezelfde <b>helling</b>, maar nog geen buiging. 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="421">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="421">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="421">•</span> \(P(x)=1+x+\frac {x^2}{2}\): ook dezelfde <b>kromming</b> in \(0\).
+</p>
+</li>
+</ul>
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="424">
+<figure class="interactieve-grafiek" data-grafiek="drie-voorwaarden" data-hoogte="25rem" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="424"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="424">
+</p>
+
+
+<div class="center" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="430">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="430">
+ <span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="430"
+><!--
+     Hoogte                 Helling           Kromming
+          y                      y                     y
+      4                      4                     4
+              f                       f                    f
+      3                      3                     3
+
+      2                      2                     2
+P     1                      1                     1
+                                              P
+                  x                       x                    x
+−1            1       P−1             1       −1           1
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="430"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="430">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="430"></div> <figcaption class="interactieve-grafiek-uitleg">Klik achtereenvolgens op Hoogte, Helling en Kromming. Vergelijk telkens de benadering \(P\) met \(f(x)=e^x\) aan beide
+kanten van \((0,1)\). De parabool volgt de buiging van de grafiek rond \(0\).</figcaption> </figure>
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="450">
+Dezelfde hoogte en helling geven de raaklijn. Met dezelfde tweede afgeleide volgt de parabool ook de buiging rond \(0\).
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="453">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="453"></span>
+</p>
+<!--
+...... subsubsection Hoeveel beter? ......
+-->
+<h6 id="autosec-30" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="453">Hoeveel beter?</h6>
+<a id="mkpiweb-autopage-30"></a>
+
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="455">
+\[ \begin {array}{c|c|c|c|c|c} x &amp; e^x &amp; 1+x &amp; \text {fout} &amp; 1+x+\frac {x^2}{2} &amp; \text {fout} \\ \hline 0.1 &amp; 1.105\,17 &amp; 1.1 &amp; 0.005 &amp; 1.105 &amp;
+0.000\,17 \\ 0.5 &amp; 1.648\,72 &amp; 1.5 &amp; 0.149 &amp; 1.625 &amp; 0.024 \\ 1 &amp; 2.718\,28 &amp; 2 &amp; 0.718 &amp; 2.5 &amp; 0.218 \end {array} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="463">
+Bij \(x = 0.1\) is de fout dertig keer kleiner geworden. Ga terug naar de grafiek bij <em>Inzoomen op een grafiek</em>, klik op Parabool tonen
+en zoom in: de parabool blijft veel langer tegen de grafiek aan liggen dan de raaklijn.
+</p>
+
+
+<!--
+...... subsection Voorbeeld:     ......
+-->
+<h5 id="autosec-31" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="469"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="469">2&#x2003;</span>Voorbeeld: \(\cos x\)</h5>
+<a id="mkpiweb-autopage-31"></a>
+
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="471">
+\[ f(x) = \cos x \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="475">
+Probeer het eerst zelf: zoek \(P_2(x) = c_0 + c_1x + c_2x^2\) met dezelfde waarde, eerste en tweede afgeleide als \(\cos x\) in \(0\).
+</p>
+
+
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="479">
+
+
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="479"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                           f (x) = cos x                                             f (0) = 1                                             c0 = 1
+                                            ′                                                         ′
+                                           f (x) = − sin x                                          f (0) = 0                                              c1 = 0
+                                                                                                                                                                              1
+                                          f ′′ (x) = − cos x                                        f ′′ (0) = −1                                         2c2 = −1 ⇒ c2 = −
+                                                                                                                                                                              2
+
+
+-->
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="479">
+
+\begin{align*}
+f(x) &amp;= \cos x &amp; f(0) &amp;= 1 &amp; c_0 &amp;= 1\\ f&apos;(x) &amp;= -\sin x &amp; f&apos;(0) &amp;= 0 &amp; c_1 &amp;= 0\\ f&apos;&apos;(x) &amp;= -\cos x &amp; f&apos;&apos;(0)
+&amp;= -1 &amp; 2c_2 &amp;= -1 \;\Rightarrow \; c_2 = -\frac 12
+\end{align*}
+
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="484">
+\[ \boxed {\;\cos x \approx 1 - \frac {x^2}{2}\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="487">
+Controle: \(\cos 0.2 \approx 1 - \frac {0.04}{2} = 0.98\), en exact is \(\cos 0.2 = 0.980\,07\ldots \)
+</p>
+</div>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="492">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="492">
+De raaklijn aan \(\cos x\) in \(0\) is horizontaal: \(P_1(x) = 1\). Die benadering zegt niets over hoe de cosinus daalt. Pas de parabool ziet
+dat de grafiek naar beneden buigt.
+</p>
+
+</div>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="497">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="497"></span>
+</p>
+<!--
+...... subsubsection Zelf tekenen met de TI-84 ......
+-->
+<h6 id="autosec-32" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="497">Zelf tekenen met de TI-84</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+
+<div class="grm-demo" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501">
+
+
+<div class="grm-stap" data-toetsen="[mode][down][down][enter]" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501"><div class="grm-stap-tekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501">
+Druk <kbd class="grm-toets grm-evo grm-licht grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501"><span
+class="grm-legende-2nd" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501">quit</span><span class="grm-legende-alpha" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501"></span></span><span class="grm-basistekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501">mode</span></kbd>, kies <span class="grm-schermtekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501"><span class="grm-tab
+grm-actief" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501">RADIAN</span></span> en bevestig met <kbd class="grm-toets grm-evo grm-licht grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501"><span class="grm-legende-2nd" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501">entry</span><span
+class="grm-legende-alpha" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501">solve</span></span><span class="grm-basistekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="501">enter</span></kbd>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="502">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="502">
+We vergelijken de cosinus met een veelterm. Daarom werken we in radialen.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="503">
+
+<div class="grm-scherm" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="503"><div class="grm-status" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="503">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="504"> <div
+class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="504">NORMAL SCI ENG</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="504">FLOAT 0 1 2 3 4 5 6 7 8 9</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="504"><span class="grm-schermtekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="504"><span class="grm-tab
+grm-actief" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="504">RADIAN</span></span> DEGREE</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="504">FUNC PAR POL SEQ</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[y=][cos]X)[enter]1[enter]1-X^2/2" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="512"><div class="grm-stap-tekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="512">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="512">
+Druk <kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="512"><span
+class="grm-legende-2nd" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="512">statplot</span><span class="grm-legende-alpha" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="512">f1</span></span><span class="grm-basistekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="512">y=</span></kbd> en voer de drie voorschriften in.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="513">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="513">
+\(Y_1\) is de cosinus, \(Y_2\) de raaklijn en \(Y_3\) de parabool. Gebruik <kbd class="grm-toets grm-evo grm-licht grm-actief-basis"><span
+class="grm-legendes" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="513"><span class="grm-legende-2nd" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="513">link</span><span class="grm-legende-alpha" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="513"></span></span><span class="grm-basistekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="513">X,T,&#x03B8;,<em>n</em></span></kbd> voor \(X\) en <kbd
+class="grm-toets grm-evo grm-licht grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="513"><span class="grm-legende-2nd" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="513">&#x03C0;</span><span class="grm-legende-alpha" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="513">H</span></span><span
+class="grm-basistekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="513">&#x005E;</span></kbd> voor de macht.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="515">
+
+<div class="grm-scherm" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="515"><div class="grm-status" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="515">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="516"> <div
+class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="516">Y<sub>1</sub>=cos(X)</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="516">Y<sub>2</sub>=1</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="516">Y<sub>3</sub>=1-X<sup>2</sup>/2</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[window][(-)]2[enter]2[enter]1[enter][(-)]1.2[enter]1.5[enter].5[enter]" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="523"><div class="grm-stap-tekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="523">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="523">
+Druk <kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="523"><span
+class="grm-legende-2nd" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="523">tblset</span><span class="grm-legende-alpha" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="523">f2</span></span><span class="grm-basistekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="523">window</span></kbd> en stel het venster in.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="524">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="524">
+We bekijken de grafieken aan beide kanten van \(0\). Typ negatieve getallen met <kbd class="grm-toets grm-evo grm-donker
+grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="524"><span class="grm-legende-2nd" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="524">ans</span><span class="grm-legende-alpha" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="524">?</span></span><span class="grm-basistekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="524">(&#x2212;)</span></kbd>.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="526">
+
+<div class="grm-scherm" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="526"><div class="grm-status" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="526">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="527"> <div
+class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="527">WINDOW</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="527">Xmin=&#x2212;2</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="527">Xmax=2</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="527">Xscl=1</div> <div
+class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="527">Ymin=&#x2212;1.2</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="527">Ymax=1.5</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="527">Yscl=.5</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[graph]" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="539"><div class="grm-stap-tekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="539">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="539">
+Druk <kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="539"><span
+class="grm-legende-2nd" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="539">table</span><span class="grm-legende-alpha" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="539">f5</span></span><span class="grm-basistekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="539">graph</span></kbd>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="540">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="540">
+Welke twee grafieken buigen samen naar beneden?
+</p>
+</div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[window][(-)].5[enter].5[enter].1[enter].85[enter]1.05[enter].05[enter]" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="544"><div class="grm-stap-tekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="544">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="544">
+Druk <kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="544"><span
+class="grm-legende-2nd" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="544">tblset</span><span class="grm-legende-alpha" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="544">f2</span></span><span class="grm-basistekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="544">window</span></kbd> en kies een kleiner venster rond \((0,1)\).
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="545">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="545">
+Zo bekijken we hoe goed de benaderingen vlak bij \(0\) aansluiten.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="546">
+
+<div class="grm-scherm" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="546"><div class="grm-status" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="546">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="547"> <div
+class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="547">WINDOW</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="547">Xmin=&#x2212;.5</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="547">Xmax=.5</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="547">Xscl=.1</div> <div
+class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="547">Ymin=.85</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="547">Ymax=1.05</div> <div class="grm-regel grm-links" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="547">Yscl=.05</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[graph]" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="559"><div class="grm-stap-tekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="559">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="559">
+Druk opnieuw <kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="559"><span
+class="grm-legende-2nd" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="559">table</span><span class="grm-legende-alpha" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="559">f5</span></span><span class="grm-basistekst" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="559">graph</span></kbd>.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="560">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="560">
+Welke benadering sluit rond \(0\) het best aan bij de cosinus: de raaklijn of de parabool?
+</p>
+</div>
+
+</div></div>
+
+</div>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-33" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="565"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="565">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-33"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="569">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="569">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="569"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-34" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="569">Oefening 3</h6>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="570">
+Zoek de parabool \(P_2(x) = c_0 + c_1x + c_2x^2\) die in \(0\) dezelfde waarde, eerste en tweede afgeleide heeft als \(f\). 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="573">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="573">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="573">(a)</span> \(f(x) = e^{-x}\). Benader daarmee \(e^{-0.2}\) en vergelijk met de raaklijn en met je rekenmachine. 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="576">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="576">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="576">\(P_2(x) = 1 - x + \dfrac {x^2}{2}\), \(e^{-0.2} \approx 0.82\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="577"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                             f (x) = e−x                                              f (0) = 1                                              c0 = 1
+                                              ′          −x                                            ′
+                                            f (x) = −e                                                f (0) = −1                                             c1 = −1
+                                                                                                                                                                             1
+                                            f ′′ (x) = e−x                                           f ′′ (0) = 1                                           2c2 = 1 ⇒ c2 =
+                                                                                                                                                                             2
+
+-->
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="577">
+
+\begin{align*}
+f(x) &amp;= e^{-x} &amp; f(0) &amp;= 1 &amp; c_0 &amp;= 1\\ f&apos;(x) &amp;= -e^{-x} &amp; f&apos;(0) &amp;= -1 &amp; c_1 &amp;= -1\\ f&apos;&apos;(x) &amp;= e^{-x} &amp; f&apos;&apos;(0)
+&amp;= 1 &amp; 2c_2 &amp;= 1 \;\Rightarrow \; c_2 = \frac 12
+\end{align*}
+
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="582">
+\[ P_2(x) = 1 - x + \frac {x^2}{2} \qquad \text {dus}\qquad e^{-0.2} \approx 1 - 0.2 + 0.02 = 0.82 \]
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="587">
+De raaklijn \(P_1(x) = 1 - x\) geeft \(0.8\). Exact is \(e^{-0.2} = 0.8187\ldots \): de fout daalt van \(0.019\) naar \(0.0013\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="590">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="590">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="590">(b)</span> \(f(x) = \sin x\). Wat valt je op? 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="592">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="592">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="592">\(P_2(x) = x\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="593"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                             f (x) = sin x                                                 f (0) = 0                                         c0 = 0
+                                              ′                                                            ′
+                                            f (x) = cos x                                              f (0) = 1                                             c1 = 1
+                                             ′′                                                            ′′
+                                            f (x) = − sin x                                            f (0) = 0                                            2c2 = 0 ⇒ c2 = 0
+
+
+-->
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="593">
+
+\begin{align*}
+f(x) &amp;= \sin x &amp; f(0) &amp;= 0 &amp; c_0 &amp;= 0\\ f&apos;(x) &amp;= \cos x &amp; f&apos;(0) &amp;= 1 &amp; c_1 &amp;= 1\\ f&apos;&apos;(x) &amp;= -\sin x &amp; f&apos;&apos;(0)
+&amp;= 0 &amp; 2c_2 &amp;= 0 \;\Rightarrow \; c_2 = 0
+\end{align*}
+
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="598">
+\[ P_2(x) = x \]
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="601">
+De parabool is hier de raaklijn zelf: \(c_2 = 0\). De grafiek van \(\sin x\) buigt in \(0\) niet, want \(0\) is een buigpunt. Een betere
+benadering vraagt een term met \(x^3\).
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Het Taylorpolynoom ......
+-->
+<h4 id="autosec-35" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="610"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="610">IV&#x2003;</span>Het Taylorpolynoom</h4>
+<a id="mkpiweb-autopage-35"></a>
+
+
+
+<!--
+...... subsection Het patroon ......
+-->
+<h5 id="autosec-36" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="612"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="612">1&#x2003;</span>Het patroon</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="614">
+Wat voor de parabool werkte, werkt voor elke graad. Neem een veelterm van graad \(3\) en leid af tot er een constante overblijft: 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="616">
+\[ \begin {array}{lll} P(x) = c_0 + c_1x + c_2x^2 + c_3x^3 &amp; \Rightarrow &amp; P(0) = c_0 \\[0.4em] P&apos;(x) = c_1 + 2c_2x + 3c_3x^2 &amp; \Rightarrow &amp; P&apos;(0) = c_1 \\[0.4em]
+P&apos;&apos;(x) = 2c_2 + 3\cdot 2\,c_3x &amp; \Rightarrow &amp; P&apos;&apos;(0) = 2\,c_2 \\[0.4em] P&apos;&apos;&apos;(x) = 3\cdot 2\cdot 1\,c_3 &amp; \Rightarrow &amp;
+P&apos;&apos;&apos;(0) = 3!\,c_3 \end {array} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="624">
+Leid je \(c_kx^k\) \(k\) keer af, dan blijft \(k\cdot (k-1)\cdots 1\cdot c_k = k!\,c_k\) over. Alle andere termen zijn ofwel al verdwenen,
+ofwel bevatten ze nog een \(x\) en worden ze \(0\) als je \(x=0\) invult. Dus 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="627">
+\[ \boxed {\;P^{(k)}(0) = k!\,c_k\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="630">
+Willen we dat \(P^{(k)}(0) = f^{(k)}(0)\), dan moet 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="631">
+\[ c_k = \frac {f^{(k)}(0)}{k!}.     \]
+</p>
+
+
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-37" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="635"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="635">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="637">
+Het <b>Taylorpolynoom</b> van graad \(n\) van \(f\) rond \(0\) is 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="638">
+\[ \boxed {\; \begin {aligned} P_n(x) &amp;= f(0) + \frac {f&apos;(0)}{1!}\,x + \frac {f&apos;&apos;(0)}{2!}\,x^2 + \cdots + \frac {f^{(n)}(0)}{n!}\,x^n\\ &amp;= \sum _{k=0}^{n} \frac
+{f^{(k)}(0)}{k!}\,x^k \end {aligned}\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="646">
+Het is de enige veelterm van graad hoogstens \(n\) die in \(0\) dezelfde waarde en dezelfde eerste \(n\) afgeleiden heeft als \(f\).
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="649">
+Rond een ander punt \(a\) werken we met machten van \((x-a)\) in plaats van machten van \(x\): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="651">
+\[ \boxed {\; \begin {aligned} P_n(x) &amp;= f(a) + \frac {f&apos;(a)}{1!}\,(x-a) + \frac {f&apos;&apos;(a)}{2!}\,(x-a)^2 + \cdots + \frac {f^{(n)}(a)}{n!}\,(x-a)^n\\ &amp;= \sum _{k=0}^{n}
+\frac {f^{(k)}(a)}{k!}\,(x-a)^k \end {aligned}\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="659">
+Met \(n = 1\) vind je de raaklijn uit het vorige onderdeel terug.
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="662">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="662">
+Een Taylorpolynoom rond \(0\) heet ook een <b>Maclaurinpolynoom</b>. Waar de namen vandaan komen, lees je op het einde van dit
+onderdeel.
+</p>
+
+</div>
+
+
+<!--
+...... subsection Werkwijze ......
+-->
+<h5 id="autosec-38" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="666"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="666">3&#x2003;</span>Werkwijze</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="668">
+Een Taylorpolynoom bepaal je in vier stappen. Zet ze in een tabel, dan vergeet je niets. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="671">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="671">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="671">1.</span> Bereken de afgeleiden \(f&apos;(x)\), \(f&apos;&apos;(x)\), &#x2026;, \(f^{(n)}(x)\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="672">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="672">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="672">2.</span> Vul \(a\) in: \(f(a)\), \(f&apos;(a)\), &#x2026;, \(f^{(n)}(a)\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="673">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="673">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="673">3.</span> Deel door \(k!\): dat geeft de coëfficiënt \(c_k = \dfrac {f^{(k)}(a)}{k!}\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="674">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="674">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="674">4.</span> Schrijf \(P_n(x) = c_0 + c_1(x-a) + c_2(x-a)^2 + \cdots + c_n(x-a)^n\).
+</p>
+</li>
+</ul>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="676">
+Met de knop Rekenmachine controleer je stap 1 en 2: typ <kbd class="mathjax_ignore">f(x) = ...</kbd> en daarna bijvoorbeeld <kbd class="mathjax_ignore">f’’’(0)</kbd>.
+</p>
+
+
+<!--
+...... subsection Voorbeeld:     ......
+-->
+<h5 id="autosec-39" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="679"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="679">4&#x2003;</span>Voorbeeld: \(e^x\)</h5>
+<a id="mkpiweb-autopage-39"></a>
+
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="681">
+\[ f(x) = e^x \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="685">
+Alle afgeleiden van \(e^x\) zijn \(e^x\), en \(e^0 = 1\): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="686">
+\[ \begin {array}{c|c|c|c} k &amp; f^{(k)}(x) &amp; f^{(k)}(0) &amp; c_k = \frac {f^{(k)}(0)}{k!} \\ \hline 0 &amp; e^x &amp; 1 &amp; 1 \\ 1 &amp; e^x &amp; 1 &amp; 1 \\ 2 &amp; e^x &amp; 1
+&amp; \frac {1}{2} \\ 3 &amp; e^x &amp; 1 &amp; \frac {1}{6} \\ \vdots &amp; \vdots &amp; \vdots &amp; \vdots \\ n &amp; e^x &amp; 1 &amp; \frac {1}{n!} \end {array} \]
+</p>
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="697">
+\[ \boxed {\; e^x \approx P_n(x) = 1 + x + \frac {x^2}{2!} + \frac {x^3}{3!} + \cdots + \frac {x^n}{n!}\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="701">
+Vul \(x = 1\) in, dan krijg je een benadering van het getal \(e\): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="702">
+\[ e \approx 1 + 1 + \frac 12 + \frac 16 + \frac 1{24} + \frac 1{120} = 2.716\,66\ldots \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="706">
+Met zes termen kloppen al drie cijfers na de komma (\(e = 2.718\,28\ldots \)).
+</p>
+
+
+<!--
+...... subsection Taylorpolynomen verkennen ......
+-->
+<h5 id="autosec-40" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="708"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="708">5&#x2003;</span>Taylorpolynomen verkennen</h5>
+<a id="mkpiweb-autopage-40"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="710">
+Hoe ziet een Taylorpolynoom eruit naast zijn functie? Kies een functie, verhoog de graad \(n\) en kijk waar de benadering goed is.
+</p>
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="713">
+<figure class="interactieve-grafiek" data-grafiek="taylor-verkenner" data-hoogte="30rem" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="713"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="713">
+</p>
+
+
+<div class="center" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="720">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="720">
+ <span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="720"
+><!--
+                y
+                2                   sin x
+                                     P1
+                1                    P3
+                                     P5
+                                     P9
+−6   −4   −2        2   4   6   x
+
+               −1
+
+               −2
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="720"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="720">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="720"></div> <figcaption class="interactieve-grafiek-uitleg">Kies een functie met de knoppen en verander de graad \(n\) met \(-\) en \(+\). Versleep het punt \(a\) over de \(x\)-as:
+het Taylorpolynoom \(P_n\) is gemaakt rond \(a\). Versleep ook het punt \(x\): het dikke stuk erboven is de fout \(f(x)-P_n(x)\).</figcaption> </figure>
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="745">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="745"></span>
+</p>
+<!--
+...... subsubsection Wat zie je? ......
+-->
+<h6 id="autosec-44" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="745">Wat zie je?</h6>
+<a id="mkpiweb-autopage-44"></a>
+
+
+
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="748">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="748">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="748">•</span> Bij \(a\) ligt \(P_n\) altijd tegen de grafiek. Hoe verder weg, hoe slechter de benadering. 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="750">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="750">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="750">•</span> Hoe hoger de graad, hoe groter het stuk waar de benadering goed is. 
+</p>
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="751">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="751">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="751">•</span> Bij \(\sin x\), \(\cos x\) en \(e^x\) groeit dat stuk zonder einde mee met \(n\). Bij \(\ln (1+x)\) en \(\frac {1}{1-x}\) niet: voorbij een bepaalde grens helpt een hogere graad niet
+meer.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Voorbeeld:     ......
+-->
+<h5 id="autosec-45" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="756"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="756">6&#x2003;</span>Voorbeeld: \(\sin x\)</h5>
+<a id="mkpiweb-autopage-45"></a>
+
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="758">
+\[ f(x) = \sin x \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="762">
+De afgeleiden van \(\sin x\) herhalen zich na vier stappen: 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="763">
+\[ \begin {array}{c|c|c|c} k &amp; f^{(k)}(x) &amp; f^{(k)}(0) &amp; c_k \\ \hline 0 &amp; \sin x &amp; 0 &amp; 0 \\ 1 &amp; \cos x &amp; 1 &amp; 1 \\ 2 &amp; -\sin x &amp; 0 &amp; 0 \\ 3 &amp;
+-\cos x &amp; -1 &amp; -\frac {1}{3!} \\ 4 &amp; \sin x &amp; 0 &amp; 0 \\ 5 &amp; \cos x &amp; 1 &amp; \frac {1}{5!} \\ 6 &amp; -\sin x &amp; 0 &amp; 0 \\ 7 &amp; -\cos x &amp; -1 &amp;
+-\frac {1}{7!} \end {array} \]
+</p>
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="776">
+\[ \boxed {\; \sin x \approx x - \frac {x^3}{3!} + \frac {x^5}{5!} - \frac {x^7}{7!}\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="780">
+Dat is de veelterm uit de inleiding: \(3!   = 6\) en \(5!   = 120\).
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="783">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="783">
+Er staan enkel oneven machten in. Dat past: \(\sin x\) is een oneven functie (\(\sin (-x) = -\sin x\)), en een veelterm met enkel oneven
+machten ook. Omdat \(c_4 = 0\), is \(P_3 = P_4\): de benadering van graad \(3\) is meteen ook die van graad \(4\).
+</p>
+
+</div>
+
+
+<!--
+...... subsection Voorbeeld:     ......
+-->
+<h5 id="autosec-46" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="789"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="789">7&#x2003;</span>Voorbeeld: \(\cos x\)</h5>
+<a id="mkpiweb-autopage-46"></a>
+
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="791">
+\[ f(x) = \cos x \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="795">
+Probeer zelf: bepaal \(P_6\) van \(\cos x\) rond \(0\). Gebruik dezelfde tabel als bij \(\sin x\).
+</p>
+
+
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="799">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="799">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="799">\(\cos x \approx 1 - \dfrac {x^2}{2!} + \dfrac {x^4}{4!} - \dfrac {x^6}{6!}\)</span> 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="800">
+\[ \begin {array}{c|c|c|c} k &amp; f^{(k)}(x) &amp; f^{(k)}(0) &amp; c_k \\ \hline 0 &amp; \cos x &amp; 1 &amp; 1 \\ 1 &amp; -\sin x &amp; 0 &amp; 0 \\ 2 &amp; -\cos x &amp; -1 &amp; -\frac
+{1}{2!} \\ 3 &amp; \sin x &amp; 0 &amp; 0 \\ 4 &amp; \cos x &amp; 1 &amp; \frac {1}{4!} \\ 5 &amp; -\sin x &amp; 0 &amp; 0 \\ 6 &amp; -\cos x &amp; -1 &amp; -\frac {1}{6!} \end {array} \]
+</p>
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="812">
+\[ \cos x \approx 1 - \frac {x^2}{2!} + \frac {x^4}{4!} - \frac {x^6}{6!} = 1 - \frac {x^2}{2} + \frac {x^4}{24} - \frac {x^6}{720} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="816">
+Nu staan er enkel even machten in: \(\cos x\) is een even functie.
+</p>
+</div>
+
+
+<!--
+...... subsection Voorbeeld:     ......
+-->
+<h5 id="autosec-47" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="819"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="819">8&#x2003;</span>Voorbeeld: \(\ln (1+x)\)</h5>
+<a id="mkpiweb-autopage-47"></a>
+
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="821">
+\[ f(x) = \ln (1+x) \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="825">
+Van \(\ln x\) kunnen we geen Taylorpolynoom rond \(0\) maken: \(\ln 0\) bestaat niet. Daarom nemen we \(f(x) = \ln (1+x)\), die in
+\(0\) wel bestaat. 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="827">
+\[ \begin {array}{c|c|c|c} k &amp; f^{(k)}(x) &amp; f^{(k)}(0) &amp; c_k \\ \hline 0 &amp; \ln (1+x) &amp; 0 &amp; 0 \\[0.3em] 1 &amp; (1+x)^{-1} &amp; 1 &amp; 1 \\[0.3em] 2 &amp; -(1+x)^{-2}
+&amp; -1 &amp; -\frac {1}{2} \\[0.3em] 3 &amp; 2\,(1+x)^{-3} &amp; 2 &amp; \frac {2}{3!} = \frac 13 \\[0.3em] 4 &amp; -2\cdot 3\,(1+x)^{-4} &amp; -6 &amp; -\frac {6}{4!} = -\frac 14 \end
+{array} \]
+</p>
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="837">
+\[ \boxed {\; \ln (1+x) \approx x - \frac {x^2}{2} + \frac {x^3}{3} - \frac {x^4}{4}\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="841">
+Hier vallen de faculteiten weg: \(f^{(k)}(0)\) is \(\pm (k-1)!\), en \(\frac {(k-1)!}{k!} = \frac 1k\).
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="845">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="845">
+Wil je toch \(\ln x\) benaderen, maak dan een Taylorpolynoom rond \(a=1\): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="846">
+\[ \ln x \approx (x-1) - \frac {(x-1)^2}{2} + \frac {(x-1)^3}{3} - \cdots \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="849">
+Dat is hetzelfde polynoom, met \(x-1\) in de plaats van \(x\).
+</p>
+
+</div>
+
+
+<!--
+...... subsection Voorbeeld: rond een ander punt ......
+-->
+<h5 id="autosec-48" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="852"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="852">9&#x2003;</span>Voorbeeld: rond een ander punt</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="854">
+We maken van \(f(x) = \sqrt {x}\) het Taylorpolynoom van graad \(2\) rond \(a = 4\), en benaderen er \(\sqrt {4.1}\) mee.
+</p>
+
+
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="857"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                    1
+                                        f (x) = x 2                                            f (4) = 2                                                  c0 = 2
+                                                        1
+                                        f ′ (x) = 12 x− 2                                     f ′ (4) = 12 · 12 = 41                                      c1 = 14
+                                                                                                                                                                   1
+                                                            3                                                                                                    − 32
+                                       f ′′ (x) = − 41 x− 2                                   f ′′ (4) = − 14 · 18 = − 32
+                                                                                                                       1
+                                                                                                                                                          c2 =            1
+                                                                                                                                                                      = − 64
+                                                                                                                                                                  2!
+
+
+-->
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="857">
+
+\begin{align*}
+f(x) &amp;= x^{\frac 12} &amp; f(4) &amp;= 2 &amp; c_0 &amp;= 2\\ f&apos;(x) &amp;= \tfrac 12\,x^{-\frac 12} &amp; f&apos;(4) &amp;= \tfrac 12\cdot \tfrac 12 = \tfrac 14 &amp; c_1 &amp;=
+\tfrac 14\\ f&apos;&apos;(x) &amp;= -\tfrac 14\,x^{-\frac 32} &amp; f&apos;&apos;(4) &amp;= -\tfrac 14\cdot \tfrac 18 = -\tfrac {1}{32} &amp; c_2 &amp;= \frac {-\frac {1}{32}}{2!} = -\tfrac
+{1}{64}
+\end{align*}
+
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="862">
+\[ \sqrt {x} \approx P_2(x) = 2 + \frac 14\,(x-4) - \frac {1}{64}\,(x-4)^2 \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="865">
+Met \(x = 4.1\) is \(x - 4 = 0.1\): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="866">
+\[ \sqrt {4.1} \approx 2 + 0.025 - \frac {0.01}{64} = 2 + 0.025 - 0.000\,156\,25 = 2.024\,843\,75.              \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="870">
+Exact is \(\sqrt {4.1} = 2.024\,845\,67\ldots \) De raaklijn gaf \(2.025\), met een fout van \(0.000\,15\). De parabool doet het
+honderd keer beter: de fout is nog \(0.000\,002\).
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="875">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="875">
+Let op \(4^{-\frac 32} = \dfrac {1}{4^{\frac 32}} = \dfrac {1}{\sqrt {4}^{\,3}} = \dfrac 18\).
+</p>
+
+</div>
+
+
+<!--
+...... subsection Een veelterm is haar eigen Taylorpolynoom ......
+-->
+<h5 id="autosec-49" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="879"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="879">10&#x2003;</span>Een veelterm is haar eigen Taylorpolynoom</h5>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="881">
+Neem \(f(x) = x^3\) en maak het Taylorpolynoom van graad \(3\) rond \(a=1\). 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="882"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                f (x) = x3                                                f (1) = 1                                             c0 = 1
+                                               f ′ (x) = 3x2                                             f ′ (1) = 3                                            c1 = 3
+                                                ′′                                                        ′′                                                         6
+                                              f (x) = 6x                                                 f (1) = 6                                              c2 = 2! =3
+                                              f ′′′ (x) = 6                                             f ′′′ (1) = 6                                                6
+                                                                                                                                                                c3 = 3! =1
+
+
+
+-->
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="882">
+
+\begin{align*}
+f(x) &amp;= x^3 &amp; f(1) &amp;= 1 &amp; c_0 &amp;= 1\\ f&apos;(x) &amp;= 3x^2 &amp; f&apos;(1) &amp;= 3 &amp; c_1 &amp;= 3\\ f&apos;&apos;(x) &amp;= 6x &amp; f&apos;&apos;(1) &amp;= 6 &amp;
+c_2 &amp;= \tfrac {6}{2!} = 3\\ f&apos;&apos;&apos;(x) &amp;= 6 &amp; f&apos;&apos;&apos;(1) &amp;= 6 &amp; c_3 &amp;= \tfrac {6}{3!} = 1
+\end{align*}
+
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="888">
+\[ P_3(x) = 1 + 3(x-1) + 3(x-1)^2 + (x-1)^3 \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="891">
+Werk je dit uit, dan vind je opnieuw \(x^3\). Dat is geen toeval: een veelterm van graad \(3\) <em>is</em> al een veelterm, dus de beste
+benadering van graad \(3\) is ze zelf. Het Taylorpolynoom schrijft ze enkel anders, in machten van \((x-1)\).
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="897">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="897">
+Herken je de coëfficiënten \(1\), \(3\), \(3\), \(1\)? Het is het binomium van Newton toegepast op \(x^3 = \bigl (1 +
+(x-1)\bigr )^3\).
+</p>
+
+</div>
+
+
+<!--
+...... subsection Waar het vandaan komt ......
+-->
+<h5 id="autosec-50" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="901"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="901">11&#x2003;</span>Waar het vandaan komt</h5>
+<a id="mkpiweb-autopage-50"></a>
+
+
+
+<div class="marginblock" role="note" style="width:120pt; float:right; " data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="906">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="906">
+
+<a href="Brook_Taylor.jpg" target="_blank" ><img
+    src="Brook_Taylor.jpg"
+    style="
+    width:102pt;
+    "
+    class="inlineimage"
+    alt="(image)" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="906"
+></a>
+</p>
+
+
+<div class="figurecaption" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="906">
+Brook Taylor, geschilderd door Louis Goupy (rond 1720)
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="911">
+De formule draagt de naam van de Engelse wiskundige <b>Brook Taylor</b> (1685 tot 1731). Hij publiceerde ze in 1715 in zijn boek
+<em>Methodus incrementorum directa et inversa</em>. Taylor vertrok niet van afgeleiden, maar van een formule met differenties: hoe veranderen de waarden van een functie als \(x\) telkens met dezelfde stap toeneemt? Laat hij
+die stap naar nul gaan, dan blijft de formule over die wij nu naar hem noemen. In hetzelfde boek beschrijft hij ook als een van de eersten hoe een gespannen snaar trilt. Op het portret toont hij een ander boek uit hetzelfde jaar, over
+perspectief.
+</p>
+
+
+<div class="marginblock" role="note" style="width:120pt; float:right; " data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="926">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="926">
+
+<a href="Colin_Maclaurin.jpg" target="_blank" ><img
+    src="Colin_Maclaurin.jpg"
+    style="
+    width:102pt;
+    "
+    class="inlineimage"
+    alt="(image)" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="926"
+></a>
+</p>
+
+
+<div class="figurecaption" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="926">
+Colin Maclaurin, gravure naar Edward Harding (1798)
+
+</div>
+
+</div>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="931">
+De Schot <b>Colin Maclaurin</b> (1698 tot 1746) werkte in 1742 in zijn <em>Treatise of Fluxions</em> het geval \(a = 0\) uitvoerig uit en
+gebruikte het om grafieken te onderzoeken. Hij vermeldde zelf dat de formule van Taylor kwam. Toch kreeg het geval rond \(0\) zijn naam: het Maclaurinpolynoom.
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="936">
+Het idee is ouder dan die namen. De Schot <b>James Gregory</b> kende rond 1671 al de Taylorpolynomen van de boogtangens en van \(\tan
+x\), tot een willekeurig hoge graad, maar hij publiceerde zijn methode niet. Nog vroeger, rond 1400, vond <b>Madhava van Sangamagrama</b> in Kerala, in het zuiden van India, die van \(\sin x\), \(\cos x\) en de
+boogtangens. Zijn werk kennen we enkel uit boeken die zijn leerlingen later schreven, en een portret van hem bestaat niet. De restterm die we in het volgende onderdeel gebruiken, kwam er pas in 1797, bij <b>Joseph-Louis
+Lagrange</b>.
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-53" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="945"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="945">12&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-53"></a>
+
+
+
+<div class="cursus-oefenbalk" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="947"></div>
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="950">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="950">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="950"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-54" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="950">Oefening 4</h6>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="951">
+Bepaal het Taylorpolynoom van graad \(3\) rond \(0\). 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="953">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="953">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="953">(a)</span> \(f(x) = e^{2x}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="955">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="955">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="955">\(P_3(x) = 1 + 2x + 2x^2 + \dfrac {4}{3}x^3\)</span> Bij elke afgeleide komt er een factor \(2\) bij
+(kettingregel). 
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="957">
+\[ \begin {array}{c|c|c|c} k &amp; f^{(k)}(x) &amp; f^{(k)}(0) &amp; c_k \\ \hline 0 &amp; e^{2x} &amp; 1 &amp; 1 \\ 1 &amp; 2e^{2x} &amp; 2 &amp; 2 \\ 2 &amp; 4e^{2x} &amp; 4 &amp; \frac
+{4}{2!} = 2 \\ 3 &amp; 8e^{2x} &amp; 8 &amp; \frac {8}{3!} = \frac 43 \end {array} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="966">
+\[ P_3(x) = 1 + 2x + 2x^2 + \frac 43\,x^3 \]
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="969">
+<span class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="969">Sneller: vul \(2x\) in het Taylorpolynoom van \(e^x\) in. \(1 + 2x + \frac {(2x)^2}{2} + \frac {(2x)^3}{6}\)
+geeft hetzelfde.</span>
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="972">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="972">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="972">(b)</span> \(f(x) = \dfrac {1}{1+x}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="974">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="974">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="974">\(P_3(x) = 1 - x + x^2 - x^3\)</span> 
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="975">
+\[ \begin {array}{c|c|c|c} k &amp; f^{(k)}(x) &amp; f^{(k)}(0) &amp; c_k \\ \hline 0 &amp; (1+x)^{-1} &amp; 1 &amp; 1 \\[0.3em] 1 &amp; -(1+x)^{-2} &amp; -1 &amp; -1 \\[0.3em] 2 &amp;
+2\,(1+x)^{-3} &amp; 2 &amp; \frac {2}{2!} = 1 \\[0.3em] 3 &amp; -6\,(1+x)^{-4} &amp; -6 &amp; \frac {-6}{3!} = -1 \end {array} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="984">
+\[ P_3(x) = 1 - x + x^2 - x^3 \]
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="988">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="988">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="988">(c)</span> \(f(x) = \tan x\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="990">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="990">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="990">\(P_3(x) = x + \dfrac {x^3}{3}\)</span> Schrijf \(f&apos;(x) = 1 + \tan ^2 x\), dan blijft het afleiden
+overzichtelijk. 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="992"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                         f (x) = tan x                                                                         f (0) = 0
+                                                        f ′ (x) = 1 + tan2 x                                                                  f ′ (0) = 1
+                                                        f ′′ (x) = 2 tan x (1 + tan2 x)                                                       f ′′ (0) = 0
+                                                               = 2 tan x + 2 tan3 x
+                                                       f ′′′ (x) = (2 + 6 tan2 x)(1 + tan2 x)                                                f ′′′ (0) = 2
+
+
+-->
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="992">
+
+\begin{align*}
+f(x) &amp;= \tan x &amp; f(0) &amp;= 0\\ f&apos;(x) &amp;= 1 + \tan ^2 x &amp; f&apos;(0) &amp;= 1\\ f&apos;&apos;(x) &amp;= 2\tan x\,(1 + \tan ^2 x) &amp; f&apos;&apos;(0) &amp;= 0\\ &amp;=
+2\tan x + 2\tan ^3 x &amp; &amp; \\ f&apos;&apos;&apos;(x) &amp;= (2 + 6\tan ^2 x)(1 + \tan ^2 x) &amp; f&apos;&apos;&apos;(0) &amp;= 2
+\end{align*}
+
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="999">
+\[ P_3(x) = 0 + 1\cdot x + \frac {0}{2!}\,x^2 + \frac {2}{3!}\,x^3 = x + \frac {x^3}{3} \]
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1004">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1004">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1004">(d)</span> \(f(x) = \sqrt {1+x}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1006">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1006">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1006">\(P_3(x) = 1 + \dfrac {x}{2} - \dfrac {x^2}{8} + \dfrac {x^3}{16}\)</span> 
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1007">
+\[ \begin {array}{c|c|c|c} k &amp; f^{(k)}(x) &amp; f^{(k)}(0) &amp; c_k \\ \hline 0 &amp; (1+x)^{\frac 12} &amp; 1 &amp; 1 \\[0.3em] 1 &amp; \frac 12\,(1+x)^{-\frac 12} &amp; \frac 12 &amp;
+\frac 12 \\[0.3em] 2 &amp; -\frac 14\,(1+x)^{-\frac 32} &amp; -\frac 14 &amp; \frac {-\frac 14}{2} = -\frac 18 \\[0.3em] 3 &amp; \frac 38\,(1+x)^{-\frac 52} &amp; \frac 38 &amp; \frac {\frac
+38}{6} = \frac {1}{16} \end {array} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1016">
+\[ P_3(x) = 1 + \frac {x}{2} - \frac {x^2}{8} + \frac {x^3}{16} \]
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1023">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1023">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1023"></span>
+</p>
+<!--
+...... subsubsection Oefening 5 ......
+-->
+<h6 id="autosec-55" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1023">Oefening 5</h6>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1024">
+Bepaal het gevraagde Taylorpolynoom rond het gegeven punt \(a\). 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1026">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1026">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1026">(a)</span> \(f(x) = \ln x\), graad \(3\), rond \(a = 1\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1028">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1028">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1028">\(P_3(x) = (x-1) - \dfrac {(x-1)^2}{2} + \dfrac {(x-1)^3}{3}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1029"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                 f (x) = ln x                                          f (1) = 0                                           c0 = 0
+                                                 ′        −1                                            ′
+                                             f (x) = x                                                f (1) = 1                                            c1 = 1
+                                             f ′′ (x) = −x−2                                         f ′′ (1) = −1                                         c2 = − 21
+                                            f ′′′ (x) = 2x−3                                         f ′′′ (1) = 2                                              2
+                                                                                                                                                           c3 = 3! = 13
+
+
+-->
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1029">
+
+\begin{align*}
+f(x) &amp;= \ln x &amp; f(1) &amp;= 0 &amp; c_0 &amp;= 0\\ f&apos;(x) &amp;= x^{-1} &amp; f&apos;(1) &amp;= 1 &amp; c_1 &amp;= 1\\ f&apos;&apos;(x) &amp;= -x^{-2} &amp; f&apos;&apos;(1) &amp;=
+-1 &amp; c_2 &amp;= -\tfrac 12\\ f&apos;&apos;&apos;(x) &amp;= 2x^{-3} &amp; f&apos;&apos;&apos;(1) &amp;= 2 &amp; c_3 &amp;= \tfrac {2}{3!} = \tfrac 13
+\end{align*}
+
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1035">
+\[ P_3(x) = (x-1) - \frac {(x-1)^2}{2} + \frac {(x-1)^3}{3} \]
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1039">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1039">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1039">(b)</span> \(f(x) = e^x\), graad \(2\), rond \(a = 1\). Benader daarmee \(e^{1.1}\) (gebruik \(e \approx 2.718\,28\)). 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1042">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1042">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1042">\(e^{1.1} \approx 1.105\,e \approx 3.0037\)</span> Alle afgeleiden zijn \(e^x\), dus in \(a = 1\)
+allemaal \(e\): 
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1044">
+\[ P_2(x) = e + e\,(x-1) + \frac {e}{2}\,(x-1)^2 \]
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1047">
+Met \(x - 1 = 0.1\): 
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1048">
+\[ e^{1.1} \approx e\,(1 + 0.1 + 0.005) = 1.105\,e \approx 1.105\cdot 2.718\,28 \approx 3.0037 \]
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1052">
+Exact is \(e^{1.1} = 3.0042\ldots \)
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1054">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1054">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1054">(c)</span> \(f(x) = \sin x\), graad \(2\), rond \(a = \dfrac {\pi }{6}\). Benader daarmee \(\sin 31^\circ \). 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1057">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1057">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1057">\(\sin 31^\circ \approx 0.515\,04\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1058"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                        f π6 = 12                                             c0 = 12
+                                                                                                              
+                                                 f (x) = sin x
+                                                                                                               √                                                      √
+                                             f ′ (x) = cos x                                           f ′ π6 = 23                                            c1 =     2
+                                                                                                                                                                        3
+
+
+                                             f ′′ (x) = − sin x                                        f ′′ π6 = − 12                                         c2 = − 14
+                                                                                                              
+
+
+
+-->
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1058">
+
+\begin{align*}
+f(x) &amp;= \sin x &amp; f\bigl (\tfrac {\pi }{6}\bigr ) &amp;= \tfrac 12 &amp; c_0 &amp;= \tfrac 12\\ f&apos;(x) &amp;= \cos x &amp; f&apos;\bigl (\tfrac {\pi }{6}\bigr ) &amp;= \tfrac {\sqrt
+3}{2} &amp; c_1 &amp;= \tfrac {\sqrt 3}{2}\\ f&apos;&apos;(x) &amp;= -\sin x &amp; f&apos;&apos;\bigl (\tfrac {\pi }{6}\bigr ) &amp;= -\tfrac 12 &amp; c_2 &amp;= -\tfrac 14
+\end{align*}
+
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1063">
+\[ P_2(x) = \frac 12 + \frac {\sqrt 3}{2}\Bigl (x - \frac {\pi }{6}\Bigr ) - \frac 14\Bigl (x - \frac {\pi }{6}\Bigr )^2 \]
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1067">
+\(31^\circ \) is \(1^\circ \) meer dan \(30^\circ \), dus \(x - \frac {\pi }{6} = \frac {\pi }{180} \approx 0.017\,453\): 
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1069">
+\[ \sin 31^\circ \approx 0.5 + 0.866\,03\cdot 0.017\,453 - 0.25\cdot 0.000\,305 \approx 0.515\,04 \]
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1073">
+Exact is \(\sin 31^\circ = 0.515\,04\ldots \) Alle vijf cijfers kloppen. <span class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1073">Werk altijd in radialen: de afgeleide van
+\(\sin x\) is \(\cos x\) enkel als \(x\) in radialen staat.</span>
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1080">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1080">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1080"></span>
+</p>
+<!--
+...... subsubsection Oefening 6 ......
+-->
+<h6 id="autosec-56" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1080">Oefening 6</h6>
+<a id="mkpiweb-autopage-56"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1081">
+Van een functie \(f\) is het Taylorpolynoom van graad \(3\) rond \(a = 2\) gegeven: 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1083">
+\[ P_3(x) = 5 + 4\,(x-2)^2 - \frac 12\,(x-2)^3.         \]
+</p>
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1087">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1087">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1087">(a)</span> Bepaal \(f(2)\), \(f&apos;(2)\), \(f&apos;&apos;(2)\) en \(f&apos;&apos;&apos;(2)\). <span
+class="hint" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1088">Gebruik \(c_k = \dfrac {f^{(k)}(a)}{k!}\) in de andere richting: \(f^{(k)}(a) = k!\,c_k\).</span> 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1091">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1091">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1091">\(f(2) = 5\), \(f&apos;(2) = 0\), \(f&apos;&apos;(2) = 8\), \(f&apos;&apos;&apos;(2) = -3\)</span>
+Uit \(f^{(k)}(2) = k!\,c_k\): 
+</p>
+<span class="hidden" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1093"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                      f (2) = 0! · 5 = 5
+                                                                                                     f ′ (2) = 1! · 0 = 0
+                                                                                                    f ′′ (2) = 2! · 4 = 8
+                                                                                                                     1
+                                                                                                    f ′′′ (2) = 3! · −    = −3
+                                                                                                                       2
+
+-->
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1093">
+
+\begin{align*}
+f(2) &amp;= 0!\cdot 5 = 5\\ f&apos;(2) &amp;= 1!\cdot 0 = 0\\ f&apos;&apos;(2) &amp;= 2!\cdot 4 = 8\\ f&apos;&apos;&apos;(2) &amp;= 3!\cdot \Bigl (-\frac 12\Bigr ) = -3
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1100">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1100">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1100">(b)</span> Heeft \(f\) in \(x = 2\) een extremum? Welk? 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1102">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1102">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1102">een minimum, met waarde \(5\)</span> \(f&apos;(2) = 0\) en \(f&apos;&apos;(2) = 8 &gt; 0\): de
+grafiek heeft in \(x = 2\) een horizontale raaklijn en is er hol. Dus heeft \(f\) in \(x = 2\) een (lokaal) minimum \(f(2) = 5\). <span class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1102">Je ziet het ook aan \(P_3\): dicht bij \(2\) is de term \(4\,(x-2)^2\) veel
+groter dan \(\frac 12\,(x-2)^3\), dus is \(P_3(x) \ge 5\) in de buurt van \(2\).</span>
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Hoe goed is de benadering? ......
+-->
+<h4 id="autosec-57" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1115"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1115">V&#x2003;</span>Hoe goed is de benadering?</h4>
+<a id="mkpiweb-autopage-57"></a>
+
+
+
+<!--
+...... subsection De fout ......
+-->
+<h5 id="autosec-58" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1117"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1117">1&#x2003;</span>De fout</h5>
+<a id="mkpiweb-autopage-58"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1119">
+Een benadering is pas bruikbaar als we weten hoe groot de fout is. We noemen 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1120">
+\[ R_n(x) = f(x) - P_n(x) \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1123">
+de <b>restterm</b>: wat er overblijft als je \(f(x)\) door \(P_n(x)\) vervangt.
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1126">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1126"></span>
+</p>
+<!--
+...... subsubsection De fout bij ......
+-->
+<h6 id="autosec-59" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1126">De fout bij \(e^{0.5}\)</h6>
+<a id="mkpiweb-autopage-59"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1128">
+Python rekent voor \(x = 0.5\) de Taylorpolynomen van \(e^x\) uit, van graad \(0\) tot graad \(6\), met telkens de fout.
+</p>
+
+
+<div class="python-oefening python-codeblok" data-python="code-1" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1131"><div class="python-startcode" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1131"><pre class="pythoncode" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1131"><code>import math
+
+x = 0.5
+som = 0
+
+for n in range(0, 7):
+    som = som + x ** n / math.factorial(n)
+    fout = math.exp(x) - som
+    print(n, round(som, 6), f"{fout:.1e}")</code></pre></div></div>
+
+
+<pre class="pythonuitvoer" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1143"><code>0 1.0 6.5e-01
+1 1.5 1.5e-01
+2 1.625 2.4e-02
+3 1.645833 2.9e-03
+4 1.648438 2.8e-04
+5 1.648698 2.3e-05
+6 1.64872 1.7e-06</code></pre>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1153">
+Elke extra term maakt de fout ongeveer tien keer kleiner. Verander <kbd class="mathjax_ignore">x = 0.5</kbd> in <kbd class="mathjax_ignore">x = 2</kbd> en voer het opnieuw uit. Wat
+merk je?
+</p>
+
+
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1157">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1157">
+Bij \(x = 2\) daalt de fout veel trager: na graad \(6\) is ze nog ongeveer \(0.03\). Hoe verder \(x\) van \(a = 0\) ligt, hoe meer termen we
+nodig hebben voor dezelfde nauwkeurigheid.
+</p>
+</div>
+
+
+<!--
+...... subsection De restterm van Lagrange ......
+-->
+<h5 id="autosec-60" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1162"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1162">2&#x2003;</span>De restterm van Lagrange</h5>
+<a id="mkpiweb-autopage-60"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1164">
+Er is een formule voor de fout, die je kent voor \(n = 0\). De middelwaardestelling van Lagrange zegt dat er een \(c\) tussen \(a\) en \(x\)
+bestaat met 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1167">
+\[ f(x) - f(a) = f&apos;(c)\,(x-a).      \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1170">
+Links staat \(f(x) - P_0(x) = R_0(x)\): de fout als je \(f\) door de constante \(f(a)\) vervangt. De stelling hieronder zet dat voort naar
+elke graad.
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1173">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1173"></span>
+</p>
+<!--
+...... subsubsection Stelling ......
+-->
+<h6 id="autosec-61" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1173">Stelling</h6>
+<a id="mkpiweb-autopage-61"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1175">
+Als \(f\) \((n+1)\) keer afleidbaar is op een interval dat \(a\) en \(x\) bevat, dan bestaat er een getal \(c\) tussen \(a\) en \(x\) zodat
+
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1177">
+\[ \boxed {\; R_n(x) = f(x) - P_n(x) = \frac {f^{(n+1)}(c)}{(n+1)!}\,(x-a)^{n+1}\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1181">
+De fout ziet er dus uit als de <em>volgende</em> term van het Taylorpolynoom, alleen wordt de afgeleide niet in \(a\) maar in een onbekend
+punt \(c\) berekend.
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1186">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1186">
+We bewijzen deze stelling hier niet. Het bewijs past de stelling van Rolle \(n+1\) keer na elkaar toe op een goed gekozen hulpfunctie.
+</p>
+
+</div>
+
+
+<!--
+...... subsection De fout afschatten ......
+-->
+<h5 id="autosec-62" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1190"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1190">3&#x2003;</span>De fout afschatten</h5>
+<a id="mkpiweb-autopage-62"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1192">
+We kennen \(c\) niet. Maar als we weten dat \(\bigl |f^{(n+1)}\bigr |\) tussen \(a\) en \(x\) nooit groter is dan een getal \(M\), dan
+volgt 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1194">
+\[ \boxed {\; |R_n(x)| \le \frac {M}{(n+1)!}\,|x-a|^{n+1}\;} \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1198">
+Zo kunnen we vooraf garanderen hoe goed een benadering is.
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1200">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1200"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 1:       ......
+-->
+<h6 id="autosec-63" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1200">Voorbeeld 1: \(\sin 0.3\)</h6>
+<a id="mkpiweb-autopage-63"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1202">
+Hoe groot is de fout hoogstens als we \(\sin 0.3 \approx 0.3 - \frac {0.3^3}{6}\) nemen?
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1205">
+Die benadering is \(P_3\), maar ook \(P_4\), want \(c_4 = 0\). We nemen \(n = 4\): dat geeft een betere afschatting. De vijfde afgeleide is
+\(\cos x\), en \(|\cos c| \le 1\), dus \(M = 1\): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1208">
+\[ |R_4(0.3)| \le \frac {1}{5!}\cdot 0.3^5 = \frac {0.002\,43}{120} = 0.000\,020\,25.            \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1212">
+Inderdaad: \(0.3 - 0.0045 = 0.2955\) en exact is \(\sin 0.3 = 0.295\,520\ldots \) De fout is \(0.000\,020\), net onder de grens.
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1215">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1215"></span>
+</p>
+<!--
+...... subsubsection Voorbeeld 2:        op zes cijfers ......
+-->
+<h6 id="autosec-64" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1215">Voorbeeld 2: \(e\) op zes cijfers</h6>
+<a id="mkpiweb-autopage-64"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1217">
+Hoeveel termen hebben we nodig om \(e = e^1\) op zes cijfers na de komma te kennen? Dan moet de fout kleiner zijn dan \(0.000\,000\,5\).
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1220">
+Alle afgeleiden van \(e^x\) zijn \(e^x\). Voor \(c\) tussen \(0\) en \(1\) is \(e^c &lt; e &lt; 3\), dus \(M = 3\): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1222">
+\[ |R_n(1)| \le \frac {3}{(n+1)!}\cdot 1^{n+1} = \frac {3}{(n+1)!}.         \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1225">
+We zoeken de kleinste \(n\) met \(\dfrac {3}{(n+1)!} &lt; 0.000\,000\,5\), dus \((n+1)! &gt; 6\,000\,000\). In de tabel van de
+faculteiten is \(10! = 3\,628\,800\) te klein, en \(11! = 39\,916\,800\) groot genoeg. Dus \(n+1 = 11\) en \(n = 10\): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1228">
+\[ e \approx 1 + 1 + \frac {1}{2!} + \frac {1}{3!} + \cdots + \frac {1}{10!}.          \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1232">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1232"></span>
+</p>
+<!--
+...... subsubsection Het getal met Python ......
+-->
+<h6 id="autosec-65" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1232">Het getal \(e\) met Python</h6>
+<a id="mkpiweb-autopage-65"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1234">
+Python telt die elf termen op. Merk op dat we \(\frac {1}{k!}\) niet telkens opnieuw uitrekenen: elke term is de vorige gedeeld door \(k\),
+want \(\frac {1}{k!} = \frac {1}{(k-1)!}\cdot \frac 1k\). Volg met de knoppen van de debugger hoe <kbd class="mathjax_ignore">term</kbd> en <kbd class="mathjax_ignore">som</kbd> veranderen.
+</p>
+
+
+<div class="python-oefening python-codeblok" data-python="code-2" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1239"><div class="python-startcode" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1239"><pre class="pythoncode" data-stappen="regel" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1239"><code>term = 1
+som = 1
+
+for k in range(1, 11):
+    term = term / k
+    som = som + term
+
+print("e is ongeveer", som)</code></pre></div></div>
+
+
+<pre class="pythonuitvoer" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1250"><code>e is ongeveer 2.7182818011463845</code></pre>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1254">
+Exact is \(e = 2.718\,281\,828\ldots \) De fout is \(0.000\,000\,03\): ruim binnen de grens.
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-66" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1257"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1257">4&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-66"></a>
+
+
+
+<div class="cursus-oefenbalk" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1259"></div>
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1262">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1262">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1262"></span>
+</p>
+<!--
+...... subsubsection Oefening 7 ......
+-->
+<h6 id="autosec-67" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1262">Oefening 7</h6>
+<a id="mkpiweb-autopage-67"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1263">
+We benaderen \(\cos 0.2\) door \(1 - \dfrac {0.2^2}{2} = 0.98\). 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1265">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1265">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1265">(a)</span> Hoe groot is de fout hoogstens? Gebruik de restterm van Lagrange. <span class="hint" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1266">De
+benadering is \(P_2\), maar ook \(P_3\), want de coëfficiënt van \(x^3\) is \(0\). Neem \(n = 3\).</span> 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1269">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1269">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1269">\(|R_3(0.2)| \le 0.000\,067\)</span> De benadering is \(P_3\) (want \(c_3 = 0\)). De vierde afgeleide van
+\(\cos x\) is \(\cos x\), en \(|\cos c| \le 1\), dus \(M = 1\): 
+</p>
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1272">
+\[ |R_3(0.2)| \le \frac {1}{4!}\cdot 0.2^4 = \frac {0.0016}{24} \approx 0.000\,067 \]
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1277">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1277">
+<span class="listmarker" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1277">(b)</span> Controleer met je rekenmachine. 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1279">
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1279">
+\(\cos 0.2 = 0.980\,067\ldots \), dus de fout is \(0.000\,067\), net onder de grens.
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1285">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1285">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1285"></span>
+</p>
+<!--
+...... subsubsection Oefening 8 ......
+-->
+<h6 id="autosec-68" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1285">Oefening 8</h6>
+<a id="mkpiweb-autopage-68"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1286">
+Welke graad moet het Taylorpolynoom van \(\sin x\) rond \(0\) hebben om \(\sin 1\) op vier cijfers na de komma te kennen, dus met een
+fout kleiner dan \(0.000\,05\)? Bereken die benadering. <span class="hint" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1289">Elke afgeleide van \(\sin x\) is \(\pm \sin x\) of \(\pm
+\cos x\), dus \(M = 1\). Zoek de kleinste \(n\) met \(\frac {1}{(n+1)!} &lt; 0.000\,05\).</span> 
+</p>
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1292">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1292">
+<span class="oplantwoord" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1292">\(n = 7\): \(\sin 1 \approx 1 - \frac 16 + \frac {1}{120} - \frac {1}{5040} \approx
+0.841\,468\)</span> Met \(M = 1\) en \(x = 1\) is \(|R_n(1)| \le \dfrac {1}{(n+1)!}\). We willen 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1294">
+\[ \frac {1}{(n+1)!} &lt; 0.000\,05 \iff (n+1)!     &gt; 20\,000 \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1298">
+\(7!     = 5040\) is te klein, \(8!   = 40\,320\) groot genoeg. Dus \(n + 1 = 8\) en \(n = 7\): 
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1300">
+\[ \sin 1 \approx 1 - \frac {1}{3!} + \frac {1}{5!} - \frac {1}{7!} = 1 - \frac 16 + \frac {1}{120} - \frac {1}{5040} \approx 0.841\,468 \]
+</p>
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1304">
+Exact is \(\sin 1 = 0.841\,471\ldots \) De fout is \(0.000\,003\).
+</p>
+</div>
+
+</div>
+
+
+<!--
+...... subsection Python oefeningen ......
+-->
+<h5 id="autosec-69" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1310"><span class="sectionnumber" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1310">5&#x2003;</span>Python oefeningen</h5>
+<a id="mkpiweb-autopage-69"></a>
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1312">
+Deze oefeningen los je op de site op: typ je code in het veld en voer ze uit. Een controle zegt of je programma klopt, ook voor andere waarden
+van \(x\).
+</p>
+
+
+<div class="cursus-oefenbalk" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1315"></div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1316">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1316">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1316"></span>
+</p>
+<!--
+...... subsubsection Oefening 9 ......
+-->
+<div class="python-oefening-kop" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1316"><h6 id="autosec-70" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1316">Oefening 9</h6><a class="pres-knop python-notebook-link" href="Taylorpolynomen_Oefeningen.ipynb" download="Taylorpolynomen_Oefeningen.ipynb" data-colab="mathesis-study/mathesis-study.github.io/main"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Download oefennotebook</a></div>
+<a id="mkpiweb-autopage-70"></a>
+
+
+<div class="python-oefening" data-python="cos-taylor" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1317">
+
+
+<div class="python-opgave" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1317">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1317">
+<b>Opgave.</b> Het Taylorpolynoom van graad \(4\) van \(\cos x\) rond \(0\) is \(P_4(x) = 1 - \frac {x^2}{2!} + \frac {x^4}{4!}\). Bereken met Python \(P_4(0.5)\) en de fout \(\cos 0.5 - P_4(0.5)\). Gebruik
+<kbd class="mathjax_ignore">math.cos</kbd> enkel voor de fout. Toon beide.
+</p>
+
+</div>
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1324">
+<b>Denk vooraf na:</b> Hoe groot verwacht je de fout? Gebruik de restterm van Lagrange met \(n = 5\) (de term van graad \(5\) is \(0\)) en \(M = 1\).
+</p>
+
+
+<div class="hint" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1327">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1327">
+Een macht schrijf je in Python met <kbd class="mathjax_ignore">**</kbd>: \(x^4\) is <kbd class="mathjax_ignore">x ** 4</kbd>. Voor \(4!\) schrijf je <kbd class="mathjax_ignore">24</kbd> of <kbd class="mathjax_ignore">math.factorial(4)</kbd>.
+</p>
+</div>
+
+
+<div class="hint" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1331">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1331">
+De fout is <kbd class="mathjax_ignore">math.cos(x) - benadering</kbd>.
+</p>
+</div>
+
+
+<div class="python-startcode" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1333">
+
+<pre class="pythoncode" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1333"><code>import math
+
+x = 0.5
+
+benadering = ...
+fout = ...
+
+print("P4 =", benadering, "fout =", fout)</code></pre>
+
+</div>
+
+
+
+
+<div class="python-modelcode" hidden data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1344"><pre class="pythoncode" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1344"><code>import math
+
+x = 0.5
+
+benadering = 1 - x ** 2 / 2 + x ** 4 / 24
+fout = math.cos(x) - benadering
+
+print("P4 =", benadering, "fout =", fout)</code></pre></div>
+
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1355">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1355">
+ Het programma geeft \(P_4(0.5) \approx 0.877\,604\,2\) en een fout van ongeveer \(-0.000\,021\,6\). De restterm van Lagrange
+voorspelde hoogstens \(\frac {0.5^6}{6!} \approx 0.000\,021\,7\): de grens ligt er vlak boven. Verander <kbd class="mathjax_ignore">x</kbd> in <kbd class="mathjax_ignore">2</kbd>: de fout wordt ongeveer \(-0.083\). Ver van \(0\) is \(P_4\) geen goede benadering
+meer.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1364">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1364">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1364"></span>
+</p>
+<!--
+...... subsubsection Oefening 10 ......
+-->
+<h6 id="autosec-71" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1364">Oefening 10</h6>
+<a id="mkpiweb-autopage-71"></a>
+
+
+<div class="python-oefening" data-python="sinus-taylor" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1365">
+
+
+<div class="python-opgave" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1365">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1365">
+<b>Opgave.</b> Bereken \(\sin 2\) met het Taylorpolynoom \(x - \frac {x^3}{3!} + \frac {x^5}{5!} - \cdots \) rond \(0\), zonder <kbd class="mathjax_ignore">math.sin</kbd>. Verhoog de graad en tel termen bij zolang de laatste term in
+absolute waarde groter is dan \(10^{-10}\). Toon het resultaat.
+</p>
+
+</div>
+
+
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1372">
+<b>Denk vooraf na:</b> Hoeveel termen verwacht je nodig te hebben? Meer of minder dan voor \(\sin 0.3\)?
+</p>
+
+
+<div class="hint" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1375">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1375">
+Reken elke term uit de vorige, zoals bij het getal \(e\). De term na \(\frac {x^3}{3!}\) is \(\frac {x^5}{5!}\): vermenigvuldig met \(x^2\) en deel door \(4\cdot 5\). Vergeet het teken niet.
+</p>
+</div>
+
+
+<div class="hint" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1379">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1379">
+Algemeen: de term na \(\pm \frac {x^{2k-1}}{(2k-1)!}\) is <kbd class="mathjax_ignore">-term * x * x / ((2*k) * (2*k + 1))</kbd>.
+</p>
+</div>
+
+
+<div class="python-startcode" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1382">
+
+<pre class="pythoncode" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1382"><code>x = 2
+term = x
+som = x
+k = 1
+
+while ...:
+    ...
+
+print("sin(2) is ongeveer", som)</code></pre>
+
+</div>
+
+
+
+
+<div class="python-modelcode" hidden data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1394"><pre class="pythoncode" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1394"><code>x = 2
+term = x
+som = x
+k = 1
+
+while abs(term) &gt; 1e-10:
+    term = -term * x * x / ((2 * k) * (2 * k + 1))
+    som = som + term
+    k = k + 1
+
+print("sin(2) is ongeveer", som)</code></pre></div>
+
+<div class="oplossing" data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1408">
+
+<p data-mkpi-bestand="Taylorpolynomen.tex" data-mkpi-regel="1408">
+ Elke term is de vorige maal \(-\frac {x^2}{(2k)(2k+1)}\). Het programma vindt \(\sin 2 \approx 0.909\,297\,426\,8\), na tien
+termen. Met <kbd class="mathjax_ignore">math.sin(2)</kbd> kun je dat controleren. Verander <kbd class="mathjax_ignore">x</kbd> in <kbd class="mathjax_ignore">0.3</kbd>: dan volstaan vijf termen.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="vensters.js?v=bf69ae73e590"></script>
+<script src="presentatie.js?v=bf69ae73e590"></script>
+<script src="statistieken.js?v=bf69ae73e590"></script>
+<script src="vendor/jsxgraphcore.js?v=bf69ae73e590"></script>
+<script src="interactieve-grafieken.js?v=bf69ae73e590"></script>
+<script src="hoofdstuk.interactief.js?v=bf69ae73e590"></script>
+<script src="grm-toetsen.js?v=bf69ae73e590"></script>
+<script src="grm-demo.js?v=bf69ae73e590"></script>
+<script src="functiecas.js?v=bf69ae73e590"></script>
+<script src="functierekenmachine.js?v=bf69ae73e590"></script>
+<script src="python-config.js?v=bf69ae73e590"></script>
+<script src="codemirror-python.js?v=bf69ae73e590"></script>
+<script src="python-oefeningen.js?v=bf69ae73e590"></script>
+</body>
+</html>

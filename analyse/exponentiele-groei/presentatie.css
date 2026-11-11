@@ -15,6 +15,7 @@
 :root[data-thema="licht"] {
   --kleur-tekst: #1c2530;
   --kleur-zwak: #64748b;
+  --kleur-schrap: #a3afbf; /* schrapstreep van \cancel, zoals cursusschrap in de PDF. */
   --kleur-lijn: #dde3ea;
   --kleur-vlak: #ffffff;
   --kleur-vlak-zweef: rgba(255, 255, 255, .88);
@@ -76,6 +77,7 @@
   :root[data-thema="donker"] {
     --kleur-tekst: #dde5ee;
     --kleur-zwak: #93a3b6;
+    --kleur-schrap: #56657a;
     --kleur-lijn: #2b3745;
     --kleur-vlak: #182029;
     --kleur-vlak-zweef: rgba(24, 32, 41, .9);
@@ -1387,6 +1389,9 @@ div.marginparblock {
    * scherm staat het blok boven de tekst en geldt de marge verderop. */
   margin-top: -1.25rem;
   padding-top: 0;
+  /* Op papier staan twee wrapfigures nooit naast elkaar: de tweede wacht tot
+   * de eerste af is. Zonder clear schoof ze hier links naast de eerste. */
+  clear: both;
 }
 
 /* De figuur zelf staat bij lwarp in een alinea en blijft daar een inline
@@ -2279,6 +2284,14 @@ svg {
 mjx-container .truc {
   fill: var(--kleur-truc);
   stroke: var(--kleur-truc);
+}
+
+/* \cancel, \bcancel en \xcancel: MathJax tekent de schrapstreep als een
+ * <line> rechtstreeks in de menclose, naast de term zelf. Enkel die streep
+ * wordt grijs, zodat de term eronder leesbaar blijft (in de PDF doet
+ * \CancelColor in cursus.cls hetzelfde). */
+mjx-container g[data-mml-node="menclose"] > line {
+  stroke: var(--kleur-schrap);
 }
 
 /* \markeerterm en \markeercellen (mathjax-markering.js) leggen een lichte,
