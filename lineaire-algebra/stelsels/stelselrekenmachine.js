@@ -156,7 +156,7 @@
     hulp.appendChild(tabel);
     hulp.appendChild(el("p", "sr-zwak",
       "De rekenmachine herleidt zoals in de cursus: zonder breuken, met de combinatiemethode " +
-      "(R₂ → 2R₂ − 3R₁), en deelt een rij door wat alle elementen gemeen hebben."));
+      "(R₂ ← 2R₂ − 3R₁), en deelt een rij door wat alle elementen gemeen hebben."));
 
     var uitvoer = el("div", "sr-uitvoer");
     uitvoer.setAttribute("aria-live", "polite");

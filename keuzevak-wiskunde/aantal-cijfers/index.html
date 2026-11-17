@@ -1,0 +1,2657 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hoeveel cijfers heeft een gigantisch getal?</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=47de483c6c55" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * you choose how answers wait: compact, as empty frames or all open; in
+//    compact an exercise first shows its short answer, and the full working
+//    only on a second click;
+//  * a series of exercises can be paged through one at a time and comes
+//    with a PDF to print; extra proofs and the instructions per tool (TI-84
+//    or Python) stay folded away until you open them;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a figure with a parameter gets a slider, a figure with several cases
+//    switches between them without losing the camera, and in the large view
+//    you walk from figure to figure through the whole chapter;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * matrices you can click: pick an entry, a row or a diagonal and the
+//    matching term of the formula lights up, and the other way round;
+//  * Python runs in the page (Pyodide, with NumPy): exercises with checks
+//    and hints, code you can step through instruction by instruction or,
+//    for a loop, line by line with its variables in view, trace exercises
+//    that fill a table of the variables as you step, and code that drives
+//    an interactive graph; each Python section also comes as a notebook;
+//  * the instructions for a graphing calculator play step by step on a
+//    working TI-84 beside the text, which you can also press yourself (the
+//    calculator is ti84-calculator by WhitDeckard09, with an embed mode
+//    added for this site);
+//  * a matrix calculator, a calculator for systems of linear equations that
+//    row-reduces step by step and discusses parameters case by case, and a
+//    function calculator whose CAS derives step by step, all in the
+//    notation of the course;
+//  * MathJax is extended where the course needs it, so the page shows what
+//    the PDF shows: foreach loops, matrices with row and column headings,
+//    braces across rows, partial rules in tables, highlighted cells and
+//    terms, the end-of-proof square at the right margin and references
+//    inside a formula; accented letters are real characters, so searching
+//    and copying text works;
+//  * formulas are typeset slide by slide, so a long chapter opens quickly;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * the site has its own icon and can be installed as an app;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well; the one request that may
+//    leave it is an optional visit count per chapter, without cookies or
+//    personal data.
+//
+
+MathJax = {
+     options: { enableMenu: false },
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=47de483c6c55"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=47de483c6c55"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\vov }[1]{\aside {{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text {&grave;}}}\mkern -1mu\mathopen {}#1\mathclose {}\mkern -1mu{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text
+{&apos;}}}}}\)
+
+\(\newcommand {\truc }[1]{\class {truc}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="7">
+<header class="cursustitel">  <h1 data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="7">Hoeveel cijfers heeft een gigantisch getal?</h1> </header>
+</p>
+
+
+
+
+
+
+
+<div class="center" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="12">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="12">
+ <span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="12"
+><!--
+                                                     21000
+                          100
+                         2
+     210
+23
+
+     Steeds grotere machten, maar hoeveel cijfers?
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="12"
+></span>
+</p>
+</div>
+
+
+
+
+
+
+
+
+<div class="cursusleerplan" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">
+<b>Basisvorming (BV3_06)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">•</span> <b>BV3_06.01</b> (MD 06.01) De leerlingen rekenen met reële getallen.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">–</span> afbakening: <span class="leerplan-grijs" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">machten met rationale exponent</span>, <span class="leerplan-grijs" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">n-de machtswortels</span> en logaritmen met willekeurig grondtal
+met inbegrip van rekenregels en eigenschappen met symbolen
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">
+<b>Didactische uitwerking:</b> ontdekkend werken zonder voorkennis van logaritmen; verondersteld zijn rekenen met gehele machten, ongelijkheden en de functie \(10^x\) als stijgend verband; ongeveer twee lesuren, het
+optionele onderdeel als verdieping
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="25">
+<b>Extra uitleg:</b> aantal cijfers van een natuurlijk getal, tiendelige logaritme, gehele deel \(\lfloor x\rfloor \), logaritme van een macht, eerste cijfer van een groot getal
+</p>
+
+</div>
+
+
+
+
+
+
+
+
+<!--
+...... section Een gigantisch getal ......
+-->
+<h4 id="autosec-6" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="42"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="42">I&#x2003;</span>Een gigantisch getal</h4>
+<a id="mkpiweb-autopage-6"></a>
+
+
+
+<!--
+...... subsection De hoofdvraag ......
+-->
+<h5 id="autosec-7" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="44"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="44">1&#x2003;</span>De hoofdvraag</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="46">
+Hoeveel cijfers heeft \(2^{1000}\)? Je rekentoestel toont bij dit getal een foutmelding of een wetenschappelijke notatie. Het volledige getal
+uitschrijven is onbegonnen werk.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="50">
+Toch kunnen we <b>precies bewijzen</b> hoeveel cijfers het getal heeft, zonder het uit te rekenen. Daarvoor hebben we een nieuw hulpmiddel
+nodig: de logaritme. We ontdekken het stap voor stap.
+</p>
+
+
+<!--
+...... section Waar komt er een cijfer bij? ......
+-->
+<h4 id="autosec-8" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="54"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="54">II&#x2003;</span>Waar komt er een cijfer bij?</h4>
+<a id="mkpiweb-autopage-8"></a>
+
+
+
+<!--
+...... subsection Eerst kijken ......
+-->
+<h5 id="autosec-9" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="56"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="56">1&#x2003;</span>Eerst kijken</h5>
+<a id="mkpiweb-autopage-9"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="58">
+We beginnen zonder rekentoestel. Tel het aantal cijfers van elk getal. 
+</p>
+<div class="center" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="61">
+
+
+<table data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="61">
+
+<tr style="display:none"><th>.</th></tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right:              1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="61">Getal</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">\(9\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">\(10\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">\(99\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">\(100\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">\(999\)</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">\(1000\)</td>
+</tr>
+
+<tr class="hline">
+<td class="tdc tvertbarl tvertbarr" style="border-left: 1px solid black; border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">Cijfers</td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"><span class="opl opl-vast" style="min-width:1cm" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">1</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"><span class="opl opl-vast" style="min-width:1cm" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">2</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"><span class="opl opl-vast" style="min-width:1cm" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">2</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"><span class="opl opl-vast" style="min-width:1cm" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">3</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"><span class="opl opl-vast" style="min-width:1cm" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">3</span></td>
+<td class="tdc tvertbarr" style="border-right: 1px solid black" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"><span class="opl opl-vast" style="min-width:1cm" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63">4</span></td>
+</tr>
+
+<tr class="hline" aria-hidden="true">
+<td class="tdc" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"></td>
+<td class="tdc" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"></td>
+<td class="tdc" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"></td>
+<td class="tdc" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"></td>
+<td class="tdc" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"></td>
+<td class="tdc" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"></td>
+<td class="tdc" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="63"></td>
+</tr>
+</table>
+
+</div>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="68">
+Er komt telkens een cijfer bij bij \(10\), \(100\) en \(1000\). Dat zijn de machten van \(10\): \(10^1\), \(10^2\) en \(10^3\). De kleinste getallen
+met \(2\), \(3\), \(4\) en \(5\) cijfers zijn dus 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="71">
+\[ \opl [1.5cm]{10},\quad \opl [1.5cm]{100},\quad \opl [1.5cm]{1000} \quad \text {en}\quad \opl [1.5cm]{10000}.                \]
+</p>
+
+
+<div class="center" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="77">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="77">
+ <span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="77"
+><!--
+    1 cijfers        2 cijfers         3 cijfers          4 cijfers
+1               10               100               1000               10000
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="77"
+></span>
+</p>
+</div>
+
+
+
+
+<div class="aside" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="94">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="94">
+Op deze getallenas liggen de machten van \(10\) op gelijke afstand. Dat is een <em>logaritmische schaal</em>: elke stap naar rechts is een factor
+\(10\).
+</p>
+
+</div>
+
+
+<!--
+...... subsection De algemene grens ......
+-->
+<h5 id="autosec-15" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="98"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="98">2&#x2003;</span>De algemene grens</h5>
+<a id="mkpiweb-autopage-15"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="100">
+Een getal \(N\) met vier cijfers ligt tussen de kleinste getallen met vier en met vijf cijfers: 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="102">
+\[ \opl [1.5cm]{1000}\le N&lt;\opl [1.5cm]{10000}.         \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="105">
+Met machten van \(10\) geschreven heeft een getal met precies vijf cijfers 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="106">
+\[ \opl [1.5cm]{10^4}\le N&lt;\opl [1.5cm]{10^5}.         \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="109">
+Zo komen we tot de algemene grens. Een positief geheel getal \(N\) heeft precies \(d\) cijfers als 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="111">
+\[ \boxed {10^{d-1}\le N&lt;10^d}.      \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="114">
+Waarom staat er links \(\le \) en rechts \(&lt;\)? 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="116">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="116">
+Het getal \(10^{d-1}\) is het kleinste getal met \(d\) cijfers. Het hoort er dus bij. Het getal \(10^d\) is het kleinste getal met \(d+1\) cijfers. Het
+hoort er niet meer bij.
+</p>
+</div>
+
+
+<!--
+...... section Welke macht van 10 is dit? ......
+-->
+<h4 id="autosec-16" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="121"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="121">III&#x2003;</span>Welke macht van 10 is dit?</h4>
+<a id="mkpiweb-autopage-16"></a>
+
+
+
+<!--
+...... subsection De onbekende exponent ......
+-->
+<h5 id="autosec-17" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="123"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="123">1&#x2003;</span>De onbekende exponent</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="125">
+We weten dat \(10^2=100\). We keren de vraag nu om: tot welke macht moeten we \(10\) verheffen om een gegeven getal te krijgen? Zonder
+rekentoestel vinden we 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="127">
+\[ 10^x=1000 \iff x=\opl [1.5cm]{3} \qquad \text {en}\qquad 10^x=1 \iff x=\opl [1.5cm]{0}.            \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="132">
+Bij \(10^x=50\) lukt dat niet meer zo vlot. Omdat \(50\) tussen \(10\) en \(100\) ligt, en \(10^x\) stijgend is, weten we wel 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="134"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                      10 < 50 < 100
+                                                                                                     101 < 10x < 102
+                                < spanclass = ”oplopl − vast”style = ”min − width : 1.5cm” > 1 < /span > < x << spanclass = ”oplopl − vast”style = ”min − width : 1.5cm” > 2 < /span > .
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="134">
+
+\begin{align*}
+10&amp;&lt;50&lt;100\\ 10^1&amp;&lt;10^x&lt;10^2\\ \opl [1.5cm]{1}&amp;&lt;x&lt;\opl [1.5cm]{2}.
+\end{align*}
+Is <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="139">\(x\)</span> kleiner of groter dan <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="139">\(1.5\)</span>? Daarvoor rekenen we eerst <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="139">\(10^{1.5}\)</span> uit. Omdat <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="139">\(1.5=\dfrac {3}{2}\)</span>, is 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="141"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                  3
+                                                                                                     101.5 = 10 2
+                                                                                                             √
+                                                                                                           = 103
+                                                                                                             √
+                                                                                                           = 1000
+                                                                                                             √
+                                                                                                           ≈ 1024
+                                                                                                             √
+                                                                                                           = 210
+                                                                                                           = 25
+                                                                                                           = 32.
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="141">
+
+\begin{align*}
+10^{1.5}&amp;=10^{\frac {3}{2}}\\ &amp;=\sqrt {10^3}\\ &amp;=\sqrt {1000}\\ &amp;\approx \sqrt {1024}\\ &amp;=\sqrt {2^{10}}\\ &amp;=2^5\\ &amp;=32.
+\end{align*}
+Ligt <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="150">\(50\)</span> links of rechts van <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="150">\(32\)</span>? 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="152">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="152">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="152">\(x&gt;1.5\)</span> 
+</p>
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:238pt ; " data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="155">
+
+<a id="mkpiweb-autopage-18"></a>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="155">
+Omdat \(1000&lt;1024\), is \(10^{1.5}\) zelfs iets kleiner dan \(32\), dus zeker kleiner dan \(50\). We vergelijken zoals hierboven, met
+\(10^{1.5}\) als linkergrens: 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="158"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                   101.5 < 50 < 100
+                                                                                                   101.5 < 10x < 102
+                                                                                                     1.5 < x < 2
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="158">
+
+\begin{align*}
+10^{1.5}&amp;&lt;50&lt;100\\ 10^{1.5}&amp;&lt;10^x&lt;10^2\\ 1.5&amp;&lt;x&lt;2
+\end{align*}
+Dus is <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="163">\(x\)</span> groter dan <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="163">\(1.5\)</span>.
+</p>
+
+
+</div>
+
+&#x2003;
+
+&#x2003;
+
+
+<div class="minipage" style="vertical-align:bottom ; justify-content:flex-start ; width:238pt ; " data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="166">
+
+<a id="mkpiweb-autopage-19"></a>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="166">
+<b>Zonder vierkantswortel</b>
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="166">
+Het kan nog eenvoudiger. We kwadrateren beide getallen: 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="168"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                           2
+                                                                                                   101.5        = 103
+                                                                                                                = 1000
+                                                                                                            2
+                                                                                                       50 = 2500
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="168">
+
+\begin{align*}
+\left (10^{1.5}\right )^2&amp;=10^{3}\\ &amp;=1000\\ 50^2&amp;=2500
+\end{align*}
+Omdat <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="173">\(1000&lt;2500\)</span> en beide getallen positief zijn, is <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="173">\(10^{1.5}&lt;50\)</span>.
+</p>
+
+
+</div>
+
+</div>
+
+
+
+
+<div class="aside" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="178">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="178">
+\(1.5\) ligt midden tussen \(1\) en \(2\), maar \(10^{1.5}\approx 32\) ligt niet midden tussen \(10\) en \(100\). Het midden van \(10\) en
+\(100\) is \(55\).
+</p>
+
+</div>
+
+
+<!--
+...... subsection Definitie ......
+-->
+<h5 id="autosec-20" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="182"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="182">2&#x2003;</span>Definitie</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="184">
+Het antwoord op de vraag \(10^x=a\) krijgt een eigen naam: de <b>tiendelige logaritme</b> van \(a\). Voor \(a&gt;0\) is 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="186">
+\[ \boxed {10^x=a \iff x=\log _{10}(a)}.     \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="189">
+Een logaritme is dus een exponent. Bijvoorbeeld: \(10^3=1000\) betekent \(\log _{10}(1000)=3\).
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="193">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="193">
+Op de TI-84 geeft de toets <b>LOG</b> de tiendelige logaritme. Ook in <em>Logaritmische functies</em> schrijven we kort \(\log x\). Hier
+schrijven we steeds \(\log _{10}\), zodat het grondtal \(10\) zichtbaar blijft.
+</p>
+
+</div>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-21" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="198"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="198">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="202">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="202">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="202"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-22" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="202">Oefening 1</h6>
+<a id="mkpiweb-autopage-22"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="203">
+Probeer de toets <b>LOG</b> uit. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="205">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="205">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="205">(a)</span> Bereken \(\log _{10}(100)\), \(\log _{10}(10)\) en \(\log _{10}(1)\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="207">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="207">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="207">\(2\), \(1\) en \(0\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="208"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                              log10 (100) = log10 (102 ) = 2
+                                                                                               log10 (10) = log10 (101 ) = 1
+                                                                                                log10 (1) = log10 (100 ) = 0
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="208">
+
+\begin{align*}
+\log _{10}(100)&amp;=\log _{10}(10^2)=2\\ \log _{10}(10)&amp;=\log _{10}(10^1)=1\\ \log _{10}(1)&amp;=\log _{10}(10^0)=0
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="214">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="214">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="214">(b)</span> Bereken \(\log _{10}(50)\) tot op drie decimalen en vergelijk met de schatting hierboven. 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="217">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="217">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="217">\(\log _{10}(50)\approx 1.699\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="218"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                   log10 (50) ≈ 1.699
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="218">
+
+\begin{align*}
+\log _{10}(50)&amp;\approx 1.699
+\end{align*}
+Dat ligt tussen <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="221">\(1\)</span> en <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="221">\(2\)</span> en is groter dan <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="221">\(1.5\)</span>, zoals we voorspelden.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="224">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="224">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="224">(c)</span> Bereken zonder rekentoestel \(10^{\log _{10}(7)}\). <span class="hint" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="225">Geef \(\log _{10}(7)\)
+eerst een naam, bijvoorbeeld \(x\), en gebruik de definitie.</span> 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="228">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="228">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="228">\(10^{\log _{10}(7)}=7\)</span> We noemen \(x=\log _{10}(7)\). Volgens de definitie betekent dat 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="230"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                        10x = 7.
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="230">
+
+\begin{align*}
+10^x&amp;=7.
+\end{align*}
+<span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="233">\(\log _{10}(7)\)</span> is dus de exponent waarmee <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="233">\(10\)</span> het getal <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="233">\(7\)</span> geeft. Vullen we die exponent in, dan krijgen we 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="235"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                    10log10 (7) = 10x
+                                                                                                               =7
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="235">
+
+\begin{align*}
+10^{\log _{10}(7)}&amp;=10^x\\ &amp;=7
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="240">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="240">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="240">(d)</span> Bereken zonder rekentoestel \(\log _{10}(10^6)\). <span class="hint" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="241">Tot welke macht moet je
+\(10\) verheffen om \(10^6\) te krijgen?</span> 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="243">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="243">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="243">\(\log _{10}(10^6)=6\)</span> We noemen \(x=\log _{10}(10^6)\). Volgens de definitie betekent dat 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="245"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                       10x = 106 .
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="245">
+
+\begin{align*}
+10^x&amp;=10^6.
+\end{align*}
+Twee gelijke machten van <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="248">\(10\)</span> hebben dezelfde exponent, dus <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="248">\(x=6\)</span>: 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="249"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                     log10 (106 ) = 6
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="249">
+
+\begin{align*}
+\log _{10}(10^6)&amp;=6
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="253">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="253">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="253">(e)</span> Waarom bestaat \(\log _{10}(0)\) niet als reëel getal? <span class="hint" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="254">Kan een macht
+van \(10\) ooit \(0\) worden?</span> 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="256">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="256">
+We zoeken \(x\) met \(10^x=0\). Maar \(10^x&gt;0\) voor elke reële \(x\), dus 
+</p>
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="257">
+\[ 10^x=0\ \lightning \]
+</p>
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="260">
+Deze vergelijking heeft geen oplossing, en \(\log _{10}(0)\) bestaat niet.
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Een formule voor het aantal cijfers ......
+-->
+<h4 id="autosec-23" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="267"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="267">IV&#x2003;</span>Een formule voor het aantal cijfers</h4>
+<a id="mkpiweb-autopage-23"></a>
+
+
+
+<!--
+...... subsection De grens vertalen ......
+-->
+<h5 id="autosec-24" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="269"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="269">1&#x2003;</span>De grens vertalen</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="271">
+Een positief geheel getal \(N\) met \(d\) cijfers voldoet aan 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="272">
+\[ 10^{d-1}\le N&lt;10^d.     \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="275">
+De functie \(10^x\) is <b>strikt stijgend</b>. Daarom blijft de richting van de ongelijkheden behouden wanneer we overal de logaritme nemen.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="278">
+We proberen het eerst met een getal \(N\) van vier cijfers. Bij elke stap schrijven we de drie delen opnieuw: 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="280"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                   1000 ≤ N < 10000
+                                                                                                    103 ≤ N < 104
+                                                                                             log10 (103 ) ≤ log10 (N ) < log10 (104 )
+                                                                                                       3 ≤ log10 (N ) < 4
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="280">
+
+\begin{align*}
+1000&amp;\le N&lt;10000\\ 10^3&amp;\le N&lt;10^4\\ \log _{10}(10^3)&amp;\le \log _{10}(N)&lt;\log _{10}(10^4)\\ 3&amp;\le \log _{10}(N)&lt;4
+\end{align*}
+In de laatste stap gebruiken we wat we in de oefeningen zagen: de logaritme van een macht van <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="286">\(10\)</span> is de exponent, zoals <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="286">\(\log
+_{10}(10^6)=6\)</span>.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="289">
+Voor een getal met \(d\) cijfers gaat het precies zo: 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="290"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                    10d−1 ≤ N < 10d
+                                                                                             log10 (10d−1 ) ≤ log10 (N ) < log10 (10d )
+                            < spanclass = ”oplopl − vast”style = ”min − width : 1.5cm” > d − 1 < /span > ≤ log10 (N ) << spanclass = ”oplopl − vast”style = ”min − width : 1.5cm” > d < /span >
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="290">
+
+\begin{align*}
+10^{d-1}&amp;\le N&lt;10^d\\ \log _{10}(10^{d-1})&amp;\le \log _{10}(N)&lt;\log _{10}(10^d)\\ \opl [1.5cm]{d-1}&amp;\le \log _{10}(N)&lt;\opl [1.5cm]{d}
+\end{align*}
+De logaritme van <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="295">\(N\)</span> ligt dus tussen twee opeenvolgende gehele getallen. Bij vier cijfers is dat tussen <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="295">\(3\)</span> en <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="295">\(4\)</span>.
+</p>
+
+
+<!--
+...... subsection Het gehele deel ......
+-->
+<h5 id="autosec-25" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="298"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="298">2&#x2003;</span>Het gehele deel</h5>
+<a id="mkpiweb-autopage-25"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="300">
+Ligt een getal \(x\) tussen twee opeenvolgende gehele getallen, zoals \(3\le x&lt;4\), dan noemen we het kleinste daarvan het <b>gehele
+deel</b> van \(x\). We schrijven \(\lfloor x\rfloor =3\). Zo is 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="303">
+\[ \lfloor 2.9\rfloor =\opl [1cm]{2} \qquad \text {en}\qquad \lfloor 4\rfloor =\opl [1cm]{4}.           \]
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="310">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="310">
+Het gehele deel is niet hetzelfde als afronden: \(\lfloor 3.9\rfloor =3\), niet \(4\).
+</p>
+
+</div>
+
+
+<!--
+...... subsection Stelling ......
+-->
+<h5 id="autosec-26" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="314"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="314">3&#x2003;</span>Stelling</h5>
+<a id="mkpiweb-autopage-26"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="316">
+Uit \(d-1\le \log _{10}(N)&lt;d\) volgt \(\lfloor \log _{10}(N)\rfloor =d-1\). Voor het aantal cijfers \(d\) van een positief geheel getal
+\(N\) geldt dus 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="318">
+\[ \boxed {d=\lfloor \log _{10}(N)\rfloor +1}.     \]
+</p>
+
+
+<div class="center" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="323">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="323">
+ <span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="323"
+><!--
+aantal cijfers
+    5
+    4
+    3
+    2
+    1
+                                           N
+        1        10   100   1000   10000
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="323"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="340">
+De grafiek springt telkens één hoger wanneer \(N\) een macht van \(10\) bereikt. De horizontale as is weer logaritmisch: gelijke afstanden
+betekenen telkens een factor \(10\).
+</p>
+
+
+<!--
+...... subsection Let op bij een macht van 10 ......
+-->
+<h5 id="autosec-30" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="344"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="344">4&#x2003;</span>Let op bij een macht van 10</h5>
+<a id="mkpiweb-autopage-30"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="346">
+Het getal \(1000\) heeft vier cijfers, terwijl \(\log _{10}(1000)=3\). Een macht van \(10\) is het eerste getal van een nieuw interval. Daarom is
+de \(+1\) in de formule onmisbaar: 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="349">
+\[ d(1000)=\lfloor 3\rfloor +1=4.      \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="352">
+De formule geldt enkel voor positieve gehele getallen. Het getal \(0\) heeft ook één cijfer, maar \(\log _{10}(0)\) bestaat niet.
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-31" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="355"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="355">5&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-31"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="359">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="359">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="359"></span>
+</p>
+<!--
+...... subsubsection Oefening 2 ......
+-->
+<h6 id="autosec-32" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="359">Oefening 2</h6>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="360">
+Bereken met de formule het aantal cijfers. Schrijf telkens de volledige berekening, met het gehele deel. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="363">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="363">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="363">(a)</span> \(9\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="365">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="365">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="365">\(1\) cijfer</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="366"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                  d(9) = ⌊log10 (9)⌋ + 1
+                                                                                                      = ⌊0.9542 . . .⌋ + 1
+                                                                                                      =1
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="366">
+
+\begin{align*}
+d(9)&amp;=\lfloor \log _{10}(9)\rfloor +1\\ &amp;=\lfloor 0.9542\ldots \rfloor +1\\ &amp;=1
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="372">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="372">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="372">(b)</span> \(100\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="374">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="374">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="374">\(3\) cijfers</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="375"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                d(100) = ⌊log10 (100)⌋ + 1
+                                                                                                       = ⌊2⌋ + 1
+                                                                                                       =3
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="375">
+
+\begin{align*}
+d(100)&amp;=\lfloor \log _{10}(100)\rfloor +1\\ &amp;=\lfloor 2\rfloor +1\\ &amp;=3
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="381">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="381">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="381">(c)</span> \(54321\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="383">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="383">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="383">\(5\) cijfers</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="384"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                              d(54321) = ⌊log10 (54321)⌋ + 1
+                                                                                                       = ⌊4.7349 . . .⌋ + 1
+                                                                                                       =5
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="384">
+
+\begin{align*}
+d(54321)&amp;=\lfloor \log _{10}(54321)\rfloor +1\\ &amp;=\lfloor 4.7349\ldots \rfloor +1\\ &amp;=5
+\end{align*}
+
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+
+<!--
+...... section Het monster ......
+-->
+<h4 id="autosec-33" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="395"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="395">V&#x2003;</span>Het monster \(2^{1000}\)</h4>
+<a id="mkpiweb-autopage-33"></a>
+
+
+
+<!--
+...... subsection Logaritme van een macht ......
+-->
+<h5 id="autosec-34" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="397"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="397">1&#x2003;</span>Logaritme van een macht</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="399">
+Om \(\log _{10}(2^{1000})\) te vinden, hebben we een regel nodig voor de logaritme van een macht. We zoeken die eerst met getallen waarvan
+we de logaritme al kennen.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="403">
+Neem \(100=10^2\), dus \(\log _{10}(100)=2\). Met de rekenregel \((a^m)^n=a^{m\cdot n}\) is 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="405"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                   1003 = (102 )3
+                                                                                                        = 106 ,
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="405">
+
+\begin{align*}
+100^3&amp;=(10^2)^3\\ &amp;=10^{6},
+\end{align*}
+dus <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="409">\(\log _{10}(100^3)=\opl [1cm]{6}\)</span>. Dat is <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="409">\(3\cdot 2\)</span>, of <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="409">\(3\cdot \log _{10}(100)\)</span>.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="412">
+Hetzelfde met \(1000=10^3\): 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="413"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                10004 = (103 )4
+                                                                      =< spanclass = ”oplopl − vast”style = ”min − width : 1.5cm” > 1012 < /span >,
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="413">
+
+\begin{align*}
+1000^4&amp;=(10^3)^4\\ &amp;=\opl [1.5cm]{10^{12}},
+\end{align*}
+dus <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="417">\(\log _{10}(1000^4)=\opl [1cm]{12}\)</span>. Dat is <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="417">\(4\cdot 3\)</span>, of <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="417">\(4\cdot \log _{10}(1000)\)</span>.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="420">
+De exponent van de macht komt telkens vooraan: we vermenigvuldigen de logaritme met de exponent.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="423">
+Werkt dat ook voor \(2\)? Het rekentoestel geeft \(\log _{10}(2)\approx 0.301\), dus \(2\approx 10^{0.301}\). Dan is 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="425"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                  23 ≈ (100.301 )3
+                                                                                                     = 103·0.301
+                                                                                                     = 100.903 ,
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="425">
+
+\begin{align*}
+2^3&amp;\approx (10^{0.301})^3\\ &amp;=10^{3\cdot 0.301}\\ &amp;=10^{0.903},
+\end{align*}
+dus <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="430">\(\log _{10}(2^3)\approx 0.903=3\cdot \log _{10}(2)\)</span>. Controle: <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="430">\(2^3=8\)</span>, en het rekentoestel geeft <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="430">\(\log _{10}(8)\approx \opl
+[1.5cm]{0.903}\)</span>.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="433">
+Dezelfde redenering werkt voor elk grondtal \(a&gt;0\) en elke exponent \(n\). Noemen we \(u=\log _{10}(a)\), dan is \(a=10^u\) en 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="435"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                   an = (10u )n
+                                                                                                       = 10n·u ,
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="435">
+
+\begin{align*}
+a^n&amp;=(10^u)^n\\ &amp;=10^{n\cdot u},
+\end{align*}
+dus <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="439">\(\log _{10}(a^n)=n\cdot u=n\log _{10}(a)\)</span>.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="441">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="441"></span>
+</p>
+<!--
+...... subsubsection Eigenschap ......
+-->
+<h6 id="autosec-35" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="441">Eigenschap</h6>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="443">
+Voor \(a&gt;0\) geldt 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="444">
+\[ \boxed {\log _{10}(a^n)=n\log _{10}(a)}.      \]
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="449">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="449">
+Dit is een van de <em>rekenregels voor logaritmen</em>. We hebben ze zelf afgeleid uit de rekenregels voor machten.
+</p>
+
+</div>
+
+
+<!--
+...... subsection De hoofdvraag opgelost ......
+-->
+<h5 id="autosec-36" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="453"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="453">2&#x2003;</span>De hoofdvraag opgelost</h5>
+<a id="mkpiweb-autopage-36"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="455">
+Nu hebben we alles om de hoofdvraag te beantwoorden. Met het rekentoestel is \(\log _{10}(2)\approx 0.301030\), dus 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="457"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                           d(21000 ) = ⌊log10 (21000 )⌋ + 1
+                                                                    = ⌊1000 log10 (2)⌋ + 1
+                                                                    = ⌊< spanclass = ”oplopl − vast”style = ”min − width : 2.5cm” > 301.02999 . . . < /span >⌋ + 1
+                                                                    =< spanclass = ”oplopl − vast”style = ”min − width : 1.5cm” > 302 < /span > .
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="457">
+
+\begin{align*}
+d(2^{1000})&amp;=\lfloor \log _{10}(2^{1000})\rfloor +1\\ &amp;=\lfloor 1000\log _{10}(2)\rfloor +1\\ &amp;=\lfloor \opl [2.5cm]{301.02999\ldots }\rfloor +1\\ &amp;=\opl [1.5cm]{302}.
+\end{align*}
+Let op: we nemen het gehele deel en ronden niet af.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="465">
+Dit is geen gok maar een bewijs. Uit \(301\le \log _{10}(2^{1000})&lt;302\) volgt 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="466">
+\[ 10^{301}\le 2^{1000}&lt;10^{302}, \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="469">
+en elk getal in dat interval heeft precies \(302\) cijfers.
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="471">
+<span class="cursus-optioneel" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="471"></span>
+</p>
+<!--
+...... subsection Hoe nauwkeurig moet de logaritme zijn? ......
+-->
+<h5 id="autosec-37" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="471">Hoe nauwkeurig moet de logaritme zijn?</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="473">
+Een afgeronde logaritme volstaat niet altijd voor een echt bewijs. Ligt \(n\log _{10}(a)\) heel dicht bij een geheel getal, dan kan een kleine fout
+op de decimalen het gehele deel veranderen. Bij \(2^{1000}\) ligt \(301.02999\ldots \) ver genoeg van \(301\) en \(302\): met de decimalen van het rekentoestel is de conclusie zeker.
+</p>
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-38" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="479"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="479">3&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="483">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="483">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="483"></span>
+</p>
+<!--
+...... subsubsection Oefening 3 ......
+-->
+<h6 id="autosec-39" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="483">Oefening 3</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="484">
+Bereken het exacte aantal cijfers zonder het getal uit te rekenen. <span class="hint" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="485">Gebruik \(d=\lfloor \log _{10}(N)\rfloor +1\) samen met \(\log _{10}(a^n)=n\log _{10}(a)\).</span> 
+</p>
+<div class="multicols" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="488">
+
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="488">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="488">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="488">(a)</span> \(3^{500}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="490">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="490">
+<span
+class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="490">\(239\) cijfers</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="491"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                        d(3500 ) = ⌊500 log10 (3)⌋ + 1
+                                                 = ⌊238.5606 . . .⌋ + 1
+                                                 = 239
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="491">
+
+\begin{align*}
+d(3^{500})&amp;=\lfloor 500\log _{10}(3)\rfloor +1\\ &amp;=\lfloor 238.5606\ldots \rfloor +1\\
+&amp;=239
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="497">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="497">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="497">(b)</span> \(5^{200}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="499">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="499">
+<span
+class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="499">\(140\) cijfers</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="500"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                        d(5200 ) = ⌊200 log10 (5)⌋ + 1
+                                                 = ⌊139.7940 . . .⌋ + 1
+                                                 = 140
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="500">
+
+\begin{align*}
+d(5^{200})&amp;=\lfloor 200\log _{10}(5)\rfloor +1\\ &amp;=\lfloor 139.7940\ldots \rfloor +1\\
+&amp;=140
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="506">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="506">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="506">(c)</span> \(10^{2026}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="508">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="508">
+<span
+class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="508">\(2027\) cijfers</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="509"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                           d(102026 ) = ⌊2026⌋ + 1
+                                                      = 2027
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="509">
+
+\begin{align*}
+d(10^{2026})&amp;=\lfloor 2026\rfloor +1\\ &amp;=2027
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="514">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="514">
+<span class="listmarker" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="514">(d)</span> \(12^{80}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="516">
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="516">
+<span
+class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="516">\(87\) cijfers</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="517"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                        d(1280 ) = ⌊80 log10 (12)⌋ + 1
+                                                 = ⌊86.3345 . . .⌋ + 1
+                                                 = 87
+
+
+-->
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="517">
+
+\begin{align*}
+d(12^{80})&amp;=\lfloor 80\log _{10}(12)\rfloor +1\\ &amp;=\lfloor 86.3345\ldots \rfloor +1\\
+&amp;=87
+\end{align*}
+
+</p>
+</div>
+
+</li>
+</ul>
+
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="526">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="526">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="526"></span>
+</p>
+<!--
+...... subsubsection Oefening 4 ......
+-->
+<h6 id="autosec-41" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="526">Oefening 4</h6>
+<a id="mkpiweb-autopage-41"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="527">
+Het getal \(8^{100}\) is gelijk aan \(2^{300}\). Toon aan dat je met beide schrijfwijzen hetzelfde aantal cijfers uitrekent, zonder de waarden van
+de logaritmen te vergelijken. 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="531">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="531">
+Met \(8=2^3\) is 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="532"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                               100 log10 (8) = 100 log10 (23 )
+                                                                                                            = 100 · 3 log10 (2)
+                                                                                                            = 300 log10 (2).
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="532">
+
+\begin{align*}
+100\log _{10}(8)&amp;=100\log _{10}(2^3)\\ &amp;=100\cdot 3\log _{10}(2)\\ &amp;=300\log _{10}(2).
+\end{align*}
+Beide schrijfwijzen geven dus dezelfde logaritme, en daarmee hetzelfde aantal cijfers.
+</p>
+</div>
+
+</div>
+
+
+<!--
+...... section Omgekeerd denken ......
+-->
+<h4 id="autosec-42" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="544"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="544">VI&#x2003;</span>Omgekeerd denken</h4>
+<a id="mkpiweb-autopage-42"></a>
+
+
+
+<!--
+...... subsection Wanneer heeft precies 100 cijfers? ......
+-->
+<h5 id="autosec-43" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="546"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="546">1&#x2003;</span>Wanneer heeft \(2^n\) precies 100 cijfers?</h5>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="548">
+We draaien de vraag om. Voor welke gehele getallen \(n\ge 0\) heeft \(2^n\) precies \(100\) cijfers? Een getal heeft precies \(100\) cijfers als
+
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="550">
+\[ \opl [1.5cm]{10^{99}}\le 2^n&lt;\opl [1.5cm]{10^{100}}.           \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="553">
+We nemen de logaritme. De richting blijft behouden, want de logaritme is stijgend: 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="555">
+\[ \opl [1cm]{99}\le n\log _{10}(2)&lt;\opl [1cm]{100}.         \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="558">
+Waarom mogen we nu door \(\log _{10}(2)\) delen zonder de tekens om te draaien? 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="560">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="560">
+Omdat \(\log _{10}(2)&gt;0\). Bij delen door een positief getal blijven de ongelijkheidstekens behouden.
+</p>
+</div>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="563">
+Delen door \(\log _{10}(2)\) geeft 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="564"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                     99           100
+                                                                                                            ≤n<
+                                                                                                  log10 (2)     log10 (2)
+                                                                                              328.8709 . . . ≤ n < 332.1928 . . .
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="564">
+
+\begin{align*}
+\frac {99}{\log _{10}(2)}&amp;\le n&lt;\frac {100}{\log _{10}(2)}\\ 328.8709\ldots &amp;\le n&lt;332.1928\ldots
+\end{align*}
+Omdat <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="568">\(n\)</span> een geheel getal is, vinden we 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="569">
+\[ n\in \{\opl [5cm]{329,330,331,332}\}.       \]
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="574">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="574">
+Bij grensvragen tellen de tekens \(&lt;\) en \(\le \). Voor een geheel getal \(n\) betekent \(n&lt;332.19\ldots \) hetzelfde als \(n\le 332\),
+en \(328.87\ldots \le n\) hetzelfde als \(n\ge 329\). We ronden niet af, we kijken welke gehele getallen in het interval liggen.
+</p>
+
+</div>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="580">
+<span class="cursus-optioneel" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="580"></span>
+</p>
+<!--
+...... section Wat verbergt de logaritme nog? ......
+-->
+<h4 id="autosec-44" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="580">Wat verbergt de logaritme nog?</h4>
+<a id="mkpiweb-autopage-44"></a>
+
+
+
+<!--
+...... subsection Het eerste cijfer ......
+-->
+<h5 id="autosec-45" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="582"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="582">1&#x2003;</span>Het eerste cijfer</h5>
+<a id="mkpiweb-autopage-45"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="584">
+Met logaritmen kunnen we niet alleen tellen hoeveel cijfers een getal heeft. We kunnen zelfs zijn <b>eerste cijfer</b> bepalen. Voor \(2^{1000}\)
+is \(\log _{10}(2^{1000})=301.02999\ldots \). We splitsen de exponent in een geheel en een decimaal deel: 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="588"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                21000 = 10301.02999...
+                                                                                                      = 10301 · 100.02999...
+                                                                                                      ≈ 10301 · 1.0715.
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="588">
+
+\begin{align*}
+2^{1000}&amp;=10^{301.02999\ldots }\\ &amp;=10^{301}\cdot 10^{0.02999\ldots }\\ &amp;\approx 10^{301}\cdot 1.0715.
+\end{align*}
+Vermenigvuldigen met <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="593">\(10^{301}\)</span> verschuift enkel de komma. Het eerste cijfer van <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="593">\(2^{1000}\)</span> is dus het eerste cijfer van <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="593">\(1.0715\)</span>, namelijk
+<span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="593">\(1\)</span>.
+</p>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="596">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="596">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="596"></span>
+</p>
+<!--
+...... subsubsection Oefening 5 ......
+-->
+<h6 id="autosec-46" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="596">Oefening 5</h6>
+<a id="mkpiweb-autopage-46"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="597">
+Wat is het eerste cijfer van \(3^{100}\)? <span
+class="hint" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="598">Schrijf \(3^{100}=10^m\cdot c\) met \(m\) geheel en \(1\le c&lt;10\). Het eerste cijfer van \(3^{100}\) is het eerste cijfer van \(c\).</span> 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="601">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="601">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="601">\(5\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="602"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                     log10 (3100 ) = 100 log10 (3) = 47.7121 . . .
+                                                                                            3100 = 1047 · 100.7121...
+                                                                                                  ≈ 1047 · 5.1538
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="602">
+
+\begin{align*}
+\log _{10}(3^{100})&amp;=100\log _{10}(3)=47.7121\ldots \\ 3^{100}&amp;=10^{47}\cdot 10^{0.7121\ldots }\\ &amp;\approx 10^{47}\cdot 5.1538
+\end{align*}
+Het eerste cijfer is <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="607">\(5\)</span>.
+</p>
+</div>
+
+</div>
+
+
+<!--
+...... subsection Honderd faculteit ......
+-->
+<h5 id="autosec-47" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="611"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="611">2&#x2003;</span>Honderd faculteit</h5>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="613">
+Het getal \(100!\) (spreek uit: <em>honderd faculteit</em>) is het product 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="614">
+\[ 100!=1\cdot 2\cdot 3\cdots 99\cdot 100.     \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="617">
+Om het aantal cijfers te vinden, hebben we de logaritme van een product nodig. Stel \(a=10^u\) en \(b=10^v\), met \(a,b&gt;0\). Waarom is
+\(\log _{10}(ab)=\log _{10}(a)+\log _{10}(b)\)? 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="621">
+
+
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="621"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                               ab = 10u · 10v = 10u+v
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="621">
+
+\begin{align*}
+ab&amp;=10^u\cdot 10^v=10^{u+v}
+\end{align*}
+Dus is <span data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="624">\(\log _{10}(ab)=u+v=\log _{10}(a)+\log _{10}(b)\)</span>.
+</p>
+</div>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="626">
+Herhaald toepassen geeft 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="627">
+\[ \log _{10}(100!)=\log _{10}(1)+\log _{10}(2)+\cdots +\log _{10}(100) \approx 157.9700.           \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="631">
+Hoeveel cijfers heeft \(100!\)? 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="633">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="633">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="633">\(158\) cijfers</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="634"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                             d(100!) = ⌊157.9700 . . .⌋ + 1
+                                                                                                     = 158
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="634">
+
+\begin{align*}
+d(100!)&amp;=\lfloor 157.9700\ldots \rfloor +1\\ &amp;=158
+\end{align*}
+
+</p>
+</div>
+
+
+
+
+<div class="aside" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="641">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="641">
+Let op: \(\log _{10}(ab)\) is de <em>som</em> van de logaritmen, niet het product \(\log _{10}(a)\log _{10}(b)\).
+</p>
+
+</div>
+
+
+<!--
+...... section Samenvatting ......
+-->
+<h4 id="autosec-48" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="645"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="645">VII&#x2003;</span>Samenvatting</h4>
+<a id="mkpiweb-autopage-48"></a>
+
+
+
+<!--
+...... subsection Twee gereedschappen ......
+-->
+<h5 id="autosec-49" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="647"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="647">1&#x2003;</span>Twee gereedschappen</h5>
+<a id="mkpiweb-autopage-49"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="649">
+Voor elk positief geheel getal \(N\) en elk \(a&gt;0\) geldt 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="650">
+\[ \underbrace {d(N)=\lfloor \log _{10}(N)\rfloor +1}_{\text {aantal cijfers}} \qquad \text {en}\qquad \log _{10}(a^n)=n\log _{10}(a).               \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="655">
+Een logaritme vertelt welke exponent we nodig hebben. Daardoor kunnen we de grootte van een enorm getal bestuderen zonder het uit te rekenen.
+</p>
+
+
+<!--
+...... section Test jezelf ......
+-->
+<h4 id="autosec-50" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="658"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="658">VIII&#x2003;</span>Test jezelf</h4>
+<a id="mkpiweb-autopage-50"></a>
+
+
+
+<!--
+...... subsection Oefeningen ......
+-->
+<h5 id="autosec-51" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="660"><span class="sectionnumber" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="660">1&#x2003;</span>Oefeningen</h5>
+<a id="mkpiweb-autopage-51"></a>
+
+
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="664">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="664">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="664"></span>
+</p>
+<!--
+...... subsubsection Oefening 6 ......
+-->
+<h6 id="autosec-52" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="664">Oefening 6</h6>
+<a id="mkpiweb-autopage-52"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="665">
+Leg in eigen woorden uit wat \(\log _{10}(70)\) betekent. 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="667">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="667">
+\(\log _{10}(70)\) is het getal \(x\) waarvoor \(10^x=70\), dus de exponent waarmee we \(10\) moeten verheffen om \(70\) te krijgen.
+</p>
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="672">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="672">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="672"></span>
+</p>
+<!--
+...... subsubsection Oefening 7 ......
+-->
+<h6 id="autosec-53" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="672">Oefening 7</h6>
+<a id="mkpiweb-autopage-53"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="673">
+Hoeveel cijfers heeft \(7^{300}\)? Toon de berekening. 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="675">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="675">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="675">\(254\) cijfers</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="676"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                          d(7300 ) = ⌊300 log10 (7)⌋ + 1
+                                                                                                  = ⌊253.5294 . . .⌋ + 1
+                                                                                                  = 254
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="676">
+
+\begin{align*}
+d(7^{300})&amp;=\lfloor 300\log _{10}(7)\rfloor +1\\ &amp;=\lfloor 253.5294\ldots \rfloor +1\\ &amp;=254
+\end{align*}
+
+</p>
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="684">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="684">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="684"></span>
+</p>
+<!--
+...... subsubsection Oefening 8 ......
+-->
+<h6 id="autosec-54" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="684">Oefening 8</h6>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="685">
+Sam beweert: “Omdat \(\log _{10}(1000)=3\), heeft \(1000\) drie cijfers.” Waarom heeft Sam ongelijk? 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="688">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="688">
+Het getal \(1000=10^3\) is het kleinste getal met vier cijfers. De formule geeft 
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="690">
+\[ d(1000)=\lfloor 3\rfloor +1=4.     \]
+</p>
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="693">
+Sam vergeet de \(+1\).
+</p>
+</div>
+
+</div>
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="697">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="697">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="697"></span>
+</p>
+<!--
+...... subsubsection Oefening 9 ......
+-->
+<h6 id="autosec-55" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="697">Oefening 9</h6>
+<a id="mkpiweb-autopage-55"></a>
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="698">
+Geef een algemene regel voor het aantal cijfers van \(a^n\), met \(a\) en \(n\) positieve gehele getallen en \(a\ge 2\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="701">
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="701">
+<span class="oplantwoord" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="701">\(d(a^n)=\lfloor n\log _{10}(a)\rfloor +1\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="702"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                 d(an ) = ⌊log10 (an )⌋ + 1
+                                                                                                       = ⌊n log10 (a)⌋ + 1
+
+
+
+-->
+
+
+<p data-mkpi-bestand="AantalCijfers.tex" data-mkpi-regel="702">
+
+\begin{align*}
+d(a^n)&amp;=\lfloor \log _{10}(a^n)\rfloor +1\\ &amp;=\lfloor n\log _{10}(a)\rfloor +1
+\end{align*}
+
+</p>
+</div>
+
+</div>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="vensters.js?v=47de483c6c55"></script>
+<script src="presentatie.js?v=47de483c6c55"></script>
+<script src="statistieken.js?v=47de483c6c55"></script>
+</body>
+</html>

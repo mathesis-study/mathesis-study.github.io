@@ -426,10 +426,16 @@
       return s;
     }
     // Een veelterm uitgeschreven, van de hoogste graad naar de laagste.
-    function tex(p) {
+    function tex(p, positiefEerst) {
       if (isNul(p)) return "0";
       var s = "";
-      termen(p).forEach(function (t, j) {
+      var lijst = termen(p);
+      // 1-2a in plaats van -2a+1: bij twee termen een positieve term
+      // vooraan, zoals in de cursus, als er een is.
+      if (positiefEerst && lijst.length === 2 && qteken(lijst[0].c) < 0 && qteken(lijst[1].c) > 0) {
+        lijst = [lijst[1], lijst[0]];
+      }
+      lijst.forEach(function (t, j) {
         var c = t.c, m = monoom(t.e);
         var negatief = qteken(c) < 0;
         var a = qabs(c);
@@ -460,7 +466,10 @@
       var s = qteken(o.c) < 0 ? "-" : "";
       var a = qabs(o.c);
       if (!qis(a, EEN)) s += qtex(a);
-      o.f.forEach(function (f) {
+      // Een factor van één term vooraan: -m(m+3), niet -(m+3)m.
+      var factoren = o.f.filter(function (f) { return isTerm(f.p); })
+        .concat(o.f.filter(function (f) { return !isTerm(f.p); }));
+      factoren.forEach(function (f) {
         var enkel = isTerm(f.p);
         var b = enkel ? tex(f.p) : "(" + tex(f.p) + ")";
         if (f.e > 1) b = (enkel && tex(f.p).length > 1 ? "(" + tex(f.p) + ")" : b) + "^{" + f.e + "}";
@@ -469,7 +478,20 @@
       return s;
     }
 
+    // De eenvoudigste vorm, zoals in de cursus: een som, bij twee termen met
+    // een positieve term vooraan (1-2a, 6a+6, -6m-2).
+    function somTex(p) { return tex(p, true); }
+    // In een matrix en als deler de kortste vorm, en bij gelijke lengte de
+    // som: a^2-4 en 1-m^2, maar (m+1)^{2}. Accolades en ^ tellen niet mee.
+    function vormTex(p) {
+      if (isTerm(p)) return tex(p);
+      var som = somTex(p), ontbonden = ontbondenTex(p);
+      function lengte(s) { return s.replace(/[{}^]/g, "").length; }
+      return lengte(ontbonden) < lengte(som) ? ontbonden : som;
+    }
+
     return {
+      somTex: somTex, vormTex: vormTex,
       namen: namen, k: k, cst: cst, getal: getal, veranderlijke: veranderlijke,
       isNul: isNul, isCst: isCst, waarde: waarde, plus: plus, min: min, neg: neg,
       maal: maal, schaal: schaal, macht: macht, gelijk: gelijk, graad: graad,
@@ -805,7 +827,7 @@
     var spil = opties.spil;
     var s = "\\left(\\begin{array}{" + kolommen + "}" + M.map(function (rij, i) {
       return rij.map(function (x, j) {
-        var t = R.tex(x);
+        var t = R.vormTex(x);
         return spil && spil[0] === i && spil[1] === j ? "\\boxed{" + t + "}" : t;
       }).join("&");
     }).join("\\\\ ") + "\\end{array}\\right)";
@@ -832,9 +854,10 @@
   function rij(i) { return "R_{" + (i + 1) + "}"; }
 
   // k R_i + l R_j, met k en l veeltermen: 2R_2-3R_1, R_3-mR_1,
-  // R_3-(1-3m)R_2 of (m+1)R_1+2mR_3.
+  // R_3+(3m-1)R_2, R_3+(1-2a)R_2 of (m+1)R_1+2mR_3. Het teken staat buiten
+  // de haakjes, en binnen de haakjes staat een positieve term vooraan.
   function combinatieTex(R, i, k, h, l) {
-    var eerste = R.factorTex(k) + rij(i);
+    var eerste = (R.isTerm(k) ? R.factorTex(k) : "(" + R.somTex(k) + ")") + rij(i);
     var tweede;
     if (R.isTerm(l)) {
       var s = R.tex(l);
@@ -843,26 +866,28 @@
       if (s === "1") s = "";
       tweede = (neg ? "-" : "+") + s + rij(h);
     } else {
-      var negL = qteken(R.leidend(l).c) < 0;
-      tweede = (negL ? "-(" + R.tex(R.neg(l)) : "+(" + R.tex(l)) + ")" + rij(h);
+      var t = R.somTex(l);
+      tweede = (t[0] === "-" ? "-(" + R.somTex(R.neg(l)) : "+(" + t) + ")" + rij(h);
     }
-    return rij(i) + "\\to " + eerste + tweede;
+    return rij(i) + "\\leftarrow " + eerste + tweede;
   }
 
-  // Een rij delen door d: R_3/5, R_3/(-64), R_3/(m-1); een breuk als deler
-  // wordt vermenigvuldigen: R_1\to 2R_1.
-  function deelTex(R, i, d) {
+  // Een rij delen door d: R_3\leftarrow R_3/5, R_3\leftarrow R_3/(-64), R_3\leftarrow R_3/(m-1); een breuk als deler
+  // wordt vermenigvuldigen: R_1\leftarrow 2R_1. Komt de rij van een andere
+  // plaats (rijen ordenen), dan staat die rechts: R_2\leftarrow R_3/4.
+  function deelTex(R, i, d, bron) {
+    var links = rij(i) + "\\leftarrow ";
+    var b = rij(bron === undefined ? i : bron);
     if (R.isCst(d)) {
       var c = R.waarde(d);
-      if (qis(c, Q(-1))) return rij(i) + "\\to -" + rij(i);
-      if (c.t === 1n || c.t === -1n) {
-        return rij(i) + "\\to " + qtex(qdeel(EEN, c)) + rij(i);
-      }
-      if (c.n === 1n) return rij(i) + "/" + (c.t < 0n ? "(" + qtex(c) + ")" : qtex(c));
-      return rij(i) + "\\to " + qtex(qdeel(EEN, c)) + rij(i);
+      if (qis(c, EEN)) return links + b;
+      if (qis(c, Q(-1))) return links + "-" + b;
+      if (c.t === 1n || c.t === -1n) return links + qtex(qdeel(EEN, c)) + b;
+      if (c.n === 1n) return links + b + "/" + (c.t < 0n ? "(" + qtex(c) + ")" : qtex(c));
+      return links + qtex(qdeel(EEN, c)) + b;
     }
-    var t = R.ontbondenTex(d);
-    return rij(i) + "/" + (R.isTerm(d) && t[0] !== "-" ? t : "(" + t + ")");
+    var t = R.vormTex(d);
+    return links + b + "/" + (R.isTerm(d) && t[0] !== "-" ? t : "(" + t + ")");
   }
 
   /* --- Gauss-Jordan ----------------------------------------------------- */
@@ -894,27 +919,25 @@
       return p;
     }
 
-    // Een rij door haar inhoud delen: geen breuken, geen gemeenschappelijke
-    // factor en het eerste element positief.
-    function vereenvoudig(st, stappen, kop) {
-      var ops = {}, M = st.M;
-      for (var i = 0; i < m; i++) {
-        var r = M[i];
-        var g = R.cst(NUL);
-        r.forEach(function (x) { g = R.ggd(g, x); });
-        if (R.isNul(g)) continue;
-        var d = veiligDeel(g, st);
-        var rd = r.map(function (x) { return R.deel(x, d); });
-        d = R.schaal(d, rijinhoud(rd));
-        // Delen we toch, dan meteen zo dat het eerste element positief wordt:
-        // R_3/(-64) in plaats van R_3/64 en later R_3\to -R_3.
-        if (R.isCst(d) && qis(R.waarde(d), EEN)) continue;
-        var eerste = rd.filter(function (x) { return !R.isNul(x); })[0];
-        if (qteken(R.leidend(eerste).c) < 0) d = R.neg(d);
-        M[i] = r.map(function (x) { return R.deel(x, d); });
-        ops[i] = deelTex(R, i, d);
-      }
-      if (Object.keys(ops).length) stappen.push({ ops: ops, M: kopieer(M), kop: kop });
+    // De deler waarmee rij r eenvoudiger wordt, of null als er niets te
+    // vereenvoudigen valt: breuken wegwerken en een gemeenschappelijke
+    // factor wegdelen, ook een factor met een parameter die in dit geval niet
+    // nul is. Wordt het eerste element zo -1, dan delen we zo dat het 1
+    // wordt: R_3/(-64) in Voorbeeld 1, maar R_1/2 als er 7 overblijft.
+    function deler(r, st) {
+      var g = R.cst(NUL);
+      r.forEach(function (x) { g = R.ggd(g, x); });
+      if (R.isNul(g)) return null;
+      var d = veiligDeel(g, st);
+      var rd = deelRij(r, d);
+      d = R.schaal(d, rijinhoud(rd));
+      if (R.isCst(d) && qis(R.waarde(d), EEN)) return null;
+      var eerste = R.deel(r.filter(function (x) { return !R.isNul(x); })[0], d);
+      if (R.isCst(eerste) && qis(R.waarde(eerste), Q(-1))) d = R.neg(d);
+      return d;
+    }
+    function deelRij(r, d) {
+      return r.map(function (x) { return R.deel(x, d); });
     }
     function rijinhoud(r) {
       var g = 0n, l = 1n, eerste = null;
@@ -930,9 +953,10 @@
     }
 
     // De spil kiezen in kolom st.c, vanaf rij st.h. Een getal krijgt de
-    // voorkeur: eerst in de huidige rij, anders het kleinste eronder. Hangt
-    // elke kandidaat van de parameters af, dan kiezen we de eenvoudigste,
-    // ook als ze in dit geval nul kan zijn: dan volgen de gevallen.
+    // voorkeur: eerst in de huidige rij, anders de eerste rij eronder, zoals
+    // in de cursus en de figuur gauss-jordan. Hangt elke kandidaat van de
+    // parameters af, dan kiezen we de eenvoudigste, ook als ze in dit geval
+    // nul kan zijn: dan volgen de gevallen.
     function kiesSpil(st) {
       var h = st.h, c = st.c, M = st.M;
       var zeker = [], mogelijk = [];
@@ -943,12 +967,7 @@
       }
       function beste(lijst) {
         var getallen = lijst.filter(function (i) { return R.isCst(M[i][c]); });
-        if (getallen.indexOf(h) >= 0) return h;
-        if (getallen.length) {
-          return getallen.reduce(function (a, i) {
-            return qvergelijk(qabs(R.waarde(M[i][c])), qabs(R.waarde(M[a][c]))) < 0 ? i : a;
-          });
-        }
+        if (getallen.length) return getallen[0];
         if (lijst.indexOf(h) >= 0) return h;
         return lijst.reduce(function (a, i) {
           return R.totaleGraad(M[i][c]) < R.totaleGraad(M[a][c]) ? i : a;
@@ -959,40 +978,95 @@
       return null;
     }
 
-    // Eén ronde van de methode: eventueel wisselen, dan met de spil alle
-    // andere elementen van haar kolom nul maken, en de rijen vereenvoudigen.
-    function ronde(st, stappen, rijSpil) {
-      var h = st.h, c = st.c, M = st.M;
-      var kop = "Nullen maken in $K_{" + (c + 1) + "}$";
-      var vorige = stappen[stappen.length - 1];
-      if (rijSpil !== h) {
-        var w = M[h]; M[h] = M[rijSpil]; M[rijSpil] = w;
-        var o = {};
-        o[h] = rij(h) + "\\leftrightarrow " + rij(rijSpil);
-        vorige = { ops: o, M: kopieer(M), kop: kop };
-        stappen.push(vorige);
-        kop = null;
-      }
-      var p = M[h][c], ops = {};
-      for (var i = 0; i < m; i++) {
-        if (i === h || R.isNul(M[i][c])) continue;
-        var e = M[i][c];
-        var g = R.ggd(p, e);
-        var kk = R.deel(p, g), l = R.neg(R.deel(e, g));
-        if (qteken(R.leidend(kk).c) < 0) { kk = R.neg(kk); l = R.neg(l); }
-        var ri = M[i], rh = M[h];
-        M[i] = ri.map(function (x, j) { return R.plus(R.maal(kk, x), R.maal(l, rh[j])); });
-        ops[i] = combinatieTex(R, i, kk, h, l);
-      }
-      if (Object.keys(ops).length) {
-        vorige.spil = [h, c];
-        stappen.push({ ops: ops, M: kopieer(M), kop: kop });
-        kop = null;
+    // R_i ← k·R_i + l·R_p maakt het element e nul met de spil p (de
+    // combinatiemethode), na het wegdelen van hun ggd. R.ggd rekent met
+    // veeltermen en laat een gehele factor staan, dus die delen we nog weg:
+    // R_3\leftarrow R_3-3R_1 bij 2 en 6, R_3\leftarrow R_3+R_2 bij -3a en 3a.
+    function nulMaker(p, e) {
+      var g = R.ggd(p, e);
+      var k = R.deel(p, g), l = R.neg(R.deel(e, g));
+      var c = R.cst(rijinhoud([k, l]));
+      k = R.deel(k, c);
+      l = R.deel(l, c);
+      if (qteken(R.leidend(k).c) < 0) { k = R.neg(k); l = R.neg(l); }
+      return { k: k, l: l };
+    }
+    function combineer(ri, rp, f) {
+      return ri.map(function (x, j) { return R.plus(R.maal(f.k, x), R.maal(f.l, rp[j])); });
+    }
+    function gelijkOpTeken(a, b) {
+      return a.every(function (x, j) { return R.gelijk(x, b[j]); }) ||
+             a.every(function (x, j) { return R.gelijk(x, R.neg(b[j])); });
+    }
+
+    // Is rij a een veelvoud van rij b? Dan maakt de volgende stap er toch
+    // een nulrij van, en heeft vereenvoudigen geen zin.
+    function evenredig(a, b) {
+      var h = -1;
+      for (var j = 0; j < b.length; j++) if (!R.isNul(b[j])) { h = j; break; }
+      if (h < 0 || a.every(function (x) { return R.isNul(x); })) return false;
+      return a.every(function (x, j) {
+        return R.isNul(R.plus(R.maal(x, b[h]), R.neg(R.maal(a[h], b[j]))));
+      });
+    }
+
+    // Eén ronde van de methode, zoals de cursus en de figuur gauss-jordan ze
+    // zetten: eerst de rijen ordenen (de spilrij op haar plaats) en
+    // vereenvoudigen, dan met de spil alle andere elementen van haar kolom
+    // nul maken. Staat de spil al op haar plaats en is ze alleen in haar
+    // kolom, dan is er niets te doen, ook niet vereenvoudigen. Een rij
+    // vereenvoudigen we niet als nullen maken er toch een nulrij van maakt,
+    // of als nullen maken de factor meteen weer invoert.
+    function ronde(st, stappen, p) {
+      var h = st.h, c = st.c, M = st.M, i;
+      var anderen = [];
+      for (i = 0; i < m; i++) if (i !== p && !R.isNul(M[i][c])) anderen.push(i);
+      if (p !== h || anderen.length) {
+        var delers = M.map(function (r, i) {
+          return i !== p && evenredig(r, M[p]) ? null : deler(r, st);
+        });
+        var rp = delers[p] ? deelRij(M[p], delers[p]) : M[p];
+        anderen.forEach(function (i) {
+          if (!delers[i]) return;
+          var zonder = combineer(M[i], rp, nulMaker(rp[c], M[i][c]));
+          var ri = deelRij(M[i], delers[i]);
+          if (gelijkOpTeken(zonder, combineer(ri, rp, nulMaker(rp[c], ri[c])))) delers[i] = null;
+        });
+        var wissel = p !== h;
+        var aantal = delers.filter(Boolean).length;
+        var spilStap = stappen[stappen.length - 1];
+        if (wissel || aantal) {
+          var bron = function (t) { return !wissel ? t : t === h ? p : t === p ? h : t; };
+          var kaal = wissel && !delers[p] && !delers[h];
+          var B = [], ops = {};
+          if (kaal) ops[h] = rij(h) + "\\leftrightarrow " + rij(p);
+          for (var t = 0; t < m; t++) {
+            var s = bron(t);
+            B[t] = delers[s] ? deelRij(M[s], delers[s]) : M[s];
+            if (kaal && (t === h || t === p)) continue;
+            if (s !== t || delers[s]) ops[t] = deelTex(R, t, delers[s] || R.cst(EEN), s);
+          }
+          st.M = M = B;
+          spilStap = { ops: ops, M: kopieer(M),
+                       kop: !wissel ? (aantal === 1 ? "Rij vereenvoudigen" : "Rijen vereenvoudigen")
+                         : aantal ? "Rijen ordenen en vereenvoudigen" : "Rijen ordenen" };
+          stappen.push(spilStap);
+        }
+        var nul = {};
+        for (i = 0; i < m; i++) {
+          if (i === h || R.isNul(M[i][c])) continue;
+          var f = nulMaker(M[h][c], M[i][c]);
+          M[i] = combineer(M[i], M[h], f);
+          nul[i] = combinatieTex(R, i, f.k, h, f.l);
+        }
+        if (Object.keys(nul).length) {
+          spilStap.spil = [h, c];
+          stappen.push({ ops: nul, M: kopieer(M), kop: "Nullen maken in $K_{" + (c + 1) + "}$" });
+        }
       }
       st.spillen.push([h, c]);
       st.h++;
       st.c++;
-      vereenvoudig(st, stappen, kop);
     }
 
     function kloon(st) {
@@ -1021,9 +1095,28 @@
 
     // De herleiding van één geval, tot ze klaar is of tot de volgende spil
     // van de parameters afhangt. Dan volgen de gevallen.
+    // Een strijdig stelsel is af zodra het duidelijk is: een rij
+    // (0 ... 0 | c) met c niet nul, en onder de spilrijen niets meer in A.
+    // Dan liggen ook de rangen vast: r(A) is het aantal spillen, r(A_b) één
+    // meer. Geeft de rij van die rij, of -1.
+    function strijdigeRij(st) {
+      var rij = -1;
+      for (var i = st.h; i < m; i++) {
+        var r = st.M[i];
+        for (var j = 0; j < n; j++) if (!R.isNul(r[j])) return -1;
+        if (rij < 0 && nietNul(r[n], st)) rij = i;
+      }
+      return rij;
+    }
+
     function verwerk(st, stappen) {
       var knoop = { stappen: stappen, voorwaarden: st.voorwaarden, gevallen: null, besluit: null };
       while (st.c <= n && st.h < m) {
+        var strijdig = strijdigeRij(st);
+        if (strijdig >= 0) {
+          knoop.strijdig = strijdig;
+          break;
+        }
         var keuze = kiesSpil(st);
         if (!keuze) { st.c++; continue; }
         if (keuze.zeker) { ronde(st, stappen, keuze.rij); continue; }
@@ -1031,7 +1124,7 @@
         knoop.M = kopieer(st.M);
         return knoop;
       }
-      spillenEen(st, stappen);
+      if (knoop.strijdig === undefined) spillenEen(st, stappen);
       knoop.M = kopieer(st.M);
       knoop.spillen = st.spillen;
       knoop.nz = st.nz;
@@ -1079,15 +1172,11 @@
       }
       return gevallen.map(function (g) {
         var stappen = [];
-        if (g.ingevuld) {
-          stappen.push({ ops: {}, M: kopieer(g.M), ingevuld: true });
-          vereenvoudig(g, stappen, null);
-        } else {
-          // Nu de spil niet nul is, mag er ook door haar factoren gedeeld
-          // worden: R_3/(m-1).
-          stappen.push({ ops: {}, M: kopieer(g.M), verborgen: true });
-          vereenvoudig(g, stappen, null);
-        }
+        // Nu de spil niet nul is, mag de volgende ronde ook door haar
+        // factoren delen: R_3/(m-1). Na het invullen vereenvoudigt de
+        // volgende ronde enkel als er nog nullen te maken zijn.
+        if (g.ingevuld) stappen.push({ ops: {}, M: kopieer(g.M), ingevuld: true });
+        else stappen.push({ ops: {}, M: kopieer(g.M), verborgen: true });
         return verwerk(g, stappen);
       });
     }
@@ -1103,13 +1192,23 @@
         M[s[0]] = M[s[0]].map(function (x) { return R.deel(x, p); });
         ops[s[0]] = deelTex(R, s[0], p);
       });
-      if (Object.keys(ops).length) stappen.push({ ops: ops, M: kopieer(M), kop: "Spillen $1$ maken" });
+      var aantal = Object.keys(ops).length;
+      if (aantal) stappen.push({ ops: ops, M: kopieer(M), kop: aantal === 1 ? "Spil $1$ maken" : "Spillen $1$ maken" });
     }
 
+    // Breuken in de invoer (0.5x + 1/3y = 1) werken we meteen weg; de rest
+    // vereenvoudigt elke ronde zelf.
     function start(M) {
       var st = { M: kopieer(M), h: 0, c: 0, spillen: [], nz: [], voorwaarden: [] };
       var stappen = [{ ops: {}, M: kopieer(M), begin: true }];
-      vereenvoudig(st, stappen, null);
+      var ops = {};
+      st.M = st.M.map(function (r, i) {
+        if (rijinhoud(r).n === 1n) return r;
+        var d = deler(r, st);
+        ops[i] = deelTex(R, i, d);
+        return deelRij(r, d);
+      });
+      if (Object.keys(ops).length) stappen.push({ ops: ops, M: kopieer(st.M), kop: "Breuken wegwerken" });
       return verwerk(st, stappen);
     }
 
@@ -1183,13 +1282,16 @@
     var spillen = knoop.spillen;
     var spilKolommen = spillen.map(function (s) { return s[1]; });
     var rA = spilKolommen.filter(function (c) { return c < n; }).length;
-    var rAb = spillen.length;
+    // Bij een strijdig stelsel stopt de herleiding bij de eerste rij
+    // (0 ... 0 | c): die telt mee voor r(A_b).
+    var rAb = spillen.length + (knoop.strijdig === undefined ? 0 : 1);
     var strijdig = rAb > rA;
 
-    // Het stelsel dat we uit de rij-canonieke matrix aflezen.
+    // Het stelsel dat we uit de herleide matrix aflezen.
     var vergelijkingen = M.map(function (r, i) {
       var t = linkerlidTex(R, r, namen, true) + "=" + R.ontbondenTex(r[n]);
-      if (strijdig && spillen.some(function (s) { return s[0] === i && s[1] === n; })) t += "\\quad\\lightning";
+      if (strijdig && (i === knoop.strijdig ||
+                       spillen.some(function (s) { return s[0] === i && s[1] === n; }))) t += "\\quad\\lightning";
       return t;
     });
     var afgelezen = "\\Rightarrow\\begin{cases}" + vergelijkingen.join("\\\\ ") + "\\end{cases}";
@@ -1401,10 +1503,39 @@
         }
         lijnen.push({ kop: kop, tex: tex });
       });
-      var uitk = { lijnen: lijnen };
-      if (!eerste) uitk.voorwaarden = voorwaardenTex(R, k.voorwaarden);
+      var uitk = { lijnen: lijnen, alle: k.voorwaarden };
+      if (!eerste) {
+        var laatsteV = k.voorwaarden[k.voorwaarden.length - 1];
+        if (laatsteV.soort === "is" && R.isCst(laatsteV.uitdr)) {
+          uitk.sleutel = { i: laatsteV.i, w: R.waarde(laatsteV.uitdr) };
+        }
+      }
       if (k.gevallen) {
-        uitk.gevallen = k.gevallen.map(function (g) { return maak(g, false, eigenMerk); });
+        var lijst = k.gevallen.map(function (g) { return maak(g, false, eigenMerk); });
+        // Zo eenvoudig mogelijk, zoals in de cursus: splitst het algemene
+        // geval opnieuw, dan komen die gevallen op hetzelfde niveau, met de
+        // stappen van het algemene geval vooraan (m != 0 en m != -1/3 naast
+        // m = -1/3 en m = 0, niet genest).
+        var alg = lijst[0];
+        if (alg.gevallen) {
+          var sub = alg.gevallen;
+          var eerst = sub[0];
+          eerst.lijnen = alg.lijnen.concat(eerst.lijnen);
+          lijst = [eerst].concat(sub.slice(1), lijst.slice(1));
+        }
+        // De bijzondere gevallen van dezelfde parameter op volgorde van de
+        // waarde: m = -1 voor m = 1.
+        var bijzonder = lijst.slice(1);
+        var zelfde = bijzonder.length > 1 && bijzonder.every(function (g) {
+          return g.sleutel && bijzonder[0].sleutel && g.sleutel.i === bijzonder[0].sleutel.i;
+        });
+        if (zelfde) bijzonder.sort(function (a, b) { return qvergelijk(a.sleutel.w, b.sleutel.w); });
+        uitk.gevallen = [lijst[0]].concat(bijzonder);
+        // Een geval noemt enkel wat er bij dit niveau bijkomt: onder a = -1
+        // staat b != 0, niet a = -1 en b != 0.
+        uitk.gevallen.forEach(function (g) {
+          g.voorwaarden = voorwaardenTex(R, g.alle.slice(k.voorwaarden.length));
+        });
       } else {
         uitk.besluit = besluit(R, k, namen, bezet);
         if (k.voorwaarden.length) {

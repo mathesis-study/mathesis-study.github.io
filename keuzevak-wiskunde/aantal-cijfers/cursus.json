@@ -1,0 +1,26 @@
+{
+ "titel": "Hoeveel cijfers heeft een gigantisch getal?",
+ "hoofdstuk": null,
+ "code": null,
+ "herhaling": false,
+ "vak": "Keuze",
+ "domein": "KeuzevakWiskunde5",
+ "domeinnaam": "Vijfde: Keuzevak wiskunde",
+ "url": "keuzevak-wiskunde/aantal-cijfers",
+ "secties": [
+  "Een gigantisch getal",
+  "Waar komt er een cijfer bij?",
+  "Welke macht van 10 is dit?",
+  "Een formule voor het aantal cijfers",
+  "Het monster \\(2^{1000}\\)",
+  "Omgekeerd denken",
+  "Samenvatting",
+  "Test jezelf"
+ ],
+ "leerplandoelen": [
+  "BV3_06.01"
+ ],
+ "interactief": false,
+ "python": false,
+ "oefeningen": true
+}

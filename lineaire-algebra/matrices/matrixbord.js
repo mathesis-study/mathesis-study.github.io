@@ -8,7 +8,9 @@
  * kan oplichten en de leerling ziet welke getallen bij elkaar horen.
  *
  * Dit bestand begon in L01_Matrices.interactief.js en verhuisde naar web/
- * toen L03_Determinanten hetzelfde werkblad nodig had. Een hoofdstukmodule
+ * toen L03_Determinanten hetzelfde werkblad nodig had. De hulpjes voor een
+ * HTML-laag met MathJax (zetter, haken, maat van de laag) kwamen uit
+ * L03_Determinanten toen ook L04_Stelsels ze gebruikte. Een hoofdstukmodule
  * vraagt het met de regel "mkpi: gebruikt matrixbord.js" in haar kop; mkpi
  * --site laadt het dan na de runtime en voor de hoofdstukmodules. Het zet
  * enkel window.Matrixbord en registreert zelf geen grafiek.
@@ -524,6 +526,181 @@
     return d;
   }
 
+  /* --- Bouwsteen: een HTML-laag met MathJax ------------------------------ */
+
+  // Een figuur die haar matrices als raster van echte knoppen tekent en haar
+  // formules met MathJax zet (L03_Determinanten, L04_Stelsels), legt een
+  // HTML-laag over een leeg bord. Deze hulpjes zetten de formules, de haken
+  // rond een raster en de maat van die laag.
+
+  // MathJax zet na elkaar: een snelle reeks klikken mag geen verouderde
+  // formule achterlaten. Alle zetters van een pagina delen daarom één
+  // wachtrij, want MathJax zet niet twee keer tegelijk. inWachtrij(f) zet f
+  // achteraan; een fout komt op de console en houdt de rij niet op.
+  var wachtrij = Promise.resolve();
+  function inWachtrij(f) {
+    wachtrij = wachtrij.then(f).catch(function (fout) { console.error(fout); });
+    return wachtrij;
+  }
+
+  // Een leesteken na een formule hoort bij die formule: zonder deze omhulling
+  // breekt de browser de regel soms vlak voor de dubbele punt.
+  function zonderBreuk(tekst) {
+    var html = String(tekst).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return html.replace(/(\\\((?:(?!\\\))[\s\S])*\\\))([.,:;?!)]+)/g,
+      '<span class="mb-heel">$1$2</span>');
+  }
+
+  // Een zetter vervangt de inhoud van elementen door tekst met \(...\).
+  // zet(paren) met paren een lijst van [element, tekst]. Een beurt die al
+  // ingehaald is, valt weg, en van de rest wordt enkel vervangen wat echt
+  // veranderde. Zonder MathJax staat er terugval(tekst) als gewone tekst,
+  // of anders de LaTeX zelf.
+  function maakZetter(terugval) {
+    laagStijl();
+    var generatie = 0;
+    return function (paren) {
+      var nummer = ++generatie;
+      return inWachtrij(function () {
+        if (nummer !== generatie) return;
+        var nieuw = paren.filter(function (p) { return p[0].mbBron !== p[1]; });
+        if (!nieuw.length) return;
+        var MJ = window.MathJax;
+        if (!MJ || !MJ.typesetPromise) {
+          nieuw.forEach(function (p) {
+            p[0].mbBron = p[1];
+            if (terugval) p[0].textContent = terugval(p[1]);
+            else p[0].innerHTML = zonderBreuk(p[1]);
+          });
+          return;
+        }
+        // Eerst onzichtbaar zetten, in een kopie naast het doel met dezelfde
+        // opmaak, en pas dan de inhoud wisselen: anders staat de ruwe LaTeX
+        // een ogenblik in beeld en verspringt alles eromheen.
+        var kopieen = nieuw.map(function (p) {
+          var k = p[0].cloneNode(false);
+          k.removeAttribute("id");
+          k.setAttribute("aria-hidden", "true");
+          k.style.position = "absolute";
+          k.style.visibility = "hidden";
+          k.style.left = "0";
+          k.style.top = "0";
+          k.innerHTML = zonderBreuk(p[1]);
+          p[0].parentNode.appendChild(k);
+          return k;
+        });
+        return MJ.typesetPromise(kopieen).then(function () {
+          if (MJ.typesetClear) MJ.typesetClear(nieuw.map(function (p) { return p[0]; }));
+          nieuw.forEach(function (p, n) {
+            p[0].mbBron = p[1];
+            p[0].textContent = "";
+            while (kopieen[n].firstChild) p[0].appendChild(kopieen[n].firstChild);
+            kopieen[n].remove();
+          });
+        }, function (fout) {
+          kopieen.forEach(function (k) { k.remove(); });
+          throw fout;
+        });
+      });
+    };
+  }
+
+  // Meet de volledige HTML-laag, ook na het zetten van MathJax, en verklein
+  // ze enkel als ze niet in de figuur past: zo blijft alles zichtbaar zonder
+  // een tweede scrollvlak. De laag staat absoluut linksboven in ctx.element,
+  // met transform-origin linksboven. Een verkleinde laag dekt het bord niet
+  // meer helemaal: geef ze dus geen eigen achtergrond, of het stuk bord
+  // ernaast valt op (--grafiek-vlak is half doorzichtig en stapelt).
+  function pasLaagAan(ctx, laag) {
+    var gepland = false;
+    function pas() {
+      gepland = false;
+      var w = ctx.element.clientWidth, h = ctx.element.clientHeight;
+      if (!w || !h) return;
+      laag.style.width = w + "px";
+      laag.style.minHeight = h + "px";
+      var breedte = Math.max(w, laag.scrollWidth);
+      var hoogte = Math.max(h, laag.scrollHeight);
+      var schaal = Math.min(1, w / breedte, h / hoogte);
+      laag.style.transform = "translateX(" + ((w - breedte * schaal) / 2) +
+        "px) scale(" + schaal + ")";
+    }
+    function plan() {
+      if (gepland) return;
+      gepland = true;
+      window.requestAnimationFrame(pas);
+    }
+    if (window.ResizeObserver) {
+      var meter = new window.ResizeObserver(plan);
+      meter.observe(ctx.element);
+      meter.observe(laag);
+    }
+    new window.MutationObserver(plan).observe(laag, { childList: true, subtree: true });
+    plan();
+  }
+
+  // Haken rond een raster van vakjes, gezet door MathJax zoals in een
+  // pmatrix of vmatrix: \left( en \right) rond een onzichtbare staaf zo hoog
+  // als het raster. Verandert het raster van hoogte (een andere orde, Groot,
+  // een smaller scherm), dan worden de haken opnieuw gezet. soort is
+  // "haken", "strepen" of "geen". De grootte volgt de lettergrootte van
+  // .mb-haak (standaard 1.5rem).
+  function maakHaken(raster, soort) {
+    laagStijl();
+    var omhulsel = document.createElement("div");
+    omhulsel.className = "mb-haken";
+    if (soort === "geen") {
+      omhulsel.appendChild(raster);
+      return omhulsel;
+    }
+    var links = document.createElement("div"), rechts = document.createElement("div");
+    links.className = rechts.className = "mb-haak";
+    omhulsel.appendChild(links);
+    omhulsel.appendChild(raster);
+    omhulsel.appendChild(rechts);
+    var teken = soort === "strepen" ? ["|", "|"] : ["(", ")"];
+    var zet = maakZetter();
+    var hoogte = 0;
+    function pas() {
+      var h = raster.getBoundingClientRect().height;
+      if (!h || Math.abs(h - hoogte) < 1) return;
+      hoogte = h;
+      // De staaf staat symmetrisch rond de as van de formule (0.25em), zodat
+      // de haak rond het midden van het raster komt.
+      var half = h / parseFloat(window.getComputedStyle(links).fontSize) / 2;
+      var staaf = "\\Rule{0em}{" + (half + 0.25).toFixed(2) + "em}{" +
+        (half - 0.25).toFixed(2) + "em}";
+      zet([[links, "\\(\\left" + teken[0] + staaf + "\\right.\\)"],
+           [rechts, "\\(\\left." + staaf + "\\right" + teken[1] + "\\)"]]).then(function () {
+        // MathJax rekent met zijn eigen ex; de laatste kleine afwijking
+        // vangt de hoogte van de SVG op.
+        [links, rechts].forEach(function (haak) {
+          var svg = haak.querySelector("svg");
+          if (!svg) return;
+          svg.style.height = hoogte + "px";
+          svg.style.width = "auto";
+          svg.style.verticalAlign = "top";
+        });
+      });
+    }
+    if (window.ResizeObserver) new window.ResizeObserver(pas).observe(raster);
+    else window.requestAnimationFrame(pas);
+    return omhulsel;
+  }
+
+  // De opmaak van de haken en van een formule met haar leesteken.
+  function laagStijl() {
+    if (document.getElementById("mb-laagstijl")) return;
+    var stijl = document.createElement("style");
+    stijl.id = "mb-laagstijl";
+    stijl.textContent =
+      ".mb-haken { display:flex; align-items:center; flex-shrink:0; }" +
+      ".mb-haak { font-size:1.5rem; line-height:0; display:flex; align-items:center; }" +
+      ".mb-haak mjx-container { display:block !important; margin:0 !important; }" +
+      ".mb-heel { white-space:nowrap; }";
+    document.head.appendChild(stijl);
+  }
+
   window.Matrixbord = {
     ONDER: ONDER,
     BOVEN: BOVEN,
@@ -551,6 +728,11 @@
     klikPunt: klikPunt,
     assenMet: assenMet,
     matrixBord: matrixBord,
-    maakDrieluik: maakDrieluik
+    maakDrieluik: maakDrieluik,
+    inWachtrij: inWachtrij,
+    zonderBreuk: zonderBreuk,
+    maakZetter: maakZetter,
+    pasLaagAan: pasLaagAan,
+    maakHaken: maakHaken
   };
 }(window));

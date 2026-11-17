@@ -31,6 +31,10 @@
   var net = M.net;
   var haakjes = M.haakjes;
   var matrixBord = M.matrixBord;
+  var inWachtrij = M.inWachtrij;
+  var maakZetter = M.maakZetter;
+  var pasLaagAan = M.pasLaagAan;
+  var maakHaken = M.maakHaken;
 
   /* --- Kleine hulpjes ---------------------------------------------------- */
 
@@ -198,67 +202,9 @@
 
   /* --- HTML-matrices en formules ----------------------------------------- */
 
-  // MathJax zet na elkaar: een snelle reeks klikken mag geen verouderde
-  // formule achterlaten. Een beurt die al ingehaald is, valt weg, en van de
-  // rest wordt enkel vervangen wat echt veranderde. paren is een lijst van
-  // [element, tekst]; de tekst mag \(...\) bevatten. Alle zetters van dit
-  // bestand delen één wachtrij, want MathJax zet niet twee keer tegelijk.
-  var wachtrij = Promise.resolve();
-  function maakZetter() {
-    var generatie = 0;
-    return function (paren) {
-      var nummer = ++generatie;
-      wachtrij = wachtrij.then(function () {
-        if (nummer !== generatie) return;
-        var nieuw = paren.filter(function (p) { return p[0].detBron !== p[1]; });
-        if (!nieuw.length) return;
-        var MJ = window.MathJax;
-        if (!MJ || !MJ.typesetPromise) {
-          nieuw.forEach(function (p) {
-            p[0].detBron = p[1];
-            p[0].innerHTML = zonderBreuk(p[1]);
-          });
-          return;
-        }
-        // Eerst onzichtbaar zetten, in een kopie naast het doel met dezelfde
-        // opmaak, en pas dan de inhoud wisselen: anders staat de ruwe LaTeX
-        // een ogenblik in beeld en verspringt alles eromheen.
-        var kopieen = nieuw.map(function (p) {
-          var k = p[0].cloneNode(false);
-          k.removeAttribute("id");
-          k.setAttribute("aria-hidden", "true");
-          k.style.position = "absolute";
-          k.style.visibility = "hidden";
-          k.style.left = "0";
-          k.style.top = "0";
-          k.innerHTML = zonderBreuk(p[1]);
-          p[0].parentNode.appendChild(k);
-          return k;
-        });
-        return MJ.typesetPromise(kopieen).then(function () {
-          if (MJ.typesetClear) MJ.typesetClear(nieuw.map(function (p) { return p[0]; }));
-          nieuw.forEach(function (p, n) {
-            p[0].detBron = p[1];
-            p[0].textContent = "";
-            while (kopieen[n].firstChild) p[0].appendChild(kopieen[n].firstChild);
-            kopieen[n].remove();
-          });
-        }, function (fout) {
-          kopieen.forEach(function (k) { k.remove(); });
-          throw fout;
-        });
-      }).catch(function (fout) { console.error(fout); });
-      return wachtrij;
-    };
-  }
-
-  // Een leesteken na een formule hoort bij die formule: zonder deze omhulling
-  // breekt de browser de regel soms vlak voor de dubbele punt.
-  function zonderBreuk(tekst) {
-    var html = String(tekst).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    return html.replace(/(\\\((?:(?!\\\))[\s\S])*\\\))([.,:;?!)]+)/g,
-      '<span class="det-heel">$1$2</span>');
-  }
+  // Het zetten met MathJax (één wachtrij voor de hele pagina), de haken rond
+  // een raster en de maat van de laag komen uit web/matrixbord.js, samen
+  // met L04_Stelsels.
 
   function div(klasse) {
     var d = document.createElement("div");
@@ -275,82 +221,6 @@
     ctx.element.appendChild(laag);
     pasLaagAan(ctx, laag);
     return laag;
-  }
-
-  // Meet de volledige HTML-uitwerking, ook na het zetten van MathJax.
-  // Verklein alleen als ze niet past; zo blijft alles zichtbaar zonder een
-  // tweede scrollvlak binnen de interactieve figuur.
-  function pasLaagAan(ctx, laag) {
-    var gepland = false;
-    function pas() {
-      gepland = false;
-      var w = ctx.element.clientWidth, h = ctx.element.clientHeight;
-      if (!w || !h) return;
-      laag.style.width = w + "px";
-      laag.style.minHeight = h + "px";
-      var breedte = Math.max(w, laag.scrollWidth);
-      var hoogte = Math.max(h, laag.scrollHeight);
-      var schaal = Math.min(1, w / breedte, h / hoogte);
-      laag.style.transform = "translateX(" + ((w - breedte * schaal) / 2) +
-        "px) scale(" + schaal + ")";
-    }
-    function plan() {
-      if (gepland) return;
-      gepland = true;
-      requestAnimationFrame(pas);
-    }
-    if (window.ResizeObserver) {
-      var meter = new ResizeObserver(plan);
-      meter.observe(ctx.element);
-      meter.observe(laag);
-    }
-    new MutationObserver(plan).observe(laag, { childList: true, subtree: true });
-    plan();
-  }
-
-  // Haken rond een raster van vakjes, gezet door MathJax zoals in een
-  // pmatrix of vmatrix: \left( en \right) rond een onzichtbare staaf zo hoog
-  // als het raster. Verandert het raster van hoogte (een andere orde, Groot,
-  // een smaller scherm), dan worden de haken opnieuw gezet. soort is
-  // "haken", "strepen" of "geen".
-  function maakHaken(raster, soort) {
-    var omhulsel = div("det-haken");
-    if (soort === "geen") {
-      omhulsel.appendChild(raster);
-      return omhulsel;
-    }
-    var links = div("det-haak"), rechts = div("det-haak");
-    omhulsel.appendChild(links);
-    omhulsel.appendChild(raster);
-    omhulsel.appendChild(rechts);
-    var teken = soort === "strepen" ? ["|", "|"] : ["(", ")"];
-    var zet = maakZetter();
-    var hoogte = 0;
-    function pas() {
-      var h = raster.getBoundingClientRect().height;
-      if (!h || Math.abs(h - hoogte) < 1) return;
-      hoogte = h;
-      // De staaf staat symmetrisch rond de as van de formule (0.25em), zodat
-      // de haak rond het midden van het raster komt.
-      var half = h / parseFloat(window.getComputedStyle(links).fontSize) / 2;
-      var staaf = "\\Rule{0em}{" + (half + 0.25).toFixed(2) + "em}{" +
-        (half - 0.25).toFixed(2) + "em}";
-      zet([[links, "\\(\\left" + teken[0] + staaf + "\\right.\\)"],
-           [rechts, "\\(\\left." + staaf + "\\right" + teken[1] + "\\)"]]).then(function () {
-        // MathJax rekent met zijn eigen ex; de laatste kleine afwijking
-        // vangt de hoogte van de SVG op.
-        [links, rechts].forEach(function (haak) {
-          var svg = haak.querySelector("svg");
-          if (!svg) return;
-          svg.style.height = hoogte + "px";
-          svg.style.width = "auto";
-          svg.style.verticalAlign = "top";
-        });
-      });
-    }
-    if (window.ResizeObserver) new window.ResizeObserver(pas).observe(raster);
-    else window.requestAnimationFrame(pas);
-    return omhulsel;
   }
 
   // Een matrix als raster van echte knoppen tussen haken, tussen strepen
@@ -793,7 +663,7 @@
           box-sizing:border-box; transform-origin:top left;
           align-items:center; justify-content:safe center;
           gap:2rem 4.25rem; padding:2rem 1rem; overflow:visible;
-          color:var(--grafiek-tekst); background:var(--grafiek-vlak); }
+          color:var(--grafiek-tekst); }
         .det-tekenpatroon.det-onder { flex-direction:column;
           justify-content:safe center; gap:1.25rem; padding:1.25rem 1rem; }
         .det-matrixnaam { flex-shrink:0; }
@@ -808,9 +678,6 @@
         .det-tekenmatrix { --det-cel:3rem; display:grid;
           grid-template-columns:repeat(3,var(--det-cel)); gap:.35rem; padding:.4rem .15rem;
           flex-shrink:0; }
-        .det-haken { display:flex; align-items:center; flex-shrink:0; }
-        .det-haak { font-size:1.5rem; line-height:0; display:flex; align-items:center; }
-        .det-haak mjx-container { display:block !important; margin:0 !important; }
         .det-tekenmatrix.det-klein { --det-cel:2.6rem; }
         .det-tekenmatrix button, .det-tekenmatrix .det-vak { font:inherit; font-size:2rem;
           width:var(--det-cel); height:var(--det-cel); padding:0; color:inherit;
@@ -863,7 +730,6 @@
         .det-tekst p:empty { display:none; }
         .det-onder > .det-tekst { text-align:center; }
         .det-tekst .det-zwak, .det-cofactorstappen .det-zwak { color:var(--grafiek-zwak); }
-        .det-heel { white-space:nowrap; }
         /* De verborgen MathML voor schermlezers is even breed als de formule
            en zou de laag anders horizontaal laten schuiven. */
         .det-tekenpatroon mjx-assistive-mml, .det-paneel mjx-assistive-mml {
@@ -947,7 +813,7 @@
         "&=" + (teken(i,j) > 0 ? "+" : "-") + m
       ];
       // Serialiseer MathJax en sla achterhaalde klikken over.
-      wachtrij = wachtrij.then(function () {
+      inWachtrij(function () {
         if (nummer !== generatie) return;
         window.MathJax.typesetClear([formule]);
         // Inline met \displaystyle: een display-formule laat presentatie.js
@@ -955,7 +821,7 @@
         formule.textContent = "\\(\\displaystyle\\begin{aligned}" + regels.join("\\\\[0.35em]") +
           "\\end{aligned}\\)";
         return window.MathJax.typesetPromise([formule]);
-      }).catch(function (fout) { console.error(fout); });
+      });
       ctx.toon("Rij i = " + i + ", kolom j = " + j + ": i + j = " + (i+j) +
         ((i+j)%2 === 0 ? " is even." : " is oneven."));
     }
@@ -1043,13 +909,13 @@
       }
       var nummer = ++generatie;
       // Serialiseer MathJax en sla achterhaalde klikken over.
-      wachtrij = wachtrij.then(function () {
+      inWachtrij(function () {
         if (nummer !== generatie) return;
         window.MathJax.typesetClear([formule, matrix]);
         formule.textContent = "\\(\\displaystyle\\begin{aligned}" + regels.join("\\\\[0.35em]") +
           "\\end{aligned}\\)";
         return window.MathJax.typesetPromise([formule, matrix]);
-      }).catch(function (fout) { console.error(fout); });
+      });
       ctx.toon("Schrap rij " + i + " en kolom " + j + ": de minor " + minorNaam(i, j) +
         (letters ? " blijft over." : " is " + det(m) + "."));
     }
@@ -1067,9 +933,9 @@
       weergave.stand(false);
       werkBij();
     }
-    wachtrij = wachtrij.then(function () {
+    inWachtrij(function () {
       return window.MathJax.typesetPromise([naam]);
-    }).catch(function (fout) { console.error(fout); });
+    });
     werkBij();
     return { reset: herstel };
   });
