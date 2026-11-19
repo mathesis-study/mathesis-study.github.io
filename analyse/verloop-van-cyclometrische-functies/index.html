@@ -1,0 +1,3464 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8" />
+<meta name="generator" content="LaTeX Lwarp package" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Verloop van cyclometrische functies</title>
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=8993bff2ad6e" />
+
+<script>
+// Lwarp MathJax emulation code
+//
+// Based on code by Davide P. Cervone.
+// Equation numbering: https://github.com/mathjax/MathJax/issues/2427
+// Starred and ifnextchar macros: https://github.com/mathjax/MathJax/issues/2428
+// \left, \right delimiters: https://github.com/mathjax/MathJax/issues/2535
+//
+// Modified by Brian Dunn to adjust equation numbering and add subequations.
+//
+// LaTeX can use \seteqnumber{subequations?}{section}{number} before each equation.
+// subequations? is 0 usually, 1 if inside subequations.
+// section is a string printed as-is, or empty.
+// number is auto-incremented by MathJax between equations.
+//
+
+// Further improved by Pieter Pareit, who turned the lwarp output into an
+// interactive course (see presentatie.js and the other files in web/):
+//
+//  * every \section, \subsection and \subsubsection becomes a slide, with
+//    keyboard, swipe and progress-bar navigation and a searchable contents;
+//  * read it short (one slide at a time), long (one section at a time) or
+//    full (the whole chapter on one page);
+//  * answers and hints stay hidden until you ask for them; the arrow keys
+//    (or a presenter remote) reveal them one step at a time, together with
+//    the steps of animated figures;
+//  * you choose how answers wait: compact, as empty frames or all open; in
+//    compact an exercise first shows its short answer, and the full working
+//    only on a second click;
+//  * a series of exercises can be paged through one at a time and comes
+//    with a PDF to print; extra proofs and the instructions per tool (TI-84
+//    or Python) stay folded away until you open them;
+//  * every Asymptote figure is a WebGL scene you can turn, zoom and reset;
+//    figures whose drawing depends on the camera are shipped as SVG instead;
+//  * a figure with a parameter gets a slider, a figure with several cases
+//    switches between them without losing the camera, and in the large view
+//    you walk from figure to figure through the whole chapter;
+//  * interactive graphs (JSXGraph) where you drag points and watch the
+//    mathematics move, and sketch exercises that tell you what is wrong
+//    with your graph;
+//  * matrices you can click: pick an entry, a row or a diagonal and the
+//    matching term of the formula lights up, and the other way round;
+//  * Python runs in the page (Pyodide, with NumPy): exercises with checks
+//    and hints, code you can step through instruction by instruction or,
+//    for a loop, line by line with its variables in view, trace exercises
+//    that fill a table of the variables as you step, and code that drives
+//    an interactive graph; each Python section also comes as a notebook;
+//  * the instructions for a graphing calculator play step by step on a
+//    working TI-84 beside the text, which you can also press yourself (the
+//    calculator is ti84-calculator by WhitDeckard09, with an embed mode
+//    added for this site);
+//  * a matrix calculator, a calculator for systems of linear equations that
+//    row-reduces step by step and discusses parameters case by case, and a
+//    function calculator whose CAS derives step by step, all in the
+//    notation of the course;
+//  * MathJax is extended where the course needs it, so the page shows what
+//    the PDF shows: foreach loops, matrices with row and column headings,
+//    braces across rows, partial rules in tables, highlighted cells and
+//    terms, the end-of-proof square at the right margin and references
+//    inside a formula; accented letters are real characters, so searching
+//    and copying text works;
+//  * formulas are typeset slide by slide, so a long chapter opens quickly;
+//  * a light and a dark theme, plus a presentation mode with larger type for
+//    use in front of a class;
+//  * the layout follows the screen, from a 320 px phone up to a projector;
+//  * the site has its own icon and can be installed as an app;
+//  * nothing comes from a CDN: MathJax, Pyodide and every figure are served
+//    from this site, so it works offline as well; the one request that may
+//    leave it is an optional visit count per chapter, without cookies or
+//    personal data.
+//
+
+MathJax = {
+     options: { enableMenu: false },
+     subequations: "0",
+     section: "",
+     loader: {
+          load: ['[tex]/tagformat', '[tex]/textmacros'],
+     },
+     startup: {
+          ready() {
+              //       These would be replaced by import commands if you wanted to make
+              //       a proper extension.
+              const Configuration = MathJax._.input.tex.Configuration.Configuration;
+              const CommandMap = MathJax._.input.tex.SymbolMap.CommandMap;
+              const Macro = MathJax._.input.tex.Symbol.Macro;
+              const TexError = MathJax._.input.tex.TexError.default;
+              const ParseUtil = MathJax._.input.tex.ParseUtil.default;
+              const expandable = MathJax._.util.Options.expandable;
+
+
+              //       Insert the replacement string into the TeX string, and check
+              //       that there haven't been too many maxro substitutions (prevents
+              //       infinite loops).
+              const useArgument = (parser, text) => {
+                   parser.string = ParseUtil.addArgs(parser, text, parser.string.slice(parser.i));
+                   parser.i = 0;
+                   if (++parser.macroCount > parser.configuration.options.maxMacros) {
+                        throw new TexError('MaxMacroSub1',
+                        'MathJax maximum macro substitution count exceeded; ' +
+                        'is there a recursive macro call?');
+                   }
+              }
+
+
+              //       Create the command map for:
+              //            \ifstar, \ifnextchar, \ifblank, \ifstrequal, \gsub, \seteqnumber
+              new CommandMap('Lwarp-macros', {
+                   ifstar: 'IfstarFunction',
+                   ifnextchar: 'IfnextcharFunction',
+                   ifblank: 'IfblankFunction',
+                   ifstrequal: 'IfstrequalFunction',
+                   gsubstitute: 'GsubstituteFunction',
+                   seteqnumber: 'SeteqnumberFunction'
+              }, {
+                   //       This function implements an ifstar macro.
+                   IfstarFunction(parser, name) {
+                        const resultstar = parser.GetArgument(name);
+                        const resultnostar = parser.GetArgument(name);
+                        const star = parser.GetStar();                        // true if there is a *
+                        useArgument(parser, star ? resultstar : resultnostar);
+                   },
+
+
+                   //       This function implements an ifnextchar macro.
+                   IfnextcharFunction(parser, name) {
+                        let whichchar = parser.GetArgument(name);
+                        if (whichchar.match(/^(?:0x[0-9A-F]+|[0-9]+)$/i)) {
+                            // $ syntax highlighting
+                            whichchar = String.fromCodePoint(parseInt(whichchar));
+                        }
+                        const resultnextchar = parser.GetArgument(name);
+                        const resultnotnextchar = parser.GetArgument(name);
+                        const gotchar = (parser.GetNext() === whichchar);
+                        useArgument(parser, gotchar ? resultnextchar : resultnotnextchar);
+                   },
+
+
+                   // This function implements an ifblank macro.
+                   IfblankFunction(parser, name) {
+                        const blankarg = parser.GetArgument(name);
+                        const resultblank = parser.GetArgument(name);
+                        const resultnotblank = parser.GetArgument(name);
+                        const isblank = (blankarg.trim() == "");
+                        useArgument(parser, isblank ? resultblank : resultnotblank);
+                   },
+
+
+                   // This function implements an ifstrequal macro.
+                   IfstrequalFunction(parser, name) {
+                        const strequalfirst = parser.GetArgument(name);
+                        const strequalsecond = parser.GetArgument(name);
+                        const resultequal = parser.GetArgument(name);
+                        const resultnotequal = parser.GetArgument(name);
+                        const isequal = (strequalfirst == strequalsecond);
+                        useArgument(parser, isequal ? resultequal : resultnotequal);
+                   },
+
+
+                   // This function implements a gsub macro.
+                   GsubstituteFunction(parser, name) {
+                        const gsubfirst = parser.GetArgument(name);
+                        const gsubsecond = parser.GetArgument(name);
+                        const gsubthird = parser.GetArgument(name);
+                        let gsubresult=gsubfirst.replace(gsubsecond, gsubthird);
+                        useArgument(parser, gsubresult);
+                   },
+
+
+                   //       This function modifies the equation numbers.
+                   SeteqnumberFunction(parser, name) {
+                            //   Get the macro parameters
+                            const star = parser.GetStar();                      // true if there is a *
+                            const optBrackets = parser.GetBrackets(name);        // contents of optional brackets
+                            const newsubequations = parser.GetArgument(name);      // the subequations argument
+                            const neweqsection = parser.GetArgument(name);      // the eq section argument
+                            const neweqnumber = parser.GetArgument(name);        // the eq number argument
+                            MathJax.config.subequations=newsubequations ;       // a string with boolean meaning
+                            MathJax.config.section=neweqsection ;               // a string with numeric meaning
+                            parser.tags.counter = parser.tags.allCounter = neweqnumber ;
+                   }
+
+
+              });
+
+
+              //       Create the Lwarp-macros package
+              Configuration.create('Lwarp-macros', {
+                   handler: {macro: ['Lwarp-macros']}
+              });
+
+
+              MathJax.startup.defaultReady();
+
+
+              // For forward references:
+              MathJax.startup.input[0].preFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            MathJax.config.subequations = math.inputData.recompile.subequations;
+                            MathJax.config.section = math.inputData.recompile.section;
+                   }
+              });
+              MathJax.startup.input[0].postFilters.add(({math}) => {
+                   if (math.inputData.recompile){
+                            math.inputData.recompile.subequations = MathJax.config.subequations;
+                            math.inputData.recompile.section = MathJax.config.section;
+                   }
+              });
+
+
+                   // For \left, \right with unicode-math:
+                   const {DelimiterMap} = MathJax._.input.tex.SymbolMap;
+                   const {Symbol} = MathJax._.input.tex.Symbol;
+                   const {MapHandler} = MathJax._.input.tex.MapHandler;
+                   const delimiter = MapHandler.getMap('delimiter');
+                   delimiter.add('\\lBrack', new Symbol('\\lBrack', '\u27E6'));
+                   delimiter.add('\\rBrack', new Symbol('\\rBrack', '\u27E7'));
+                   delimiter.add('\\lAngle', new Symbol('\\lAngle', '\u27EA'));
+                   delimiter.add('\\rAngle', new Symbol('\\rAngle', '\u27EB'));
+                   delimiter.add('\\lbrbrak', new Symbol('\\lbrbrak', '\u2772'));
+                   delimiter.add('\\rbrbrak', new Symbol('\\rbrbrak', '\u2773'));
+                   delimiter.add('\\lbag', new Symbol('\\lbag', '\u27C5'));
+                   delimiter.add('\\rbag', new Symbol('\\rbag', '\u27C6'));
+                   delimiter.add('\\llparenthesis', new Symbol('\\llparenthesis', '\u2987'));
+                   delimiter.add('\\rrparenthesis', new Symbol('\\rrparenthesis', '\u2988'));
+                   delimiter.add('\\llangle', new Symbol('\\llangle', '\u2989'));
+                   delimiter.add('\\rrangle', new Symbol('\\rrangle', '\u298A'));
+                   delimiter.add('\\Lbrbrak', new Symbol('\\Lbrbrak', '\u27EC'));
+                   delimiter.add('\\Rbrbrak', new Symbol('\\Rbrbrak', '\u27ED'));
+                   delimiter.add('\\lBrace', new Symbol('\\lBrace', '\u2983'));
+                   delimiter.add('\\rBrace', new Symbol('\\rBrace', '\u2984'));
+                   delimiter.add('\\lParen', new Symbol('\\lParen', '\u2985'));
+                   delimiter.add('\\rParen', new Symbol('\\rParen', '\u2986'));
+                   delimiter.add('\\lbrackubar', new Symbol('\\lbrackubar', '\u298B'));
+                   delimiter.add('\\rbrackubar', new Symbol('\\rbrackubar', '\u298C'));
+                   delimiter.add('\\lbrackultick', new Symbol('\\lbrackultick', '\u298D'));
+                   delimiter.add('\\rbracklrtick', new Symbol('\\rbracklrtick', '\u298E'));
+                   delimiter.add('\\lbracklltick', new Symbol('\\lbracklltick', '\u298F'));
+                   delimiter.add('\\rbrackurtick', new Symbol('\\rbrackurtick', '\u2990'));
+                   delimiter.add('\\langledot', new Symbol('\\langledot', '\u2991'));
+                   delimiter.add('\\rangledot', new Symbol('\\rangledot', '\u2992'));
+                   delimiter.add('\\lparenless', new Symbol('\\lparenless', '\u2993'));
+                   delimiter.add('\\rparengtr', new Symbol('\\rparengtr', '\u2994'));
+                   delimiter.add('\\Lparengtr', new Symbol('\\Lparengtr', '\u2995'));
+                   delimiter.add('\\Rparenless', new Symbol('\\Rparenless', '\u2996'));
+                   delimiter.add('\\lblkbrbrak', new Symbol('\\lblkbrbrak', '\u2997'));
+                   delimiter.add('\\rblkbrbrak', new Symbol('\\rblkbrbrak', '\u2998'));
+                   delimiter.add('\\lvzigzag', new Symbol('\\lvzigzag', '\u29D8'));
+                   delimiter.add('\\rvzigzag', new Symbol('\\rvzigzag', '\u29D9'));
+                   delimiter.add('\\Lvzigzag', new Symbol('\\Lvzigzag', '\u29DA'));
+                   delimiter.add('\\Rvzigzag', new Symbol('\\Rvzigzag', '\u29DB'));
+                   delimiter.add('\\lcurvyangle', new Symbol('\\lcurvyangle', '\u29FC'));
+                   delimiter.add('\\rcurvyangle', new Symbol('\\rcurvyangle', '\u29FD'));
+                   delimiter.add('\\Vvert', new Symbol('\\Vvert', '\u2980'));
+          }       // ready
+     },            // startup
+
+
+     tex: {
+          packages: {'[+]': ['tagformat', 'Lwarp-macros', 'textmacros']},
+          tags: "ams",
+                   tagformat: {
+                            number: function (n) {
+                                 if(MathJax.config.subequations==0)
+                                        return(MathJax.config.section + n);
+                                 else
+                                        return(MathJax.config.section + String.fromCharCode(96+n));
+                            },
+                   },
+     }
+}
+</script>
+
+
+<script src="mathjax-accenten.js?v=8993bff2ad6e"></script>
+<script
+          id="MathJax-script"
+          src="tex-svg-full.js?v=8993bff2ad6e"
+></script>
+
+<meta name="mathesis-hoofdpagina" content="/" />
+<link rel="icon" href="mathesis-icoon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#182029" media="(prefers-color-scheme: dark)">
+<link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
+<meta name="mathesis-manifest" content="/manifest.webmanifest">
+<meta name="mathesis-statistieken" content="mathesis" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=8993bff2ad6e" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=8993bff2ad6e" />
+<link rel="stylesheet" href="grm-demo.css?v=8993bff2ad6e" />
+<link rel="stylesheet" href="functierekenmachine.css?v=8993bff2ad6e" />
+</head>
+<body>
+
+
+<div class="homepagegrid">
+
+
+<main class="bodycontainer">
+
+
+<section class="textbody">
+
+<a id="mkpiweb-autofile-0"></a>
+
+<!--MathJax customizations:-->
+<div data-nosnippet
+    style="display:none"
+>
+
+\(\newcommand{\footnotename}{footnote}\)
+
+\(\def \LWRfootnote {1}\)
+
+\(\newcommand {\footnote }[2][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\newcommand {\footnotemark }[1][\LWRfootnote ]{{}^{\mathrm {#1}}}\)
+
+\(\let \LWRorighspace \hspace \)
+
+\(\renewcommand {\hspace }{\ifstar \LWRorighspace \LWRorighspace }\)
+
+\(\newcommand {\TextOrMath }[2]{#2}\)
+
+\(\newcommand {\mathnormal }[1]{{#1}}\)
+
+\(\newcommand \ensuremath [1]{#1}\)
+
+\(\newcommand {\LWRframebox }[2][]{\fbox {#2}} \newcommand {\framebox }[1][]{\LWRframebox } \)
+
+\(\newcommand {\setlength }[2]{}\)
+
+\(\newcommand {\addtolength }[2]{}\)
+
+\(\newcommand {\setcounter }[2]{}\)
+
+\(\newcommand {\addtocounter }[2]{}\)
+
+\(\newcommand {\arabic }[1]{}\)
+
+\(\newcommand {\number }[1]{}\)
+
+\(\newcommand {\noalign }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\cline }[1]{}\)
+
+\(\newcommand {\directlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\luatexdirectlua }[1]{\text {(directlua)}}\)
+
+\(\newcommand {\protect }{}\)
+
+\(\def \LWRabsorbnumber #1 {}\)
+
+\(\def \LWRabsorbquotenumber &quot;#1 {}\)
+
+\(\newcommand {\LWRabsorboption }[1][]{}\)
+
+\(\newcommand {\LWRabsorbtwooptions }[1][]{\LWRabsorboption }\)
+
+\(\def \mathchar {\ifnextchar &quot;\LWRabsorbquotenumber \LWRabsorbnumber }\)
+
+\(\def \mathcode #1={\mathchar }\)
+
+\(\let \delcode \mathcode \)
+
+\(\let \delimiter \mathchar \)
+
+\(\def \oe {\unicode {x0153}}\)
+
+\(\def \OE {\unicode {x0152}}\)
+
+\(\def \ae {\unicode {x00E6}}\)
+
+\(\def \AE {\unicode {x00C6}}\)
+
+\(\def \aa {\unicode {x00E5}}\)
+
+\(\def \AA {\unicode {x00C5}}\)
+
+\(\def \o {\unicode {x00F8}}\)
+
+\(\def \O {\unicode {x00D8}}\)
+
+\(\def \l {\unicode {x0142}}\)
+
+\(\def \L {\unicode {x0141}}\)
+
+\(\def \ss {\unicode {x00DF}}\)
+
+\(\def \SS {\unicode {x1E9E}}\)
+
+\(\def \dag {\unicode {x2020}}\)
+
+\(\def \ddag {\unicode {x2021}}\)
+
+\(\def \P {\unicode {x00B6}}\)
+
+\(\def \copyright {\unicode {x00A9}}\)
+
+\(\def \pounds {\unicode {x00A3}}\)
+
+\(\let \LWRref \ref \)
+
+\(\renewcommand {\ref }{\ifstar \LWRref \LWRref }\)
+
+\( \newcommand {\multicolumn }[3]{#3}\)
+
+\(\require {textcomp}\)
+
+\(\newcommand {\opl }[2][]{\bbox [whitesmoke, 3px, border:                                     1px dashed darkseagreen]{\class {opl-math opl-optie-#1}{#2}}}\)
+
+\(\newcommand {\hint }[1]{\class {hint}{#1}}\)
+
+\(\newcommand {\aside }[1]{\class {aside}{#1}}\)
+
+\(\newcommand {\vov }[1]{\aside {{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text {&grave;}}}\mkern -1mu\mathopen {}#1\mathclose {}\mkern -1mu{\vphantom {#1}}^{\textstyle \lower {0.7ex}{\text
+{&apos;}}}}}\)
+
+\(\newcommand {\truc }[1]{\class {truc}{#1}}\)
+
+\(\newcommand {\N }{\mathbb {N}}\)
+
+\(\newcommand {\Z }{\mathbb {Z}}\)
+
+\(\newcommand {\Q }{\mathbb {Q}}\)
+
+\(\newcommand {\R }{\mathbb {R}}\)
+
+\(\newcommand {\C }{\mathbb {C}}\)
+
+\(\newcommand {\E }{\mathrm {E}}\)
+
+\(\newcommand {\T }{\mathsf {T}}\)
+
+\(\newcommand {\dom }{\mathrm {dom}}\)
+
+\(\newcommand {\ber }{\mathrm {ber}}\)
+
+\(\newcommand {\degree }{^{\circ }}\)
+
+\(\newcommand {\Bgsin }{\operatorname {Bgsin}}\)
+
+\(\newcommand {\Bgcos }{\operatorname {Bgcos}}\)
+
+\(\newcommand {\Bgtan }{\operatorname {Bgtan}}\)
+
+\(\newcommand {\Bgcot }{\operatorname {Bgcot}}\)
+
+\(\newcommand {\bgsin }{\operatorname {bgsin}}\)
+
+\(\newcommand {\bgcos }{\operatorname {bgcos}}\)
+
+\(\newcommand {\bgtan }{\operatorname {bgtan}}\)
+
+\(\newcommand {\bgcot }{\operatorname {bgcot}}\)
+
+\(\newcommand {\qed }{\class {mathesis-qed}{\square }}\)
+
+\(\newcommand {\markeercellen }[4][.35]{}\)
+
+\(\newcommand {\celpijl }[3]{}\)
+
+\(\newcommand {\weq }{\ifnextchar [{\weqmet }{\weqzonder }}\)
+
+\(\def \weqmet [#1]{\ifnextchar [{\weqtwee {#1}}{\weqeen {#1}}}\)
+
+\(\def \weqtwee #1[#2]#3{\mathrel {\overset {#1}{\underset {#2}{#3}}}}\)
+
+\(\def \weqeen #1#2{\mathrel {\overset {#1}{#2}}}\)
+
+\(\def \weqzonder #1{\mathrel {#1}}\)
+
+\(\newcommand {\shortstack }[2][]{\substack {#2}}\)
+
+\(\newcommand {\scriptsize }{}\)
+
+\(\newcommand {\tiny }{}\)
+
+\(\newcommand {\tvmax }[1]{\begin {array}{c} \scriptstyle \text {max} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\tvmin }[1]{\begin {array}{c} \scriptstyle \text {min} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+\(\newcommand {\markeerterm }[2]{#2}\)
+
+\(\newcommand {\lightning }{\unicode {x21AF}}\)
+
+\(\newcommand {\arceervak }{\enclose {updiagonalstrike}{\phantom {\rule {0em}{1.2ex}}}\kern -0.33em}\)
+
+\(\newcommand {\undefsign }{\class {undefsign}{\arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak \arceervak
+\arceervak \arceervak \arceervak }}\)
+
+\(\newcommand {\intertext }[1]{\text {#1}\notag \\}\)
+
+\(\let \Hat \hat \)
+
+\(\let \Check \check \)
+
+\(\let \Tilde \tilde \)
+
+\(\let \Acute \acute \)
+
+\(\let \Grave \grave \)
+
+\(\let \Dot \dot \)
+
+\(\let \Ddot \ddot \)
+
+\(\let \Breve \breve \)
+
+\(\let \Bar \bar \)
+
+\(\let \Vec \vec \)
+
+\(\require {mathtools}\)
+
+\(\newcommand {\vcentcolon }{\mathrel {\unicode {x2236}}}\)
+
+\(\newcommand {\approxcolon }{\approx \vcentcolon }\)
+
+\(\newcommand {\Approxcolon }{\approx \dblcolon }\)
+
+\(\newcommand {\simcolon }{\sim \vcentcolon }\)
+
+\(\newcommand {\Simcolon }{\sim \dblcolon }\)
+
+\(\newcommand {\dashcolon }{\mathrel {-}\vcentcolon }\)
+
+\(\newcommand {\Dashcolon }{\mathrel {-}\dblcolon }\)
+
+\(\newcommand {\colondash }{\vcentcolon \mathrel {-}}\)
+
+\(\newcommand {\Colondash }{\dblcolon \mathrel {-}}\)
+
+\(\newenvironment {crampedsubarray}[1]{}{}\)
+
+\(\newcommand {\smashoperator }[2][]{#2\limits }\)
+
+\(\newcommand {\SwapAboveDisplaySkip }{}\)
+
+\(\newcommand {\LaTeXunderbrace }[1]{\underbrace {#1}}\)
+
+\(\newcommand {\LaTeXoverbrace }[1]{\overbrace {#1}}\)
+
+\(\Newextarrow \xLongleftarrow {10,10}{0x21D0}\)
+
+\(\Newextarrow \xLongrightarrow {10,10}{0x21D2}\)
+
+\(\let \xlongleftarrow \xleftarrow \)
+
+\(\let \xlongrightarrow \xrightarrow \)
+
+\(\newcommand {\LWRmultlined }[1][]{\begin {multline*}}\)
+
+\(\newenvironment {multlined}[1][]{\LWRmultlined }{\end {multline*}}\)
+
+\(\let \LWRorigshoveleft \shoveleft \)
+
+\(\renewcommand {\shoveleft }[1][]{\LWRorigshoveleft }\)
+
+\(\let \LWRorigshoveright \shoveright \)
+
+\(\renewcommand {\shoveright }[1][]{\LWRorigshoveright }\)
+
+\(\newcommand {\shortintertext }[1]{\text {#1}\notag \\}\)
+
+\(\newcommand {\bm }[1]{\boldsymbol {#1}}\)
+
+\(\newcommand {\toprule }[1][]{\hline }\)
+
+\(\let \midrule \toprule \)
+
+\(\let \bottomrule \toprule \)
+
+\(\def \LWRbooktabscmidruleparen (#1)#2{}\)
+
+\(\newcommand {\LWRbooktabscmidrulenoparen }[1]{}\)
+
+\(\newcommand {\cmidrule }[1][]{\ifnextchar (\LWRbooktabscmidruleparen \LWRbooktabscmidrulenoparen }\)
+
+\(\newcommand {\morecmidrules }{}\)
+
+\(\newcommand {\specialrule }[3]{\hline }\)
+
+\(\newcommand {\addlinespace }[1][]{}\)
+
+\(\newcommand {\LWRnicearrayarray }[1]{\begin {array}{#1}}\)
+
+\(\def \LWRnicearrayarrayopt #1[#2] {\begin {array}{#1}}\)
+
+\(\newenvironment {NiceArray}[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}{\end {array}}\)
+
+\(\newcommand {\LWRnicearraywithdelimtwo }[2][]{\ifnextchar [{\LWRnicearrayarrayopt {#2}}{\LWRnicearrayarray {#2}}}\)
+
+\(\newenvironment {NiceArrayWithDelims}[2]{\def \LWRnicearrayrightdelim {\right #2}\left #1\LWRnicearraywithdelimtwo }{\end {array}\LWRnicearrayrightdelim }\)
+
+\(\newenvironment {pNiceArray} {\begin {NiceArrayWithDelims}{(}{)}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {bNiceArray} {\begin {NiceArrayWithDelims}{[}{]}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {BNiceArray} {\begin {NiceArrayWithDelims}{\{}{\}}} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {vNiceArray} {\begin {NiceArrayWithDelims}{\vert }{\vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {VNiceArray} {\begin {NiceArrayWithDelims}{\Vert }{\Vert }} {\end {NiceArrayWithDelims}} \)
+
+\(\newenvironment {NiceMatrix}[1][]{\begin {matrix}}{\end {matrix}}\)
+
+\(\newenvironment {pNiceMatrix}[1][]{\begin {pmatrix}}{\end {pmatrix}}\)
+
+\(\newenvironment {bNiceMatrix}[1][]{\begin {bmatrix}}{\end {bmatrix}}\)
+
+\(\newenvironment {BNiceMatrix}[1][]{\begin {Bmatrix}}{\end {Bmatrix}}\)
+
+\(\newenvironment {vNiceMatrix}[1][]{\begin {vmatrix}}{\end {vmatrix}}\)
+
+\(\newenvironment {VNiceMatrix}[1][]{\begin {Vmatrix}}{\end {Vmatrix}}\)
+
+\(\newcommand {\LWRnicematrixBlock }[1]{#1}\)
+
+\(\def \LWRnicematrixBlockopt &lt;#1&gt;#2{#2}\)
+
+\(\newcommand {\Block }[2][]{\ifnextchar &lt;\LWRnicematrixBlockopt \LWRnicematrixBlock }\)
+
+\(\newcommand {\diagbox }[2]{\begin {array}{l}\hfill \quad #2\\\hline #1\quad \hfill \end {array}}\)
+
+\(\let \hdottedline \hdashline \)
+
+\(\newcommand {\Hline }[1][]{\hline }\)
+
+\(\newcommand {\CodeBefore }{}\)
+
+\(\newcommand {\Body }{}\)
+
+\(\newcommand {\CodeAfter }{}\)
+
+\(\newcommand {\line }[3][]{}\)
+
+\(\newcommand {\RowStyle }[2][]{}\)
+
+\(\newcommand {\LWRSubMatrix }[1][]{}\)
+
+\(\newcommand {\SubMatrix }[4]{\LWRSubMatrix }\)
+
+\(\newcommand {\OverBrace }[4][]{}\)
+
+\(\newcommand {\UnderBrace }[4][]{}\)
+
+\(\newcommand {\HBrace }[3][]{}\)
+
+\(\newcommand {\VBrace }[3][]{}\)
+
+\(\newcommand {\ShowCellNames }{}\)
+
+\(\newcommand {\tabularnote }[2][]{}\)
+
+\(\newcommand {\cellcolor }[3][]{}\)
+
+\(\newcommand {\rowcolor }[3][]{}\)
+
+\(\newcommand {\LWRrowcolors }[1][]{}\)
+
+\(\newcommand {\rowcolors }[4][]{\LWRrowcolors }\)
+
+\(\newcommand {\rowlistcolors }[3][]{\LWRrowcolors }\)
+
+\(\newcommand {\columncolor }[3][]{}\)
+
+\(\newcommand {\rectanglecolor }[4][]{}\)
+
+\(\newcommand {\arraycolor }[2][]{}\)
+
+\(\newcommand {\chessboardcolors }[3][]{}\)
+
+\(\newcommand {\ldots }[1][]{\dots }\)
+
+\(\newcommand {\Cdots }[1][]{\cdots }\)
+
+\(\newcommand {\Vdots }[1][]{\vdots }\)
+
+\(\newcommand {\Ddots }[1][]{\ddots }\)
+
+\(\newcommand {\Iddots }[1][]{\mathinner {\unicode {x22F0}}}\)
+
+\(\newcommand {\Hdotsfor }[1]{\ldots }\)
+
+\(\newcommand {\Vdotsfor }[1]{\vdots }\)
+
+\(\newcommand {\AutoNiceMatrix }[2]{\text {(AutoNiceMatrix #1)}}\)
+
+\(\let \pAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \bAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \BAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \vAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\let \VAutoNiceMatrix \AutoNiceMatrix \)
+
+\(\require {cancel}\)
+
+\(\newcommand {\LWRsubmultirow }[2][]{#2}\)
+
+\(\newcommand {\LWRmultirow }[2][]{\LWRsubmultirow }\)
+
+\(\newcommand {\multirow }[2][]{\LWRmultirow }\)
+
+\(\newcommand {\mrowcell }{}\)
+
+\(\newcommand {\mcolrowcell }{}\)
+
+\(\newcommand {\STneed }[1]{}\)
+
+\(\newcommand {\LWRldelimtwo }[1][]{\text {#1}~\LWRbigdelim }\)
+
+\(\newcommand {\LWRldelimone }[2][]{\LWRldelimtwo }\)
+
+\(\def \ldelim #1#2{\def \LWRbigdelim {#1}\LWRldelimone }\)
+
+\(\newcommand {\LWRrdelimtwo }[1][]{\LWRbigdelim ~\text {#1}}\)
+
+\(\newcommand {\LWRrdelimone }[2][]{\LWRrdelimtwo }\)
+
+\(\def \rdelim #1#2{\def \LWRbigdelim {#1}\LWRrdelimone }\)
+
+\(\newcommand {\tvbp }[1]{\begin {array}{c} \scriptstyle \text {BP} \\[-0.8ex] \scriptstyle =#1 \end {array}}\)
+
+</div>
+
+<a id="mkpiweb-autopage-1"></a>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="31">
+<header class="cursustitel"> <p class="cursushoofdstuk" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="31">Hoofdstuk 20</p> <h1 data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="31">Verloop van
+cyclometrische functies</h1> </header>
+</p>
+
+
+<div class="cursusrekenmachine" data-soort="functie" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="35"></div>
+
+
+
+
+
+
+
+<div class="center" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="42">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="42">
+ <span
+    id="lateximage-mkpiweb-1"
+    class="lateximagesource" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="42"
+><!--
+--><img
+    src="mkpiweb-images/image-1.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="42"
+></span>
+</p>
+</div>
+
+
+
+
+
+
+
+
+<div class="cursusleerplan" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<!--
+...... section Leerplandoelstellingen (GO! Navigator) ......
+-->
+<h4 id="autosec-5" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">Leerplandoelstellingen (GO! Navigator)</h4>
+<a id="mkpiweb-autopage-5"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<b>Gevorderde wiskunde (WD3_06.08)</b>
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">•</span> <b>WD3_06.08.28</b> De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit <span class="leerplan-grijs" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">veeltermfuncties</span>, <span
+class="leerplan-grijs" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">rationale functies</span>, <span class="leerplan-grijs" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">irrationale functies</span>, <span class="leerplan-grijs" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">exponentiële functies</span>, <span
+class="leerplan-grijs" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">logaritmische functies</span>, <span class="leerplan-grijs" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">goniometrische functies</span> en cyclometrische functies.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">–</span> afbakening: <span class="leerplan-grijs" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">afleidbaarheid</span>
+</p>
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">–</span> afbakening: rekenregels: afgeleide van een som, product, quotiënt van functies en afgeleide van een samengestelde functie (kettingregel)
+</p>
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">–</span> afbakening: regel van de l’Hôpital
+</p>
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">–</span> <span class="leerplan-grijs" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74"><b>WD3_06.08.28.01</b> (MD 06.08.17) De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit veeltermfuncties, rationale
+functies, irrationale functies, exponentiële functies, logaritmische functies en goniometrische functies.</span>
+</p>
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">–</span> <b>WD3_06.08.28.02</b> De leerlingen berekenen de afgeleide functie van functies die zijn opgebouwd uit cyclometrische functies.
+</p>
+</li>
+</ul>
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">•</span> <b>WD3_06.08.29</b> (MD 06.08.18) De leerlingen analyseren het verloop van functies met behulp van de eerste en tweede afgeleide functie en lossen extremumproblemen op.
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">–</span> afbakening: <span class="leerplan-grijs" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">stelling van Rolle</span>, <span class="leerplan-grijs" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="74">middelwaardestelling van Lagrange</span>
+</p>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!--
+...... section Herhaling ......
+-->
+<h4 id="autosec-6" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="89"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="89">I&#x2003;</span>Herhaling</h4>
+<a id="mkpiweb-autopage-6"></a>
+
+
+
+<!--
+...... subsection Definities ......
+-->
+<h5 id="autosec-7" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="91"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="91">1&#x2003;</span>Definities</h5>
+<a id="mkpiweb-autopage-7"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="93">
+De cyclometrische functies kennen we uit hoofdstuk&nbsp;10. Elk is de inverse van een
+goniometrische functie, beperkt tot een interval waarop die een bijectie is: 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="96"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                                     h π πi
+                                                                                     y = Bgsin x ⇐⇒ sin y = x en y ∈ − ,
+                                                                                                                         2 2
+                                                                                     y = Bgcos x ⇐⇒ cos y = x en y ∈ [0, π]
+                                                                                                                     i π πh
+                                                                                     y = Bgtan x ⇐⇒ tan y = x en y ∈ − ,
+                                                                                                                          2 2
+                                                                                     y = Bgcot x ⇐⇒ cot y = x en y ∈ ]0, π[
+
+
+
+-->
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="96">
+
+\begin{align*}
+y=\Bgsin x &amp;\iff \sin y=x \text { en } y\in \left [-\frac {\pi }{2},\frac {\pi }{2}\right ]\\ y=\Bgcos x &amp;\iff \cos y=x \text { en } y\in [0,\pi ]\\ y=\Bgtan x &amp;\iff \tan y=x \text
+{ en } y\in \left ]-\frac {\pi }{2},\frac {\pi }{2}\right [\\ y=\Bgcot x &amp;\iff \cot y=x \text { en } y\in \left ]0,\pi \right [
+\end{align*}
+Zie ook handboek VBTL Analyse 3, p&nbsp;129. In dit hoofdstuk leiden we die functies af en
+onderzoeken we het verloop van functies waarin ze voorkomen.
+</p>
+
+
+<!--
+...... subsection Eigenschappen die we nodig hebben ......
+-->
+<h5 id="autosec-8" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="105"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="105">2&#x2003;</span>Eigenschappen die we nodig hebben</h5>
+<a id="mkpiweb-autopage-8"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="107">
+Uit hoofdstuk&nbsp;10 gebruiken we 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="108"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                               p
+                                                      sin(Bgsin x) = x   en   cos(Bgsin x) =       1 − x2                                       (x ∈ [−1, 1])
+                                                    tan(Bgtan x) = x                                                                            (x ∈ R)
+                                                                    π
+                                                Bgsin x + Bgcos x =                                                                             (x ∈ [−1, 1])
+                                                                    2
+                                                                    π
+                                                Bgtan x + Bgcot x =                                                                             (x ∈ R)
+                                                                    2
+
+
+-->
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="108">
+
+\begin{align*}
+\sin (\Bgsin x)&amp;=x \quad \text {en}\quad \cos (\Bgsin x)=\sqrt {1-x^2} &amp;&amp; (x\in [-1,1])\\ \tan (\Bgtan x)&amp;=x &amp;&amp; (x\in \R )\\ \Bgsin x+\Bgcos x&amp;=\frac {\pi }{2}
+&amp;&amp; (x\in [-1,1])\\ \Bgtan x+\Bgcot x&amp;=\frac {\pi }{2} &amp;&amp; (x\in \R )
+\end{align*}
+
+</p>
+
+
+<!--
+...... section Afgeleide van Bgsin en Bgcos ......
+-->
+<h4 id="autosec-9" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="116"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="116">II&#x2003;</span>Afgeleide van Bgsin en Bgcos</h4>
+<a id="mkpiweb-autopage-9"></a>
+
+
+
+<!--
+...... subsection Afgeleide van ......
+-->
+<h5 id="autosec-10" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="118"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="118">1&#x2003;</span>Afgeleide van \(\Bgsin x\)</h5>
+<a id="mkpiweb-autopage-10"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="120">
+\(x\in \left ]-1,1\right [\) 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="121"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                     ⇒               sin(Bgsin x) = x
+                                                                     ⇒   cos(Bgsin x) · (Bgsin x)′ = 1             (afleiden, kettingregel)
+                                                                                                          1
+                                                                                       (Bgsin x)′ =                 Bgsin x ∈ − π2 , π2 , dus cos > 0
+                                                                                                                                                   
+                                                                     ⇔
+                                                                                                    cos(Bgsin x)
+                                                                                                        1                            p
+                                                                                       (Bgsin x)′ = √
+                                                                                                                                                  
+                                                                     ⇔                                              cos(Bgsin x) =       1 − x2
+                                                                                                      1 − x2
+
+
+-->
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="121">
+
+\begin{alignat*} {3}
+&amp;\Rightarrow \quad &amp; \sin (\Bgsin x) &amp;= x\\ &amp;\Rightarrow \quad &amp; \cos (\Bgsin x)\cdot (\Bgsin x)&apos; &amp;= 1 &amp;\quad &amp; (\text {afleiden, kettingregel})\\
+&amp;\Leftrightarrow \quad &amp; (\Bgsin x)&apos; &amp;= \frac {1}{\cos (\Bgsin x)} &amp;&amp; \bigl (\Bgsin x\in \left ]-\tfrac {\pi }{2},\tfrac {\pi }{2}\right [ \text {, dus } \cos
+&gt;0\bigr )\\ &amp;\Leftrightarrow \quad &amp; (\Bgsin x)&apos; &amp;= \frac {1}{\sqrt {1-x^2}} &amp;&amp; \bigl (\cos (\Bgsin x)=\sqrt {1-x^2}\bigr )
+\end{alignat*}
+
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="131">
+\[ \boxed {(\Bgsin x)&apos;=\frac {1}{\sqrt {1-x^2}}} \qquad (x\in \left ]-1,1\right [) \]
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="135">
+En wegens de kettingregel 
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="136">
+\[ \boxed {\bigl (\Bgsin f(x)\bigr )&apos;=\frac {f&apos;(x)}{\sqrt {1-f^2(x)}}} \]
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="141">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="141">
+Dat \(\Bgsin \) afleidbaar is in \(\left ]-1,1\right [\), aanvaarden we hier: de grafiek is het
+spiegelbeeld van een gladde kromme, en de raaklijnen spiegelen mee. In \(\pm 1\) is \(\Bgsin \) niet afleidbaar: daar wordt de noemer \(0\).
+</p>
+
+</div>
+
+
+<!--
+...... subsection Afgeleide van ......
+-->
+<h5 id="autosec-11" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="146"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="146">2&#x2003;</span>Afgeleide van \(\Bgcos x\)</h5>
+<a id="mkpiweb-autopage-11"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="148">
+\(\Bgsin x+\Bgcos x=\frac {\pi }{2}\) 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="149"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                            π            ′
+                                                                                         ⇒   (Bgcos x)′ =        − Bgsin x
+                                                                                                             2
+                                                                                                                     1
+                                                                                                       =0− √
+                                                                                                                   1 − x2
+                                                                                                              −1
+                                                                                                       =√
+                                                                                                             1 − x2
+
+
+-->
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="149">
+
+\begin{alignat*} {2}
+&amp;\Rightarrow \quad &amp; (\Bgcos x)&apos; &amp;= \Bigl (\frac {\pi }{2}-\Bgsin x\Bigr )&apos;\\ &amp;&amp; &amp;= 0-\frac {1}{\sqrt {1-x^2}}\\ &amp;&amp; &amp;= \frac {-1}{\sqrt {1-x^2}}
+\end{alignat*}
+
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="154">
+\[ \boxed {(\Bgcos x)&apos;=\frac {-1}{\sqrt {1-x^2}}} \qquad (x\in \left ]-1,1\right [) \]
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="158">
+En wegens de kettingregel 
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="159">
+\[ \boxed {\bigl (\Bgcos f(x)\bigr )&apos;=\frac {-f&apos;(x)}{\sqrt {1-f^2(x)}}} \]
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="163">
+<span class="aside" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="163"> De grafiek van \(\Bgcos \) is die van \(\Bgsin \), gespiegeld om de
+\(x\)-as en \(\frac {\pi }{2}\) omhoog geschoven. Daarom verschillen de afgeleiden enkel in teken. </span>
+</p>
+
+
+<!--
+...... subsection Meetkundige betekenis ......
+-->
+<h5 id="autosec-12" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="169"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="169">3&#x2003;</span>Meetkundige betekenis</h5>
+<a id="mkpiweb-autopage-12"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="171">
+De grafiek van \(\Bgsin \) is het spiegelbeeld van de beperkte sinusgrafiek om de rechte \(y=x\).
+Spiegelen verwisselt \(x\) en \(y\). Een hellingsdriehoekje met een horizontale zijde \(1\) en een verticale zijde \(m\) wordt dus een driehoekje met een verticale zijde \(1\) en een horizontale zijde \(m\). De rico gaat van \(m\)
+naar \(\frac {1}{m}\).
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="177">
+Ligt \(P\bigl (a,\sin a\bigr )\) op de sinusgrafiek, dan ligt \(P&apos;\bigl (\sin
+a,a\bigr )\) op de grafiek van \(\Bgsin \). De raaklijn in \(P\) heeft rico \(\cos a\), die in \(P&apos;\) dus rico \(\dfrac {1}{\cos a}\). Met \(b=\sin a\) is \(\cos a=\sqrt {1-b^2}\), en dat is precies de formule van
+hierboven.
+</p>
+
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="182">
+<figure class="interactieve-grafiek" data-grafiek="spiegel-raaklijn" data-hoogte="26rem" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="182"> <div class="interactieve-grafiek-terugval" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="182">
+</p>
+
+
+<div class="center" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188">
+ <span
+    id="lateximage-mkpiweb-2"
+    class="lateximagesource" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188"
+><!--
+--><img
+    src="mkpiweb-images/image-2.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188"
+></span>
+</p>
+</div>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188">
+</div> <div class="interactieve-grafiek-bord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188"></div> <figcaption class="interactieve-grafiek-uitleg">Versleep <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188">\(P\)</span> over de sinusgrafiek. Het punt <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188">\(P&apos;\)</span> is zijn spiegelbeeld om <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188">\(y=x\)</span> op de grafiek van <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188">\(\Bgsin \)</span>. De
+hellingsdriehoekjes spiegelen mee: de rico van <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188">\(t&apos;\)</span> is het omgekeerde van de rico van <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="188">\(t\)</span>.</figcaption> </figure>
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="230">
+In \(a=\pm \frac {\pi }{2}\) is de raaklijn aan de sinusgrafiek horizontaal. Het spiegelbeeld is
+een verticale raaklijn: de grafiek van \(\Bgsin \) vertrekt in \(\bigl (-1,-\frac {\pi }{2}\bigr )\) en komt aan in \(\bigl (1,\frac {\pi }{2}\bigr )\) met een verticale raaklijn.
+</p>
+
+
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-16" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="235"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="235">4&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-16"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="237">
+Bereken de volgende afgeleiden. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="239">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="239">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="239">(a)</span> \((\Bgsin 2x)&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="241">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="241">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="241">\((\Bgsin 2x)&apos; = \frac {2}{\sqrt {1-4x^2}}\)</span>
+
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="242"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                                                  (2x)′
+                                                                                                   (Bgsin 2x)′ = p
+                                                                                                                                 1 − (2x)2
+                                                                                                                                  2
+                                                                                                                          =√            .
+                                                                                                                                1 − 4x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="242">
+
+\begin{align*}
+(\Bgsin 2x)&apos; &amp;= \frac {(2x)&apos;}{\sqrt {1-(2x)^2}}\\ &amp;= \frac {2}{\sqrt {1-4x^2}}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="249">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="249">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="249">(b)</span> \(\bigl (\Bgcos (x^2)\bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="251">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="251">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="251">\(\bigl (\Bgcos (x^2)\bigr )&apos; = \frac {-2x}{\sqrt
+{1-x^4}}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="252"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                       ′         −(x2 )′
+                                                                                                   Bgcos(x2 )               =p
+                                                                                                                                  1 − (x2 )2
+                                                                                                                                 −2x
+                                                                                                                            =√          .
+                                                                                                                                 1 − x4
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="252">
+
+\begin{align*}
+\bigl (\Bgcos (x^2)\bigr )&apos; &amp;= \frac {-(x^2)&apos;}{\sqrt {1-(x^2)^2}}\\ &amp;= \frac {-2x}{\sqrt {1-x^4}}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="259">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="259">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="259">(c)</span> \(\Bigl (\Bgsin \dfrac {x}{a}\Bigr )&apos;\) met \(a&gt;0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="261">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="261">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="261">\(\Bigl (\Bgsin \frac {x}{a}\Bigr )&apos; = \frac
+{1}{\sqrt {a^2-x^2}}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="262"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                         1
+                                                                                                                x ′
+                                                                                                       Bgsin          =q a
+                                                                                                                 a      1− x
+                                                                                                                            2
+                                                                                                                                          a2
+                                                                                                                                    1
+                                                                                                                                    a
+                                                                                                                            =   1
+                                                                                                                                  √
+                                                                                                                                    2  2
+                                                                                                                                a a −x
+                                                                                                                                      1
+                                                                                                                            =√                 .
+                                                                                                                                 a2 − x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="262">
+
+\begin{align*}
+\Bigl (\Bgsin \frac {x}{a}\Bigr )&apos; &amp;= \frac {\frac {1}{a}}{\sqrt {1-\frac {x^2}{a^2}}}\\ &amp;= \frac {\frac {1}{a}}{\frac {1}{a}\sqrt {a^2-x^2}}\\ &amp;= \frac {1}{\sqrt {a^2-x^2}}.
+\end{align*}
+Omdat <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="268">\(a&gt;0\)</span> is <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="268">\(\sqrt {a^2}=a\)</span>. Deze vorm komt terug bij het integreren.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="271">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="271">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="271">(d)</span> \(\bigl (\Bgsin (2x-1)\bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="273">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="273">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="273">\(\bigl (\Bgsin (2x-1)\bigr )&apos; = \frac {1}{\sqrt
+{x-x^2}}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="274"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                  ′                      2
+                                                                                             Bgsin(2x − 1)             =p
+                                                                                                                                1 − (2x − 1)2
+                                                                                                                                2
+                                                                                                                       =√
+                                                                                                                         1 − 4x2 + 4x − 1
+                                                                                                                             2
+                                                                                                                       =p
+                                                                                                                          4(x − x2 )
+                                                                                                                                  1
+                                                                                                                       =√              .
+                                                                                                                                x − x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="274">
+
+\begin{align*}
+\bigl (\Bgsin (2x-1)\bigr )&apos; &amp;= \frac {2}{\sqrt {1-(2x-1)^2}}\\ &amp;= \frac {2}{\sqrt {1-4x^2+4x-1}}\\ &amp;= \frac {2}{\sqrt {4(x-x^2)}}\\ &amp;= \frac {1}{\sqrt {x-x^2}}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="283">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="283">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="283">(e)</span> \((x\Bgsin x)&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="285">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="285">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="285">\((x\Bgsin x)&apos; = \Bgsin x+\frac {x}{\sqrt
+{1-x^2}}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="286"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                            (x Bgsin x)′ = (x)′ Bgsin x + x (Bgsin x)′
+                                                                                                                          x
+                                                                                                         = Bgsin x + √         .
+                                                                                                                        1 − x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="286">
+
+\begin{align*}
+(x\Bgsin x)&apos; &amp;= (x)&apos;\Bgsin x+x\,(\Bgsin x)&apos;\\ &amp;= \Bgsin x+\frac {x}{\sqrt {1-x^2}}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="293">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="293">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="293">(f)</span> \(\bigl (\Bgsin ^2 x\bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="295">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="295">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="295">\(\bigl (\Bgsin ^2 x\bigr )&apos; = \frac {2\Bgsin
+x}{\sqrt {1-x^2}}\)</span> Let op: \(\Bgsin ^2 x=(\Bgsin x)^2\), een macht van een functie. 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="297"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                           ′
+                                                                                                Bgsin2 x         = 2 Bgsin x · (Bgsin x)′
+                                                                                                                   2 Bgsin x
+                                                                                                                 = √         .
+                                                                                                                     1 − x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="297">
+
+\begin{align*}
+\bigl (\Bgsin ^2 x\bigr )&apos; &amp;= 2\Bgsin x\cdot (\Bgsin x)&apos;\\ &amp;= \frac {2\Bgsin x}{\sqrt {1-x^2}}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="304">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="304">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="304">(g)</span> \(\bigl (e^{\Bgsin x}\bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="306">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="306">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="306">\(\bigl (e^{\Bgsin x}\bigr )&apos; = \frac {e^{\Bgsin
+x}}{\sqrt {1-x^2}}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="307"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                            ′
+                                                                                                 eBgsin x        = eBgsin x · (Bgsin x)′
+                                                                                                                  eBgsin x
+                                                                                                                 =√        .
+                                                                                                                    1 − x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="307">
+
+\begin{align*}
+\bigl (e^{\Bgsin x}\bigr )&apos; &amp;= e^{\Bgsin x}\cdot (\Bgsin x)&apos;\\ &amp;= \frac {e^{\Bgsin x}}{\sqrt {1-x^2}}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="314">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="314">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="314">(h)</span> \(\bigl (\ln \Bgcos x\bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="316">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="316">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="316">\(\bigl (\ln \Bgcos x\bigr )&apos; = \frac {-1}{\sqrt
+{1-x^2}\,\Bgcos x}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="317"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                 ′    (Bgcos x)′
+                                                                                                ln Bgcos x            =
+                                                                                                                        Bgcos x
+                                                                                                                              −1
+                                                                                                                      =√                .
+                                                                                                                         1 − x2 Bgcos x
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="317">
+
+\begin{align*}
+\bigl (\ln \Bgcos x\bigr )&apos; &amp;= \frac {(\Bgcos x)&apos;}{\Bgcos x}\\ &amp;= \frac {-1}{\sqrt {1-x^2}\,\Bgcos x}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="324">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="324">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="324">(i)</span> \(\Bigl (\Bgcos \dfrac {1}{x}\Bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="326">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="326">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="326">\(\Bigl (\Bgcos \frac {1}{x}\Bigr )&apos; = \frac
+{1}{|x|\sqrt {x^2-1}}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="327"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                         ′
+                                                                                                            1 ′   − x1
+                                                                                                       Bgcos      =q
+                                                                                                             x       1− 1                 x2
+                                                                                                                                 1
+                                                                                                                                  2
+                                                                                                                            = √ x2
+                                                                                                                                x −1
+                                                                                                                                √
+                                                                                                                                  x2
+                                                                                                                                  √
+                                                                                                                                   x2
+                                                                                                                            =    √
+                                                                                                                              x2 x2 − 1
+                                                                                                                                   1
+                                                                                                                            =    √       .
+                                                                                                                              |x| x2 − 1
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="327">
+
+\begin{align*}
+\Bigl (\Bgcos \frac {1}{x}\Bigr )&apos; &amp;= \frac {-\bigl (\frac {1}{x}\bigr )&apos;}{\sqrt {1-\frac {1}{x^2}}}\\ &amp;= \frac {\frac {1}{x^2}}{\frac {\sqrt {x^2-1}}{\sqrt {x^2}}}\\ &amp;=
+\frac {\sqrt {x^2}}{x^2\sqrt {x^2-1}}\\ &amp;= \frac {1}{|x|\sqrt {x^2-1}}.
+\end{align*}
+Let op: <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="334">\(\sqrt {x^2}=|x|\)</span>, want <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="334">\(x\)</span> kan hier ook negatief zijn.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="337">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="337">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="337">(j)</span> \(\bigl (x\sqrt {1-x^2}+\Bgsin x\bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="339">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="339">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="339">\(\bigl (x\sqrt {1-x^2}+\Bgsin x\bigr )&apos; = 2\sqrt
+{1-x^2}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="340"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                   p                   ′ p             −2x        1
+                                                                               x       1 − x2 + Bgsin x = 1 − x2 + x · √      +√
+                                                                                                                      2 1−x 2    1 − x2
+                                                                                                                  (1 − x2 ) − x2 + 1
+                                                                                                            =         √
+                                                                                                                        1 − x2
+                                                                                                              2(1 − x2 )
+                                                                                                            = √
+                                                                                                                1 − x2
+                                                                                                               p
+                                                                                                            = 2 1 − x2 .
+
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="340">
+
+\begin{align*}
+\bigl (x\sqrt {1-x^2}+\Bgsin x\bigr )&apos; &amp;= \sqrt {1-x^2}+x\cdot \frac {-2x}{2\sqrt {1-x^2}}+\frac {1}{\sqrt {1-x^2}}\\ &amp;= \frac {(1-x^2)-x^2+1}{\sqrt {1-x^2}}\\ &amp;= \frac
+{2(1-x^2)}{\sqrt {1-x^2}}\\ &amp;= 2\sqrt {1-x^2}.
+\end{align*}
+Een ingewikkelde functie met een eenvoudige afgeleide. Ook die komt terug bij het integreren: de
+oppervlakte van een cirkel.
+</p>
+</div>
+
+</li>
+</ul>
+
+
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-17" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="352"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="352">5&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-17"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="354">
+Afgeleiden berekenen:<br />
+VBTL Analyse 2: p&nbsp;150 nr&nbsp;7 (a tot c, e en h)
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="357">
+Raaklijn:<br />
+VBTL Analyse 2: p&nbsp;164 nr&nbsp;1 (i)
+</p>
+
+
+
+
+<!--
+...... section Afgeleide van Bgtan en Bgcot ......
+-->
+<h4 id="autosec-18" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="363"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="363">III&#x2003;</span>Afgeleide van Bgtan en Bgcot</h4>
+<a id="mkpiweb-autopage-18"></a>
+
+
+
+<!--
+...... subsection Afgeleide van ......
+-->
+<h5 id="autosec-19" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="365"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="365">1&#x2003;</span>Afgeleide van \(\Bgtan x\)</h5>
+<a id="mkpiweb-autopage-19"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="367">
+\(x\in \R \) 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="368"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                     ⇒                      tan(Bgtan x) = x
+                                                                          1 + tan2 (Bgtan x) · (Bgtan x)′ = 1          afleiden, (tan u)′ = 1 + tan2 u
+                                                                                                                                                     
+                                                                     ⇒
+                                                                                    (1 + x2 ) · (Bgtan x)′ = 1
+                                                                                                                                          
+                                                                     ⇔                                                 tan(Bgtan x) = x
+                                                                                                                1
+                                                                     ⇔                        (Bgtan x)′ =            (1 + x2 > 0)
+                                                                                                             1 + x2
+
+
+-->
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="368">
+
+\begin{alignat*} {3}
+&amp;\Rightarrow \quad &amp; \tan (\Bgtan x) &amp;= x\\ &amp;\Rightarrow \quad &amp; \bigl (1+\tan ^2(\Bgtan x)\bigr )\cdot (\Bgtan x)&apos; &amp;= 1 &amp;\quad &amp; \bigl (\text {afleiden, }
+(\tan u)&apos;=1+\tan ^2 u\bigr )\\ &amp;\Leftrightarrow \quad &amp; (1+x^2)\cdot (\Bgtan x)&apos; &amp;= 1 &amp;&amp; \bigl (\tan (\Bgtan x)=x\bigr )\\ &amp;\Leftrightarrow \quad &amp;
+(\Bgtan x)&apos; &amp;= \frac {1}{1+x^2} &amp;&amp; (1+x^2&gt;0)
+\end{alignat*}
+Met <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="377">\(1+\tan ^2\)</span> in plaats van <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="377">\(\frac {1}{\cos ^2}\)</span> hoeven we niets over <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="377">\(\cos (\Bgtan
+x)\)</span> te weten. 
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="379">
+\[ \boxed {(\Bgtan x)&apos;=\frac {1}{1+x^2}} \]
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="382">
+En wegens de kettingregel 
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="383">
+\[ \boxed {\bigl (\Bgtan f(x)\bigr )&apos;=\frac {f&apos;(x)}{1+f^2(x)}} \]
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="387">
+<span class="aside" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="387"> De noemer is nooit \(0\): \(\Bgtan \) is afleidbaar in heel \(\R \), en
+de afgeleide is overal positief. De grafiek stijgt dus overal, het steilst in \(0\), waar de rico \(1\) is. </span>
+</p>
+
+
+<!--
+...... subsection Afgeleide van ......
+-->
+<h5 id="autosec-20" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="393"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="393">2&#x2003;</span>Afgeleide van \(\Bgcot x\)</h5>
+<a id="mkpiweb-autopage-20"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="395">
+\(\Bgtan x+\Bgcot x=\frac {\pi }{2}\) 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="396"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                           π            ′
+                                                                                        ⇒   (Bgcot x)′ =        − Bgtan x
+                                                                                                            2
+                                                                                                               1
+                                                                                                      =0−
+                                                                                                            1 + x2
+                                                                                                          −1
+                                                                                                      =
+                                                                                                        1 + x2
+
+
+-->
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="396">
+
+\begin{alignat*} {2}
+&amp;\Rightarrow \quad &amp; (\Bgcot x)&apos; &amp;= \Bigl (\frac {\pi }{2}-\Bgtan x\Bigr )&apos;\\ &amp;&amp; &amp;= 0-\frac {1}{1+x^2}\\ &amp;&amp; &amp;= \frac {-1}{1+x^2}
+\end{alignat*}
+
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="401">
+\[ \boxed {(\Bgcot x)&apos;=\frac {-1}{1+x^2}} \]
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="404">
+En wegens de kettingregel 
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="405">
+\[ \boxed {\bigl (\Bgcot f(x)\bigr )&apos;=\frac {-f&apos;(x)}{1+f^2(x)}} \]
+</p>
+
+
+<!--
+...... subsection Overzicht ......
+-->
+<h5 id="autosec-21" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="409"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="409">3&#x2003;</span>Overzicht</h5>
+<a id="mkpiweb-autopage-21"></a>
+
+
+
+<div class="center" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="412">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="412">
+<span
+    class="fbox"
+    style="display:inline-block ; border:1pt solid #000000; padding:3pt ; color:#000000" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="412"
+><br />
+
+\[ \begin {array}{ll} D\Bgsin x = \dfrac {1}{\sqrt {1-x^2}} &amp; D\Bgsin f(x) = \dfrac {Df(x)}{\sqrt {1-f^2(x)}} \\[1.4em] D\Bgcos x = \dfrac {-1}{\sqrt {1-x^2}} &amp; D\Bgcos f(x) = \dfrac
+{-Df(x)}{\sqrt {1-f^2(x)}} \\[1.4em] D\Bgtan x = \dfrac {1}{1+x^2} &amp; D\Bgtan f(x) = \dfrac {Df(x)}{1+f^2(x)} \\[1.4em] D\Bgcot x = \dfrac {-1}{1+x^2} &amp; D\Bgcot f(x) = \dfrac
+{-Df(x)}{1+f^2(x)} \end {array} \]<br />
+
+</span>
+</p>
+</div>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="431">
+<span class="aside" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="431"> Opvallend: de afgeleiden van functies die zelf niets met veeltermen te
+maken hebben, zijn algebraïsche functies. Geen sinus of cosinus meer. </span>
+</p>
+
+
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-23" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="436"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="436">4&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-23"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="438">
+Bereken de volgende afgeleiden. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="440">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="440">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="440">(a)</span> \((\Bgtan 3x)&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="442">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="442">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="442">\((\Bgtan 3x)&apos; = \frac {3}{1+9x^2}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="443"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                                            (3x)′
+                                                                                                   (Bgtan 3x)′ =
+                                                                                                                          1 + (3x)2
+                                                                                                                             3
+                                                                                                                        =         .
+                                                                                                                          1 + 9x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="443">
+
+\begin{align*}
+(\Bgtan 3x)&apos; &amp;= \frac {(3x)&apos;}{1+(3x)^2}\\ &amp;= \frac {3}{1+9x^2}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="450">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="450">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="450">(b)</span> \(\bigl (\Bgtan \sqrt {x}\,\bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="452">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="452">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="452">\(\bigl (\Bgtan \sqrt {x}\,\bigr )&apos; = \frac
+{1}{2\sqrt {x}\,(1+x)}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="453"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                              √ ′
+                                                                                                       √ ′                    x
+                                                                                                  Bgtan x =                    √ 2
+                                                                                                                            1+   x
+                                                                                                                          1
+                                                                                                                    = √          .
+                                                                                                                     2 x (1 + x)
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="453">
+
+\begin{align*}
+\bigl (\Bgtan \sqrt {x}\,\bigr )&apos; &amp;= \frac {\bigl (\sqrt {x}\bigr )&apos;}{1+\bigl (\sqrt {x}\bigr )^2}\\ &amp;= \frac {1}{2\sqrt {x}\,(1+x)}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="460">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="460">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="460">(c)</span> \(\Bigl (\Bgtan \dfrac {x}{a}\Bigr )&apos;\) met \(a\neq 0\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="462">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="462">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="462">\(\Bigl (\Bgtan \frac {x}{a}\Bigr )&apos; = \frac
+{a}{a^2+x^2}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="463"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                            1
+                                                                                                                 x ′      a
+                                                                                                          Bgtan        =       2
+                                                                                                                  a      1 + xa2
+                                                                                                                                 1
+                                                                                                                             a
+                                                                                                                        = a2 +x 2
+                                                                                                                                a2
+                                                                                                                                a
+                                                                                                                        =            .
+                                                                                                                             a2 + x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="463">
+
+\begin{align*}
+\Bigl (\Bgtan \frac {x}{a}\Bigr )&apos; &amp;= \frac {\frac {1}{a}}{1+\frac {x^2}{a^2}}\\ &amp;= \frac {\frac {1}{a}}{\frac {a^2+x^2}{a^2}}\\ &amp;= \frac {a}{a^2+x^2}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="471">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="471">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="471">(d)</span> \(\bigl (\Bgtan e^x\bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="473">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="473">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="473">\(\bigl (\Bgtan e^x\bigr )&apos; = \frac
+{e^x}{1+e^{2x}}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="474"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                   ′          (ex )′
+                                                                                                      Bgtan ex          =
+                                                                                                                             1 + (ex )2
+                                                                                                                               ex
+                                                                                                                        =            .
+                                                                                                                             1 + e2x
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="474">
+
+\begin{align*}
+\bigl (\Bgtan e^x\bigr )&apos; &amp;= \frac {(e^x)&apos;}{1+(e^x)^2}\\ &amp;= \frac {e^x}{1+e^{2x}}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="481">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="481">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="481">(e)</span> \(\bigl (\Bgcot (2x-1)\bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="483">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="483">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="483">\(\bigl (\Bgcot (2x-1)\bigr )&apos; = \frac
+{-1}{2x^2-2x+1}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="484"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                            ′                −2
+                                                                                               Bgcot(2x − 1) =
+                                                                                                                         1 + (2x − 1)2
+                                                                                                                              −2
+                                                                                                                        = 2
+                                                                                                                         4x − 4x + 2
+                                                                                                                              −1
+                                                                                                                        = 2           .
+                                                                                                                         2x − 2x + 1
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="484">
+
+\begin{align*}
+\bigl (\Bgcot (2x-1)\bigr )&apos; &amp;= \frac {-2}{1+(2x-1)^2}\\ &amp;= \frac {-2}{4x^2-4x+2}\\ &amp;= \frac {-1}{2x^2-2x+1}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="492">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="492">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="492">(f)</span> \(\bigl (x^2\Bgtan x\bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="494">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="494">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="494">\(\bigl (x^2\Bgtan x\bigr )&apos; = 2x\Bgtan x+\frac
+{x^2}{1+x^2}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="495"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                     ′                                      1
+                                                                                           x2 Bgtan x = 2x Bgtan x + x2 ·
+                                                                                                                                          1 + x2
+                                                                                                                                       x2
+                                                                                                             = 2x Bgtan x +                 .
+                                                                                                                                     1 + x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="495">
+
+\begin{align*}
+\bigl (x^2\Bgtan x\bigr )&apos; &amp;= 2x\Bgtan x+x^2\cdot \frac {1}{1+x^2}\\ &amp;= 2x\Bgtan x+\frac {x^2}{1+x^2}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="502">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="502">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="502">(g)</span> \(\Bigl (x\Bgtan x-\dfrac 12\ln (1+x^2)\Bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="504">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="504">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="504">\(\Bigl (x\Bgtan x-\frac 12\ln (1+x^2)\Bigr )&apos; =
+\Bgtan x\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="505"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                             1            ′             x     1   2x
+                                                                                x Bgtan x −     ln(1 + x2 ) = Bgtan x +        − ·
+                                                                                              2                         1 + x2  2 1 + x2
+                                                                                                                   = Bgtan x.
+
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="505">
+
+\begin{align*}
+\Bigl (x\Bgtan x-\frac 12\ln (1+x^2)\Bigr )&apos; &amp;= \Bgtan x+\frac {x}{1+x^2}-\frac 12\cdot \frac {2x}{1+x^2}\\ &amp;= \Bgtan x.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="512">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="512">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="512">(h)</span> \(\Bigl (\dfrac {\Bgtan x}{x}\Bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="514">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="514">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="514">\(\Bigl (\frac {\Bgtan x}{x}\Bigr )&apos; = \frac
+{x-(1+x^2)\Bgtan x}{x^2(1+x^2)}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="515"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                    1
+                                                                                             Bgtan x ′                2   · x − Bgtan x · 1
+                                                                                                             = 1+x
+                                                                                                  x                      x2
+                                                                                                               x − (1 + x2 ) Bgtan x
+                                                                                                             =                       .
+                                                                                                                    x2 (1 + x2 )
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="515">
+
+\begin{align*}
+\Bigl (\frac {\Bgtan x}{x}\Bigr )&apos; &amp;= \frac {\frac {1}{1+x^2}\cdot x-\Bgtan x\cdot 1}{x^2}\\ &amp;= \frac {x-(1+x^2)\Bgtan x}{x^2(1+x^2)}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="522">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="522">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="522">(i)</span> \(\bigl (\Bgtan (\tan x)\bigr )&apos;\) met \(x\in \left ]-\frac {\pi }{2},\frac {\pi }{2}\right [\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="524">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="524">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="524">\(\bigl (\Bgtan (\tan x)\bigr )&apos; = 1\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="525"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                              ′  (tan x)′
+                                                                                                  Bgtan(tan x) =
+                                                                                                                 1 + tan2 x
+                                                                                                                                1 + tan2 x
+                                                                                                                            =
+                                                                                                                                1 + tan2 x
+                                                                                                                            = 1.
+
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="525">
+
+\begin{align*}
+\bigl (\Bgtan (\tan x)\bigr )&apos; &amp;= \frac {(\tan x)&apos;}{1+\tan ^2 x}\\ &amp;= \frac {1+\tan ^2 x}{1+\tan ^2 x}\\ &amp;= 1.
+\end{align*}
+Geen verrassing: op dat interval is <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="531">\(\Bgtan (\tan x)=x\)</span>.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="534">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="534">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="534">(j)</span> \(\Bigl (\Bgtan \dfrac {1+x}{1-x}\Bigr )&apos;\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="536">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="536">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="536">\(\Bigl (\Bgtan \frac {1+x}{1-x}\Bigr )&apos; = \frac
+{1}{1+x^2}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="537"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                               1 + x ′        (1 − x) + (1 + x)       2
+                                                                                                            =                     =
+                                                                                               1−x                  (1 − x)2        (1 − x)2
+                                                                                                                     2
+                                                                                             1 + x ′          (1 − x)2
+                                                                                        Bgtan          =
+                                                                                              1−x                  (1 + x)2
+                                                                                                              1+
+                                                                                                                   (1 − x)2
+                                                                                                                        2
+                                                                                                            =
+                                                                                                              (1 − x)2 + (1 + x)2
+                                                                                                                  2
+                                                                                                            =
+                                                                                                              2 + 2x2
+                                                                                                                 1
+                                                                                                            =         .
+                                                                                                              1 + x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="537">
+
+\begin{align*}
+\Bigl (\frac {1+x}{1-x}\Bigr )&apos; &amp;= \frac {(1-x)+(1+x)}{(1-x)^2} = \frac {2}{(1-x)^2}\\[0.5em] \Bigl (\Bgtan \frac {1+x}{1-x}\Bigr )&apos; &amp;= \frac {\dfrac {2}{(1-x)^2}}{1+\dfrac
+{(1+x)^2}{(1-x)^2}}\\ &amp;= \frac {2}{(1-x)^2+(1+x)^2}\\ &amp;= \frac {2}{2+2x^2}\\ &amp;= \frac {1}{1+x^2}.
+\end{align*}
+Dezelfde afgeleide als <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="547">\(\Bgtan x\)</span>. Wat dat betekent, zien we hieronder.
+</p>
+</div>
+
+</li>
+</ul>
+
+
+<!--
+...... subsection Toepassing: grafiek van ......
+-->
+<h5 id="autosec-24" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="551"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="551">5&#x2003;</span>Toepassing: grafiek van \(\Bgtan x+\Bgtan \frac {1}{x}\)</h5>
+<a id="mkpiweb-autopage-24"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="553">
+Neem \(g(x)=\Bgtan x+\Bgtan \dfrac {1}{x}\) met \(x\neq 0\). Hoe ziet de grafiek eruit?
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="556">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="556"></span>
+</p>
+<!--
+...... subsubsection Met GRM ......
+-->
+<h6 id="autosec-25" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="556">Met GRM</h6>
+<a id="mkpiweb-autopage-25"></a>
+
+
+
+<div class="grm-demo" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="560">
+
+
+<div class="grm-stap" data-toetsen="[y=][tan-1]X)+[tan-1]1/X)" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="560"><div class="grm-stap-tekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="560">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="560">
+<kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span
+class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="560"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="560">statplot</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="560">f1</span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="560">y=</span></kbd> en voer het voorschrift in.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561">
+\(\Bgtan \) is <span class="grm-combinatie" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561"><kbd class="grm-toets grm-evo grm-tweede
+grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561"></span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561"></span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561">2nd</span></kbd><kbd class="grm-toets
+grm-evo grm-licht grm-actief-2nd"><span class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561">tan&#x207B;&#x00B9;</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561">G</span></span><span
+class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561">tan</span></kbd></span>. Het GRM staat in <span class="grm-schermtekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="561">RADIAN</span>.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="562">
+
+<div class="grm-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="562"><div class="grm-status" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="562">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="563"> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="563">Y<sub>1</sub>=tan&#x207B;&#x00B9;(X)+tan</div> <div
+class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="563">&#x207B;&#x00B9;(1/X)</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[window][(-)]4[enter]4[enter]1[enter][(-)]2[enter]2[enter]1[enter]" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="569"><div class="grm-stap-tekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="569">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="569">
+<kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span
+class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="569"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="569">tblset</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="569">f2</span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="569">window</span></kbd>
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="570">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="570">
+\(X\) van \(-4\) tot \(4\), \(Y\) van \(-2\) tot \(2\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="571">
+
+<div class="grm-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="571"><div class="grm-status" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="571">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="572"> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="572">WINDOW</div> <div class="grm-regel
+grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="572">Xmin=&#x2212;4</div> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="572">Xmax=4</div> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="572">Xscl=1</div> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="572">Ymin=&#x2212;2</div> <div class="grm-regel
+grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="572">Ymax=2</div> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="572">Yscl=1</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[graph]" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="583"><div class="grm-stap-tekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="583">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="583">
+<kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span
+class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="583"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="583">table</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="583">f5</span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="583">graph</span></kbd>
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="584">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="584">
+Twee horizontale stukken: de functie lijkt constant, met een sprong in \(0\).
+</p>
+</div>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="587">
+  <span
+    id="lateximage-mkpiweb-3"
+    class="lateximagesource" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="587"
+><!--
+--><img
+    src="mkpiweb-images/image-3.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="587"
+></span>
+</p>
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[calc]12[enter]" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602"><div class="grm-stap-tekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602">
+<span class="grm-combinatie" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602"><kbd class="grm-toets grm-evo grm-tweede
+grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602"></span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602"></span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602">2nd</span></kbd><kbd class="grm-toets
+grm-evo grm-bovenrij grm-actief-2nd"><span class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602">calc</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602">f4</span></span><span
+class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602">trace</span></kbd></span> <span class="grm-schermtekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602"><span class="grm-tab grm-actief" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="602">1:</span>value</span> in \(x=2\).
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="603">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="603">
+\(\Rightarrow \) \(g(2)\approx 1.5708\approx \frac {\pi }{2}\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="604">
+
+<div class="grm-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="604"><div class="grm-status" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="604">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="605"> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="605">X=2 &#x2003;Y=1.57079633</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[calc]1[(-)]3[enter]" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="610"><div class="grm-stap-tekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="610">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="610">
+Hetzelfde in \(x=-3\).
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="611">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="611">
+\(\Rightarrow \) \(g(-3)\approx -1.5708\approx -\frac {\pi }{2}\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="612">
+
+<div class="grm-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="612"><div class="grm-status" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="612">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="613"> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="613">X=&#x2212;3 &#x2003;Y=&#x2212;1.5707963</div>
+</div></div>
+
+</div></div>
+
+</div>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="618">
+Het GRM doet vermoeden dat \(g(x)=\frac {\pi }{2}\) voor \(x&gt;0\) en \(g(x)=-\frac
+{\pi }{2}\) voor \(x&lt;0\). Een paar waarden bewijzen dat niet.
+</p>
+
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="623">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="623"></span>
+</p>
+<!--
+...... subsubsection Algebraısch bewijs ......
+-->
+<h6 id="autosec-28" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="623">Algebraïsch bewijs</h6>
+<a id="mkpiweb-autopage-28"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="625">
+Een functie waarvan de afgeleide op een interval overal \(0\) is, heeft daar overal een horizontale
+raaklijn: ze is er constant.
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="628">
+\(x\neq 0\) 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="629"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+
+                                                                                                     1      − x12
+                                                                                      g ′ (x) =          +
+                                                                                                  1 + x2   1 + x12
+                                                                                                   1        1
+                                                                                            =         2
+                                                                                                        − 2
+                                                                                                  1+x    x +1
+                                                                                            =0
+                                                                                  ⇒       g constant op ]0, +∞[ en op ]−∞, 0[
+                                                                                                     π π       π
+                                                                                  ⇒    g(x) = g(1) = + =                      (x > 0)
+                                                                                                      4    4   2
+                                                                                                         π π       π
+                                                                                       g(x) = g(−1) = − − = −                 (x < 0)
+                                                                                                         4   4     2
+
+
+-->
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="629">
+
+\begin{alignat*} {3}
+&amp; &amp; g&apos;(x) &amp;= \frac {1}{1+x^2}+\frac {-\frac {1}{x^2}}{1+\frac {1}{x^2}}\\ &amp;&amp; &amp;= \frac {1}{1+x^2}-\frac {1}{x^2+1}\\ &amp;&amp; &amp;= 0\\ &amp;\Rightarrow \quad
+&amp; g &amp;\text { constant op } \left ]0,+\infty \right [ \text { en op } \left ]-\infty ,0\right [\\ &amp;\Rightarrow \quad &amp; g(x) &amp;= g(1)=\frac {\pi }{4}+\frac {\pi }{4}=\frac
+{\pi }{2} &amp;\quad &amp; (x&gt;0)\\ &amp;&amp; g(x) &amp;= g(-1)=-\frac {\pi }{4}-\frac {\pi }{4}=-\frac {\pi }{2} &amp;&amp; (x&lt;0)
+\end{alignat*}
+
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="640">
+\[ \boxed {\Bgtan x+\Bgtan \frac {1}{x}= \begin {cases} \phantom {-}\dfrac {\pi }{2} &amp; \text {als } x&gt;0\\[0.8em] -\dfrac {\pi }{2} &amp; \text {als } x&lt;0 \end {cases}} \]
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="647">
+Het domein van \(g\) bestaat uit twee stukken, en op elk stuk is de constante anders. De
+afgeleide \(0\) zegt enkel iets over één interval tegelijk.
+</p>
+
+
+
+
+<div class="aside" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="651">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="651">
+Op dezelfde manier: \(\Bgtan \frac {1+x}{1-x}\) en \(\Bgtan x\) hebben dezelfde afgeleide,
+dus verschillen ze op \(\left ]-\infty ,1\right [\) een constante. In \(x=0\) is dat \(\Bgtan 1-\Bgtan 0=\frac {\pi }{4}\).
+</p>
+
+</div>
+
+
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-29" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="656"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="656">6&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-29"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="658">
+Afgeleiden berekenen:<br />
+VBTL Analyse 2: p&nbsp;150 nr&nbsp;7 (d, f, g en i)
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="661">
+Raaklijn:<br />
+VBTL Analyse 2: p&nbsp;165 nr&nbsp;10
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="665">
+Afgeleiden combineren en herleiden:<br />
+VBTL Analyse 3: p&nbsp;134 nr&nbsp;2 tot 4; p&nbsp;135 nr&nbsp;6 (a tot d) en 7
+</p>
+
+
+
+
+<!--
+...... section Hogere afgeleiden ......
+-->
+<h4 id="autosec-30" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="671"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="671">IV&#x2003;</span>Hogere afgeleiden</h4>
+<a id="mkpiweb-autopage-30"></a>
+
+
+
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-31" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="673"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="673">1&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-31"></a>
+
+
+
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="676">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="676">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="676">(a)</span> Bereken \(f&apos;&apos;(x)\) voor \(f(x)=\Bgtan x\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="678">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="678">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="678">\(f&apos;&apos;(x) = \frac {-2x}{(1+x^2)^2}\)</span> We
+schrijven \(f&apos;(x)=\frac {1}{1+x^2}=(1+x^2)^{-1}\). 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="680"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                                                 f ′′ (x) = −(1 + x2 )−2 · 2x
+                                                                                                               −2x
+                                                                                                        =              .
+                                                                                                            (1 + x2 )2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="680">
+
+\begin{align*}
+f&apos;&apos;(x) &amp;= -(1+x^2)^{-2}\cdot 2x\\ &amp;= \frac {-2x}{(1+x^2)^2}.
+\end{align*}
+Voor <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="685">\(x&lt;0\)</span> is <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="685">\(f&apos;&apos;(x)&gt;0\)</span> en voor <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="685">\(x&gt;0\)</span> is
+<span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="685">\(f&apos;&apos;(x)&lt;0\)</span>: de grafiek van <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="685">\(\Bgtan \)</span> heeft een buigpunt in de oorsprong.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="689">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="689">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="689">(b)</span> Bereken \(f&apos;&apos;(x)\) voor \(f(x)=\Bgsin x\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="691">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="691">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="691">\(f&apos;&apos;(x) = \frac {x}{(1-x^2)\sqrt
+{1-x^2}}\)</span> We schrijven \(f&apos;(x)=(1-x^2)^{-\frac 12}\). 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="693"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                          1          3
+                                                                                             f ′′ (x) = − (1 − x2 )− 2 · (−2x)
+                                                                                                          2
+                                                                                                                x
+                                                                                                      =         √         .
+                                                                                                        (1 − x ) 1 − x2
+                                                                                                              2
+
+
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="693">
+
+\begin{align*}
+f&apos;&apos;(x) &amp;= -\frac 12(1-x^2)^{-\frac 32}\cdot (-2x)\\ &amp;= \frac {x}{(1-x^2)\sqrt {1-x^2}}.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="700">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="700">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="700">(c)</span> Toon aan dat \(y=\Bgsin x\) voldoet aan \((1-x^2)\,y&apos;&apos;-x\,y&apos;=0\). 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="702">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="702">
+Met het vorige voorbeeld: 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="703"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                                           x                      1
+                                                                           (1 − x2 ) y ′′ − x y ′ = (1 − x2 ) ·            √            −x· √
+                                                                                                                  (1 − x2 )    1 − x2           1 − x2
+                                                                                                        x         x
+                                                                                                =√           −√
+                                                                                                       1−x 2    1 − x2
+                                                                                                = 0.
+
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="703">
+
+\begin{align*}
+(1-x^2)\,y&apos;&apos;-x\,y&apos; &amp;= (1-x^2)\cdot \frac {x}{(1-x^2)\sqrt {1-x^2}}-x\cdot \frac {1}{\sqrt {1-x^2}}\\ &amp;= \frac {x}{\sqrt {1-x^2}}-\frac {x}{\sqrt {1-x^2}}\\ &amp;= 0.
+\end{align*}
+
+</p>
+</div>
+
+</li>
+</ul>
+
+
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-32" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="712"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="712">2&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-32"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="714">
+VBTL Analyse 2: p&nbsp;150 nr&nbsp;8 (g tot i)
+</p>
+
+
+
+
+<!--
+...... section De regel van de l’Hospital ......
+-->
+<h4 id="autosec-33" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="718"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="718">V&#x2003;</span>De regel van de l’Hospital</h4>
+<a id="mkpiweb-autopage-33"></a>
+
+
+
+<!--
+...... subsection Voorbeelden ......
+-->
+<h5 id="autosec-34" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="720"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="720">1&#x2003;</span>Voorbeelden</h5>
+<a id="mkpiweb-autopage-34"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="722">
+Ook met cyclometrische functies ontstaan onbepaalde vormen. De regel van de l’Hospital
+(hoofdstuk&nbsp;16) lost er heel wat op.
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="725">
+Bereken de volgende limieten. 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="727">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="727">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="727">(a)</span> \(\displaystyle \lim _{x\to 0}\frac {\Bgsin x}{x}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="729">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="729">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="729">\(\lim _{x\to 0}\frac {\Bgsin x}{x} = 1\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="730"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                        Bgsin x ‘ 0 ’
+                                                               lim             =                                                                 VOV
+                                                               x→0        x       0
+                                                                                               √ 1
+                                                                                 H              1−x2
+                                                                                 = lim
+                                                                                     x→0          1
+                                                                                 = 1.
+
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="730">
+
+\begin{align*}
+\lim _{x\to 0}\frac {\Bgsin x}{x} &amp;= \vov {\dfrac {0}{0}} &amp;&amp; \text {VOV}\\ &amp;\overset {H}{=} \lim _{x\to 0}\frac {\frac {1}{\sqrt {1-x^2}}}{1}\\ &amp;= 1.
+\end{align*}
+Dezelfde limiet als <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="736">\(\lim _{x\to 0}\frac {\sin x}{x}\)</span>: dicht bij <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="736">\(0\)</span> valt de grafiek van
+<span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="736">\(\Bgsin \)</span> bijna samen met de rechte <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="736">\(y=x\)</span>.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="740">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="740">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="740">(b)</span> \(\displaystyle \lim _{x\to 0}\frac {x-\Bgtan x}{x^3}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="742">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="742">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="742">\(\lim _{x\to 0}\frac {x-\Bgtan x}{x^3} = \frac
+13\)</span> Na één keer afleiden vereenvoudigen we eerst. 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="744"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                x − Bgtan x ‘ 0 ’
+                                                             lim           =                                                                       VOV
+                                                            x→0     x3        0
+                                                                                                       1
+                                                                                     H           1 − 1+x 2
+                                                                                     = lim
+                                                                                         x→0              3x2
+                                                                                                      2
+                                                                                                      x
+                                                                                                          2
+                                                                                     = lim 1+x2
+                                                                                       x→0 3x
+                                                                                                           1
+                                                                                     = lim
+                                                                                         x→0 3(1 + x2 )
+
+                                                                                         1
+                                                                                     =     .
+                                                                                         3
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="744">
+
+\begin{align*}
+\lim _{x\to 0}\frac {x-\Bgtan x}{x^3} &amp;= \vov {\dfrac {0}{0}} &amp;&amp; \text {VOV}\\ &amp;\overset {H}{=} \lim _{x\to 0}\frac {1-\frac {1}{1+x^2}}{3x^2}\\ &amp;= \lim _{x\to 0}\frac
+{\frac {x^2}{1+x^2}}{3x^2}\\ &amp;= \lim _{x\to 0}\frac {1}{3(1+x^2)}\\ &amp;= \frac 13.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="754">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="754">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="754">(c)</span> \(\displaystyle \lim _{x\to +\infty }x\Bigl (\frac {\pi }{2}-\Bgtan x\Bigr )\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="756">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="756">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="756">\(\lim _{x\to +\infty }x\Bigl (\frac {\pi }{2}-\Bgtan
+x\Bigr ) = 1\)</span> We schrijven het product als een quotiënt, zodat de vorm \(\vov {\frac {0}{0}}\) wordt. 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="759"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                   π            
+                                                           lim x        − Bgtan x = ‘∞ · 0’                                                            VOV
+                                                       x→+∞         2
+                                                                                                    π
+                                                                                                    2 − Bgtan x
+                                                                                         = lim           1
+                                                                                               x→+∞
+                                                                                                         x
+                                                                                               ‘ 0’
+                                                                                         =                                                             VOV
+                                                                                                 0
+                                                                                                    −1
+                                                                                         H         1+x2
+                                                                                         = lim
+                                                                                               x→+∞ −1
+                                                                                                    x2
+
+                                                                                                      x2
+                                                                                         = lim
+                                                                                               x→+∞ 1 + x2
+
+                                                                                         = 1.
+
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="759">
+
+\begin{align*}
+\lim _{x\to +\infty }x\Bigl (\frac {\pi }{2}-\Bgtan x\Bigr ) &amp;= \vov {\infty \cdot 0} &amp;&amp; \text {VOV}\\ &amp;= \lim _{x\to +\infty }\frac {\frac {\pi }{2}-\Bgtan x}{\frac {1}{x}}\\
+&amp;= \vov {\dfrac {0}{0}} &amp;&amp; \text {VOV}\\ &amp;\overset {H}{=} \lim _{x\to +\infty }\frac {\frac {-1}{1+x^2}}{\frac {-1}{x^2}}\\ &amp;= \lim _{x\to +\infty }\frac {x^2}{1+x^2}\\
+&amp;= 1.
+\end{align*}
+Voor grote <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="768">\(x\)</span> is dus <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="768">\(\Bgtan x\approx \frac {\pi }{2}-\frac {1}{x}\)</span>.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="771">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="771">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="771">(d)</span> \(\displaystyle \lim _{x\underset {&lt;}{\to }1}\frac {\Bgcos x}{\sqrt {1-x}}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="773">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="773">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="773">\(\lim _{x\underset {&lt;}{\to }1}\frac {\Bgcos x}{\sqrt
+{1-x}} = \sqrt 2\)</span> Enkel een linkerlimiet: \(\Bgcos x\) bestaat niet voor \(x&gt;1\). 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="775"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                                Bgcos x ‘ 0 ’
+                                                            lim √      =                                                                            VOV
+                                                            x→1
+                                                              <
+                                                                  1−x     0
+                                                                                    √ −1
+                                                                            H        1−x2
+                                                                            = lim
+                                                                                x→1 √−1
+                                                                                 <  2 1−x
+                                                                                                √
+                                                                                               2 1−x
+                                                                            = lim p
+                                                                                x→1
+                                                                                 <        (1 − x)(1 + x)
+                                                                                           2
+                                                                            = lim √
+                                                                                x→1
+                                                                                 <
+                                                                                          1+x
+                                                                               2  √
+                                                                            = √ = 2.
+                                                                                2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="775">
+
+\begin{align*}
+\lim _{x\underset {&lt;}{\to }1}\frac {\Bgcos x}{\sqrt {1-x}} &amp;= \vov {\dfrac {0}{0}} &amp;&amp; \text {VOV}\\ &amp;\overset {H}{=} \lim _{x\underset {&lt;}{\to }1} \frac {\frac {-1}{\sqrt
+{1-x^2}}}{\frac {-1}{2\sqrt {1-x}}}\\ &amp;= \lim _{x\underset {&lt;}{\to }1}\frac {2\sqrt {1-x}}{\sqrt {(1-x)(1+x)}}\\ &amp;= \lim _{x\underset {&lt;}{\to }1}\frac {2}{\sqrt {1+x}}\\ &amp;=
+\frac {2}{\sqrt 2}=\sqrt 2.
+\end{align*}
+
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="786">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="786">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="786">(e)</span> \(\displaystyle \lim _{x\to 0}\frac {\Bgsin x-x}{x^3}\) 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="788">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="788">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="788">\(\lim _{x\to 0}\frac {\Bgsin x-x}{x^3} = \frac
+16\)</span> Na één keer afleiden brengen we op één noemer en vermenigvuldigen we teller en noemer met de toegevoegde van de teller. 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="791"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+
+                                                        Bgsin x − x ‘ 0 ’
+                                                     lim           =                                                                                      VOV
+                                                    x→0     x3        0
+                                                                                   √ 1     −1
+                                                                           H        1−x2
+                                                                           = lim         2
+                                                                               x→0    3x
+                                                                                     √
+                                                                                 1 − 1 − x2
+                                                                           = lim     √
+                                                                             x→0 3x2 1 − x2
+                                                                                      √         √         
+                                                                                  1 − 1 − x2 1 + 1 − x2
+                                                                           = lim     √          √        
+                                                                             x→0 3x2 1 − x2 1 +   1 − x2
+                                                                                                     x2
+                                                                           = lim          √              √       
+                                                                               x→0 3x2         1 − x2 1 + 1 − x2
+                                                                                           1
+                                                                           = lim √            √        
+                                                                             x→0 3 1 − x2 1 +   1 − x2
+                                                                                 1    1
+                                                                           =         = .
+                                                                               3·1·2  6
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="791">
+
+\begin{align*}
+\lim _{x\to 0}\frac {\Bgsin x-x}{x^3} &amp;= \vov {\dfrac {0}{0}} &amp;&amp; \text {VOV}\\ &amp;\overset {H}{=} \lim _{x\to 0}\frac {\frac {1}{\sqrt {1-x^2}}-1}{3x^2}\\ &amp;= \lim _{x\to
+0}\frac {1-\sqrt {1-x^2}}{3x^2\sqrt {1-x^2}}\\ &amp;= \lim _{x\to 0}\frac {\bigl (1-\sqrt {1-x^2}\bigr )\bigl (1+\sqrt {1-x^2}\bigr )} {3x^2\sqrt {1-x^2}\,\bigl (1+\sqrt {1-x^2}\bigr )}\\
+&amp;= \lim _{x\to 0}\frac {x^2}{3x^2\sqrt {1-x^2}\,\bigl (1+\sqrt {1-x^2}\bigr )}\\ &amp;= \lim _{x\to 0}\frac {1}{3\sqrt {1-x^2}\,\bigl (1+\sqrt {1-x^2}\bigr )}\\ &amp;= \frac {1}{3\cdot
+1\cdot 2}=\frac 16.
+\end{align*}
+
+</p>
+</div>
+
+</li>
+</ul>
+
+
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-35" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="805"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="805">2&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-35"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="807">
+VBTL Analyse 2: p&nbsp;201 nr&nbsp;14 (a tot d)
+</p>
+
+
+
+
+<!--
+...... section Verloop van cyclometrische functies ......
+-->
+<h4 id="autosec-36" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="811"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="811">VI&#x2003;</span>Verloop van cyclometrische functies</h4>
+<a id="mkpiweb-autopage-36"></a>
+
+
+
+<!--
+...... subsection Werkwijze ......
+-->
+<h5 id="autosec-37" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="813"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="813">1&#x2003;</span>Werkwijze</h5>
+<a id="mkpiweb-autopage-37"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="815">
+We volgen de algemene werkwijze uit hoofdstuk&nbsp;17. Bij een cyclometrische functie letten
+we op een paar zaken. 
+</p>
+<ul class="itemize" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="818">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="818">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="818">•</span> <b>Domein</b>: het argument van \(\Bgsin \) en \(\Bgcos \) moet in \([-1,1]\) liggen. Dat geeft vaak een begrensd domein, met randpunten. 
+</p>
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="820">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="820">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="820">•</span> <b>Randpunten</b>: in een randpunt bestaat enkel een eenzijdige afgeleide. Wordt \(f&apos;\) daar oneindig groot, dan is er een verticale raaklijn, zoals bij \(\Bgsin \) in \(\pm 1\).
+
+</p>
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="823">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="823">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="823">•</span> <b>Asymptoten</b>: \(\Bgtan \) en \(\Bgcot \) zijn begrensd, met de horizontale asymptoten \(y=\pm \frac {\pi }{2}\), \(y=0\) en \(y=\pi \). In een som zoals \(x-\Bgtan x\)
+geven ze een schuine asymptoot. 
+</p>
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="826">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="826">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="826">•</span> Nulwaarden van \(f\) vinden we niet altijd algebraïsch. Het stijgen en dalen vertelt dan hoeveel er zijn; het GRM benadert ze. 
+</p>
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="828">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="828">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="828">•</span> Waarden zoals \(\Bgsin \frac {\sqrt 3}{2}=\frac {\pi }{3}\) laten we exact staan. Het <b>bereik</b> volgt uit de extrema en de waarden in de randpunten.
+</p>
+</li>
+</ul>
+
+
+<!--
+...... subsection Uitgewerkt voorbeeld ......
+-->
+<h5 id="autosec-38" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="833"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="833">2&#x2003;</span>Uitgewerkt voorbeeld</h5>
+<a id="mkpiweb-autopage-38"></a>
+
+
+
+
+<div class="cursus-oefening" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="835">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="835">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="835"></span>
+</p>
+<!--
+...... subsubsection Oefening 1 ......
+-->
+<h6 id="autosec-39" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="835">Oefening 1</h6>
+<a id="mkpiweb-autopage-39"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="836">
+Onderzoek het verloop van \(f(x)=\Bgsin x-2x\). 
+</p>
+<ul class="enumerate" style="list-style-type:none">
+
+
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="838">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="838">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="838">1.</span> Domein 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="840">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="840">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="840">\(\dom f=[-1,1]\)</span> \(\Bgsin x\) bestaat enkel voor
+\(x\in [-1,1]\), dus \(\dom f=[-1,1]\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="843">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="843">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="843">2.</span> Continuïteit: <span class="opl opl-vast" style="min-width:5cm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="843">continu in \([-1,1]\) (verschil van continue functies)</span> 
+</p>
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="844">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="844">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="844">3.</span> Symmetrie 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="846">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="846">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="846">oneven</span> 
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="847">
+\[ f(-x)=\Bgsin (-x)-2(-x)=-\Bgsin x+2x=-f(x) \]
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="850">
+\(f\) is oneven: de grafiek is symmetrisch om de oorsprong.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="852">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="852">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="852">4.</span> Snijpunten met de assen 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="854">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="854">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="854">\((0,0)\)</span> Met de \(y\)-as: \(f(0)=0\), dus \((0,0)\).
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="857">
+Met de \(x\)-as: \(\Bgsin x=2x\) lossen we niet algebraïsch op. We zien \(x=0\). Dat
+er geen andere nulwaarden zijn, volgt uit het stijgen en dalen in 7.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="861">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="861">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="861">5.</span> Tekenverloop 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="863">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="863">
+Uit de tabel in 7: \(f\) stijgt van \(f(-1)&gt;0\) tot het maximum, en daalt dan tot \(0\) in
+\(x=0\). Op \([-1,0[\) is \(f\) dus positief. Omdat \(f\) oneven is, is \(f\) negatief op \(]0,1]\). 
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="866">
+\[ \begin {array}{c|ccccc} x &amp; -1 &amp; &amp; 0 &amp; &amp; 1 \\ \hline f(x) &amp; + &amp; + &amp; 0 &amp; - &amp; - \end {array} \]
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="873">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="873">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="873">6.</span> Asymptoten 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="875">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="875">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="875">geen asymptoten</span> Geen VA, want \(f\) is continu in het
+gesloten interval \([-1,1]\). Geen HA en geen SA, want het domein is begrensd.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="879">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="879">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="879">7.</span> Eerste afgeleide 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="881">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="881">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="881">\(f&apos;(x)=\dfrac {1-2\sqrt {1-x^2}}{\sqrt
+{1-x^2}}\)</span> 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="882"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                    1
+                                                                                        f ′ (x) = √      −2
+                                                                                                  1 − x2
+                                                                                                      √
+                                                                                                1 − 2 1 − x2
+                                                                                              =    √                (x ∈ ]−1, 1[)
+                                                                                                     1 − x2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="882">
+
+\begin{align*}
+f&apos;(x) &amp;= \frac {1}{\sqrt {1-x^2}}-2\\ &amp;= \frac {1-2\sqrt {1-x^2}}{\sqrt {1-x^2}} \qquad (x\in \left ]-1,1\right [)
+\end{align*}
+
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="887"> \(\seteqnumber{0}{}{0}\)</span>
+
+<!--
+
+                                                                                                          p              1
+                                                                                         f ′ (x) = 0 ⇐⇒       1 − x2 =
+                                                                                                                         2
+                                                                                                                   1
+                                                                                                      ⇐⇒ 1 − x2 =
+                                                                                                                   4
+                                                                                                               √           √
+                                                                                                                 3           3
+                                                                                                      ⇐⇒ x = −      of x =
+                                                                                                                2           2
+
+-->
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="887">
+
+\begin{align*}
+f&apos;(x)=0 &amp;\iff \sqrt {1-x^2}=\frac 12\\ &amp;\iff 1-x^2=\frac 14\\ &amp;\iff x=-\frac {\sqrt 3}{2} \text { of } x=\frac {\sqrt 3}{2}
+\end{align*}
+De teller is negatief als <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="893">\(\sqrt {1-x^2}&gt;\frac 12\)</span>, dus tussen beide nulwaarden.
+</p>
+</div>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="896">
+Stijgen, dalen en extrema: 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="898">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="898">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="898">max \(\sqrt 3-\frac {\pi }{3}\) voor \(x=-\frac {\sqrt
+3}{2}\), min \(\frac {\pi }{3}-\sqrt 3\) voor \(x=\frac {\sqrt 3}{2}\); verticale raaklijn in \(x=\pm 1\)</span> 
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="901">
+\[ \begin {array}{r@{\,}c|ccccccc} &amp; x &amp; -1 &amp; &amp; -\frac {\sqrt 3}{2} &amp; &amp; \frac {\sqrt 3}{2} &amp; &amp; 1 \\ \hline T &amp; 1-2\sqrt {1-x^2} &amp; 1 &amp; + &amp; 0 &amp;
+- &amp; 0 &amp; + &amp; 1 \\ N &amp; \sqrt {1-x^2} &amp; 0 &amp; + &amp; + &amp; + &amp; + &amp; + &amp; 0 \\ \hline &amp; f&apos;(x) &amp; | &amp; + &amp; 0 &amp; - &amp; 0 &amp; + &amp; | \\
+\hline &amp; f(x) &amp; \tvmin {2-\frac {\pi }{2}} &amp; \nearrow &amp; \tvmax {\sqrt 3-\frac {\pi }{3}} &amp; \searrow &amp; \tvmin {\frac {\pi }{3}-\sqrt 3} &amp; \nearrow &amp; \tvmax
+{\frac {\pi }{2}-2} \\ &amp; &amp; \text {VR} &amp; &amp; \text {HR} &amp; &amp; \text {HR} &amp; &amp; \text {VR} \end {array} \]
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="911">
+Met \(\Bgsin \frac {\sqrt 3}{2}=\frac {\pi }{3}\) is \(f\bigl (\frac {\sqrt
+3}{2}\bigr )=\frac {\pi }{3}-\sqrt 3\approx -0.68\). Omdat \(f\) oneven is, is \(f\bigl (-\frac {\sqrt 3}{2}\bigr )=\sqrt 3-\frac {\pi }{3} \approx 0.68\). In de randpunten is \(f(-1)=-\frac {\pi
+}{2}+2\approx 0.43\) en <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="915">\(f(1)=\frac {\pi }{2}-2\approx -0.43\)</span>.
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="917">
+In de randpunten wordt \(f&apos;\) oneindig groot: 
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="918">
+\[ \lim _{x\underset {&lt;}{\to }1}f&apos;(x) =\lim _{x\underset {&lt;}{\to }1}\Bigl (\frac {1}{\sqrt {1-x^2}}-2\Bigr ) =+\infty . \]
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="923">
+Daar is de raaklijn verticaal (VR), zoals bij \(\Bgsin \) zelf. Bij \(-1\) ligt een relatief
+minimum, bij \(1\) een relatief maximum: van daaruit stijgt of daalt \(f\) eerst.
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="927">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="927">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="927">8.</span> Tweede afgeleide 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="929">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="929">
+<span class="oplantwoord" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="929">bol in \([-1,0[\), hol in \(]0,1]\); BP \((0,0)\)</span> De
+\(-2\) valt weg en de tweede afgeleide van \(\Bgsin x\) kennen we: 
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="931">
+\[ f&apos;&apos;(x)=\frac {x}{(1-x^2)\sqrt {1-x^2}}. \]
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="934">
+De noemer is positief in \(\left ]-1,1\right [\), dus heeft \(f&apos;&apos;(x)\) het teken
+van \(x\). 
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="936">
+\[ \begin {array}{c|ccccc} x &amp; -1 &amp; &amp; 0 &amp; &amp; 1 \\ \hline f&apos;&apos;(x) &amp; | &amp; - &amp; 0 &amp; + &amp; | \\ \hline f(x) &amp; &amp; \cap &amp; \text {BP} &amp; \cup
+&amp; \end {array} \]
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="943">
+Het buigpunt is \((0,0)\), met als buigraaklijn \(y=f&apos;(0)\,x=-x\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="945">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="945">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="945">9.</span> Overzichtstabel 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="947">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="947">
+\[ \begin {array}{c|ccccccccc} x &amp; -1 &amp; &amp; -\frac {\sqrt 3}{2} &amp; &amp; 0 &amp; &amp; \frac {\sqrt 3}{2} &amp; &amp; 1 \\ \hline f&apos;(x) &amp; | &amp; + &amp; 0 &amp; - &amp;
+-1 &amp; - &amp; 0 &amp; + &amp; | \\ \hline f&apos;&apos;(x) &amp; | &amp; - &amp; - &amp; - &amp; 0 &amp; + &amp; + &amp; + &amp; | \\ \hline f(x) &amp; \tvmin {2-\frac {\pi }{2}} &amp;
+\nearrow &amp; \tvmax {\sqrt 3-\frac {\pi }{3}} &amp; \searrow &amp; \tvbp {0} &amp; \searrow &amp; \tvmin {\frac {\pi }{3}-\sqrt 3} &amp; \nearrow &amp; \tvmax {\frac {\pi }{2}-2} \\ &amp;
+\text {VR} &amp; \cap &amp; \text {HR} &amp; \cap &amp; &amp; \cup &amp; \text {HR} &amp; \cup &amp; \text {VR} \end {array} \]
+</p>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="956">
+Het bereik is \(\Bigl [\frac {\pi }{3}-\sqrt 3,\ \sqrt 3-\frac {\pi }{3}\Bigr ]\),
+want \(\sqrt 3-\frac {\pi }{3}\approx 0.68\) is groter dan \(2-\frac {\pi }{2}\approx 0.43\).
+</p>
+</div>
+
+
+</li>
+<li data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="961">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="961">
+<span class="listmarker" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="961">10.</span> Grafiek 
+</p>
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="963">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="963">
+Met de gegevens uit 1 tot 9 tekenen we de grafiek. In de randpunten vertrekt en eindigt ze
+verticaal. 
+</p>
+<div class="center" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="966">
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="966">
+ <span
+    id="lateximage-mkpiweb-4"
+    class="lateximagesource" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="966"
+><!--
+                   y
+     f
+
+                 0.5
+
+
+
+−1       −0.5          0.5   1   x
+
+                −0.5
+--><img
+    src="mkpiweb-images/image-4.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="966"
+></span>
+</p>
+</div>
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="984">
+Het bolletje is het buigpunt, de gestreepte rechte de buigraaklijn \(y=-x\).
+</p>
+</div>
+</li>
+</ul>
+
+</div>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="990">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="990"></span>
+</p>
+<!--
+...... subsubsection Opmerking: twee soorten extrema ......
+-->
+<h6 id="autosec-43" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="990">Opmerking: twee soorten extrema</h6>
+<a id="mkpiweb-autopage-43"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="991">
+De toppen in \(\pm \frac {\sqrt 3}{2}\) hebben een horizontale raaklijn: daar is
+\(f&apos;=0\). De extrema in de randpunten \(\pm 1\) hebben dat niet: daar bestaat \(f&apos;\) niet eens. Zoek bij een begrensd domein dus ook altijd in de randpunten.
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="995">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="995"></span>
+</p>
+<!--
+...... subsubsection Controle met het GRM ......
+-->
+<h6 id="autosec-44" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="995">Controle met het GRM</h6>
+<a id="mkpiweb-autopage-44"></a>
+
+
+
+<div class="grm-demo" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="999">
+
+
+<div class="grm-stap" data-toetsen="[y=][sin-1]X)-2X" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="999"><div class="grm-stap-tekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="999">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="999">
+<kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span
+class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="999"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="999">statplot</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="999">f1</span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="999">y=</span></kbd> en voer het voorschrift in.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000">
+\(\Bgsin \) is <span class="grm-combinatie" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000"><kbd class="grm-toets grm-evo grm-tweede
+grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000"></span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000"></span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000">2nd</span></kbd><kbd class="grm-toets
+grm-evo grm-licht grm-actief-2nd"><span class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000">sin&#x207B;&#x00B9;</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000">E</span></span><span
+class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000">sin</span></kbd></span>. Het GRM staat in <span class="grm-schermtekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1000">RADIAN</span>; de haakjes sluiten we zelf.
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1002">
+
+<div class="grm-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1002"><div class="grm-status" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1002">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1003"> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1003">Y<sub>1</sub>=sin&#x207B;&#x00B9;(X)&#x2212;2X</div>
+<div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1003">Y<sub>2</sub>=</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[window][(-)]1.2[enter]1.2[enter].5[enter][(-)]1[enter]1[enter].5[enter]" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1009"><div class="grm-stap-tekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1009">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1009">
+<kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span
+class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1009"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1009">tblset</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1009">f2</span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1009">window</span></kbd> en stel het venster in op het domein.
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1010">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1010">
+\(X\) van \(-1.2\) tot \(1.2\): wat lucht naast \([-1,1]\). Voor \(y\) volstaat \(-1\) tot
+\(1\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1012">
+
+<div class="grm-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1012"><div class="grm-status" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1012">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1013"> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1013">WINDOW</div> <div class="grm-regel
+grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1013">Xmin=&#x2212;1.2</div> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1013">Xmax=1.2</div> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1013">Xscl=.5</div> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1013">Ymin=&#x2212;1</div> <div
+class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1013">Ymax=1</div> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1013">Yscl=.5</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[graph]" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1024"><div class="grm-stap-tekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1024">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1024">
+<kbd class="grm-toets grm-evo grm-bovenrij grm-actief-basis"><span
+class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1024"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1024">table</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1024">f5</span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1024">graph</span></kbd>
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1025">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1025">
+Buiten \([-1,1]\) tekent het GRM niets: daar bestaat \(f\) niet.
+</p>
+</div>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1027">
+  <span
+    id="lateximage-mkpiweb-5"
+    class="lateximagesource" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1027"
+><!--
+               y
+
+
+             0.5
+
+
+
+
+−1   −0.5          0.5   1   x
+
+            −0.5
+--><img
+    src="mkpiweb-images/image-5.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1027"
+></span>
+</p>
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[calc]4[(-)]1[enter][(-)].5[enter][enter]" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041"><div class="grm-stap-tekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041">
+<span class="grm-combinatie" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041"><kbd class="grm-toets grm-evo grm-tweede
+grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041"></span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041"></span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041">2nd</span></kbd><kbd class="grm-toets
+grm-evo grm-bovenrij grm-actief-2nd"><span class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041">calc</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041">f4</span></span><span
+class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041">trace</span></kbd></span> <span class="grm-schermtekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041"><span class="grm-tab grm-actief" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1041">4:</span>maximum</span> tussen \(-1\) en \(-0.5\).
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1042">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1042">
+\(\Rightarrow \) \(x=-\frac {\sqrt 3}{2}\approx -0.8660\) en \(\sqrt 3-\frac {\pi
+}{3}\approx 0.6849\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1044">
+
+<div class="grm-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1044"><div class="grm-status" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1044">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1045"> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1045">Maximum</div> <div class="grm-regel
+grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1045">X=&#x2212;.8660254 &#x2003;Y=.684853256</div> </div></div>
+
+</div></div>
+
+
+<div class="grm-stap" data-toetsen="[calc]3.5[enter]1[enter][enter]" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051"><div class="grm-stap-tekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051">
+<span class="grm-combinatie" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051"><kbd class="grm-toets grm-evo grm-tweede
+grm-actief-basis"><span class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051"></span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051"></span></span><span class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051">2nd</span></kbd><kbd class="grm-toets
+grm-evo grm-bovenrij grm-actief-2nd"><span class="grm-legendes" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051"><span class="grm-legende-2nd" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051">calc</span><span class="grm-legende-alpha" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051">f4</span></span><span
+class="grm-basistekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051">trace</span></kbd></span> <span class="grm-schermtekst" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051"><span class="grm-tab grm-actief" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1051">3:</span>minimum</span> tussen \(0.5\) en \(1\).
+</p>
+<div class="grm-uitleg" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1052">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1052">
+\(\Rightarrow \) het spiegelbeeld: \(x=\frac {\sqrt 3}{2}\) en \(\frac {\pi }{3}-\sqrt
+3\approx -0.6849\).
+</p>
+</div>
+
+
+</div><div class="grm-stap-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1054">
+
+<div class="grm-scherm" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1054"><div class="grm-status" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1054">NORMAL FLOAT AUTO REAL RADIAN MP</div><div class="grm-inhoud" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1055"> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1055">Minimum</div> <div class="grm-regel grm-links" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1055">X=.8660254
+&#x2003;Y=&#x2212;.68485326</div> </div></div>
+
+</div></div>
+
+</div>
+
+
+<!--
+...... subsection Meer voorbeelden in het handboek ......
+-->
+<h5 id="autosec-47" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1061"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1061">3&#x2003;</span>Meer voorbeelden in het handboek</h5>
+<a id="mkpiweb-autopage-47"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1063">
+Zie handboek VBTL Analyse 3, p&nbsp;130 tot 132: het verloop van \(-\pi +2\Bgtan x\),
+met twee horizontale asymptoten.
+</p>
+
+
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-48" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1066"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1066">4&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-48"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1068">
+VBTL Analyse 3: p&nbsp;134 nr&nbsp;1
+</p>
+
+
+
+
+<!--
+...... section Extremumvraagstukken ......
+-->
+<h4 id="autosec-49" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1072"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1072">VII&#x2003;</span>Extremumvraagstukken</h4>
+<a id="mkpiweb-autopage-49"></a>
+
+
+
+<!--
+...... subsection Een gezichtshoek ......
+-->
+<h5 id="autosec-50" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1074"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1074">1&#x2003;</span>Een gezichtshoek</h5>
+<a id="mkpiweb-autopage-50"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1076">
+Een hoek die we zien, is vaak het verschil van twee hoeken. Elk van die hoeken heeft een tangens
+die we kennen, en dus is de hoek zelf een verschil van twee \(\Bgtan \)’s.
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1080">
+Een scorebord hangt aan de muur van een sporthal. De onderrand hangt \(1\)&nbsp;m boven
+je ogen, de bovenrand \(3\)&nbsp;m. Op welke afstand van de muur zie je het bord onder de grootste hoek?
+</p>
+
+
+<div class="center" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1085">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1085">
+ <span
+    id="lateximage-mkpiweb-6"
+    class="lateximagesource" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1085"
+><!--
+3
+        α
+    1
+            oog
+        x
+--><img
+    src="mkpiweb-images/image-6.svg"
+    alt="(-tikz-&nbsp;diagram)"
+    style=""
+    class="lateximage" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1085"
+></span>
+</p>
+</div>
+
+
+<div class="oplossing" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1101">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1101">
+Sta je op \(x\)&nbsp;meter van de muur, dan zie je de bovenrand onder een hoek \(\beta \)
+boven de horizontale, met \(\tan \beta =\frac {3}{x}\). De onderrand zie je onder een hoek \(\gamma \) met \(\tan \gamma =\frac {1}{x}\). Het bord zie je onder 
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1104">
+\[ \alpha (x)=\beta -\gamma =\Bgtan \frac {3}{x}-\Bgtan \frac {1}{x} \qquad \text {met } x&gt;0.                \]
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1108">
+We leiden af, met \(\Bigl (\Bgtan \dfrac {a}{x}\Bigr )&apos; =\dfrac {-\frac
+{a}{x^2}}{1+\frac {a^2}{x^2}}=\dfrac {-a}{x^2+a^2}\): 
+</p>
+<span class="hidden" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1110"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                                      −3         1
+                                                                                             α′ (x) =       +
+                                                                                                     x2 + 9 x2 + 1
+                                                                                                     −3(x2 + 1) + (x2 + 9)
+                                                                                                   =
+                                                                                                        (x2 + 9)(x2 + 1)
+                                                                                                           2(3 − x2 )
+                                                                                                   =                       .
+                                                                                                        (x2 + 9)(x2 + 1)
+
+
+-->
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1110">
+
+\begin{align*}
+\alpha &apos;(x) &amp;= \frac {-3}{x^2+9}+\frac {1}{x^2+1}\\ &amp;= \frac {-3(x^2+1)+(x^2+9)}{(x^2+9)(x^2+1)}\\ &amp;= \frac {2(3-x^2)}{(x^2+9)(x^2+1)}.
+\end{align*}
+Voor <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1116">\(x&gt;0\)</span> is <span data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1116">\(\alpha &apos;(x)=0\iff x=\sqrt 3\)</span>. 
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1117">
+\[ \begin {array}{c|ccccc} x &amp; 0 &amp; &amp; \sqrt 3 &amp; &amp; +\infty \\ \hline \alpha &apos;(x) &amp; &amp; + &amp; 0 &amp; - &amp; \\ \hline \alpha (x) &amp; &amp; \nearrow &amp;
+\tvmax {\frac {\pi }{6}} &amp; \searrow &amp; \end {array} \]
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1124">
+Met \(\Bgtan \sqrt 3=\frac {\pi }{3}\) en \(\Bgtan \frac {1}{\sqrt 3}=\frac {\pi
+}{6}\) is \(\alpha \bigl (\sqrt 3\bigr )=\frac {\pi }{3}-\frac {\pi }{6}=\frac {\pi }{6}\). 
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1126">
+\[ \boxed {x=\sqrt 3\approx 1.73~\text {m},\qquad \alpha =\frac {\pi }{6}=30^\circ } \]
+</p>
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1129">
+Sta je dichter, dan kijk je te schuin omhoog. Sta je verder, dan wordt het bord klein.
+</p>
+</div>
+
+
+
+
+<div class="aside" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1134">
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1134">
+Algemeen: hangt de onderrand \(a\) en de bovenrand \(b\) boven je ogen, dan is de beste
+afstand \(\sqrt {ab}\), het meetkundig gemiddelde. Regiomontanus stelde deze vraag rond 1471, over een opgehangen staaf.
+</p>
+
+</div>
+
+
+<!--
+...... subsection VBTL Oefeningen ......
+-->
+<h5 id="autosec-54" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1139"><span class="sectionnumber" data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1139">2&#x2003;</span>VBTL Oefeningen</h5>
+<a id="mkpiweb-autopage-54"></a>
+
+
+<p data-mkpi-bestand="A20_VerloopVanCyclometrischeFuncties.tex" data-mkpi-regel="1141">
+VBTL Analyse 2: p&nbsp;206 nr&nbsp;28; p&nbsp;208 nr&nbsp;41
+</p>
+
+<a id="mkpiweb-autofile-last"></a>
+</section>
+
+</main>
+
+</div><!-- grid -->
+<script src="vensters.js?v=8993bff2ad6e"></script>
+<script src="presentatie.js?v=8993bff2ad6e"></script>
+<script src="statistieken.js?v=8993bff2ad6e"></script>
+<script src="vendor/jsxgraphcore.js?v=8993bff2ad6e"></script>
+<script src="interactieve-grafieken.js?v=8993bff2ad6e"></script>
+<script src="hoofdstuk.interactief.js?v=8993bff2ad6e"></script>
+<script src="grm-toetsen.js?v=8993bff2ad6e"></script>
+<script src="grm-demo.js?v=8993bff2ad6e"></script>
+<script src="functiecas.js?v=8993bff2ad6e"></script>
+<script src="functierekenmachine.js?v=8993bff2ad6e"></script>
+</body>
+</html>

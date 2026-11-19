@@ -1,0 +1,26 @@
+{
+ "titel": "Verloop van cyclometrische functies",
+ "hoofdstuk": 20,
+ "code": "A20",
+ "herhaling": false,
+ "vak": "Wiskunde",
+ "domein": "Analyse",
+ "domeinnaam": "Analyse",
+ "url": "analyse/verloop-van-cyclometrische-functies",
+ "secties": [
+  "Herhaling",
+  "Afgeleide van Bgsin en Bgcos",
+  "Afgeleide van Bgtan en Bgcot",
+  "Hogere afgeleiden",
+  "De regel van de l’Hospital",
+  "Verloop van cyclometrische functies",
+  "Extremumvraagstukken"
+ ],
+ "leerplandoelen": [
+  "WD3_06.08.28",
+  "WD3_06.08.29"
+ ],
+ "interactief": true,
+ "python": false,
+ "oefeningen": false
+}

@@ -3097,7 +3097,8 @@ Bepaal de cartesische vergelijking van het vlak \(\alpha \) door de punten \(P_1
 <div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="942">
 
 <p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="942">
-We bepalen eerst een paar richtingsvectoren: 
+We vullen de coördinaten van de drie punten in de formule in. Daarna trekken we de
+tweede rij af van de derde en de vierde rij en ontwikkelen we naar de eerste rij: 
 </p>
 <span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="943"> \(\seteqnumber{0}{}{0}\)</span>
 
@@ -3106,10 +3107,21 @@ We bepalen eerst een paar richtingsvectoren:
 
 
 
-                                                                                            ⃗ = P⃗2 − P⃗1 = (−6, 4, −2),
-                                                                                            R
-                                                                                            ⃗ = P⃗3 − P⃗1 = (−1, 2, −7).
-                                                                                            S
+                                                                                        x      y    z 1
+                                                                                         4     −1   3 1
+                                                                                     α↔                  =0
+                                                                                        −2     3    1 1
+                                                                                         3      1   −4 1
+                                                                                         x     y    z 1
+                                                                                          4    −1    3 1
+                                                                                       ↔                 =0
+                                                                                         −6    4    −2 0
+                                                                                         −1    2    −7 0
+                                                                                                            4     −1    3
+                                                                                       ↔ −24x − 40y − 8z − −6     4    −2 = 0
+                                                                                                           −1     2    −7
+                                                                                       ↔ −24x − 40y − 8z − (−80) = 0
+                                                                                       α ↔ 3x + 5y + z − 10 = 0
 
 
 
@@ -3119,33 +3131,9 @@ We bepalen eerst een paar richtingsvectoren:
 <p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="943">
 
 \begin{align*}
-\overrightarrow {R} &amp;= \overrightarrow {P_2}-\overrightarrow {P_1} = (-6,4,-2),\\ \overrightarrow {S} &amp;= \overrightarrow {P_3}-\overrightarrow {P_1} = (-1,2,-7).
-\end{align*}
-Deze vectoren zijn lineair onafhankelijk. De determinantvoorwaarde geeft 
-</p>
-<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="948"> \(\seteqnumber{0}{}{0}\)</span>
-
-
-<!--
-
-
-
-                                                                                          −6   −1   x−4
-                                                                                     α↔    4    2   y+1 =0
-                                                                                          −2   −7   z−3
-                                                                                       ↔ −24(x − 4) − 40(y + 1) − 8(z − 3) = 0
-                                                                                       α ↔ 3x + 5y + z − 10 = 0
-
-
-
--->
-
-
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="948">
-
-\begin{align*}
-\alpha &amp;\leftrightarrow \begin{vmatrix}-6&amp;-1&amp;x-4\\4&amp;2&amp;y+1\\-2&amp;-7&amp;z-3\end {vmatrix}=0\\ &amp;\leftrightarrow -24(x-4)-40(y+1)-8(z-3)=0\\ &amp;\boxed {\alpha
-\leftrightarrow 3x+5y+z-10=0}
+\alpha &amp;\leftrightarrow \begin{vmatrix}x&amp;y&amp;z&amp;1\\4&amp;-1&amp;3&amp;1\\-2&amp;3&amp;1&amp;1\\3&amp;1&amp;-4&amp;1\end {vmatrix}=0\\ &amp;\leftrightarrow
+\begin{vmatrix}x&amp;y&amp;z&amp;1\\4&amp;-1&amp;3&amp;1\\-6&amp;4&amp;-2&amp;0\\-1&amp;2&amp;-7&amp;0\end {vmatrix}=0\\ &amp;\leftrightarrow
+-24x-40y-8z-\begin{vmatrix}4&amp;-1&amp;3\\-6&amp;4&amp;-2\\-1&amp;2&amp;-7\end {vmatrix}=0\\ &amp;\leftrightarrow -24x-40y-8z-(-80)=0\\ &amp;\boxed {\alpha \leftrightarrow 3x+5y+z-10=0}
 \end{align*}
 
 </p>
@@ -3155,32 +3143,32 @@ Deze vectoren zijn lineair onafhankelijk. De determinantvoorwaarde geeft
 <!--
 ...... subsubsection Toepassing: voorwaarde opdat vier punten coplanair zouden zijn ......
 -->
-<h6 id="autosec-77" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="955"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="955">&#x2003;</span>Toepassing: voorwaarde opdat vier punten coplanair zouden zijn</h6>
+<h6 id="autosec-77" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="952"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="952">&#x2003;</span>Toepassing: voorwaarde opdat vier punten coplanair zouden zijn</h6>
 <a id="mkpiweb-autopage-77"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="956">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="953">
 Beschouw in een geijkte ruimte de punten \(P_1(x_1, y_1, z_1)\), \(P_2(x_2, y_2,
 z_2)\), \(P_3(x_3, y_3, z_3)\) en \(P_4(x_4, y_4, z_4)\). Dan kunnen we stellen: 
 </p>
-<div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="958">
+<div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="955">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="958">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="955">
 Als \(P_2\), \(P_3\) en \(P_4\) niet collineair zijn, bepalen ze een vlak. De vier punten zijn
 dan coplanair als \(P_1\) in dat vlak ligt. We vullen dus \((x_1,y_1,z_1)\) in de determinantvergelijking van het vlak door \(P_2\), \(P_3\) en \(P_4\) in.
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="960">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="957">
 We kunnen de voorwaarde ook afleiden zonder te veronderstellen dat die drie punten niet
 collineair zijn. De punten zijn coplanair als er een vlak \(ux+vy+wz+t=0\) bestaat dat ze alle vier bevat. De coëfficiënten voldoen dan aan 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="961">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="958">
 \[ \begin {pmatrix}x_1&amp;y_1&amp;z_1&amp;1\\x_2&amp;y_2&amp;z_2&amp;1\\x_3&amp;y_3&amp;z_3&amp;1\\x_4&amp;y_4&amp;z_4&amp;1\end {pmatrix} \begin {pmatrix}u\\v\\w\\t\end {pmatrix}=\begin
 {pmatrix}0\\0\\0\\0\end {pmatrix}. \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="965">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="962">
 Dit homogene stelsel heeft een niet-nuloplossing als en slechts als de determinant nul is. In
 zo’n oplossing kunnen \(u\), \(v\) en \(w\) niet alle drie nul zijn, want dan zou ook \(t=0\) zijn. De oplossing bepaalt dus een vlak door de vier punten.
 </p>
@@ -3188,7 +3176,7 @@ zo’n oplossing kunnen \(u\), \(v\) en \(w\) niet alle drie nul zijn, want dan 
 
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="967">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="964">
 \[ \boxed {P_1, P_2, P_3 \text { en } P_4 \text { zijn coplanair } \Leftrightarrow \begin {vmatrix} x_1&amp;y_1&amp; z_1&amp;1 \\ x_2&amp;y_2&amp; z_2&amp;1 \\x_3&amp;y_3&amp; z_3&amp;1
 \\x_4&amp;y_4&amp; z_4&amp;1 \end {vmatrix}=0} \]
 </p>
@@ -3197,11 +3185,11 @@ zo’n oplossing kunnen \(u\), \(v\) en \(w\) niet alle drie nul zijn, want dan 
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-78" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="974"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="974">&#x2003;</span>Oefeningen</h6>
+<h6 id="autosec-78" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="971"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="971">&#x2003;</span>Oefeningen</h6>
 <a id="mkpiweb-autopage-78"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="975">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="972">
 VBTL Ruimtemeetkunde: p&nbsp;99 nr&nbsp;9 en 10.
 </p>
 
@@ -3209,7 +3197,7 @@ VBTL Ruimtemeetkunde: p&nbsp;99 nr&nbsp;9 en 10.
 <!--
 ...... subsubsection Vlak op de assegmenten ......
 -->
-<h6 id="autosec-79" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="977"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="977">&#x2003;</span>Vlak op de assegmenten</h6>
+<h6 id="autosec-79" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="974"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="974">&#x2003;</span>Vlak op de assegmenten</h6>
 <a id="mkpiweb-autopage-79"></a>
 
 
@@ -3219,28 +3207,28 @@ VBTL Ruimtemeetkunde: p&nbsp;99 nr&nbsp;9 en 10.
 -->
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="978">
-<span class="paragraph" id="autosec-80" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="978">Opstelling formule</span>
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="975">
+<span class="paragraph" id="autosec-80" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="975">Opstelling formule</span>
 <a id="mkpiweb-autopage-80"></a>
-Onder een vlak op de assegmenten verstaan we een vlak <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="979">\(\alpha \)</span> gegeven door zijn drie
-snijpunten met de coördinaatassen. We zoeken dus de vergelijking van het vlak dat door de punten <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="979">\(P_1(x_1,0,0), P_2(0,y_2,0)\)</span> en <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="979">\(P_3(0,0,z_3)\)</span> gaat.<br />
+Onder een vlak op de assegmenten verstaan we een vlak <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="976">\(\alpha \)</span> gegeven door zijn drie
+snijpunten met de coördinaatassen. We zoeken dus de vergelijking van het vlak dat door de punten <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="976">\(P_1(x_1,0,0), P_2(0,y_2,0)\)</span> en <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="976">\(P_3(0,0,z_3)\)</span> gaat.<br />
 Invullen in de cartesische vergelijking van een vlak door drie punten en uitwerken geeft ons achtereenvolgend 
 </p>
-<div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="982">
+<div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="979">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="982">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="979">
 We veronderstellen dat \(x_1\), \(y_2\) en \(z_3\) verschillend zijn van nul. 
 </p>
-<div class="center" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="984">
+<div class="center" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="981">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="984">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="981">
 <iframe src="./cartesische_vergelijking_vlak.html?v=5c6b1b0cc315" style="display:block; width:80vw;
-height:28.2vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="984"></iframe>
+height:28.2vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen loading="lazy" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="981"></iframe>
 </p>
 </div>
 
 
-<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="986"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="983"> \(\seteqnumber{0}{}{0}\)</span>
 
 
 <!--
@@ -3261,7 +3249,7 @@ height:28.2vh; max-width:100&percnt;; border:0; margin:0 auto;" allowfullscreen 
 -->
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="986">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="983">
 
 \begin{align*}
 \alpha &amp;\leftrightarrow \begin{vmatrix}x&amp;y&amp;z&amp;1\\x_1&amp;0&amp;0&amp;1\\0&amp;y_2&amp;0&amp;1\\0&amp;0&amp;z_3&amp;1\end {vmatrix}=0\\ &amp;\leftrightarrow
@@ -3277,18 +3265,18 @@ y_2z_3x+x_1z_3y+x_1y_2z-x_1y_2z_3=0\\ &amp;\boxed {\alpha \leftrightarrow \frac 
 -->
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="992">
-<span class="paragraph" id="autosec-82" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="992">Voorbeeld</span>
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="989">
+<span class="paragraph" id="autosec-82" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="989">Voorbeeld</span>
 <a id="mkpiweb-autopage-82"></a>
-Bepaal de cartesische vergelijking van het vlak <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="993">\(\alpha \)</span> door de punten <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="993">\(A(4,0,0)\)</span>,
-<span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="993">\(B(0,3,0)\)</span> en <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="993">\(C(0,0,-2)\)</span>. 
+Bepaal de cartesische vergelijking van het vlak <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="990">\(\alpha \)</span> door de punten <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="990">\(A(4,0,0)\)</span>,
+<span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="990">\(B(0,3,0)\)</span> en <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="990">\(C(0,0,-2)\)</span>. 
 </p>
-<div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="995">
+<div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="992">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="995">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="992">
 We gebruiken de vergelijking van een vlak op de assegmenten: 
 </p>
-<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="996"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="993"> \(\seteqnumber{0}{}{0}\)</span>
 
 
 <!--
@@ -3304,7 +3292,7 @@ We gebruiken de vergelijking van een vlak op de assegmenten:
 -->
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="996">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="993">
 
 \begin{align*}
 \alpha &amp;\leftrightarrow \frac {x}{4}+\frac {y}{3}+\frac {z}{-2}=1\\ &amp;\boxed {\alpha \leftrightarrow 3x+4y-6z-12=0}
@@ -3317,11 +3305,11 @@ We gebruiken de vergelijking van een vlak op de assegmenten:
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-83" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1001"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1001">6&#x2003;</span>Oefeningen</h5>
+<h5 id="autosec-83" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="998"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="998">6&#x2003;</span>Oefeningen</h5>
 <a id="mkpiweb-autopage-83"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1002">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="999">
 VBTL Ruimtemeetkunde: p&nbsp;98 nr&nbsp;1 tot 5.
 </p>
 
@@ -3329,7 +3317,7 @@ VBTL Ruimtemeetkunde: p&nbsp;98 nr&nbsp;1 tot 5.
 <!--
 ...... subsection Onderlinge ligging van twee vlakken ......
 -->
-<h5 id="autosec-84" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1004"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1004">7&#x2003;</span>Onderlinge ligging van twee vlakken</h5>
+<h5 id="autosec-84" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1001"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1001">7&#x2003;</span>Onderlinge ligging van twee vlakken</h5>
 <a id="mkpiweb-autopage-84"></a>
 
 
@@ -3337,88 +3325,88 @@ VBTL Ruimtemeetkunde: p&nbsp;98 nr&nbsp;1 tot 5.
 <!--
 ...... subsubsection Bespreking ......
 -->
-<h6 id="autosec-85" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1005"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1005">&#x2003;</span>Bespreking</h6>
+<h6 id="autosec-85" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1002"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1002">&#x2003;</span>Bespreking</h6>
 <a id="mkpiweb-autopage-85"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1006">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1003">
 In het eerste hoofdstuk zagen we reeds dat er drie mogelijkheden zijn voor de onderlinge
 stand van twee vlakken, nl. 
 </p>
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1008">
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1008">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1008">•</span> evenwijdig en samenvallend 
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1005">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1005">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1005">•</span> evenwijdig en samenvallend 
 </p>
 
 </li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1009">
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1006">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1009">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1009">•</span> evenwijdig en niet samenvallend 
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1006">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1006">•</span> evenwijdig en niet samenvallend 
 </p>
 
 </li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1010">
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1007">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1010">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1010">•</span> snijdend
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1007">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1007">•</span> snijdend
 </p>
 </li>
 </ul>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1012">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1009">
 We bekijken dit nu vanuit een algebraïsch standpunt en beschouwen in de geijkte
 ruimte twee vlakken:<br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1013">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1010">
 \[ \alpha \leftrightarrow u_1x+v_1y+w_1z+t_1=0 \hspace {2cm} (*) \]
 </p>
 
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1016">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1013">
 \[ \beta \leftrightarrow u_2x+v_2y+w_2z+t_2=0 \hspace {2cm} (**) \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1020">
-<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1020">Geval 1: \(\alpha \) en \(\beta \) zijn evenwijdig en
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1017">
+<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1017">Geval 1: \(\alpha \) en \(\beta \) zijn evenwijdig en
 samenvallend</span><br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1022">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1019">
 In dit geval stellen (*) en (**) hetzelfde vlak voor. We besluiten dus 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1023">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1020">
 \[ \boxed {\alpha = \beta \Leftrightarrow \exists k \in \mathbb {R}_0:        (u_2,v_2,w_2,t_2)=k \cdot (u_1,v_1,w_1,t_1)} \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1023">
-<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1023">Geval 2: \(\alpha \) en \(\beta \) zijn evenwijdig en niet samenvallend</span><br />
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1020">
+<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1020">Geval 2: \(\alpha \) en \(\beta \) zijn evenwijdig en niet samenvallend</span><br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1026">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1023">
 Als \(\alpha \parallel \beta \), dan moet \(\alpha _O = \beta _O\) en vinden we
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1027">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1024">
 \[ \boxed {\alpha \parallel \beta \text { en } \alpha \neq \beta \Leftrightarrow \exists k \in \mathbb {R}_0:            (u_2,v_2,w_2)=k \cdot (u_1,v_1,w_1) \text { en } t_2 \neq k \cdot t_1} \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1027">
-<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1027">Geval 3: \(\alpha \) en \(\beta \) zijn snijdend</span><br />
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1024">
+<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1024">Geval 3: \(\alpha \) en \(\beta \) zijn snijdend</span><br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1030">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1027">
 In dit geval zijn \(\alpha \) en \(\beta \) niet evenwijdig en geldt er
 \((u_2,v_2,w_2)\neq k \cdot (u_1,v_1,w_1)\). De rang van het stelsel bepaald door bovenstaande vergelijkingen (*) en (**) is bijgevolg 2.<br />
 \(r(A)=2\)<br />
@@ -3428,11 +3416,11 @@ In dit geval zijn \(\alpha \) en \(\beta \) niet evenwijdig en geldt er
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1036">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1033">
 We besluiten: 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1037">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1034">
 \[ \boxed {\alpha \text { snijdt } \beta \Leftrightarrow (u_2,v_2,w_2)\neq k \cdot (u_1,v_1,w_1)} \]
 </p>
 
@@ -3440,15 +3428,15 @@ We besluiten:
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-86" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1039"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1039">&#x2003;</span>Voorbeeld</h6>
+<h6 id="autosec-86" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1036"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1036">&#x2003;</span>Voorbeeld</h6>
 <a id="mkpiweb-autopage-86"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1040">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1037">
 Onderzoek de onderlinge ligging van \(\alpha \) en \(\beta \). Bepaal een stel
 richtingsgetallen van hun snijlijn, indien ze snijdend zijn. 
 </p>
-<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1041"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1038"> \(\seteqnumber{0}{}{0}\)</span>
 
 
 <!--
@@ -3463,7 +3451,7 @@ richtingsgetallen van hun snijlijn, indien ze snijdend zijn.
 -->
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1041">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1038">
 
 \begin{align*}
 \alpha \leftrightarrow x-3y+z-2=0\\ \beta \leftrightarrow 2x+y-2z-1=0
@@ -3472,13 +3460,13 @@ richtingsgetallen van hun snijlijn, indien ze snijdend zijn.
 </p>
 
 
-<div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1047">
+<div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1044">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1047">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1044">
 De drietallen \((1,-3,1)\) en \((2,1,-2)\) zijn niet evenredig. De vlakken zijn dus
 snijdend. We lossen hun stelsel op: 
 </p>
-<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1049"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1046"> \(\seteqnumber{0}{}{0}\)</span>
 
 
 <!--
@@ -3493,19 +3481,19 @@ snijdend. We lossen hun stelsel op:
 -->
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1049">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1046">
 
 \begin{align*}
 \begin{cases}x-3y+z=2,\\2x+y-2z=1\end {cases} &amp;\Rightarrow 7y-4z=-3.
 \end{align*}
-We kiezen <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1053">\(z=-1+7k\)</span>. Dan is <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1053">\(y=-1+4k\)</span> en <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1053">\(x=5k\)</span>. De snijlijn is 
+We kiezen <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1050">\(z=-1+7k\)</span>. Dan is <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1050">\(y=-1+4k\)</span> en <span data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1050">\(x=5k\)</span>. De snijlijn is 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1054">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1051">
 \[ s \leftrightarrow \begin {cases}x=5k,\\y=-1+4k,\\z=-1+7k,\end {cases}\qquad k\in \mathbb {R}.              \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1057">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1054">
 Een stel richtingsgetallen van \(s\) is dus \(\boxed {(5,4,7)}\).
 </p>
 </div>
@@ -3514,7 +3502,7 @@ Een stel richtingsgetallen van \(s\) is dus \(\boxed {(5,4,7)}\).
 <!--
 ...... subsection Onderlinge ligging van een rechte en een vlak ......
 -->
-<h5 id="autosec-87" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1060"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1060">8&#x2003;</span>Onderlinge ligging van een rechte en een vlak</h5>
+<h5 id="autosec-87" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1057"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1057">8&#x2003;</span>Onderlinge ligging van een rechte en een vlak</h5>
 <a id="mkpiweb-autopage-87"></a>
 
 
@@ -3522,89 +3510,89 @@ Een stel richtingsgetallen van \(s\) is dus \(\boxed {(5,4,7)}\).
 <!--
 ...... subsubsection Bespreking ......
 -->
-<h6 id="autosec-88" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1061"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1061">&#x2003;</span>Bespreking</h6>
+<h6 id="autosec-88" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1058"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1058">&#x2003;</span>Bespreking</h6>
 <a id="mkpiweb-autopage-88"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1062">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1059">
 Beschouw een vlak \(\alpha \) met gegeven cartesische vergelijking en een rechte \(e\)
 gegeven door haar stelsel parametervergelijkingen. 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1063">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1060">
 \[\alpha \leftrightarrow ux+vy+wz+t=0\]
 </p>
 
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1064">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1061">
 \[e \leftrightarrow \left \{\begin {matrix} x=x_1+k \cdot a\\y=y_1+k \cdot b\\z=z_1+k \cdot c \end {matrix}\right .\]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1067">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1064">
 We onderzoeken of \(\alpha \) en \(e\) gemeenschappelijke punten hebben. Kunnen we
 m.a.w. een waarde vinden voor de parameter \(k\), zodanig dan het bijhorende punt van \(e\) voldoet aan de vergelijking van het vlak \(\alpha \)?<br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1069">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1066">
 \(\exists k \in \mathbb {R}:          u(x_1+k \cdot a)+v(y_1+k \cdot b)+w(z_1+k \cdot
 c)+t=0\)<br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1071">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1068">
 \(\Leftrightarrow \exists k \in \mathbb {R}:(ua+vb+wc) \cdot k =
 -ux_1-vy_1-wz_1-t\)<br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1073">
-<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1073">Geval 1: \(ua+vb+wc\neq 0\)</span><br />
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1070">
+<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1070">Geval 1: \(ua+vb+wc\neq 0\)</span><br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1075">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1072">
 Dan vinden we juist één waarde voor k en dus een snijpunt. \(e\) en \(\alpha \) zijn
 snijdend.
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1078">
-<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1078">Geval 2: \(ua+vb+wc=0\) en \(-ux_1-vy_1-wz_1-t\neq
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1075">
+<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1075">Geval 2: \(ua+vb+wc=0\) en \(-ux_1-vy_1-wz_1-t\neq
 0\)</span><br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1080">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1077">
 We vinden een strijdige vergelijking: \(0 \cdot k\neq 0\). Er zijn bijgevolg geen
 snijpunten, \(e\) en \(\alpha \) zijn evenwijdig.<br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1082">
-<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1082">Geval 3: \(ua+vb+wc=0\) en
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1079">
+<span class="underline" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1079">Geval 3: \(ua+vb+wc=0\) en
 \(-ux_1-vy_1-wz_1-t=0\)</span><br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1084">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1081">
 We vinden een vergelijking met oneindig veel oplossingen: \(0 \cdot k= 0\). Er zijn dus
 \(\infty \) veel gemeenschappelijke punten: \(e\) ligt in \(\alpha \).<br />
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1086">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1083">
 We besluiten:<br />
 <i>Voor een rechte \(e\) met stel richtingsgetallen \((a,b,c)\) en een vlak \(\alpha \leftrightarrow ux+vy+wz+t=0\) geldt:</i> 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1088">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1085">
 \[ \boxed {e \text { snijdt } \alpha \Leftrightarrow ua+vb+wc\neq 0} \]
 </p>
 
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1089">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1086">
 \[ \boxed {e \parallel \alpha \Leftrightarrow ua+vb+wc=0} \]
 </p>
 
@@ -3612,30 +3600,30 @@ We besluiten:<br />
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-89" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1091"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1091">&#x2003;</span>Voorbeeld</h6>
+<h6 id="autosec-89" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1088"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1088">&#x2003;</span>Voorbeeld</h6>
 <a id="mkpiweb-autopage-89"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1092">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1089">
 Onderzoek de onderlinge ligging van het vlak \(\alpha \leftrightarrow x-3y+z-2=0\) en
 de rechte \(e\) met stel richtingsgetallen \((1,2,5)\). 
 </p>
-<div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1094">
+<div class="oplossing" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1091">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1094">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1091">
 We berekenen 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1095">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1092">
 \[ ua+vb+wc=1 \cdot 1+(-3) \cdot 2+1 \cdot 5=0.      \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1098">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1095">
 De rechte is dus evenwijdig met het vlak. Ze kan in het vlak liggen of er geen enkel punt mee
 gemeen hebben.
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1100">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1097">
 Om die twee gevallen te onderscheiden, hebben we een punt \(P_1(x_1,y_1,z_1)\) van
 \(e\) nodig. Als \(x_1-3y_1+z_1-2=0\), ligt \(e\) in \(\alpha \). Anders hebben ze geen gemeenschappelijke punten. Met de gegeven richtingsgetallen alleen kunnen we dit niet bepalen.
 </p>
@@ -3645,11 +3633,11 @@ Om die twee gevallen te onderscheiden, hebben we een punt \(P_1(x_1,y_1,z_1)\) v
 <!--
 ...... subsection Oefeningen ......
 -->
-<h5 id="autosec-90" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1103"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1103">9&#x2003;</span>Oefeningen</h5>
+<h5 id="autosec-90" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1100"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1100">9&#x2003;</span>Oefeningen</h5>
 <a id="mkpiweb-autopage-90"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1104">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1101">
 VBTL Ruimtemeetkunde: p&nbsp;100 nr&nbsp;12 tot 16; p&nbsp;101 nr&nbsp;17 tot 21.
 </p>
 
@@ -3657,17 +3645,17 @@ VBTL Ruimtemeetkunde: p&nbsp;100 nr&nbsp;12 tot 16; p&nbsp;101 nr&nbsp;17 tot 21
 
 
 
-<div class="cursusappendix" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1108"><a href="R03_VergelijkingenVanRechtenEnVlakken_Appendix.pdf" download="R03_VergelijkingenVanRechtenEnVlakken_Appendix.pdf"></a></div>
+<div class="cursusappendix" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1105"><a href="R03_VergelijkingenVanRechtenEnVlakken_Appendix.pdf" download="R03_VergelijkingenVanRechtenEnVlakken_Appendix.pdf"></a></div>
 
 
 <!--
 ...... section Rang van een matrix ......
 -->
-<h4 id="autosec-91" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1111"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1111">A&#x2003;</span>Rang van een matrix</h4>
+<h4 id="autosec-91" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1108"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1108">A&#x2003;</span>Rang van een matrix</h4>
 <a id="mkpiweb-autopage-91"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1113">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1110">
 In deze appendix herhalen we kort de nodige theorie over de rang van een matrix. Dit is de
 theorie die gebruikt wordt in de paragraaf over snijdende rechten.
 </p>
@@ -3676,64 +3664,64 @@ theorie die gebruikt wordt in de paragraaf over snijdende rechten.
 <!--
 ...... subsection Matrix en bijhorend stelsel ......
 -->
-<h5 id="autosec-92" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1117"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1117">1&#x2003;</span>Matrix en bijhorend stelsel</h5>
+<h5 id="autosec-92" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1114"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1114">1&#x2003;</span>Matrix en bijhorend stelsel</h5>
 <a id="mkpiweb-autopage-92"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1119">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1116">
 Een <em>matrix</em> is een rechthoekig schema van getallen. Bijvoorbeeld een \(3\times
 2\)-matrix: 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1121">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1118">
 \[ A = \begin {pmatrix} a_{11} &amp; a_{12}\\ a_{21} &amp; a_{22}\\ a_{31} &amp; a_{32} \end {pmatrix}.            \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1130">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1127">
 Bij een stelsel van lineaire vergelijkingen schrijven we vaak: 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1131">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1128">
 \[ A\mathbf {x} = \mathbf {b}, \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1134">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1131">
 waarbij 
 </p>
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1136">
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1136">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1136">•</span> \(A\) de <em>coëfficiëntenmatrix</em> is; 
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1133">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1133">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1133">•</span> \(A\) de <em>coëfficiëntenmatrix</em> is; 
 </p>
 
 </li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1137">
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1134">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1137">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1137">•</span> \(\mathbf {x}\) de kolomvector met onbekenden; 
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1134">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1134">•</span> \(\mathbf {x}\) de kolomvector met onbekenden; 
 </p>
 
 </li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1138">
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1135">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1138">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1138">•</span> \(\mathbf {b}\) de kolomvector met de rechterleden.
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1135">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1135">•</span> \(\mathbf {b}\) de kolomvector met de rechterleden.
 </p>
 </li>
 </ul>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1141">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1138">
 Voegen we \(\mathbf {b}\) als extra kolom toe aan \(A\), dan krijgen we de <em>verhoogde
 matrix</em> (of <em>geaugmenteerde matrix</em>) van het stelsel: 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1144">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1141">
 \[ A_b = \left ( \begin {array}{c|c} A &amp; \mathbf {b} \end {array} \right ).         \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1153">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1150">
 In de tekst over snijdende rechten is \(A\) de coëfficiëntenmatrix in de
 onbekenden \(k\) en \(l\), en \(A_b\) de verhoogde matrix waarin ook het verschil \(\overrightarrow {P_2}-\overrightarrow {P_1}\) als extra kolom voorkomt.
 </p>
@@ -3742,46 +3730,46 @@ onbekenden \(k\) en \(l\), en \(A_b\) de verhoogde matrix waarin ook het verschi
 <!--
 ...... subsection Lineaire combinatie en lineaire onafhankelijkheid ......
 -->
-<h5 id="autosec-93" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1158"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1158">2&#x2003;</span>Lineaire combinatie en lineaire onafhankelijkheid</h5>
+<h5 id="autosec-93" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1155"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1155">2&#x2003;</span>Lineaire combinatie en lineaire onafhankelijkheid</h5>
 <a id="mkpiweb-autopage-93"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1160">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1157">
 Laat \(\vec {v}_1,\vec {v}_2,\dots ,\vec {v}_n\) vectoren in \(\mathbb {R}^m\) zijn.
 Een <em>lineaire combinatie</em> van deze vectoren is een vector van de vorm 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1163">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1160">
 \[ \lambda _1\vec {v}_1 + \lambda _2\vec {v}_2 + \dots + \lambda _n\vec {v}_n \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1166">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1163">
 met \(\lambda _1,\dots ,\lambda _n \in \mathbb {R}\).
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1168">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1165">
 We noemen de vectoren \(\vec {v}_1,\dots ,\vec {v}_n\) <em>lineair
 onafhankelijk</em> als 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1170">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1167">
 \[ \lambda _1\vec {v}_1 + \dots + \lambda _n\vec {v}_n = \vec {0} \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1173">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1170">
 alleen mogelijk is wanneer 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1174">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1171">
 \[ \lambda _1 = \lambda _2 = \dots = \lambda _n = 0.      \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1177">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1174">
 Met andere woorden: geen van de vectoren kan als lineaire combinatie van de andere
 geschreven worden.
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1180">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1177">
 Zijn de vectoren <em>niet</em> lineair onafhankelijk, dan noemen we ze <em>lineair
 afhankelijk</em>. Dit betekent dat er een niet-triviale combinatie (dus niet alle \(\lambda _i = 0\)) bestaat die de nulvector geeft.
 </p>
@@ -3790,11 +3778,11 @@ afhankelijk</em>. Dit betekent dat er een niet-triviale combinatie (dus niet all
 <!--
 ...... subsection Definitie van de rang ......
 -->
-<h5 id="autosec-94" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1185"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1185">3&#x2003;</span>Definitie van de rang</h5>
+<h5 id="autosec-94" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1182"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1182">3&#x2003;</span>Definitie van de rang</h5>
 <a id="mkpiweb-autopage-94"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1187">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1184">
 Laat \(A\) een \(m\times n\)-matrix zijn.
 </p>
 
@@ -3802,37 +3790,37 @@ Laat \(A\) een \(m\times n\)-matrix zijn.
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1190">
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1190">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1190">•</span> De <em>kolomrang</em> van \(A\) is het maximaal aantal lineair onafhankelijke kolommen van \(A\). 
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1187">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1187">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1187">•</span> De <em>kolomrang</em> van \(A\) is het maximaal aantal lineair onafhankelijke kolommen van \(A\). 
 </p>
 
 </li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1192">
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1189">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1192">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1192">•</span> De <em>rijrang</em> van \(A\) is het maximaal aantal lineair onafhankelijke rijen van \(A\).
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1189">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1189">•</span> De <em>rijrang</em> van \(A\) is het maximaal aantal lineair onafhankelijke rijen van \(A\).
 </p>
 </li>
 </ul>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1196">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1193">
 Een belangrijk resultaat (dat we hier niet bewijzen) is dat 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1197">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1194">
 \[ \text {kolomrang}(A) = \text {rijrang}(A). \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1200">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1197">
 Dit gemeenschappelijke getal noemen we de <em>rang</em> van \(A\) en we duiden het aan
 met \(r(A)\).
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1203">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1200">
 Samengevat: 
 </p>
-<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1205"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1202"> \(\seteqnumber{0}{}{0}\)</span>
 
 
 <!--
@@ -3847,7 +3835,7 @@ Samengevat:
 -->
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1205">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1202">
 
 \begin{align*}
 r(A) &amp; = \text {maximaal aantal lineair onafhankelijke kolommen} \\ &amp; = \text {maximaal aantal lineair onafhankelijke rijen}.
@@ -3859,11 +3847,11 @@ r(A) &amp; = \text {maximaal aantal lineair onafhankelijke kolommen} \\ &amp; = 
 <!--
 ...... subsection Belangrijke eigenschappen van de rang ......
 -->
-<h5 id="autosec-95" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1211"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1211">4&#x2003;</span>Belangrijke eigenschappen van de rang</h5>
+<h5 id="autosec-95" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1208"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1208">4&#x2003;</span>Belangrijke eigenschappen van de rang</h5>
 <a id="mkpiweb-autopage-95"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1213">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1210">
 Enkele basisfeiten over de rang van een \(m\times n\)-matrix \(A\):
 </p>
 
@@ -3871,42 +3859,42 @@ Enkele basisfeiten over de rang van een \(m\times n\)-matrix \(A\):
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1216">
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1216">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1216">•</span> \(0 \le r(A) \le \min (m,n)\). 
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1213">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1213">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1213">•</span> \(0 \le r(A) \le \min (m,n)\). 
+</p>
+
+</li>
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1214">
+
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1214">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1214">•</span> \(r(A) = 0\) als en slechts als \(A\) de nulmatrix is. 
+</p>
+
+</li>
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1215">
+
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1215">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1215">•</span> \(r(A) = n\) (bij een \(m\times n\)-matrix) als en slechts als de \(n\) kolommen lineair onafhankelijk zijn. 
 </p>
 
 </li>
 <li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1217">
 
 <p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1217">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1217">•</span> \(r(A) = 0\) als en slechts als \(A\) de nulmatrix is. 
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1217">•</span> Elementaire rijoperaties (rijen verwisselen, een rij met een niet-nul getal vermenigvuldigen, een veelvoud van een rij bij een andere rij optellen) veranderen de rang van een matrix niet. 
 </p>
 
 </li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1218">
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1221">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1218">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1218">•</span> \(r(A) = n\) (bij een \(m\times n\)-matrix) als en slechts als de \(n\) kolommen lineair onafhankelijk zijn. 
-</p>
-
-</li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1220">
-
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1220">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1220">•</span> Elementaire rijoperaties (rijen verwisselen, een rij met een niet-nul getal vermenigvuldigen, een veelvoud van een rij bij een andere rij optellen) veranderen de rang van een matrix niet. 
-</p>
-
-</li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1224">
-
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1224">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1224">•</span> Elementaire kolomoperaties (analoge operaties op kolommen) veranderen de rang evenmin.
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1221">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1221">•</span> Elementaire kolomoperaties (analoge operaties op kolommen) veranderen de rang evenmin.
 </p>
 </li>
 </ul>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1228">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1225">
 In de praktijk betekent dit dat we een matrix mogen herleiden (bijvoorbeeld met de methode
 van Gauss) zonder de rang te veranderen. In een <em>gereduceerde</em> vorm is de rang dan gewoon het aantal niet-nul rijen.
 </p>
@@ -3915,11 +3903,11 @@ van Gauss) zonder de rang te veranderen. In een <em>gereduceerde</em> vorm is de
 <!--
 ...... subsection Rang en determinant bij een -matrix ......
 -->
-<h5 id="autosec-96" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1233"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1233">5&#x2003;</span>Rang en determinant bij een \(3\times 3\)-matrix</h5>
+<h5 id="autosec-96" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1230"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1230">5&#x2003;</span>Rang en determinant bij een \(3\times 3\)-matrix</h5>
 <a id="mkpiweb-autopage-96"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1235">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1232">
 Voor een <em>vierkante</em> \(3\times 3\)-matrix \(B\) geldt:
 </p>
 
@@ -3927,41 +3915,41 @@ Voor een <em>vierkante</em> \(3\times 3\)-matrix \(B\) geldt:
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1238">
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1238">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1238">•</span> \(\det (B) \neq 0 \;\Leftrightarrow \; r(B) = 3\). 
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1235">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1235">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1235">•</span> \(\det (B) \neq 0 \;\Leftrightarrow \; r(B) = 3\). 
 </p>
 
 </li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1239">
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1236">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1239">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1239">•</span> \(\det (B) = 0 \;\Rightarrow \; r(B) \le 2\).
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1236">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1236">•</span> \(\det (B) = 0 \;\Rightarrow \; r(B) \le 2\).
 </p>
 </li>
 </ul>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1242">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1239">
 In woorden: 
 </p>
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1244">
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1244">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1244">•</span> Als de determinant niet nul is, zijn de drie kolommen (en ook de drie rijen) lineair onafhankelijk, en is de rang 3. 
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1241">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1241">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1241">•</span> Als de determinant niet nul is, zijn de drie kolommen (en ook de drie rijen) lineair onafhankelijk, en is de rang 3. 
 </p>
 
 </li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1246">
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1243">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1246">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1246">•</span> Als de determinant nul is, zijn de drie kolommen (of rijen) lineair afhankelijk en is de rang hoogstens 2.
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1243">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1243">•</span> Als de determinant nul is, zijn de drie kolommen (of rijen) lineair afhankelijk en is de rang hoogstens 2.
 </p>
 </li>
 </ul>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1250">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1247">
 In onze context gebruiken we vooral de tweede eigenschap: als een \(3\times 3\)-matrix
 rang 2 heeft, dan is de determinant gelijk aan 0.
 </p>
@@ -3970,16 +3958,16 @@ rang 2 heeft, dan is de determinant gelijk aan 0.
 <!--
 ...... subsection Rang en oplossingen van een stelsel ......
 -->
-<h5 id="autosec-97" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1253"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1253">6&#x2003;</span>Rang en oplossingen van een stelsel</h5>
+<h5 id="autosec-97" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1250"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1250">6&#x2003;</span>Rang en oplossingen van een stelsel</h5>
 <a id="mkpiweb-autopage-97"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1255">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1252">
 Beschouw een stelsel \(A\mathbf {x} = \mathbf {b}\) met \(n\) onbekenden. Laat \(A\)
 de coëfficiëntenmatrix zijn en \(A_b\) de verhoogde matrix.
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1258">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1255">
 Dan geldt:
 </p>
 
@@ -3987,40 +3975,40 @@ Dan geldt:
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1261">
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1261">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1261">•</span> Als \(r(A_b) &gt; r(A)\), dan heeft het stelsel <em>geen</em> oplossing. 
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1258">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1258">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1258">•</span> Als \(r(A_b) &gt; r(A)\), dan heeft het stelsel <em>geen</em> oplossing. 
 </p>
 
 </li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1262">
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1259">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1262">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1262">•</span> Als \(r(A_b) = r(A)\), dan heeft het stelsel <em>wel</em> oplossingen. 
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1259">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1259">•</span> Als \(r(A_b) = r(A)\), dan heeft het stelsel <em>wel</em> oplossingen. 
 </p>
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1265">
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1265">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1265">–</span> Als \(r(A_b) = r(A) = n\), dan is er <em>juist één</em> oplossing. 
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1262">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1262">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1262">–</span> Als \(r(A_b) = r(A) = n\), dan is er <em>juist één</em> oplossing. 
 </p>
 
 </li>
-<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1267">
+<li data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1264">
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1267">
-<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1267">–</span> Als \(r(A_b) = r(A) &lt; n\), dan zijn er <em>oneindig veel</em> oplossingen.
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1264">
+<span class="listmarker" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1264">–</span> Als \(r(A_b) = r(A) &lt; n\), dan zijn er <em>oneindig veel</em> oplossingen.
 </p>
 </li>
 </ul>
 </li>
 </ul>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1272">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1269">
 In symbolen: 
 </p>
-<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1273"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1270"> \(\seteqnumber{0}{}{0}\)</span>
 
 
 <!--
@@ -4036,7 +4024,7 @@ In symbolen:
 -->
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1273">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1270">
 
 \begin{align*}
 r(A_b) &gt; r(A) &amp;\Rightarrow \text {geen oplossingen},\\ r(A_b) = r(A) = n &amp;\Rightarrow \text {exact één oplossing},\\ r(A_b) = r(A) &lt; n &amp;\Rightarrow \text {oneindig veel
@@ -4049,82 +4037,82 @@ oplossingen}.
 <!--
 ...... subsection Toepassing op snijdende rechten in de ruimte ......
 -->
-<h5 id="autosec-98" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1279"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1279">7&#x2003;</span>Toepassing op snijdende rechten in de ruimte</h5>
+<h5 id="autosec-98" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1276"><span class="sectionnumber" data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1276">7&#x2003;</span>Toepassing op snijdende rechten in de ruimte</h5>
 <a id="mkpiweb-autopage-98"></a>
 
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1281">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1278">
 In de paragraaf over snijdende rechten \(e\) en \(f\) in de ruimte verkrijgen we het stelsel
 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1283">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1280">
 \[ \begin {cases} k\,a_1 - l\,a_2 = x_2 - x_1,\\ k\,b_1 - l\,b_2 = y_2 - y_1,\\ k\,c_1 - l\,c_2 = z_2 - z_1, \end {cases} \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1290">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1287">
 met onbekenden \(k\) en \(l\).
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1292">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1289">
 De coëfficiëntenmatrix \(A\) (in \(k\) en \(l\)) is dan een \(3\times
 2\)-matrix met als kolommen de richtingsvectoren van \(e\) en \(f\) (op een teken na): 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1295">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1292">
 \[ A = \begin {pmatrix} a_1 &amp; -a_2\\ b_1 &amp; -b_2\\ c_1 &amp; -c_2 \end {pmatrix}.           \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1304">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1301">
 Omdat \(e \nparallel f\), zijn de richtingsvectoren 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1305">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1302">
 \[ \overrightarrow {R} = (a_1,b_1,c_1) \quad \text {en}\quad \overrightarrow {S} = (a_2,b_2,c_2) \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1309">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1306">
 niet evenwijdig en dus lineair onafhankelijk. Dat betekent dat de twee kolommen van \(A\)
 lineair onafhankelijk zijn en dus: 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1311">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1308">
 \[ r(A) = 2.     \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1315">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1312">
 Voor het stelsel om een oplossing te hebben, moet 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1316">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1313">
 \[ r(A_b) = r(A) = 2.     \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1320">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1317">
 Nu is \(A_b\) de \(3\times 3\)-matrix 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1321">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1318">
 \[ A_b = \begin {pmatrix} a_1 &amp; a_2 &amp; x_2 - x_1\\ b_1 &amp; b_2 &amp; y_2 - y_1\\ c_1 &amp; c_2 &amp; z_2 - z_1 \end {pmatrix}.                \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1330">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1327">
 We gebruiken dan de eigenschap voor een \(3\times 3\)-matrix: 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1331">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1328">
 \[ r(A_b) = 2 \;\Leftrightarrow \; \det (A_b) = 0.       \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1335">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1332">
 Daarom leidt de voorwaarde dat \(e\) en \(f\) een snijpunt hebben precies tot 
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1337">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1334">
 \[ \det \!     \begin {pmatrix} a_1 &amp; a_2 &amp; x_2 - x_1\\ b_1 &amp; b_2 &amp; y_2 - y_1\\ c_1 &amp; c_2 &amp; z_2 - z_1 \end {pmatrix} = 0.              \]
 </p>
 
-<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1347">
+<p data-mkpi-bestand="R03_VergelijkingenVanRechtenEnVlakken.tex" data-mkpi-regel="1344">
 Dit is de determinantvergelijking die in de hoofdtekst wordt gebruikt om te beslissen of twee
 niet-evenwijdige rechten in de ruimte een snijpunt hebben.
 </p>
