@@ -1,3 +1,7 @@
+/* De hele opmaak rekent met deze namen, zodat dag- en nachtstand enkel een
+ * andere lijst kleuren zijn. presentatie.js zet daarvoor data-thema op <html>,
+ * altijd expliciet "licht" of "donker": zonder script staat er niets op de
+ * site, dus hoeft de dagstand hier niet ook nog eens los te staan. */
 :root,
 :root[data-thema="licht"] {
   --kleur-tekst: #1c2530;

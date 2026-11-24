@@ -5,7 +5,7 @@
 <meta name="generator" content="LaTeX Lwarp package" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Stelsels van lineaire vergelijkingen</title>
-<link rel="stylesheet" type="text/css" href="presentatie.css?v=4fdb4e48c385" />
+<link rel="stylesheet" type="text/css" href="presentatie.css?v=a3106b24faaa" />
 
 <script>
 // Lwarp MathJax emulation code
@@ -281,10 +281,10 @@ MathJax = {
 </script>
 
 
-<script src="mathjax-accenten.js?v=4fdb4e48c385"></script>
+<script src="mathjax-accenten.js?v=a3106b24faaa"></script>
 <script
           id="MathJax-script"
-          src="tex-svg-full.js?v=4fdb4e48c385"
+          src="tex-svg-full.js?v=a3106b24faaa"
 ></script>
 
 <meta name="mathesis-hoofdpagina" content="/" />
@@ -294,10 +294,10 @@ MathJax = {
 <link rel="apple-touch-icon" href="/mathesis-icoon-180.png">
 <meta name="mathesis-manifest" content="/manifest.webmanifest">
 <meta name="mathesis-statistieken" content="mathesis" />
-<link rel="stylesheet" href="vendor/jsxgraph.css?v=4fdb4e48c385" />
-<link rel="stylesheet" href="interactieve-grafieken.css?v=4fdb4e48c385" />
-<link rel="stylesheet" href="grm-demo.css?v=4fdb4e48c385" />
-<link rel="stylesheet" href="stelselrekenmachine.css?v=4fdb4e48c385" />
+<link rel="stylesheet" href="vendor/jsxgraph.css?v=a3106b24faaa" />
+<link rel="stylesheet" href="interactieve-grafieken.css?v=a3106b24faaa" />
+<link rel="stylesheet" href="grm-demo.css?v=a3106b24faaa" />
+<link rel="stylesheet" href="stelselrekenmachine.css?v=a3106b24faaa" />
 </head>
 <body>
 
@@ -3265,8 +3265,9 @@ altijd heel \(\R \).</span>
 
 
 <p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="903">
-Zie VBTL Matrices p&nbsp;93. In een stad wonen \(1110\) migranten uit Italië, Griekenland en Portugal. Er zijn twee keer zoveel Italianen
-als Grieken en Portugezen samen. Waren er \(600\) Italianen minder, dan zouden er twee keer zoveel Grieken zijn als Italianen en Portugezen samen. Hoeveel Italianen, Grieken en Portugezen zijn er?
+Zie VBTL Matrices p&nbsp;93. Hotel Bertram heeft \(1110\) bedden, die allemaal bezet zijn door gasten uit Italië, Griekenland en Portugal.
+Er logeren twee keer zoveel Italianen als Grieken en Portugezen samen. Toen \(600\) Italianen Brugge bezochten, waren er in het hotel twee keer zoveel Grieken als Italianen en Portugezen samen. Hoeveel gasten uit elk van de drie
+landen logeren in het hotel?
 </p>
 
 <p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="909">
@@ -3315,269 +3316,127 @@ als Grieken en Portugezen samen. Waren er \(600\) Italianen minder, dan zouden e
 
 
 
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="919"> \(\seteqnumber{0}{}{0}\)</span>
+
+
+<!--
+
+
+                                                                                             
+                                                                                             x + y + z = 1110
+                                                                                             
+                                                                                               x = 2(y + z)
+                                                                                             
+                                                                                               y = 2(x − 600 + z)
+                                                                                             
+
+                                                                                           
+                                                                                           x + y + z = 1110
+                                                                                           
+                                                                                        ⇐⇒   x − 2y − 2z = 0
+                                                                                           
+                                                                                             −2x + y − 2z = −1200
+                                                                                           
+
+
+
+-->
+
 
 <p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="919">
-\[ \begin {cases}x+y+z=1110\\ x=2(y+z)\\ y=2(x-600+z)\end {cases} \iff \begin {cases}x+y+z=1110\\ x-2y-2z=0\\ -2x+y-2z=-1200\end {cases} \]
+
+\begin{align*}
+&amp;\begin{cases}x+y+z=1110\\ x=2(y+z)\\ y=2(x-600+z)\end {cases}\\[6pt] \iff {}&amp;\begin{cases}x+y+z=1110\\ x-2y-2z=0\\ -2x+y-2z=-1200\end {cases}
+\end{align*}
+
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="925">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="925"></span>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="924">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="924"></span>
 </p>
 <!--
 ...... subsubsection Oplossen van het stelsel ......
 -->
-<h6 id="autosec-52" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="925">Oplossen van het stelsel</h6>
+<h6 id="autosec-52" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="924">Oplossen van het stelsel</h6>
 <a id="mkpiweb-autopage-52"></a>
 
 
 
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="926"> \(\seteqnumber{0}{}{0}\)</span>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="927">
-\[ A_b=\left (\begin {array}{rrr|r}1&amp;1&amp;1&amp;1110\\ 1&amp;-2&amp;-2&amp;0\\ -2&amp;1&amp;-2&amp;-1200\end {array}\right ) \overset {\text {rref}}{\sim } \left (\begin
-{array}{rrr|r}1&amp;0&amp;0&amp;740\\ 0&amp;1&amp;0&amp;340\\ 0&amp;0&amp;1&amp;30\end {array}\right ) \qquad \Rightarrow \qquad \begin {cases}x=740\\ y=340\\ z=30\end {cases} \]
+
+<!--
+
+
+                                                                                                                  
+                                                                                              1       1  1    1110
+                                                                                       Ab =  1      −2 −2       0 
+                                                                                             −2       1 −2   −1200
+                                                                                                            
+                                                                                              1 0 0      740
+                                                                                          rref
+                                                                                          ∼  0 1 0      340 
+                                                                                              0 0 1       30
+                                                                                           
+                                                                                           x = 740
+                                                                                           
+                                                                                          ⇒ y = 340
+                                                                                           
+                                                                                             z = 30
+                                                                                           
+
+
+
+-->
+
+
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="926">
+
+\begin{align*}
+A_b&amp;=\left (\begin{array}{rrr|r}1&amp;1&amp;1&amp;1110\\ 1&amp;-2&amp;-2&amp;0\\ -2&amp;1&amp;-2&amp;-1200\end {array}\right )\\[6pt] &amp;\overset {\text {rref}}{\sim }\left
+(\begin{array}{rrr|r}1&amp;0&amp;0&amp;740\\ 0&amp;1&amp;0&amp;340\\ 0&amp;0&amp;1&amp;30\end {array}\right )\\[6pt] &amp;\Rightarrow \begin{cases}x=740\\ y=340\\ z=30\end {cases}
+\end{align*}
+
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="935">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="935"></span>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="932">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="932"></span>
 </p>
 <!--
 ...... subsubsection Antwoord ......
 -->
-<h6 id="autosec-53" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="935">Antwoord</h6>
+<h6 id="autosec-53" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="932">Antwoord</h6>
 <a id="mkpiweb-autopage-53"></a>
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="937">
-Er zijn \(740\) Italianen, \(340\) Grieken en \(30\) Portugezen.
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="934">
+In hotel Bertram logeren \(740\) Italianen, \(340\) Grieken en \(30\) Portugezen.
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="939">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="939"></span>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="936">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="936"></span>
 </p>
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-54" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="939">Oefeningen</h6>
+<h6 id="autosec-54" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="936">Oefeningen</h6>
 <a id="mkpiweb-autopage-54"></a>
 
 
-
-
-
-
-<div class="cursus-oefening" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="942">
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="942">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="942"></span>
-</p>
-<!--
-...... subsubsection Oefening 5 ......
--->
-<h6 id="autosec-55" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="942">Oefening 5</h6>
-<a id="mkpiweb-autopage-55"></a>
-
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="943">
-Anna, Brigitte en Charlotte zijn samen \(105\) jaar. Trek je \(9\) jaar af van de leeftijd van Anna, dan krijg je de leeftijden van Brigitte en Charlotte
-samen. De leeftijden van Anna en Charlotte samen, plus \(3\), zijn het dubbele van de leeftijd van Brigitte. Hoe oud is elk van hen? 
-</p>
-<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="948">
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="948">
-<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="948">Anna is \(57\), Brigitte \(36\) en Charlotte \(12\) jaar.</span> \(x=\) de leeftijd van Anna, \(y=\) de leeftijd van
-Brigitte en \(z=\) de leeftijd van Charlotte. 
-</p>
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="951">
-\[ \begin {cases}x+y+z=105\\ x-9=y+z\\ x+z+3=2y\end {cases} \iff \begin {cases}x+y+z=105\\ x-y-z=9\\ x-2y+z=-3\end {cases} \]
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="938">
+VBTL Matrices: p&nbsp;98 tot en met p&nbsp;104, nr&nbsp;1 tot en met 35.
 </p>
 
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="956">
-\[ A_b=\left (\begin {array}{rrr|r}1&amp;1&amp;1&amp;105\\ 1&amp;-1&amp;-1&amp;9\\ 1&amp;-2&amp;1&amp;-3\end {array}\right ) \overset {\text {rref}}{\sim } \left (\begin
-{array}{rrr|r}1&amp;0&amp;0&amp;57\\ 0&amp;1&amp;0&amp;36\\ 0&amp;0&amp;1&amp;12\end {array}\right ) \]
+
+<div class="aside" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="941">
+
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="941">
+Oefeningen 33 en 34 vragen voorkennis van elektriciteit: de wet van Ohm en de knooppunt- en luswetten van Kirchhoff. Zonder die voorkennis mag je
+ze overslaan. Voor oefening 32 moet je chemische formules kunnen lezen en weten dat bij een reactie het aantal atomen van elk element behouden blijft. Oefening 35 vraagt rekenen met overlappende verzamelingen, bijvoorbeeld met
+een venndiagram.
 </p>
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="961">
-Anna is \(57\) jaar, Brigitte is \(36\) jaar en Charlotte is \(12\) jaar.
-</p>
-</div>
-
-</div>
-
-
-
-<div class="cursus-oefening" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="965">
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="965">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="965"></span>
-</p>
-<!--
-...... subsubsection Oefening 6 ......
--->
-<h6 id="autosec-56" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="965">Oefening 6</h6>
-<a id="mkpiweb-autopage-56"></a>
-
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="966">
-De som van de cijfers van een getal van drie cijfers is \(15\). Het cijfer van de tientallen is het gemiddelde van de twee andere cijfers. Keer je de
-volgorde van de cijfers om, dan wordt het getal \(396\) kleiner. Welk getal is het? 
-</p>
-<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="971">
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="971">
-<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="971">Het getal is \(753\).</span> \(x=\) het cijfer van de honderdtallen, \(y=\) het cijfer van de tientallen en \(z=\) het
-cijfer van de eenheden. 
-</p>
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="974">
-\[ \begin {cases}x+y+z=15\\ x+z=2y\\ 100x+10y+z-(100z+10y+x)=396\end {cases} \iff \begin {cases}x+y+z=15\\ x-2y+z=0\\ 99x-99z=396\end {cases} \]
-</p>
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="979">
-Deel de laatste vergelijking door \(99\): \(x-z=4\). 
-</p>
-<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="980"> \(\seteqnumber{0}{}{0}\)</span>
-
-
-<!--
-
-
-                                                                                                                                  
-                                                                               1  1       1 15                     1     1    1   15
-                                                                        Ab =  1 −2       1   0  ∼ R2 ←R2 −R1  0 −3         0 −15 
-                                                                               1  0     −1    4     R3 ←R3 −R1     0 −1 −2 −11
-                                                                                                                                                  
-                                                                                             1    1  1    15         R1 ←R1 −R2   1 0   1         10
-                                                                           ∼                0    1  0      5 ∼                 0 1   0          5 
-                                                                             R2 ←R2 /(−3)
-                                                                                             0 −1 −2 −11             R3 ←R3 +R2   0 0 −2          −6
-                                                                                                                                    
-                                                                                             1 0 1 10                          1 0 0 7
-                                                                                                               R1 ←R1 −R3
-                                                                           ∼                0 1 0    5 ∼                   0 1 0 5 
-                                                                             R3 ←R3 /(−2)    0 0 1    3                        0 0 1 3
-
-
--->
-
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="980">
-
-\begin{align*}
-A_b &amp;= \left (\begin{array}{rrr|r}1&amp;1&amp;1&amp;15\\ 1&amp;-2&amp;1&amp;0\\ 1&amp;0&amp;-1&amp;4\end {array}\right ) \sim \rijop {\\ \op {R_2\leftarrow R_2-R_1}\\ \op {R_3\leftarrow
-R_3-R_1}}\left (\begin{array}{rrr|r}1&amp;1&amp;1&amp;15\\ 0&amp;-3&amp;0&amp;-15\\ 0&amp;-1&amp;-2&amp;-11\end {array}\right )\\ &amp;\sim \rijop {\\ \op {R_2\leftarrow R_2/(-3)}\\ }\left
-(\begin{array}{rrr|r}1&amp;1&amp;1&amp;15\\ 0&amp;1&amp;0&amp;5\\ 0&amp;-1&amp;-2&amp;-11\end {array}\right ) \sim \rijop {\op {R_1\leftarrow R_1-R_2}\\ \\ \op {R_3\leftarrow R_3+R_2}}\left
-(\begin{array}{rrr|r}1&amp;0&amp;1&amp;10\\ 0&amp;1&amp;0&amp;5\\ 0&amp;0&amp;-2&amp;-6\end {array}\right )\\ &amp;\sim \rijop {\\ \\ \op {R_3\leftarrow R_3/(-2)}}\left
-(\begin{array}{rrr|r}1&amp;0&amp;1&amp;10\\ 0&amp;1&amp;0&amp;5\\ 0&amp;0&amp;1&amp;3\end {array}\right ) \sim \rijop {\op {R_1\leftarrow R_1-R_3}\\ \\ }\left
-(\begin{array}{rrr|r}1&amp;0&amp;0&amp;7\\ 0&amp;1&amp;0&amp;5\\ 0&amp;0&amp;1&amp;3\end {array}\right )
-\end{align*}
-Het getal is <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="985">\(753\)</span>.
-</p>
-</div>
-
-</div>
-
-
-
-<div class="cursus-oefening" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="989">
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="989">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="989"></span>
-</p>
-<!--
-...... subsubsection Oefening 7 ......
--->
-<h6 id="autosec-57" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="989">Oefening 7</h6>
-<a id="mkpiweb-autopage-57"></a>
-
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="990">
-Een broodjeszaak levert vier dagen na elkaar broodjes aan een bedrijf. Welke broodjes en wat ze samen kosten, staat in de tabel. Wat kost één broodje
-van elke soort? 
-</p>
-<div class="center" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="994">
-
-
-<table data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="994">
-
-<tr style="display:none"><th>.</th></tr>
-
-<tr class="tbrule">
-<td class="tdl" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="994">dag</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">smos</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">martino</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">tonijn</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">Hawaï</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">prijs (euro)</td>
-</tr>
-
-<tr class="hline">
-<td class="tdl" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">maandag</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(8\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(4\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(5\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(6\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(41.20\)</td>
-</tr>
-
-<tr>
-<td class="tdl" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">dinsdag</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(7\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(5\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(4\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(8\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(42.90\)</td>
-</tr>
-
-<tr>
-<td class="tdl" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">woensdag</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(6\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(3\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(7\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(6\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(40.60\)</td>
-</tr>
-
-<tr>
-<td class="tdl" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">donderdag</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(4\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(9\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(6\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(7\)</td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996">\(49.10\)</td>
-</tr>
-
-<tr class="tbrule" aria-hidden="true">
-<td class="tdl" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996"></td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996"></td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996"></td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996"></td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996"></td>
-<td class="tdr" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="996"></td>
-</tr>
-</table>
-
-</div>
-
-
-<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1006">
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1006">
-<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1006">Smos \(1.50\), martino \(2.00\), tonijn \(2.20\) en Hawaï \(1.70\) euro.</span> \(x=\) de prijs van een
-smos, \(y=\) van een martino, \(z=\) van een tonijn en \(u=\) van een Hawaï, in euro. 
-</p>
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1009">
-\[ \begin {cases}8x+4y+5z+6u=41.20\\ 7x+5y+4z+8u=42.90\\ 6x+3y+7z+6u=40.60\\ 4x+9y+6z+7u=49.10\end {cases} \qquad A_b\overset {\text {rref}}{\sim } \left (\begin
-{array}{rrrr|r}1&amp;0&amp;0&amp;0&amp;1.50\\ 0&amp;1&amp;0&amp;0&amp;2.00\\ 0&amp;0&amp;1&amp;0&amp;2.20\\ 0&amp;0&amp;0&amp;1&amp;1.70\end {array}\right ) \]
-</p>
-
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1015">
-Een smos kost \(1.50\) euro, een martino \(2.00\) euro, een broodje tonijn \(2.20\) euro en een broodje Hawaï \(1.70\) euro.
-</p>
-</div>
 
 </div>
 
@@ -3585,41 +3444,41 @@ Een smos kost \(1.50\) euro, een martino \(2.00\) euro, een broodje tonijn \(2.2
 <!--
 ...... subsection Bespreken van stelsels ......
 -->
-<h5 id="autosec-60" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1021"><span class="sectionnumber" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1021">2&#x2003;</span>Bespreken van stelsels</h5>
-<a id="mkpiweb-autopage-60"></a>
+<h5 id="autosec-55" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="949"><span class="sectionnumber" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="949">2&#x2003;</span>Bespreken van stelsels</h5>
+<a id="mkpiweb-autopage-55"></a>
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1023">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1023"></span>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="951">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="951"></span>
 </p>
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-61" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1023">Voorbeeld</h6>
-<a id="mkpiweb-autopage-61"></a>
+<h6 id="autosec-56" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="951">Voorbeeld</h6>
+<a id="mkpiweb-autopage-56"></a>
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1025">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="953">
 Bespreek in \(\R ^3\): 
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1026">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="954">
 \[ \begin {cases}x+4y+2mz=3\\ x+y-mz=0\\ mx+(m+1)y+(m-1)z=m\end {cases} \]
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1029">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="957">
 Dit stelsel heeft oplossingen als \(r(A)=r(A_b)\). We bepalen eerst \(r(A)\): 
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1030">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="958">
 \[ \det A=\begin {vmatrix}1&amp;4&amp;2m\\ 1&amp;1&amp;-m\\ m&amp;m+1&amp;m-1\end {vmatrix}=-3(m^2-1) \]
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1033">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="961">
 Voor \(m\neq 1\) en \(m\neq -1\) is \(\det A\neq 0\), dus \(r(A)=r(A_b)=3=n\): precies één oplossing. Tot de indeling in gevallen herleiden we
 voor alle \(m\) samen. 
 </p>
-<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1035"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="963"> \(\seteqnumber{0}{}{0}\)</span>
 
 
 <!--
@@ -3644,7 +3503,7 @@ voor alle \(m\) samen.
 -->
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1035">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="963">
 
 \begin{align*}
 A_b&amp;=\left (\begin{array}{ccc|c}\spil {1}&amp;4&amp;2m&amp;3\\ 1&amp;1&amp;-m&amp;0\\ m&amp;m+1&amp;m-1&amp;m\end {array}\right ) \sim \rijop {\vphantom {\spil {0}}\\ \op {R_2\leftarrow
@@ -3662,12 +3521,12 @@ Vanaf hier delen we in per geval.
 -->
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1048">
-<span class="paragraph" id="autosec-62" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1048">Geval 1: \(m\neq 1\) en \(m\neq -1\).</span>
-<a id="mkpiweb-autopage-62"></a>
-Dan is <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1049">\(m-1\neq 0\)</span> en <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1049">\(m+1\neq 0\)</span>. 
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="976">
+<span class="paragraph" id="autosec-57" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="976">Geval 1: \(m\neq 1\) en \(m\neq -1\).</span>
+<a id="mkpiweb-autopage-57"></a>
+Dan is <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="977">\(m-1\neq 0\)</span> en <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="977">\(m+1\neq 0\)</span>. 
 </p>
-<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1050"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="978"> \(\seteqnumber{0}{}{0}\)</span>
 
 
 <!--
@@ -3690,7 +3549,7 @@ Dan is <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1049">\(m-1\n
 -->
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1050">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="978">
 
 \begin{align*}
 A_b&amp;\sim \rijop {\\ \\ \op {R_3\leftarrow R_3/(m-1)}\vphantom {\spil {0}}} \left (\begin{array}{ccc|c}1&amp;0&amp;-2m&amp;-1\\ 0&amp;1&amp;m&amp;1\\ 0&amp;0&amp;\spil {m+1}&amp;1\end
@@ -3700,7 +3559,7 @@ A_b&amp;\sim \rijop {\\ \\ \op {R_3\leftarrow R_3/(m-1)}\vphantom {\spil {0}}} \
 
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1057">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="985">
 \[ \Rightarrow \begin {cases}x=\dfrac {m-1}{m+1}\\[8pt] y=\dfrac {1}{m+1}\\[8pt] z=\dfrac {1}{m+1}\end {cases} \qquad V=\Bigl \{\Bigl (\frac {m-1}{m+1};\frac {1}{m+1};\frac {1}{m+1}\Bigr )\Bigr
 \} \]
 </p>
@@ -3711,20 +3570,20 @@ A_b&amp;\sim \rijop {\\ \\ \op {R_3\leftarrow R_3/(m-1)}\vphantom {\spil {0}}} \
 -->
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1063">
-<span class="paragraph" id="autosec-63" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1063">Geval 2: \(m=1\).</span>
-<a id="mkpiweb-autopage-63"></a>
-Dan is <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1064">\(\det A=0\)</span>, dus <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1064">\(r(A)&lt;n\)</span>. En <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1064">\(r(A_b)\)</span>? Vul <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1064">\(m=1\)</span> in <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1064">\((*)\)</span> in: 
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="991">
+<span class="paragraph" id="autosec-58" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="991">Geval 2: \(m=1\).</span>
+<a id="mkpiweb-autopage-58"></a>
+Dan is <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="992">\(\det A=0\)</span>, dus <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="992">\(r(A)&lt;n\)</span>. En <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="992">\(r(A_b)\)</span>? Vul <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="992">\(m=1\)</span> in <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="992">\((*)\)</span> in: 
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1065">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="993">
 \[ A_b\sim \left (\begin {array}{rrr|r}1&amp;0&amp;-2&amp;-1\\ 0&amp;1&amp;1&amp;1\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \Rightarrow \begin {cases}x-2z=-1\\ y+z=1\\ 0z=0\end {cases} \iff
 \begin {cases}x=-1+2t\\ y=1-t\\ z=t\in \R \end {cases} \]
 </p>
 
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1072">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1000">
 \[ V=\{(-1+2t;1-t;t)\mid t\in \R \} \]
 </p>
 
@@ -3734,13 +3593,13 @@ Dan is <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1064">\(\det 
 -->
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1076">
-<span class="paragraph" id="autosec-64" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1076">Geval 3: \(m=-1\).</span>
-<a id="mkpiweb-autopage-64"></a>
-Vul <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1077">\(m=-1\)</span> in <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1077">\((*)\)</span> in: 
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1004">
+<span class="paragraph" id="autosec-59" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1004">Geval 3: \(m=-1\).</span>
+<a id="mkpiweb-autopage-59"></a>
+Vul <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1005">\(m=-1\)</span> in <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1005">\((*)\)</span> in: 
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1078">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1006">
 \[ A_b\sim \left (\begin {array}{rrr|r}1&amp;0&amp;2&amp;-1\\ 0&amp;1&amp;-1&amp;1\\ 0&amp;0&amp;0&amp;-2\end {array}\right ) \Rightarrow V=\emptyset \]
 </p>
 
@@ -3750,28 +3609,28 @@ Vul <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1077">\(m=-1\)</
 -->
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1083">
-<span class="paragraph" id="autosec-65" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1083">Overzicht.</span>
-<a id="mkpiweb-autopage-65"></a>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1011">
+<span class="paragraph" id="autosec-60" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1011">Overzicht.</span>
+<a id="mkpiweb-autopage-60"></a>
 
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1084">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1012">
 \[ \begin {array}{ll} m\neq 1\text { en }m\neq -1:    &amp; V=\Bigl \{\Bigl (\dfrac {m-1}{m+1};\dfrac {1}{m+1};\dfrac {1}{m+1}\Bigr )\Bigr \}\\[12pt] m=1:   &amp; V=\{(-1+2t;1-t;t)\mid t\in \R
 \}\\[4pt] m=-1: &amp; V=\emptyset \end {array} \]
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1092">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1092"></span>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1020">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1020"></span>
 </p>
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-66" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1092">Oefeningen</h6>
-<a id="mkpiweb-autopage-66"></a>
+<h6 id="autosec-61" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1020">Oefeningen</h6>
+<a id="mkpiweb-autopage-61"></a>
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1094">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1022">
 VBTL Matrices: p&nbsp;108 nr&nbsp;2 (b, f, g en j).
 </p>
 
@@ -3779,40 +3638,40 @@ VBTL Matrices: p&nbsp;108 nr&nbsp;2 (b, f, g en j).
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1097">
+<div class="cursus-oefening" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1025">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1097">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1097"></span>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1025">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1025"></span>
 </p>
 <!--
-...... subsubsection Oefening 8 ......
+...... subsubsection Oefening 5 ......
 -->
-<h6 id="autosec-67" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1097">Oefening 8</h6>
-<a id="mkpiweb-autopage-67"></a>
+<h6 id="autosec-62" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1025">Oefening 5</h6>
+<a id="mkpiweb-autopage-62"></a>
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1098">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1026">
 Bespreek in \(\R ^3\). 
 </p>
 <ul class="enumerate" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1100">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1100">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1100">(a)</span> \(\begin {cases}x+my+mz=2\\ mx+y+mz=0\\ x+my+(m+1)z=1\end {cases}\) 
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1028">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1028">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1028">(a)</span> \(\begin {cases}x+my+mz=2\\ mx+y+mz=0\\ x+my+(m+1)z=1\end {cases}\) 
 </p>
-<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1102">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1102">
-<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1102">\(m\neq \pm 1\): \(V=\bigl \{\bigl (\frac {m-2}{m-1};\frac {m}{m-1};-1\bigr )\bigr \}\); \(m=1\):
+<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1030">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1030">
+<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1030">\(m\neq \pm 1\): \(V=\bigl \{\bigl (\frac {m-2}{m-1};\frac {m}{m-1};-1\bigr )\bigr \}\); \(m=1\):
 \(V=\emptyset \); \(m=-1\): \(V=\{(1+t;t;-1)\mid t\in \R \}\)</span> 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1103">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1031">
 \[ \det A=\begin {vmatrix}1&amp;m&amp;m\\ m&amp;1&amp;m\\ 1&amp;m&amp;m+1\end {vmatrix} =m+1+m^2+m^3-m-m^2-m^3-m^2=1-m^2 \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1107">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1035">
 \(\det A=0\) als \(m=1\) of \(m=-1\). 
 </p>
-<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1108"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1036"> \(\seteqnumber{0}{}{0}\)</span>
 
 <!--
 
@@ -3823,7 +3682,7 @@ Bespreek in \(\R ^3\).
 
 -->
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1108">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1036">
 
 \begin{align*}
 A_b&amp;=\left (\begin{array}{ccc|c}1&amp;m&amp;m&amp;2\\ m&amp;1&amp;m&amp;0\\ 1&amp;m&amp;m+1&amp;1\end {array}\right ) \sim \rijop {\\ \op {R_2\leftarrow R_2-mR_1}\\ \op {R_3\leftarrow
@@ -3831,10 +3690,10 @@ R_3-R_1}} \left (\begin{array}{ccc|c}1&amp;m&amp;m&amp;2\\ 0&amp;1-m^2&amp;m-m^2
 \end{align*}
 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1115">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1043">
 <b>Geval 1: \(m\neq 1\) en \(m\neq -1\).</b> Dan is \(r(A)=r(A_b)=n=3\): één oplossing. 
 </p>
-<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1117"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1045"> \(\seteqnumber{0}{}{0}\)</span>
 
 <!--
 
@@ -3856,80 +3715,80 @@ R_3-R_1}} \left (\begin{array}{ccc|c}1&amp;m&amp;m&amp;2\\ 0&amp;1-m^2&amp;m-m^2
 
 -->
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1117">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1045">
 
 \begin{align*}
 A_b&amp;\sim \rijop {\op {R_1\leftarrow (m^2-1)R_1+mR_2}\\ \\ } \left (\begin{array}{ccc|c}m^2-1&amp;0&amp;m^2-m&amp;-2\\ 0&amp;1-m^2&amp;m-m^2&amp;-2m\\ 0&amp;0&amp;1&amp;-1\end {array}\right
 )\\ &amp;\sim \rijop {\op {R_1\leftarrow R_1+(m-m^2)R_3}\\ \op {R_2\leftarrow R_2+(m^2-m)R_3}\\ } \left (\begin{array}{ccc|c}m^2-1&amp;0&amp;0&amp;m^2-m-2\\ 0&amp;1-m^2&amp;0&amp;-m^2-m\\
 0&amp;0&amp;1&amp;-1\end {array}\right )
 \end{align*}
-Met <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1123">\(m^2-1=(m-1)(m+1)\)</span> en <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1123">\(m^2-m-2=(m+1)(m-2)\)</span>: <span class="aside" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1123">Die laatste ontbinding vind je met Horner: \(m=-1\) is een
+Met <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1051">\(m^2-1=(m-1)(m+1)\)</span> en <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1051">\(m^2-m-2=(m+1)(m-2)\)</span>: <span class="aside" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1051">Die laatste ontbinding vind je met Horner: \(m=-1\) is een
 nulwaarde.</span> 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1125">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1053">
 \[ \begin {cases} x=\dfrac {m^2-m-2}{m^2-1}=\dfrac {(m+1)(m-2)}{(m-1)(m+1)}=\dfrac {m-2}{m-1}\\[12pt] y=\dfrac {-m^2-m}{1-m^2}=\dfrac {-m(m+1)}{(1-m)(1+m)}=\dfrac {m}{m-1}\\[12pt] z=-1 \end
 {cases} \qquad V=\Bigl \{\Bigl (\frac {m-2}{m-1};\frac {m}{m-1};-1\Bigr )\Bigr \} \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1135">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1063">
 <b>Geval 2: \(m=1\).</b> Vul in in \((*)\): 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1136">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1064">
 \[ A_b\sim \left (\begin {array}{rrr|r}1&amp;1&amp;1&amp;2\\ 0&amp;0&amp;0&amp;-2\\ 0&amp;0&amp;1&amp;-1\end {array}\right ) \Rightarrow V=\emptyset \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1141">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1069">
 <b>Geval 3: \(m=-1\).</b> Vul in in \((*)\): 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1142">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1070">
 \[ A_b\sim \left (\begin {array}{rrr|r}1&amp;-1&amp;-1&amp;2\\ 0&amp;0&amp;-2&amp;2\\ 0&amp;0&amp;1&amp;-1\end {array}\right ) \sim \rijop {\op {R_1\leftarrow R_1+R_3}\\ \op {R_2\leftarrow
 R_2+2R_3}\\ } \left (\begin {array}{rrr|r}1&amp;-1&amp;0&amp;1\\ 0&amp;0&amp;0&amp;0\\ 0&amp;0&amp;1&amp;-1\end {array}\right ) \iff \begin {cases}x=1+t\\ y=t\in \R \\ z=-1\end {cases} \]
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1149">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1077">
 \[ V=\{(1+t;t;-1)\mid t\in \R \} \]
 </p>
 </div>
 
 
 </li>
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1154">
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1082">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1154">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1154">(b)</span> \(\begin {cases}x+2y+3z=0\\ mx-y+mz=0\\ x+my+z=0\end {cases}\) 
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1082">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1082">(b)</span> \(\begin {cases}x+2y+3z=0\\ mx-y+mz=0\\ x+my+z=0\end {cases}\) 
 </p>
-<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1156">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1156">
-<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1156">\(V=\{(0;0;0)\}\) voor elke \(m\)</span> Dit is een homogeen \(3\times 3\)-stelsel. 
+<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1084">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1084">
+<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1084">\(V=\{(0;0;0)\}\) voor elke \(m\)</span> Dit is een homogeen \(3\times 3\)-stelsel. 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1158">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1086">
 \[ \det A=\begin {vmatrix}1&amp;2&amp;3\\ m&amp;-1&amp;m\\ 1&amp;m&amp;1\end {vmatrix} =-1+2m+3m^2+3-m^2-2m=2m^2+2&gt;0 \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1162">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1090">
 Dus \(\det A\neq 0\) voor elke \(m\), en \(r(A)=r(A_b)=3=n\): één oplossing. 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1163">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1091">
 \[ V=\{(0;0;0)\} \]
 </p>
 </div>
 
 
 </li>
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1168">
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1096">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1168">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1168">(c)</span> \(\begin {cases}2x+y+z=1+m\\ mx+2mz=-m\\ x-my+z=-m^2\end {cases}\) 
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1096">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1096">(c)</span> \(\begin {cases}2x+y+z=1+m\\ mx+2mz=-m\\ x-my+z=-m^2\end {cases}\) 
 </p>
-<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1170">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1170">
-<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1170">\(m\neq 0,-\frac {1}{3}\): \(V=\{(1;m;-1)\}\); \(m=0\): \(V=\{(-t;1+t;t)\mid t\in \R \}\); \(m=-\frac
+<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1098">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1098">
+<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1098">\(m\neq 0,-\frac {1}{3}\): \(V=\{(1;m;-1)\}\); \(m=0\): \(V=\{(-t;1+t;t)\mid t\in \R \}\); \(m=-\frac
 {1}{3}\): \(V=\bigl \{\bigl (-1-2t;\frac {8}{3}+3t;t\bigr )\mid t\in \R \bigr \}\)</span> 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1171">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1099">
 \[ \det A=\begin {vmatrix}2&amp;1&amp;1\\ m&amp;0&amp;2m\\ 1&amp;-m&amp;1\end {vmatrix} =2m-m^2+4m^2-m=3m^2+m=m(3m+1) \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1175">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1103">
 \(\det A=0\) als \(m=0\) of \(m=-\frac {1}{3}\). 
 </p>
-<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1176"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1104"> \(\seteqnumber{0}{}{0}\)</span>
 
 <!--
 
@@ -3944,7 +3803,7 @@ Dus \(\det A\neq 0\) voor elke \(m\), en \(r(A)=r(A_b)=3=n\): één oplossing.
 
 -->
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1176">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1104">
 
 \begin{align*}
 A_b&amp;=\left (\begin{array}{ccc|c}\spil {2}&amp;1&amp;1&amp;m+1\\ m&amp;0&amp;2m&amp;-m\\ 1&amp;-m&amp;1&amp;-m^2\end {array}\right )\\ &amp;\sim \rijop {\vphantom {\spil {0}}\\ \op
@@ -3953,10 +3812,10 @@ A_b&amp;=\left (\begin{array}{ccc|c}\spil {2}&amp;1&amp;1&amp;m+1\\ m&amp;0&amp;
 \end{align*}
 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1183">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1111">
 <b>Geval 1: \(m\neq 0\) en \(m\neq -\frac {1}{3}\).</b> 
 </p>
-<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1184"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1112"> \(\seteqnumber{0}{}{0}\)</span>
 
 <!--
 
@@ -3985,7 +3844,7 @@ A_b&amp;=\left (\begin{array}{ccc|c}\spil {2}&amp;1&amp;1&amp;m+1\\ m&amp;0&amp;
 
 -->
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1184">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1112">
 
 \begin{align*}
 A_b&amp;\sim \rijop {\\ \op {R_2\leftarrow R_2/(-m)}\vphantom {\spil {0}}\\ } \left (\begin{array}{ccc|c}2&amp;1&amp;1&amp;m+1\\ 0&amp;\spil {1}&amp;-3&amp;m+3\\
@@ -3996,55 +3855,55 @@ A_b&amp;\sim \rijop {\\ \op {R_2\leftarrow R_2/(-m)}\vphantom {\spil {0}}\\ } \l
 \end{align*}
 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1196">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1124">
 \[ V=\{(1;m;-1)\} \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1200">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1128">
 <b>Geval 2: \(m=0\).</b> Vul in in \((*)\): 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1201">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1129">
 \[ A_b\sim \left (\begin {array}{rrr|r}2&amp;1&amp;1&amp;1\\ 0&amp;0&amp;0&amp;0\\ 0&amp;-1&amp;1&amp;-1\end {array}\right ) \iff \begin {cases}2x+y+z=1\\ -y+z=-1\\ z=t\in \R \end {cases} \iff
 \begin {cases}x=-t\\ y=1+t\\ z=t\in \R \end {cases} \]
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1208">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1136">
 \[ V=\{(-t;1+t;t)\mid t\in \R \} \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1212">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1140">
 <b>Geval 3: \(m=-\frac {1}{3}\).</b> In \((**)\) wordt de laatste rij een nulrij. Met \(R_1\leftarrow R_1/2\): 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1214">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1142">
 \[ A_b\sim \left (\begin {array}{rrr|r}1&amp;0&amp;2&amp;-1\\ 0&amp;1&amp;-3&amp;\frac {8}{3}\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \iff \begin {cases}x=-1-2t\\ y=\dfrac {8}{3}+3t\\ z=t\in
 \R \end {cases} \]
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1219">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1147">
 \[ V=\Bigl \{\Bigl (-1-2t;\frac {8}{3}+3t;t\Bigr )\Bigm | t\in \R \Bigr \} \]
 </p>
 </div>
 
 
 </li>
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1224">
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1152">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1224">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1224">(d)</span> \(\begin {cases}ax+y+2z=0\\ x+2y+z=b\\ 2x+y+az=0\end {cases}\) 
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1152">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1152">(d)</span> \(\begin {cases}ax+y+2z=0\\ x+2y+z=b\\ 2x+y+az=0\end {cases}\) 
 </p>
-<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1226">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1226">
-<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1226">\(a\neq -1,2\): \(V=\bigl \{\bigl (\frac {-b}{2(a+1)};\frac {b(a+2)}{2(a+1)};\frac {-b}{2(a+1)}\bigr
+<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1154">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1154">
+<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1154">\(a\neq -1,2\): \(V=\bigl \{\bigl (\frac {-b}{2(a+1)};\frac {b(a+2)}{2(a+1)};\frac {-b}{2(a+1)}\bigr
 )\bigr \}\); \(a=2\): \(V=\bigl \{\bigl (-\frac {b}{3}-t;\frac {2b}{3};t\bigr )\mid t\in \R \bigr \}\); \(a=-1\) en \(b\neq 0\): \(V=\emptyset \); \(a=-1\) en \(b=0\): \(V=\{(t;-t;t)\mid t\in \R
 \}\)</span> 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1227">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1155">
 \[ \det A=\begin {vmatrix}a&amp;1&amp;2\\ 1&amp;2&amp;1\\ 2&amp;1&amp;a\end {vmatrix} =2a^2+2+2-8-a-a=2a^2-2a-4 \]
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1231">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1159">
 \[ \det A=0\iff a^2-a-2=0\iff (a+1)(a-2)=0\iff a=-1\text { of }a=2 \]
 </p>
 
-<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1234"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1162"> \(\seteqnumber{0}{}{0}\)</span>
 
 <!--
 
@@ -4069,7 +3928,7 @@ A_b&amp;\sim \rijop {\\ \op {R_2\leftarrow R_2/(-m)}\vphantom {\spil {0}}\\ } \l
 
 -->
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1234">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1162">
 
 \begin{align*}
 A_b&amp;=\left (\begin{array}{ccc|c}a&amp;1&amp;2&amp;0\\ 1&amp;2&amp;1&amp;b\\ 2&amp;1&amp;a&amp;0\end {array}\right ) \sim \rijop {\op {R_1\leftrightarrow R_2}\vphantom {\spil {0}}\\ \\ }
@@ -4079,12 +3938,12 @@ R_3}\vphantom {\spil {0}}\\ } \left (\begin{array}{ccc|c}1&amp;2&amp;1&amp;b\\ 0
 {R_1\leftarrow 3R_1+2R_2}\\ \\ \op {R_3\leftarrow 3R_3+(1-2a)R_2}} \left (\begin{array}{ccc|c}3&amp;0&amp;2a-1&amp;-b\\ 0&amp;-3&amp;a-2&amp;-2b\\ 0&amp;0&amp;-2(a+1)(a-2)&amp;b(a-2)\end
 {array}\right ) \quad (*)
 \end{align*}
-<span class="aside" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1248">In de laatste rij staat \(-2a^2+2a+4=-2(a+1)(a-2)\) en \(ab-2b=b(a-2)\).</span>
+<span class="aside" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1176">In de laatste rij staat \(-2a^2+2a+4=-2(a+1)(a-2)\) en \(ab-2b=b(a-2)\).</span>
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1250">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1178">
 <b>Geval 1: \(a\neq -1\) en \(a\neq 2\).</b> 
 </p>
-<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1251"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1179"> \(\seteqnumber{0}{}{0}\)</span>
 
 <!--
 
@@ -4102,7 +3961,7 @@ R_3}\vphantom {\spil {0}}\\ } \left (\begin{array}{ccc|c}1&amp;2&amp;1&amp;b\\ 0
 
 -->
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1251">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1179">
 
 \begin{align*}
 A_b&amp;\sim \rijop {\\ \\ \op {R_3\leftarrow R_3/(a-2)}\vphantom {\spil {0}}} \left (\begin{array}{ccc|c}3&amp;0&amp;2a-1&amp;-b\\ 0&amp;-3&amp;a-2&amp;-2b\\ 0&amp;0&amp;\spil
@@ -4111,44 +3970,44 @@ A_b&amp;\sim \rijop {\\ \\ \op {R_3\leftarrow R_3/(a-2)}\vphantom {\spil {0}}} \
 \end{align*}
 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1257">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1185">
 \[ \begin {cases} x=\dfrac {-3b}{6(a+1)}=\dfrac {-b}{2(a+1)}\\[12pt] y=\dfrac {-3b(a+2)}{-6(a+1)}=\dfrac {b(a+2)}{2(a+1)}\\[12pt] z=\dfrac {b}{-2(a+1)}=\dfrac {-b}{2(a+1)} \end {cases} \qquad
 V=\Bigl \{\Bigl (\frac {-b}{2(a+1)};\frac {b(a+2)}{2(a+1)};\frac {-b}{2(a+1)}\Bigr )\Bigr \} \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1267">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1195">
 <b>Geval 2: \(a=2\).</b> Vul in in \((*)\): 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1268">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1196">
 \[ A_b\sim \left (\begin {array}{rrr|r}3&amp;0&amp;3&amp;-b\\ 0&amp;-3&amp;0&amp;-2b\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \Rightarrow \begin {cases}x=-\dfrac {b}{3}-t\\[6pt] y=\dfrac
 {2b}{3}\\[6pt] z=t\in \R \end {cases} \qquad V=\Bigl \{\Bigl (-\frac {b}{3}-t;\frac {2b}{3};t\Bigr )\Bigm | t\in \R \Bigr \} \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1276">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1204">
 <b>Geval 3: \(a=-1\).</b> Vul in in \((*)\): 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1277">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1205">
 \[ A_b\sim \left (\begin {array}{rrr|r}3&amp;0&amp;-3&amp;-b\\ 0&amp;-3&amp;-3&amp;-2b\\ 0&amp;0&amp;0&amp;-3b\end {array}\right ) \]
 </p>
 
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1281">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1281">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1281">•</span> Geval 3.1: \(b\neq 0\). Dan is \(V=\emptyset \). 
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1209">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1209">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1209">•</span> Geval 3.1: \(b\neq 0\). Dan is \(V=\emptyset \). 
 </p>
 
 </li>
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1282">
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1210">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1282">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1282">•</span> Geval 3.2: \(b=0\). 
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1210">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1210">•</span> Geval 3.2: \(b=0\). 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1283">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1211">
 \[ A_b\sim \left (\begin {array}{rrr|r}3&amp;0&amp;-3&amp;0\\ 0&amp;-3&amp;-3&amp;0\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \sim \rijop {\op {R_1\leftarrow R_1/3}\\ \op {R_2\leftarrow
 R_2/(-3)}\\ } \left (\begin {array}{rrr|r}1&amp;0&amp;-1&amp;0\\ 0&amp;1&amp;1&amp;0\\ 0&amp;0&amp;0&amp;0\end {array}\right ) \]
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1288">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1216">
 \[ \begin {cases}x=t\\ y=-t\\ z=t\in \R \end {cases} \qquad V=\{(t;-t;t)\mid t\in \R \} \]
 </p>
 
@@ -4164,39 +4023,39 @@ R_2/(-3)}\\ } \left (\begin {array}{rrr|r}1&amp;0&amp;-1&amp;0\\ 0&amp;1&amp;1&a
 <!--
 ...... section Coexistentievoorwaarde * ......
 -->
-<h4 id="autosec-68" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1299"><span class="sectionnumber" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1299">IX&#x2003;</span>Coëxistentievoorwaarde *</h4>
-<a id="mkpiweb-autopage-68"></a>
+<h4 id="autosec-63" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1227"><span class="sectionnumber" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1227">IX&#x2003;</span>Coëxistentievoorwaarde *</h4>
+<a id="mkpiweb-autopage-63"></a>
 
 
 
 <!--
 ...... subsection Coexistentievoorwaarde van een -stelsel ......
 -->
-<h5 id="autosec-69" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1301"><span class="sectionnumber" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1301">1&#x2003;</span>Coëxistentievoorwaarde van een \(m\times n\)-stelsel</h5>
-<a id="mkpiweb-autopage-69"></a>
+<h5 id="autosec-64" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1229"><span class="sectionnumber" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1229">1&#x2003;</span>Coëxistentievoorwaarde van een \(m\times n\)-stelsel</h5>
+<a id="mkpiweb-autopage-64"></a>
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1303">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1231">
 De <b>coëxistentievoorwaarde</b> is de voorwaarde opdat het stelsel een oplossing zou hebben: 
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1305">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1233">
 \[ \boxed {\;r(A)=r(A_b)\;} \]
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1309">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1309"></span>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1237">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1237"></span>
 </p>
 <!--
 ...... subsubsection Voorbeeld ......
 -->
-<h6 id="autosec-70" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1309">Voorbeeld</h6>
-<a id="mkpiweb-autopage-70"></a>
+<h6 id="autosec-65" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1237">Voorbeeld</h6>
+<a id="mkpiweb-autopage-65"></a>
 
 
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1311">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1239">
 \[ \begin {cases}-x+3y+2z=2\\ 2x-2y+az=3\\ x+y+z=a\end {cases} \qquad \det A=\begin {vmatrix}-1&amp;3&amp;2\\ 2&amp;-2&amp;a\\ 1&amp;1&amp;1\end {vmatrix} =2+3a+4+4+a-6=4+4a=4(1+a) \]
 </p>
 
@@ -4204,26 +4063,26 @@ De <b>coëxistentievoorwaarde</b> is de voorwaarde opdat het stelsel een oplossi
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1318">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1318">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1318">•</span> Is \(a\neq -1\), dan is \(r(A)=3\), dus \(r(A)=r(A_b)=3\): er zijn oplossingen. 
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1246">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1246">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1246">•</span> Is \(a\neq -1\), dan is \(r(A)=3\), dus \(r(A)=r(A_b)=3\): er zijn oplossingen. 
 </p>
 
 </li>
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1320">
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1248">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1320">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1320">•</span> Is \(a=-1\), dan is \(r(A)&lt;3\). Maar bijvoorbeeld <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1321">\(\begin {vmatrix}-1&amp;3\\ 2&amp;-2\end
-{vmatrix}=-4\neq 0\)</span>, dus <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1321">\(r(A)=2\)</span>.
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1248">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1248">•</span> Is \(a=-1\), dan is \(r(A)&lt;3\). Maar bijvoorbeeld <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1249">\(\begin {vmatrix}-1&amp;3\\ 2&amp;-2\end
+{vmatrix}=-4\neq 0\)</span>, dus <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1249">\(r(A)=2\)</span>.
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1323">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1251">
 En \(r(A_b)\)? Dat is het aantal niet-nulrijen in de rij-canonieke matrix: 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1324">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1252">
 \[ A_b=\left (\begin {array}{rrr|r}-1&amp;3&amp;2&amp;2\\ 2&amp;-2&amp;-1&amp;3\\ 1&amp;1&amp;1&amp;-1\end {array}\right ) \overset {\text {rref}}{\sim } \left (\begin
 {array}{rrr|r}1&amp;0&amp;\frac {1}{4}&amp;0\\ 0&amp;1&amp;\frac {3}{4}&amp;0\\ 0&amp;0&amp;0&amp;1\end {array}\right ) \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1329">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1257">
 Dus \(r(A_b)=3\neq r(A)\): geen oplossingen.
 </p>
 </li>
@@ -4235,133 +4094,133 @@ Dus \(r(A_b)=3\neq r(A)\): geen oplossingen.
 -->
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1332">
-<span class="paragraph" id="autosec-71" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1332">Besluit.</span>
-<a id="mkpiweb-autopage-71"></a>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1260">
+<span class="paragraph" id="autosec-66" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1260">Besluit.</span>
+<a id="mkpiweb-autopage-66"></a>
 Het stelsel is oplosbaar als \(a\neq -1\). Dat is de coëxistentievoorwaarde.
 </p>
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1335">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1335"></span>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1263">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1263"></span>
 </p>
 <!--
 ...... subsubsection Oefeningen ......
 -->
-<h6 id="autosec-72" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1335">Oefeningen</h6>
-<a id="mkpiweb-autopage-72"></a>
+<h6 id="autosec-67" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1263">Oefeningen</h6>
+<a id="mkpiweb-autopage-67"></a>
 
 
 
 
 
 
-<div class="cursus-oefening" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1338">
+<div class="cursus-oefening" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1266">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1338">
-<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1338"></span>
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1266">
+<span class="cursus-subtitel-op-slide" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1266"></span>
 </p>
 <!--
-...... subsubsection Oefening 9 ......
+...... subsubsection Oefening 6 ......
 -->
-<h6 id="autosec-73" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1338">Oefening 9</h6>
-<a id="mkpiweb-autopage-73"></a>
+<h6 id="autosec-68" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1266">Oefening 6</h6>
+<a id="mkpiweb-autopage-68"></a>
 
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1339">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1267">
 Bepaal de coëxistentievoorwaarde. 
 </p>
 <ul class="enumerate" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1341">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1341">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1341">(a)</span> \(\begin {cases}x-ay=4\\ 2x+(a-3)y=6\end {cases}\) 
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1269">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1269">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1269">(a)</span> \(\begin {cases}x-ay=4\\ 2x+(a-3)y=6\end {cases}\) 
 </p>
-<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1343">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1343">
-<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1343">\(a\neq 1\)</span> 
+<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1271">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1271">
+<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1271">\(a\neq 1\)</span> 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1344">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1272">
 \[ \det A=\begin {vmatrix}1&amp;-a\\ 2&amp;a-3\end {vmatrix}=3(a-1) \]
 </p>
 
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1348">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1348">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1348">•</span> \(a\neq 1\): \(r(A)=2=r(A_b)\), dus er zijn oplossingen. 
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1276">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1276">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1276">•</span> \(a\neq 1\): \(r(A)=2=r(A_b)\), dus er zijn oplossingen. 
 </p>
 
 </li>
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1349">
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1277">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1349">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1349">•</span> \(a=1\): <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1350">\(A_b\overset {\text {rref}}{\sim }\left (\begin {array}{rr|r}1&amp;-1&amp;0\\
-0&amp;0&amp;1\end {array}\right )\)</span>, dus <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1351">\(r(A_b)=2\neq r(A)=1\)</span>: geen oplossingen.
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1277">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1277">•</span> \(a=1\): <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1278">\(A_b\overset {\text {rref}}{\sim }\left (\begin {array}{rr|r}1&amp;-1&amp;0\\
+0&amp;0&amp;1\end {array}\right )\)</span>, dus <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1279">\(r(A_b)=2\neq r(A)=1\)</span>: geen oplossingen.
 </p>
 </li>
 </ul>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1353">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1281">
 Coëxistentievoorwaarde: \(a\neq 1\).
 </p>
 </div>
 
 
 </li>
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1356">
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1284">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1356">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1356">(b)</span> \(\begin {cases}3x+ay=5\\ x+2y=a\end {cases}\) 
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1284">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1284">(b)</span> \(\begin {cases}3x+ay=5\\ x+2y=a\end {cases}\) 
 </p>
-<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1358">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1358">
-<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1358">\(a\neq 6\)</span> 
+<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1286">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1286">
+<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1286">\(a\neq 6\)</span> 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1359">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1287">
 \[ \det A=\begin {vmatrix}3&amp;a\\ 1&amp;2\end {vmatrix}=6-a \]
 </p>
 
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1363">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1363">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1363">•</span> \(a\neq 6\): \(r(A)=r(A_b)=2\), dus er zijn oplossingen. 
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1291">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1291">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1291">•</span> \(a\neq 6\): \(r(A)=r(A_b)=2\), dus er zijn oplossingen. 
 </p>
 
 </li>
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1364">
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1292">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1364">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1364">•</span> \(a=6\): <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1365">\(A_b\overset {\text {rref}}{\sim }\left (\begin {array}{rr|r}1&amp;2&amp;0\\
-0&amp;0&amp;1\end {array}\right )\)</span>, dus <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1366">\(r(A_b)=2\neq r(A)=1\)</span>: geen oplossingen.
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1292">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1292">•</span> \(a=6\): <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1293">\(A_b\overset {\text {rref}}{\sim }\left (\begin {array}{rr|r}1&amp;2&amp;0\\
+0&amp;0&amp;1\end {array}\right )\)</span>, dus <span data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1294">\(r(A_b)=2\neq r(A)=1\)</span>: geen oplossingen.
 </p>
 </li>
 </ul>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1368">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1296">
 Coëxistentievoorwaarde: \(a\neq 6\).
 </p>
 </div>
 
 
 </li>
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1371">
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1299">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1371">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1371">(c)</span> \(\begin {cases}2x-ay-z=-1\\ x-2ay+z=a\\ x+ay-2z=1\end {cases}\) 
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1299">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1299">(c)</span> \(\begin {cases}2x-ay-z=-1\\ x-2ay+z=a\\ x+ay-2z=1\end {cases}\) 
 </p>
-<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1373">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1373">
-<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1373">\(a=-2\)</span> 
+<div class="oplossing" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1301">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1301">
+<span class="oplantwoord" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1301">\(a=-2\)</span> 
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1374">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1302">
 \[ \det A=\begin {vmatrix}2&amp;-a&amp;-1\\ 1&amp;-2a&amp;1\\ 1&amp;a&amp;-2\end {vmatrix} =8a-a-a-2a-2a-2a=0 \qquad \Rightarrow \qquad r(A)&lt;3 \]
 </p>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1379">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1307">
 Maar \(\begin {vmatrix}2&amp;-1\\ 1&amp;-2\end {vmatrix}=-4+1=-3\neq 0\), dus \(r(A)=2\). 
 </p>
-<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1380"> \(\seteqnumber{0}{}{0}\)</span>
+<span class="hidden" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1308"> \(\seteqnumber{0}{}{0}\)</span>
 
 <!--
 
@@ -4376,32 +4235,32 @@ Maar \(\begin {vmatrix}2&amp;-1\\ 1&amp;-2\end {vmatrix}=-4+1=-3\neq 0\), dus \(
 
 -->
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1380">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1308">
 
 \begin{align*}
 A_b&amp;=\left (\begin{array}{ccc|c}\spil {2}&amp;-a&amp;-1&amp;-1\\ 1&amp;-2a&amp;1&amp;a\\ 1&amp;a&amp;-2&amp;1\end {array}\right ) \sim \rijop {\vphantom {\spil {0}}\\ \op {R_2\leftarrow
 2R_2-R_1}\\ \op {R_3\leftarrow 2R_3-R_1}} \left (\begin{array}{ccc|c}2&amp;-a&amp;-1&amp;-1\\ 0&amp;-3a&amp;3&amp;2a+1\\ 0&amp;3a&amp;-3&amp;3\end {array}\right ) \\ &amp;\sim \rijop {\\ \\
 \op {R_3\leftarrow R_3+R_2}} \left (\begin{array}{ccc|c}2&amp;-a&amp;-1&amp;-1\\ 0&amp;-3a&amp;3&amp;2a+1\\ 0&amp;0&amp;0&amp;2a+4\end {array}\right )
 \end{align*}
-<span class="aside" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1388">We delen hier niet door \(-3a\): die spil hebben we niet nodig, en ze kan nul zijn.</span> 
+<span class="aside" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1316">We delen hier niet door \(-3a\): die spil hebben we niet nodig, en ze kan nul zijn.</span> 
 </p>
 <ul class="itemize" style="list-style-type:none">
 
 
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1391">
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1391">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1391">•</span> \(r(A_b)=3\) als \(a\neq -2\): geen oplossingen. 
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1319">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1319">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1319">•</span> \(r(A_b)=3\) als \(a\neq -2\): geen oplossingen. 
 </p>
 
 </li>
-<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1392">
+<li data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1320">
 
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1392">
-<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1392">•</span> \(r(A_b)=2\) als \(a=-2\): dan is \(r(A)=r(A_b)\), dus er zijn oplossingen.
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1320">
+<span class="listmarker" data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1320">•</span> \(r(A_b)=2\) als \(a=-2\): dan is \(r(A)=r(A_b)\), dus er zijn oplossingen.
 </p>
 </li>
 </ul>
-<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1394">
+<p data-mkpi-bestand="L04_Stelsels.tex" data-mkpi-regel="1322">
 Coëxistentievoorwaarde: \(a=-2\).
 </p>
 </div>
@@ -4416,16 +4275,17 @@ Coëxistentievoorwaarde: \(a=-2\).
 </main>
 
 </div><!-- grid -->
-<script src="vensters.js?v=4fdb4e48c385"></script>
-<script src="presentatie.js?v=4fdb4e48c385"></script>
-<script src="statistieken.js?v=4fdb4e48c385"></script>
-<script src="vendor/jsxgraphcore.js?v=4fdb4e48c385"></script>
-<script src="interactieve-grafieken.js?v=4fdb4e48c385"></script>
-<script src="matrixbord.js?v=4fdb4e48c385"></script>
-<script src="hoofdstuk.interactief.js?v=4fdb4e48c385"></script>
-<script src="grm-toetsen.js?v=4fdb4e48c385"></script>
-<script src="grm-demo.js?v=4fdb4e48c385"></script>
-<script src="stelselcas.js?v=4fdb4e48c385"></script>
-<script src="stelselrekenmachine.js?v=4fdb4e48c385"></script>
+<script src="vensters.js?v=a3106b24faaa"></script>
+<script src="asyfiguren.js?v=a3106b24faaa"></script>
+<script src="presentatie.js?v=a3106b24faaa"></script>
+<script src="statistieken.js?v=a3106b24faaa"></script>
+<script src="vendor/jsxgraphcore.js?v=a3106b24faaa"></script>
+<script src="interactieve-grafieken.js?v=a3106b24faaa"></script>
+<script src="matrixbord.js?v=a3106b24faaa"></script>
+<script src="hoofdstuk.interactief.js?v=a3106b24faaa"></script>
+<script src="grm-toetsen.js?v=a3106b24faaa"></script>
+<script src="grm-demo.js?v=a3106b24faaa"></script>
+<script src="stelselcas.js?v=a3106b24faaa"></script>
+<script src="stelselrekenmachine.js?v=a3106b24faaa"></script>
 </body>
 </html>

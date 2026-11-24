@@ -7,124 +7,6 @@
  * met .slide, .pres- of .oplossing te maken heeft, hoort dus bij die laag.
  */
 
-/* De hele opmaak rekent met deze namen, zodat dag- en nachtstand enkel een
- * andere lijst kleuren zijn. presentatie.js zet daarvoor data-thema op <html>,
- * altijd expliciet "licht" of "donker": zonder script staat er niets op de
- * site, dus hoeft de dagstand hier niet ook nog eens los te staan. */
-:root,
-:root[data-thema="licht"] {
-  --kleur-tekst: #1c2530;
-  --kleur-zwak: #64748b;
-  --kleur-schrap: #a3afbf; /* schrapstreep van \cancel, zoals cursusschrap in de PDF. */
-  --kleur-lijn: #dde3ea;
-  --kleur-vlak: #ffffff;
-  --kleur-vlak-zweef: rgba(255, 255, 255, .88);
-  --kleur-achtergrond: #eef1f5;
-  --kleur-accent: #1d5fa8;
-  --kleur-accent-zacht: #e8f0fa;
-  --kleur-truc: #0000ff; /* \truc, zoals blue in de PDF. */
-  --kleur-optioneel: #46505e; /* [optioneel]: lichter dan de tekst, donkerder dan een aside. */
-  --kleur-optioneel-kop: #5582bb;
-  --kleur-actieve-regel: rgba(232, 240, 250, .68);
-  --kleur-selectie: #9fc3ea;
-  --kleur-zelfcontrole: #4d8fcb;
-  --kleur-op-accent: #ffffff;
-  --kleur-qr-achtergrond: #ffffff; /* QR-codes blijven zwart op wit, ook in nachtstand. */
-  --kleur-goed: #27823b;
-  --kleur-fout: #c43535;
-  --kleur-traceback: #7f1d1d;
-  --kleur-oplossing: #fafcfa;
-  --kleur-oplossing-rand: #d6e4d6;
-  --kleur-oplossing-streep: #f7faf7;
-  --kleur-oplossing-tekst: #3d6b3d;
-  --kleur-figuur: rgba(255, 255, 255, .4);
-  --kleur-figuur-rand: #e9edf2;
-  --kleur-sluier: rgba(20, 28, 38, .45);
-  --schaduw: rgba(0, 0, 0, .18);
-  --figuur-filter: none;
-  --figuur-mengmodus: multiply;
-  --grm-donker: #ecedef;
-  --grm-donker-rand: #9aa0a6;
-  --grm-donker-tekst: #1b1d20;
-  --grm-licht: #ecedef;
-  --grm-licht-rand: #9aa0a6;
-  --grm-licht-tekst: #1b1d20;
-  --grm-bovenrij: #d3d6da;
-  --grm-tweede: #3c9ad6;
-  --grm-tweede-label: #1c78b8;
-  --grm-alfa: #57ae45;
-  --grm-alfa-label: #3a8a2c;
-  --grm-scherm: #ffffff;
-  --grm-scherm-rand: #3a3f45;
-  --grm-scherm-tekst: #1b1d20;
-  --grm-scherm-lijn: #8a9097;
-  --grm-status: #e4e6e9;
-  --grm-status-tekst: #5a6068;
-  --grm-selectie: #2b2f35;
-  --grm-selectie-tekst: #ffffff;
-  --balk: 3.25rem;
-  --zijbalk: 20rem;
-  --straal: 10px;
-}
-
-/* Nachtstand. De accentkleur gaat lichter dan overdag, want ze staat nu op
- * een donker vlak; het groen van de oplossingen blijft herkenbaar maar
- * gedempt, zodat een open oplossing niet oplicht in een donkere klas.
- *
- * Enkel voor het scherm: wie de slides afdrukt, wil geen zwarte bladen, dus
- * valt de printbeurt vanzelf op de lijst hierboven terug. */
-@media screen {
-  :root[data-thema="donker"] {
-    --kleur-tekst: #dde5ee;
-    --kleur-zwak: #93a3b6;
-    --kleur-schrap: #56657a;
-    --kleur-lijn: #2b3745;
-    --kleur-vlak: #182029;
-    --kleur-vlak-zweef: rgba(24, 32, 41, .9);
-    --kleur-achtergrond: #0e141a;
-    --kleur-accent: #7ab4f0;
-    --kleur-accent-zacht: #1d2c3c;
-    --kleur-truc: #7ab4f0;
-    --kleur-optioneel: #b3bfcc;
-    --kleur-optioneel-kop: #5f93c9;
-    --kleur-actieve-regel: rgba(29, 44, 60, .68);
-    --kleur-selectie: #365b80;
-    --kleur-zelfcontrole: #91c5f5;
-    --kleur-op-accent: #0e141a;
-    --kleur-goed: #70c982;
-    --kleur-fout: #f08080;
-    --kleur-traceback: #cc6666;
-    --kleur-oplossing: #1a2822;
-    --kleur-oplossing-rand: #30483a;
-    --kleur-oplossing-streep: #1d2c23;
-    --kleur-oplossing-tekst: #9ccba6;
-    --kleur-figuur: rgba(255, 255, 255, .02);
-    --kleur-figuur-rand: #26313d;
-    --kleur-sluier: rgba(4, 8, 12, .6);
-    --schaduw: rgba(0, 0, 0, .55);
-    --figuur-filter: invert(1) hue-rotate(180deg);
-    --figuur-mengmodus: screen;
-    /* Donkere toetsen krijgen een zichtbare rand in de nachtstand.
-     * Het scherm van het toestel is gedempt wit. */
-    --grm-donker: #2e3238;
-    --grm-donker-tekst: #ffffff;
-    --grm-donker-rand: #5b636d;
-    --grm-licht: #d9dcdf;
-    --grm-bovenrij: #c3c7cc;
-    --grm-tweede-label: #6db8ea;
-    --grm-alfa-label: #86cf73;
-    --grm-scherm: #dfe3e7;
-    --grm-scherm-rand: #56606b;
-    --grm-status: #c9ced3;
-    --grm-status-tekst: #4a5058;
-  }
-}
-
-/* De browser mag zijn eigen onderdelen mee omkleuren: schuifbalken, het
- * kruisje in het zoekveld, de rand rond een focus. */
-:root[data-thema="licht"] { color-scheme: light; }
-:root[data-thema="donker"] { color-scheme: dark; }
-
 html {
   box-sizing: border-box;
   font-size: calc(17px * var(--pres-zoom, 1));
@@ -1993,207 +1875,6 @@ pre.latexinvoer .tex-commando { color: var(--kleur-accent); }
 pre.latexcode .tex-commentaar,
 pre.latexinvoer .tex-commentaar { color: var(--kleur-zwak); font-style: italic; }
 
-/* --- Rekentoestel (grm.sty) --------------------------------------------- */
-
-/* Toetsen, menu's en schermen van de TI-84. De soort van een toets
- * (grm-donker, grm-licht, ...) komt uit de toetsentabel van grm.sty. */
-kbd.grm-toets {
-  display: inline-block;
-  min-width: 2.1em;
-  margin: 0 .08em;
-  padding: .08em .4em;
-  border: 1px solid;
-  border-radius: .3em;
-  box-shadow: 0 1px 0 var(--schaduw);
-  font-family: inherit;
-  font-size: .8em;
-  font-weight: 600;
-  line-height: 1.3;
-  text-align: center;
-  white-space: nowrap;
-}
-
-.grm-donker,
-.grm-pijl {
-  background: var(--grm-donker);
-  border-color: var(--grm-donker-rand);
-  color: var(--grm-donker-tekst);
-}
-
-.grm-licht {
-  background: var(--grm-licht);
-  border-color: var(--grm-licht-rand);
-  color: var(--grm-licht-tekst);
-}
-
-.grm-bovenrij {
-  background: var(--grm-bovenrij);
-  border-color: var(--grm-licht-rand);
-  color: var(--grm-licht-tekst);
-}
-
-kbd.grm-bovenrij {
-  border-radius: .15em;
-}
-
-kbd.grm-pijl {
-  min-width: 1.7em;
-  border-radius: .5em;
-}
-
-.grm-tweede {
-  background: var(--grm-tweede);
-  border-color: var(--grm-tweede);
-  color: #ffffff;
-}
-
-.grm-alfa {
-  background: var(--grm-alfa);
-  border-color: var(--grm-alfa);
-  color: #ffffff;
-}
-
-/* 2nd of alpha en de toets erna blijven samen op een regel. */
-.grm-combinatie {
-  white-space: nowrap;
-}
-
-/* Alle toetsvoorbeelden hebben dezelfde compacte Evo-vorm. */
-kbd.grm-evo {
-  box-sizing: border-box;
-  display: inline-block;
-  position: relative;
-  width: 3.4em;
-  height: 1.6em;
-  min-width: 0;
-  padding: .12em .22em;
-  font-size: 1rem;
-  vertical-align: middle;
-  line-height: 1;
-  border-radius: .28em;
-}
-.grm-legendes {
-  position: absolute;
-  top: .12em;
-  left: .22em;
-  right: .22em;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  min-height: .75em;
-  line-height: 1;
-}
-.grm-legende-2nd { color: var(--grm-tweede-label); }
-.grm-legende-alpha { color: var(--grm-alfa-label); }
-.grm-legendes > span { font-size: .5em; opacity: .4; }
-.grm-basistekst { position: absolute; bottom: .15em; left: 0; right: 0; font-size: .72em; opacity: .4; }
-.grm-actief-basis .grm-basistekst { opacity: 1; }
-.grm-actief-2nd .grm-basistekst,
-.grm-actief-alpha .grm-basistekst { font-size: .55em; }
-kbd.grm-evo.grm-tweede,
-kbd.grm-evo.grm-alfa { border-color: var(--grm-licht-rand); }
-.grm-evo.grm-tweede .grm-basistekst,
-.grm-evo.grm-alfa .grm-basistekst {
-  top: 50%;
-  bottom: auto;
-  transform: translateY(-50%);
-  font-size: .9em;
-}
-
-.grm-actief-2nd .grm-legende-2nd,
-.grm-actief-alpha .grm-legende-alpha { font-size: .9em; opacity: 1; }
-
-.grm-schermtekst {
-  display: inline-block;
-  padding: 0 .3em;
-  border: 1px solid var(--grm-scherm-rand);
-  border-radius: 2px;
-  background: var(--grm-scherm);
-  color: var(--grm-scherm-tekst);
-  font-size: .85em;
-  line-height: 1.4;
-  white-space: nowrap;
-}
-
-.grm-tab {
-  padding: 0 .2em;
-}
-
-/* Begint een stukje scherm in de tekst met een markering, dan loopt die tot
- * tegen de rand, zoals op het toestel. */
-.grm-schermtekst > .grm-tab:first-child {
-  margin-left: -.3em;
-  padding-left: .3em;
-}
-
-.grm-tab.grm-actief {
-  background: var(--grm-selectie);
-  color: var(--grm-selectie-tekst);
-}
-
-.grm-scherm {
-  width: 19em;
-  max-width: 100%;
-  margin: 1em auto;
-  border: 5px solid var(--grm-scherm-rand);
-  border-radius: 6px;
-  background: var(--grm-scherm);
-  color: var(--grm-scherm-tekst);
-  font-size: .9em;
-  line-height: 1.45;
-}
-
-.grm-status {
-  padding: .15em .4em;
-  background: var(--grm-status);
-  color: var(--grm-status-tekst);
-  font-size: .62em;
-  letter-spacing: .02em;
-}
-
-.grm-inhoud {
-  padding: .25em .4em;
-}
-
-.grm-rechts {
-  text-align: right;
-}
-
-.grm-tabs {
-  display: flex;
-  gap: .4em;
-}
-
-.grm-lijstregel {
-  margin-top: .15em;
-  border-top: 1px solid var(--grm-scherm-lijn);
-}
-
-/* De lijsteditor: de spleet tussen de cellen laat de achtergrond zien en
- * tekent zo de lijnen tussen de kolommen. */
-.grm-lijsten {
-  display: grid;
-  column-gap: 1px;
-  background: var(--grm-scherm-lijn);
-}
-
-.grm-k1 { grid-template-columns: 1fr; }
-.grm-k2 { grid-template-columns: repeat(2, 1fr); }
-.grm-k3 { grid-template-columns: repeat(3, 1fr); }
-.grm-k4 { grid-template-columns: repeat(4, 1fr); }
-.grm-k5 { grid-template-columns: repeat(5, 1fr); }
-.grm-k6 { grid-template-columns: repeat(6, 1fr); }
-
-.grm-cel {
-  min-height: 1.45em;
-  background: var(--grm-scherm);
-  text-align: center;
-}
-
-.grm-kop {
-  box-shadow: inset 0 -1px var(--grm-scherm-lijn);
-}
-
 /* --- lwarp-restanten temmen -------------------------------------------- */
 
 /* lwarp zet zijn eigen kleuren voor links en kaders; die rekenen allemaal op
@@ -2347,6 +2028,11 @@ mjx-container .undefsign line {
 .slide .multicols {
   column-count: 2;
   column-gap: 2rem;
+}
+
+/* Een vraag en haar oplossing blijven samen in één kolom. */
+.slide .multicols li {
+  break-inside: avoid;
 }
 
 .slide dl.description {
@@ -2650,4 +2336,323 @@ li > p:has(> .listmarker:only-child) + .figuur-bewijs > div > p:first-child > .p
   .figuur-bewijs.tekst-figuur {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* De hele opmaak rekent met deze namen, zodat dag- en nachtstand enkel een
+ * andere lijst kleuren zijn. presentatie.js zet daarvoor data-thema op <html>,
+ * altijd expliciet "licht" of "donker": zonder script staat er niets op de
+ * site, dus hoeft de dagstand hier niet ook nog eens los te staan. */
+:root,
+:root[data-thema="licht"] {
+  --kleur-tekst: #1c2530;
+  --kleur-zwak: #64748b;
+  --kleur-schrap: #a3afbf; /* schrapstreep van \cancel, zoals cursusschrap in de PDF. */
+  --kleur-lijn: #dde3ea;
+  --kleur-vlak: #ffffff;
+  --kleur-vlak-zweef: rgba(255, 255, 255, .88);
+  --kleur-achtergrond: #eef1f5;
+  --kleur-accent: #1d5fa8;
+  --kleur-accent-zacht: #e8f0fa;
+  --kleur-truc: #0000ff; /* \truc, zoals blue in de PDF. */
+  --kleur-optioneel: #46505e; /* [optioneel]: lichter dan de tekst, donkerder dan een aside. */
+  --kleur-optioneel-kop: #5582bb;
+  --kleur-actieve-regel: rgba(232, 240, 250, .68);
+  --kleur-selectie: #9fc3ea;
+  --kleur-zelfcontrole: #4d8fcb;
+  --kleur-op-accent: #ffffff;
+  --kleur-qr-achtergrond: #ffffff; /* QR-codes blijven zwart op wit, ook in nachtstand. */
+  --kleur-goed: #27823b;
+  --kleur-fout: #c43535;
+  --kleur-traceback: #7f1d1d;
+  --kleur-oplossing: #fafcfa;
+  --kleur-oplossing-rand: #d6e4d6;
+  --kleur-oplossing-streep: #f7faf7;
+  --kleur-oplossing-tekst: #3d6b3d;
+  --kleur-figuur: rgba(255, 255, 255, .4);
+  --kleur-figuur-rand: #e9edf2;
+  --kleur-sluier: rgba(20, 28, 38, .45);
+  --schaduw: rgba(0, 0, 0, .18);
+  --figuur-filter: none;
+  --figuur-mengmodus: multiply;
+  --grm-donker: #ecedef;
+  --grm-donker-rand: #9aa0a6;
+  --grm-donker-tekst: #1b1d20;
+  --grm-licht: #ecedef;
+  --grm-licht-rand: #9aa0a6;
+  --grm-licht-tekst: #1b1d20;
+  --grm-bovenrij: #d3d6da;
+  --grm-tweede: #3c9ad6;
+  --grm-tweede-label: #1c78b8;
+  --grm-alfa: #57ae45;
+  --grm-alfa-label: #3a8a2c;
+  --grm-scherm: #ffffff;
+  --grm-scherm-rand: #3a3f45;
+  --grm-scherm-tekst: #1b1d20;
+  --grm-scherm-lijn: #8a9097;
+  --grm-status: #e4e6e9;
+  --grm-status-tekst: #5a6068;
+  --grm-selectie: #2b2f35;
+  --grm-selectie-tekst: #ffffff;
+  --balk: 3.25rem;
+  --zijbalk: 20rem;
+  --straal: 10px;
+}
+
+/* Nachtstand. De accentkleur gaat lichter dan overdag, want ze staat nu op
+ * een donker vlak; het groen van de oplossingen blijft herkenbaar maar
+ * gedempt, zodat een open oplossing niet oplicht in een donkere klas.
+ *
+ * Enkel voor het scherm: wie de slides afdrukt, wil geen zwarte bladen, dus
+ * valt de printbeurt vanzelf op de lijst hierboven terug. */
+@media screen {
+  :root[data-thema="donker"] {
+    --kleur-tekst: #dde5ee;
+    --kleur-zwak: #93a3b6;
+    --kleur-schrap: #56657a;
+    --kleur-lijn: #2b3745;
+    --kleur-vlak: #182029;
+    --kleur-vlak-zweef: rgba(24, 32, 41, .9);
+    --kleur-achtergrond: #0e141a;
+    --kleur-accent: #7ab4f0;
+    --kleur-accent-zacht: #1d2c3c;
+    --kleur-truc: #7ab4f0;
+    --kleur-optioneel: #b3bfcc;
+    --kleur-optioneel-kop: #5f93c9;
+    --kleur-actieve-regel: rgba(29, 44, 60, .68);
+    --kleur-selectie: #365b80;
+    --kleur-zelfcontrole: #91c5f5;
+    --kleur-op-accent: #0e141a;
+    --kleur-goed: #70c982;
+    --kleur-fout: #f08080;
+    --kleur-traceback: #cc6666;
+    --kleur-oplossing: #1a2822;
+    --kleur-oplossing-rand: #30483a;
+    --kleur-oplossing-streep: #1d2c23;
+    --kleur-oplossing-tekst: #9ccba6;
+    --kleur-figuur: rgba(255, 255, 255, .02);
+    --kleur-figuur-rand: #26313d;
+    --kleur-sluier: rgba(4, 8, 12, .6);
+    --schaduw: rgba(0, 0, 0, .55);
+    --figuur-filter: invert(1) hue-rotate(180deg);
+    --figuur-mengmodus: screen;
+    /* Donkere toetsen krijgen een zichtbare rand in de nachtstand.
+     * Het scherm van het toestel is gedempt wit. */
+    --grm-donker: #2e3238;
+    --grm-donker-tekst: #ffffff;
+    --grm-donker-rand: #5b636d;
+    --grm-licht: #d9dcdf;
+    --grm-bovenrij: #c3c7cc;
+    --grm-tweede-label: #6db8ea;
+    --grm-alfa-label: #86cf73;
+    --grm-scherm: #dfe3e7;
+    --grm-scherm-rand: #56606b;
+    --grm-status: #c9ced3;
+    --grm-status-tekst: #4a5058;
+  }
+}
+
+/* De browser mag zijn eigen onderdelen mee omkleuren: schuifbalken, het
+ * kruisje in het zoekveld, de rand rond een focus. */
+:root[data-thema="licht"] { color-scheme: light; }
+:root[data-thema="donker"] { color-scheme: dark; }
+
+/* --- Rekentoestel (grm.sty) --------------------------------------------- */
+
+/* Toetsen, menu's en schermen van de TI-84. De soort van een toets
+ * (grm-donker, grm-licht, ...) komt uit de toetsentabel van grm.sty. */
+kbd.grm-toets {
+  display: inline-block;
+  min-width: 2.1em;
+  margin: 0 .08em;
+  padding: .08em .4em;
+  border: 1px solid;
+  border-radius: .3em;
+  box-shadow: 0 1px 0 var(--schaduw);
+  font-family: inherit;
+  font-size: .8em;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.grm-donker,
+.grm-pijl {
+  background: var(--grm-donker);
+  border-color: var(--grm-donker-rand);
+  color: var(--grm-donker-tekst);
+}
+
+.grm-licht {
+  background: var(--grm-licht);
+  border-color: var(--grm-licht-rand);
+  color: var(--grm-licht-tekst);
+}
+
+.grm-bovenrij {
+  background: var(--grm-bovenrij);
+  border-color: var(--grm-licht-rand);
+  color: var(--grm-licht-tekst);
+}
+
+kbd.grm-bovenrij {
+  border-radius: .15em;
+}
+
+kbd.grm-pijl {
+  min-width: 1.7em;
+  border-radius: .5em;
+}
+
+.grm-tweede {
+  background: var(--grm-tweede);
+  border-color: var(--grm-tweede);
+  color: #ffffff;
+}
+
+.grm-alfa {
+  background: var(--grm-alfa);
+  border-color: var(--grm-alfa);
+  color: #ffffff;
+}
+
+/* 2nd of alpha en de toets erna blijven samen op een regel. */
+.grm-combinatie {
+  white-space: nowrap;
+}
+
+/* Alle toetsvoorbeelden hebben dezelfde compacte Evo-vorm. */
+kbd.grm-evo {
+  box-sizing: border-box;
+  display: inline-block;
+  position: relative;
+  width: 3.4em;
+  height: 1.6em;
+  min-width: 0;
+  padding: .12em .22em;
+  font-size: 1rem;
+  vertical-align: middle;
+  line-height: 1;
+  border-radius: .28em;
+}
+.grm-legendes {
+  position: absolute;
+  top: .12em;
+  left: .22em;
+  right: .22em;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: .75em;
+  line-height: 1;
+}
+.grm-legende-2nd { color: var(--grm-tweede-label); }
+.grm-legende-alpha { color: var(--grm-alfa-label); }
+.grm-legendes > span { font-size: .5em; opacity: .4; }
+.grm-basistekst { position: absolute; bottom: .15em; left: 0; right: 0; font-size: .72em; opacity: .4; }
+.grm-actief-basis .grm-basistekst { opacity: 1; }
+.grm-actief-2nd .grm-basistekst,
+.grm-actief-alpha .grm-basistekst { font-size: .55em; }
+kbd.grm-evo.grm-tweede,
+kbd.grm-evo.grm-alfa { border-color: var(--grm-licht-rand); }
+.grm-evo.grm-tweede .grm-basistekst,
+.grm-evo.grm-alfa .grm-basistekst {
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+  font-size: .9em;
+}
+
+.grm-actief-2nd .grm-legende-2nd,
+.grm-actief-alpha .grm-legende-alpha { font-size: .9em; opacity: 1; }
+
+.grm-schermtekst {
+  display: inline-block;
+  padding: 0 .3em;
+  border: 1px solid var(--grm-scherm-rand);
+  border-radius: 2px;
+  background: var(--grm-scherm);
+  color: var(--grm-scherm-tekst);
+  font-size: .85em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.grm-tab {
+  padding: 0 .2em;
+}
+
+/* Begint een stukje scherm in de tekst met een markering, dan loopt die tot
+ * tegen de rand, zoals op het toestel. */
+.grm-schermtekst > .grm-tab:first-child {
+  margin-left: -.3em;
+  padding-left: .3em;
+}
+
+.grm-tab.grm-actief {
+  background: var(--grm-selectie);
+  color: var(--grm-selectie-tekst);
+}
+
+.grm-scherm {
+  width: 19em;
+  max-width: 100%;
+  margin: 1em auto;
+  border: 5px solid var(--grm-scherm-rand);
+  border-radius: 6px;
+  background: var(--grm-scherm);
+  color: var(--grm-scherm-tekst);
+  font-size: .9em;
+  line-height: 1.45;
+}
+
+.grm-status {
+  padding: .15em .4em;
+  background: var(--grm-status);
+  color: var(--grm-status-tekst);
+  font-size: .62em;
+  letter-spacing: .02em;
+}
+
+.grm-inhoud {
+  padding: .25em .4em;
+}
+
+.grm-rechts {
+  text-align: right;
+}
+
+.grm-tabs {
+  display: flex;
+  gap: .4em;
+}
+
+.grm-lijstregel {
+  margin-top: .15em;
+  border-top: 1px solid var(--grm-scherm-lijn);
+}
+
+/* De lijsteditor: de spleet tussen de cellen laat de achtergrond zien en
+ * tekent zo de lijnen tussen de kolommen. */
+.grm-lijsten {
+  display: grid;
+  column-gap: 1px;
+  background: var(--grm-scherm-lijn);
+}
+
+.grm-k1 { grid-template-columns: 1fr; }
+.grm-k2 { grid-template-columns: repeat(2, 1fr); }
+.grm-k3 { grid-template-columns: repeat(3, 1fr); }
+.grm-k4 { grid-template-columns: repeat(4, 1fr); }
+.grm-k5 { grid-template-columns: repeat(5, 1fr); }
+.grm-k6 { grid-template-columns: repeat(6, 1fr); }
+
+.grm-cel {
+  min-height: 1.45em;
+  background: var(--grm-scherm);
+  text-align: center;
+}
+
+.grm-kop {
+  box-shadow: inset 0 -1px var(--grm-scherm-lijn);
 }
